@@ -2,7 +2,7 @@
 
 ## login
 
-**Des: ** 第一次登陆
+**Des:** 第一次登陆
 
 **URL:** `/login`
 
@@ -14,13 +14,13 @@
 
 ## bind
 
-**Des: **  设置用户的学号、姓名、班级
+**Des:**  设置用户的学号、姓名、班级
 
-**URL: ** `/bind`
+**URL:** `/bind`
 
-**Method: ** POST
+**Method:** POST
 
-**Login?: ** True
+**Login?:** True
 
 **请求参数：** Json Object
 
@@ -30,7 +30,7 @@
 | name  | string | 是   | 姓名                                |
 | clazz | string | 是   | 班级，满足如下正则：`^未央-.+\d\d$` |
 
- **返回值：** Json Object，其中包含属性：
+**返回值：** Json Object，其中包含属性：
 
 | 属性   | 类型   | 说明     |
 | ------ | ------ | -------- |
@@ -57,7 +57,7 @@
 
 > 我们把所有能被预约的东西都称之为 `item` ，包括摄像机、29号楼房间等。
 
-**Des: ** 获取物品预约信息。
+**Des:** 获取物品预约信息。
 
 **URL**： `/itemlist?p=<page>`
 
