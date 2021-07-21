@@ -6,13 +6,28 @@
 
 **URL:** `/login`
 
-其他待定，对微信登陆流程还不是太了解。。
+**Method:** POST
 
-下述接口中如果有要求携带登陆信息(`Login?: True`)的先暂做如下处理：
+**请求参数：** Json Object
 
-​		传到服务器的Cookie中带有：`LOGIN=yes` 字段。
+| 属性 | 类型   | 必填 | 说明                                                         |
+| ---- | ------ | ---- | ------------------------------------------------------------ |
+| code | string | 是   | 小程序调用 wx.login 获取的code，见[微信文档](https://developers.weixin.qq.com/miniprogram/dev/api/open-api/login/wx.login.html#%E5%8F%82%E6%95%B0) |
 
+ **返回值：** Json Object，其中包含：
 
+| 属性      | 类型   | 可否省略    | 说明                                                         |
+| --------- | ------ | ----------- | ------------------------------------------------------------ |
+| code      | int    | 否          | 错误码                                                       |
+| errmsg    | string | 否          | 错误信息                                                     |
+| wx-code   | int    | code == 0时 | 微信接口返回的错误码，见[微信文档中errcode部分](https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/login/auth.code2Session.html) |
+| wx-errmsg | string | code == 0时 | 微信接口返回的错误信息，同上                                 |
+
+**Set-Cookie？：**True
+
+该接口会设置形如`session=xxxxx`的Cookie作为登陆信息，下文调用要求`Login?:True`的接口时，需要把这个Cookie传回给后端。
+
+> 这个cookie包含了flask加密的openid和微信返回的session_key
 
 
 
