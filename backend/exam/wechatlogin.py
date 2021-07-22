@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 WX_APP_ID = 'wx7bfe035eee90419b'
-WX_APP_SECRET = '51ed227eed49319fa6474bc79559dc2f'
+WX_APP_SECRET = '51ed227eed49319fa6474bc79559dc2f' #开发环境中不会做明文储存
 
 @app.route('/wxlogin/', methods=['POST'])
 def wxlogin():
@@ -34,6 +34,7 @@ def wxlogin():
 
         session['wx-session-key'] = resJson["session_key"]
         session['openid'] = resJson["openid"]
+        print(f'openid: {resJson["openid"]}')
         # return {"code": 0, "errmsg": "success", "sk": resJson["session_key"], "id": resJson["openid"]}
         return {"code": 0, "errmsg": "success"}
 
