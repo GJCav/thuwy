@@ -26,7 +26,7 @@ def wxlogin():
         # code 和 errmsg 消息在请求成功时不会出现在json中，但nmd傻逼微信文档里面又是有的
         # https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/login/auth.code2Session.html
 
-        if 'code' in resJson and resJson['code'] != 0:
+        if 'errcode' in resJson and resJson['errcode'] != 0:
             return {"code": 1, "errmsg": "fuck wexin.", "weixin": resJson}
 
 

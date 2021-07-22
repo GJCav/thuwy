@@ -21,6 +21,13 @@ class User(db.Model):
     name          = db.Column(db.Text)
     clazz         = db.Column(db.Text)
 
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    def __init__(self, openid, *args, **kwargs) -> None:
+        self.openid = openid
+        super().__init__(*args, **kwargs)
+
     def __repr__(self) -> str:
         return f'User({self.name}, {self.schoolId}, {self.clazz}, {self.openid})'
 
