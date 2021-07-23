@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, session
 from flask.templating import render_template
 from flask_sqlalchemy import SQLAlchemy
 import os
+import json as Json
 
 import sqlalchemy
 
@@ -32,23 +33,28 @@ def showall():
     # for stu in Student.query.all():
     #     stu: Student
     #     s += str(stu) + '<br/>'
-    for t in db.session.query(Student.city, Student.name).all():
+    for t in Student.query.all():
         s += str(t) + '<br/>'
-        print(t[1])
-    return {
-        'arr': [1, 2, 3, 4]
-    }
+        print(t)
+    return s
 
 @app.route('/addpage/')
 def addstupage():
     return render_template('addstu.html')
 
-@app.route('/add/', methods=['POST'])
+@app.route('/add/', methods=['POST', 'GET'])
 def addstu():
-    s = Student()
-    s.name = request.form['name']
-    s.id = request.form['id']
-    s.city = request.form['city']
+    if request.method == 'POST':
+        s = Student()
+        s.name = request.form['name']
+        s.id = request.form['id']
+        s.city = {'dict': {'arr': [1, 2, 3]}}
+    else:
+        s = Student()
+        s.name = None
+        s.id = '122102'
+        s.city = Json.dumps({'dict': {'arr': [1, 2, 3]}})
+
     
     db.session.add(s)
     db.session.commit()

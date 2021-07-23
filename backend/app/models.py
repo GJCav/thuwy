@@ -1,4 +1,3 @@
-from enum import unique
 from app import db
 from flask_sqlalchemy import SQLAlchemy
 
@@ -63,6 +62,7 @@ class Item(db.Model):
 
 class Reservation(db.Model):
     id       = db.Column(db.Integer, primary_key=True)
+    itemId   = db.Column('item_id', db.Integer)
     guest    = db.Column(db.Text, nullable=False)
     reason   = db.Column(db.Text, nullable=False)
     method   = db.Column(db.Integer, nullable=False)
@@ -72,3 +72,24 @@ class Reservation(db.Model):
     approver = db.Column(db.Text)
     examRst  = db.Column('exam_rst', db.Text)
     chore    = db.Column(db.Text)
+
+
+class RsvMethodLongTimeRsv:
+    methodValue = 1
+    methodMask = 1
+    
+    morningStartHour   = 8
+    morningEndHour     = 12
+    morningCode        = 1
+    afternoonStartHour = 13
+    afternoonEndHour   = 17
+    afternoonCode      = 2
+    nightStartHour     = 17
+    nightEndHour       = 23
+    nightCode          = 3
+
+    weekendCode = 4
+
+class RsvMethodFlexibleTimeRsv:
+    methodValue = 2
+    meghodMask  = 2
