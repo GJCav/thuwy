@@ -5,8 +5,12 @@ import requests.exceptions as RE
 import json as Json
 import functools
 
+from sqlalchemy.sql.functions import count
+
 from .models import *
 from config import WX_APP_ID, WX_APP_SECRET
+from . import comerrs as ErrCode
+from re import match as reMatch
 
 router = Blueprint('router', __name__)
 
@@ -72,4 +76,73 @@ def requireLogin(handler):
 @router.route('/bind/', methods=['POST'])
 @requireLogin
 def bind():
-    pass
+    CODE_BIND_SCHOOLID_EXISTED = {
+        'code': 101,
+        'errmsg': 'school id existed'
+    }
+
+    reqJson: dict = request.get_json()
+    if not reqJson \
+        or 'id' not in reqJson \
+        or not reqJson['id'] \
+        or 'name' not in reqJson \
+        or not reqJson['name'] \
+        or 'clazz' not in reqJson \
+        or not reqJson['clazz']:
+        return ErrCode.CODE_ARG_MESSING
+
+    try:
+        schoolId = str(reqJson['id'])
+        name = str(reqJson['name'])
+        clazz = str(reqJson['clazz'])
+    except:
+        return ErrCode.CODE_ARG_TYPE_ERR
+
+    def match(pat, val):
+        if not reMatch(pat, val):
+            return ErrCode.CODE_ARG_FORMAT_ERR
+    
+    match(r'^\d{10}$', schoolId)
+    match('^\d+$', name)
+    match('^未央-.+\d\d$', clazz)
+    openid = session['openid']
+
+    exist = db.session.query(User.schoolId) \
+        .filter(schoolId=schoolId) \
+        .count() >= 1
+
+    if exist:
+        return CODE_BIND_SCHOOLID_EXISTED
+    
+    User.query \
+        .filter(User.openid == openid) \
+        .update({
+            'schoolId': schoolId,
+            'name': name,
+            'clazz': clazz
+        })
+    db.session.commit()
+
+    return ErrCode.CODE_SUCCESS
+
+
+@router.route('/itemlist/')
+def itemlist():
+    page = request.args.get('p', '1')
+    try:
+        page = int(page)
+    except:
+        return ErrCode.CODE_ARG_TYPE_ERR
+    
+    page -= 1
+    
+    itemCount = db.session.query(Item.id).count()
+    items = Item.query.limit(20).offset(20*page).all()
+    items = [e.toDict() for e in items]
+
+    rst = ErrCode.CODE_SUCCESS.copy()
+    rst.update({
+        'item-count': itemCount,
+        'page': page+1,
+        'items': items
+    })

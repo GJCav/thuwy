@@ -3,6 +3,8 @@ from flask.templating import render_template
 from flask_sqlalchemy import SQLAlchemy
 import os
 
+import sqlalchemy
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.sqlite3'
 app.secret_key = os.urandom(24)
@@ -27,10 +29,15 @@ def hello():
 @app.route('/showall/')
 def showall():
     s = ''
-    for stu in Student.query.all():
-        stu: Student
-        s += str(stu) + '<br/>'
-    return s
+    # for stu in Student.query.all():
+    #     stu: Student
+    #     s += str(stu) + '<br/>'
+    for t in db.session.query(Student.city, Student.name).all():
+        s += str(t) + '<br/>'
+        print(t[1])
+    return {
+        'arr': [1, 2, 3, 4]
+    }
 
 @app.route('/addpage/')
 def addstupage():
