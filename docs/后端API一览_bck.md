@@ -22,7 +22,7 @@
 | errmsg    | string | 否       | 错误信息                                                     |
 | wx-code   | int    | 是       | 微信接口返回的错误码，见[微信文档中errcode部分](https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/login/auth.code2Session.html) |
 | wx-errmsg | string | 是       | 微信接口返回的错误信息，同上                                 |
-| bound     | bool   | 否       | 用户是否已经绑定学号、姓名                                   |
+|           |        |          |                                                              |
 
 **错误码说明** ：
 
@@ -92,7 +92,7 @@
 
 
 
-## item
+## itemlist
 
 > 我们把所有能被预约的东西都称之为 `item` ，包括摄像机、29号楼房间等。
 
@@ -123,11 +123,11 @@
 
 
 
-## GET /reservation/\<item-id>
+## itemrsvinfo
 
 **Des:** 查询某个物品的预约信息。
 
-**URL:** `/reservatioin/item-id`
+**URL:** `/itemrsvinfo`
 
 **Method:** GET
 
@@ -156,7 +156,7 @@
 
 
 
-## POST /reservation
+## reserve
 
 **Des:** 提交一个预约
 
@@ -166,14 +166,14 @@
 
 **Login?:** True，且需要事先绑定姓名学号。
 
-**请求参数** ：Rsv对象，只需包含如下属性，其余省略：
+**请求参数** ：Json Object，属性如下：
 
-* item-id
-* reason
-* method
-* interval
-
-
+| 属性    | 类型   | 必填 | 说明                                 |
+| ------- | ------ | ---- | ------------------------------------ |
+| item-id | int32  | 是   | 要预约的Item的ID                     |
+| rsv-req | Rsv    | 是   | 描述预约时段，                       |
+|         |        |      | 此时省略Rsv对象中的`id`、`state`属性 |
+| reason  | string | 否   | 申请原因                             |
 
 **返回值** ：Json Object，属性如下：
 
@@ -185,11 +185,11 @@
 
 
 
-## reservation/me
+## querymyrsv
 
 **Des:** 查询“我的”所有预约
 
-**URL:** `/reservation/me?st=<start-time>&ed=<end-time>&state=<state>`
+**URL:** `/querymyrsv?st=<start-time>&ed=<end-time>&state=<state>`
 
 **Method:** GET
 
@@ -217,13 +217,13 @@
 
 
 
-## DELETE /reservation/\<rsv-id>
+## cancel
 
 **Des:** 取消一个预约
 
-**URL:** `/reservation`
+**URL:** `/cancel`
 
-**Method:** DELETE
+**Method:** POST
 
 **Login?:** True，且要求绑定
 
@@ -344,8 +344,8 @@ interval 是一个Json Array，其中每一个元素的格式：`yyyy-mm-dd c`
 
    	- 1：上午
       	- 2：下午
-      	- 3：晚上
-      	- 4：周末整体
+   	- 3：晚上
+   	- 4：周末整体
 
    且 c = 4 时，yyyy-mm-dd 日期对应周末两天中的周六日期。
 
@@ -363,7 +363,7 @@ interval 格式：`yyyy-mm-dd HH:MM-HH:MM`
  * HH:MM-HH:MM：预约的开始、结束时间
    	* HH：小时，24小时制，范围 \[0, 23]
       	* MM：分钟，范围 \[0, 59]
-      	* 要求开始时间早于结束时间
+   	* 要求开始时间早于结束时间
 
 
 
@@ -410,3 +410,6 @@ RsvState 是一个 int 对象(具体多少位再说)，每一位对应不同的�
 | 5       | 存在违规行为                         |
 
 注：违规行为相关的API后面再添加吧。<TODO/>
+
+
+
