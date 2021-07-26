@@ -2,10 +2,8 @@
 Page({
   data: {
     equip: '相机',
-    method1:'checkboxChange',
-    method2:'specialChange',
-    specialchecked: false,
     reason: '',
+    list: [],
     calendar: [],
     width: 0,
     currentIndex: 0,
@@ -64,7 +62,6 @@ Page({
     var week = getFirstDayOfWeek(cur_year, cur_month)
     var x = week;
     for (var i = 1; i <= monthLength + 7; i++) {
-      //当循环完一周后，初始化再次循环
       if (x > 6) {
         x = 0;
       }
@@ -72,8 +69,8 @@ Page({
       that.data.calendar[i] = new calendar(i, [weeks_ch[x]][0])
       x++;
     }
-    //限制要渲染的日历数据天数为7天以内（用户体验）
-    var flag = that.data.calendar.splice(cur_date + 1, 7)
+    //限制要渲染的日历数据天数为7天以内
+    var flag = that.data.calendar.splice(cur_date + 1, that.data.calendar[cur_date].week == '星期六' ? 8 : 7)
     that.setData({
       calendar: flag
     })
@@ -85,20 +82,26 @@ Page({
   },
   appoint: function () {
     console.log('选中的索引列表')
-    console.log(this.selectedIdxs || [])
+    console.log(this.selectedIdxs)
+    this.setData({
+      list: []
+    });
+    for (var i = 0; i < this.selectedIdxs.length; i++) {
+      var d = Math.floor(this.selectedIdxs[i] / 10)
+      var m = this.selectedIdxs[i] % 10
+      if (this.data.calendar[d].week == '星期日')
+        d = this.data.calendar[d-1].date
+      else
+        d = this.data.calendar[d].date
+      var addone = [d + ' ' + m]
+      this.setData({
+        'list': this.data.list.concat(addone)
+      });
+    }
+    console.log(this.data.list)
   },
   checkboxChange(e) {
     console.log('checkbox发生change事件，携带value值为：', e.detail.value)
+    this.selectedIdxs = e.detail.value
   },
-  specialChange(e) {
-    console.log('checkbox发生change事件，携带value值为：', e.detail.value)
-    if (e.detail.value!='')
-      this.setData({
-        specialchecked: true
-      })
-    else
-      this.setData({
-        specialchecked: false
-      })
-  }
 })
