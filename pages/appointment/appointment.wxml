@@ -19,7 +19,7 @@
       <van-col span="4" offset="1"><view class="avatar" style='background-image: url(../../image/1.jpg)'></view></van-col>
       <van-col span="8" offset="2">
         <view class='server-name'>相机</view>
-        <view class='server-description'>暂无简介</view>
+        <view class='server-description'>查看详细信息</view>
       </van-col>
       <van-col span="4" offset="3">
         <van-button id="1" type="primary" bind:tap="chooseMe" size="small">预约</van-button>

@@ -4,7 +4,6 @@ const app = getApp()
 
 Page({
   data:{
-    titleInfo:'请如实填写以下信息',
     name:'',
     id:'',
     clz:''

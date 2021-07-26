@@ -1,19 +1,47 @@
-/**index.wxss**/
-.userinfo {
+/* pages/orderTime/index.wxss */
+.infotext {
+  font-size: large;
+  margin-bottom: 30rpx;
+  margin-top: 20rpx;
+  margin-left: 10%;
+}
+
+.save {
+  color: #fff;
+  background-color: rgb(47, 187, 47);
+}
+.title{
+  font-weight: 550;
+  margin-top: 20rpx;
+  margin-left: 15%;
+  color: #333;
+}
+.option{
+  height: 80rpx;
   display: flex;
-  flex-direction: column;
+  margin-top: 5rpx;
+  margin-left: 15%;
+  margin-right: 20%;
+  border: 1px solid #ddd;
+  flex-direction: row;
   align-items: center;
-  color: #aaa;
 }
-
-.userinfo-avatar {
-  overflow: hidden;
-  width: 128rpx;
-  height: 128rpx;
-  margin: 20rpx;
-  border-radius: 50%;
+.optiontext{
+  color: #333;
 }
+  
+.inputbox {
+  background-color: rgba(135, 206, 250, 0.2);
+  border: 2px solid #ddd;
+  margin-bottom: 20rpx;
+  margin-left: 10%;
+  margin-right: 10%;
+  height: 150rpx;
 
-.usermotto {
-  margin-top: 200px;
+}
+.operate {
+  width: 100%;
+  padding: 30rpx 0;
+  background-color: #fff;
+  bottom: 0;
 }

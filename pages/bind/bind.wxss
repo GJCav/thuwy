@@ -1,10 +1,4 @@
 /* pages/bind/bind.wxss */
-.titleCss{
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 .iconCss{
   width: 80rpx; height: 80rpx;
 }

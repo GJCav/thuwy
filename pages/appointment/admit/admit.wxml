@@ -1,23 +1,28 @@
-<!--index.wxml-->
-<view class="container">
-  <view class="userinfo">
-    <block wx:if="{{canIUseOpenData}}">
-      <view class="userinfo-avatar" bindtap="bindViewTap">
-        <open-data type="userAvatarUrl"></open-data>
+<!--pages/orderTime/index.wxml-->
+<view class="titleCss" style="margin: 40rpx">
+  <text class="titletext">——请确认预约信息——</text>
+</view>
+<view class="info">
+  <view class="infotext" style="font-weight: bold">申请预约设备：{{equip}}</view>
+  <view class="infotext" style="font-weight: bold">申请使用时间：</view>
+  <view wx:for="{{ calendar }}" wx:for-item="items" wx:for-index="indexs" data-index="{{ index }}"
+    class='listItem {{index==currentIndex? "current":""}}' wx:key='' data-date="{{ item.date}}">
+    <view class="title">{{ items.week }}（{{ items.date }}）</view>
+    <checkbox-group bindchange="{{items.week!='星期六'&& items.week!='星期日' ? method1:method2}}">
+      <view wx:for="{{items.week!='星期六'&& items.week!='星期日' ? items1:items2}}" wx:key="{{item.value}}">
+        <view class="option">
+          <checkbox style="margin-left:20rpx" value="{{indexs}}{{item.value}}"
+            checked="{{items.week!='星期六'&& items.week!='星期日' ? item.checked:specialchecked}}" />
+          <view class="optiontext">{{item.name}}</view>
+        </view>
       </view>
-      <open-data type="userNickName"></open-data>
-    </block>
-    <block wx:elif="{{!hasUserInfo}}">
-      <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
-      <button wx:elif="{{canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
-      <view wx:else> 请使用1.4.4及以上版本基础库 </view>
-    </block>
-    <block wx:else>
-      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
-    </block>
+    </checkbox-group>
   </view>
-  <view class="usermotto">
-    <text class="user-motto">{{motto}}</text>
+  <view class="infotext" style="font-weight: bold;margin-top:50rpx">申请预约理由：</view>
+  <view>
+    <textarea class="inputbox" placeholder="请简述预约设备用途，不超过120字" bindblur="inputwhy" />
   </view>
+</view>
+<view class='operate'>
+  <button class='save' bindtap="appoint">提交</button>
 </view>
