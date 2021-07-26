@@ -16,10 +16,20 @@ from .models import RsvMethodFlexibleTimeRsv as FlexTimeRsv
 from . import rsvstate as RsvState
 from . import snowflake as Snowflake
 
+from . import ColorConsole as C
+from pprint import pprint
+
 router = Blueprint('router', __name__)
 
 @router.route('/login/', methods=['POST'])
 def login():
+    CODE_LOGIN_NOT_200 = {'code': 201, 'errmsg': 'not 200 response'}
+    CODE_LOGIN_INCOMPLETE_WX_RES = {'code': 202, 'errmsg': 'incomplete wx responce'}
+    CODE_LOGIN_WEIXIN_REJECT = {'code': 203, 'errmsg': 'wx reject svr' } # , 'wx-code': resJson['errcode'], 'wx-errmsg': resJson.get('errmsg', '')}
+    CODE_LOGIN_TIMEOUT = {'code': 102, 'errmsg': 'svr request timeout'}
+    CODE_LOGIN_CNT_ERROR = {'code': 103, 'errmsg': 'svr cnt err'}
+    CODE_LOGIN_UNKOWN = {'code': 200, 'errmsg': 'unknown error, foolish gjm didn\'t cosider this case..'}
+
     data: dict = request.get_json()
     if not data or not data.get('code', None):
         return ErrCode.CODE_ARG_MESSING
@@ -30,42 +40,54 @@ def login():
             + f"js_code={data['code']}&grant_type=authorization_code", timeout=5)
     
         if res.status_code != 200:
-            return {'code': 201, 'errmsg': 'not 200 response'}
+            return CODE_LOGIN_NOT_200
 
         resJson: dict = Json.loads(res.text)
-        if 'errcode' not in resJson \
-            or 'openid' not in resJson \
+        if  'openid' not in resJson \
             or not resJson['openid'] \
             or 'session_key' not in resJson \
             or not resJson['session_key']:
 
-            return {'code': 202, 'errmsg': 'incomplete wx responce'}
+            # print(C.Red('incomplete wx res'), end='')
+            # pprint(resJson)
+            return CODE_LOGIN_INCOMPLETE_WX_RES
 
-        if resJson['errcode'] != 0:
-            return {'code': 203, 'errmsg': 'wx reject svr', 'wx-code': resJson['errcode'], 'wx-errmsg': resJson.get('errmsg', '')}
+        if 'errcode' in resJson and resJson['errcode'] != 0:
+            rtn = {}
+            rtn.update(CODE_LOGIN_WEIXIN_REJECT)
+            rtn.update({
+                 'wx-code': resJson['errcode'], 
+                 'wx-errmsg': resJson.get('errmsg', '')
+            })
+            return rtn
 
         openid = str(resJson['openid'])
         session['wx-skey'] = str(resJson["session_key"])
         session['openid'] = openid
     except RE.Timeout:
-        return {'code': 102, 'errmsg': 'svr request timeout'}
+        return CODE_LOGIN_TIMEOUT
     except RE.ConnectionError as e:
-        return {'code': 103, 'errmsg': 'svr cnt err'}
-    except:
-        return {'code': 200, 'errmsg': 'unknown error'}
+        return CODE_LOGIN_CNT_ERROR
+    except Exception as e:
+        # print(C.Red(str(e)))
+        # pprint(resJson)
+        return CODE_LOGIN_UNKOWN
 
-    exist = db.session \
-        .query(User.openid) \
+    user = db.session \
+        .query(User.openid, User.schoolId) \
         .filter(User.openid==openid) \
-        .limit(1) \
-        .count()
+        .limit(1)\
+        .one_or_none()
 
-    
-    if exist == 0:
+    if user == None:
         db.session.add(User(openid))
         db.session.commit()
-
-    return {"code": 0, 'errmsg': 'success'}
+        user = (None, None)
+    
+    rtn = {}
+    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn['bound'] = user[1] != None
+    return rtn
 
 
 def requireLogin(handler):
@@ -115,13 +137,13 @@ def bind():
     except:
         return ErrCode.CODE_ARG_TYPE_ERR
 
-    def match(pat, val):
+    def notMatch(pat, val):
         if not reMatch(pat, val):
-            return ErrCode.CODE_ARG_FORMAT_ERR
+            return True
     
-    match(r'^\d{10}$', schoolId)
-    match('^\d+$', name)
-    match('^未央-.+\d\d$', clazz)
+    if notMatch(r'^\d{10}$', schoolId) or notMatch('^未央-.+\d\d$', clazz):
+        return ErrCode.CODE_ARG_INVALID
+
     openid = session['openid']
 
     exist = db.session.query(User.schoolId) \
@@ -143,7 +165,8 @@ def bind():
     return ErrCode.CODE_SUCCESS
 
 
-@router.route('/itemlist/')
+# 没有详尽的测试
+@router.route('/item/')
 def itemlist():
     page = request.args.get('p', '1')
     try:
@@ -163,6 +186,8 @@ def itemlist():
         'page': page+1,
         'items': items
     })
+
+    return rst
 
 
 def _makeRsvInfoArr(qryRst, _makeRsvJson):
@@ -211,18 +236,8 @@ def _makeRsvInfoArr(qryRst, _makeRsvJson):
                     groups[relation['fth-rsv']]['interval'].append(_singleInterval(row))
         return rsvArr
 
-@router.route('/itemrsvinfo/')
-def itemrsvinfo():
-    reqJson: dict = request.get_json()
-    if not reqJson \
-        or not reqJson.get('item-id', None):
-        return ErrCode.CODE_ARG_MESSING
-    
-    try:
-        itemId = int(reqJson['item-id'])
-    except:
-        return ErrCode.CODE_ARG_TYPE_ERR
-
+@router.route('/item/<int:itemId', methods="GET")
+def itemrsvinfo(itemId):
     qryRst = \
         db.session.query(
             Reservation.id,     # 0

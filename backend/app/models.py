@@ -46,7 +46,7 @@ class Item(db.Model):
             'brief-intro': self.briefIntro,
             'thumbnail': self.thumbnail,
             'rsv-method': self.rsvMethod,
-            'rsv-info': []
+            'rsv-info': []  # TODO: load rsv info
         }
 
     # no value check on dic

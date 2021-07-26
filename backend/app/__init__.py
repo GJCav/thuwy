@@ -4,7 +4,10 @@ from config import config, MACHINE_ID
 from .snowflake import Snowflake
 
 app = Flask(__name__)
-app.config.from_object(config['dev'])
+
+cfg = config['dev']
+app.config.from_object(cfg)
+cfg.set(app)
 
 db = SQLAlchemy(app)
 from .models import Admin, User, Item, Reservation
