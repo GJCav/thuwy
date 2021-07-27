@@ -20,8 +20,8 @@ Page({
     },
 
     switchTab(e) {
-        switch(e.detail.index) {
-            case 0: 
+        switch (e.detail.index) {
+            case 0:
                 this.setData({
                     kind: 'success',
                     activeTab: 0
@@ -31,15 +31,13 @@ Page({
                 this.setData({
                     kind: 'ongoing',
                     activeTab: 1
-                    });
+                });
                 break;
             case 2:
                 this.setData({
                     kind: 'history',
                     activeTab: 2
                 });
-                break;
-            defalut:
                 break;
         }
     }

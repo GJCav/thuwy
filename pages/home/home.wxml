@@ -1,14 +1,13 @@
 <!--pages/home/home.wxml-->
-<van-tabs 
-    sticky 
-    active="{{ activeTab }}"
-    custom-class="tabbar"
-    swipeable="{{true}}" 
-    animated="{{true}}"
-    bind:change="switchTab"
->
-    <van-tab title="已审批" ><showMy kind="{{kind}}" refresh="{{refresh}}"/></van-tab>
-    <van-tab title="审批中" ><showMy kind="{{kind}}" refresh="{{refresh}}"/></van-tab>
-    <van-tab title="历史记录" ><showMy kind="{{kind}}" refresh="{{refresh}}"/></van-tab>
+<van-tabs sticky active="{{ activeTab }}" custom-class="tabbar" swipeable="{{true}}" animated="{{true}}"
+    bind:change="switchTab">
+    <van-tab title="已审批">
+        <showMy kind="{{kind}}" refresh="{{refresh}}" />
+    </van-tab>
+    <van-tab title="审批中">
+        <showMy kind="{{kind}}" refresh="{{refresh}}" />
+    </van-tab>
+    <van-tab title="历史记录">
+        <showMy kind="{{kind}}" refresh="{{refresh}}" />
+    </van-tab>
 </van-tabs>
-

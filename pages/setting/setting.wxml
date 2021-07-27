@@ -22,12 +22,12 @@
   <view class="option">
     <view class="optiontext" style="font-weight: bold">用户权限</view>
     <view class="optionblank"></view>
-    <view class="optiontext">{{motto1[0]}}</view>
+    <view class="optiontext">{{motto1[num1]}}</view>
   </view>
   <view class="option">
     <view class="optiontext" style="font-weight: bold">用户信息</view>
     <view class="optionblank"></view>
-    <view class="optiontext">{{motto2[0]}}</view>
+    <view class="optiontext">{{motto2[num2]}}</view>
   </view>
 </view>
 

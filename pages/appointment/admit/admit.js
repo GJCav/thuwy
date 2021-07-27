@@ -1,7 +1,8 @@
 // pages/appointment/admit.js
 Page({
   data: {
-    equip: '相机',
+    name: '',
+    id:'',
     reason: '',
     list: [],
     calendar: [],
@@ -27,6 +28,10 @@ Page({
     }]
   },
   onLoad: function (options) {
+    this.setData({
+      id:options.id,
+      name:options.name
+    })
     wx.setNavigationBarTitle({
       title: '提交申请'
     })
@@ -81,24 +86,52 @@ Page({
     });
   },
   appoint: function () {
-    console.log('选中的索引列表')
     console.log(this.selectedIdxs)
     this.setData({
       list: []
     });
-    for (var i = 0; i < this.selectedIdxs.length; i++) {
-      var d = Math.floor(this.selectedIdxs[i] / 10)
-      var m = this.selectedIdxs[i] % 10
-      if (this.data.calendar[d].week == '星期日')
-        d = this.data.calendar[d-1].date
-      else
-        d = this.data.calendar[d].date
-      var addone = [d + ' ' + m]
-      this.setData({
-        'list': this.data.list.concat(addone)
-      });
+    if (this.selectedIdxs == null) {
+      wx.showToast({
+        title: '未选择预约时间',
+        icon: 'error'
+      })
+    } else {
+      for (var i = 0; i < this.selectedIdxs.length; i++) {
+        var d = Math.floor(this.selectedIdxs[i] / 10)
+        var m = this.selectedIdxs[i] % 10
+        if (this.data.calendar[d].week == '星期日')
+          d = this.data.calendar[d - 1].date
+        else
+          d = this.data.calendar[d].date
+        var addone = [d + ' ' + m]
+        this.setData({
+          'list': this.data.list.concat(addone)
+        });
+      }
+      console.log(this.data.list)
+      wx.request({
+        url: app.globalData.url+'/reserve',
+        method:'POST',
+        data:{
+          'item-id':this.data.id,
+          reason:this.data.reason,
+          method:1,
+          interval:this.data.list
+        },
+        success: function (res) {
+          if(res.code==0)
+          {
+            wx.showToast({
+              title: '提交成功',
+              icon:'success'
+            })
+          }
+          else{
+            console.log(res.code,res.errmsg)
+          }
+        }
+      })
     }
-    console.log(this.data.list)
   },
   checkboxChange(e) {
     console.log('checkbox发生change事件，携带value值为：', e.detail.value)

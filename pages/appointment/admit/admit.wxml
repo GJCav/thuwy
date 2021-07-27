@@ -3,7 +3,7 @@
   <text class="titletext">——请确认预约信息——</text>
 </view>
 <view class="info">
-  <view class="infotext" style="font-weight: bold">申请预约设备：{{equip}}</view>
+  <view class="infotext" style="font-weight: bold">申请预约设备：{{name}}</view>
   <view class="infotext" style="font-weight: bold">申请使用时间：</view>
   <checkbox-group bindchange="checkboxChange">
     <view wx:for="{{ calendar }}" wx:for-item="items" wx:for-index="indexs" data-index="{{ index }}"

@@ -4,8 +4,10 @@ const app = getApp()
 
 Page({
   data: {
-    motto1: ["未认证用户","普通用户","管理员"],
-    motto2: ['未绑定','已绑定'],
+    motto1: ["未认证用户", "普通用户", "管理员"],
+    motto2: ['未绑定', '已绑定'],
+    num1: 0,
+    num2: 0,
     userInfo: {},
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo'),
@@ -20,7 +22,21 @@ Page({
     }
     wx.setNavigationBarTitle({
       title: '个人管理'
-  })
+    })
+  },
+  onShow() {
+    if (app.globalData.userInfo) {
+      this.setData({
+        num1:1,
+        num2:1
+      })
+    }
+    else{
+      this.setData({
+        num1:0,
+        num2:0
+      })
+    }
   },
   getUserProfile(e) {
     wx.getUserProfile({
@@ -34,12 +50,9 @@ Page({
       }
     })
   },
-  onShow(){
-    
-  },
-  bindinfo(){
+  bindinfo() {
     wx.navigateTo({
-      url:'../bind/bind'
+      url: '../bind/bind'
     })
   }
 })

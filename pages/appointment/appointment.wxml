@@ -15,15 +15,17 @@
     </block>
   </swiper>
 <block>
-    <van-row custom-class="row">
-      <van-col span="4" offset="1"><view class="avatar" style='background-image: url(../../image/1.jpg)'></view></van-col>
+    <van-row custom-class="row" wx:for="{{items}}" wx:for-item="equip">
+      <van-col span="4" offset="1"><view class="avatar" style='background-image:{{equip.thumbnail}}'></view></van-col>
       <van-col span="8" offset="2">
-        <view class='server-name'>相机</view>
-        <view class='server-description'>查看详细信息</view>
+        <view class='server-name'>{{equip.name}}</view>
+        <view class='server-description'>{{equip.brief-intro}}</view>
       </van-col>
       <van-col span="4" offset="3">
-        <van-button id="1" type="primary" bind:tap="chooseMe" size="small">预约</van-button>
+        <van-button id="{{equip.id}}" type="primary" bind:tap="chooseMe" size="small">预约</van-button>
       </van-col>
     </van-row>
   </block>
+  <van-button style="margin-left:20%" bindtap="great" id="1" type="primary"size="small">强制绑定</van-button>
+  <van-button style="margin-left:20%" bindtap="bad" id="1" type="primary"size="small">强制解除</van-button>
 

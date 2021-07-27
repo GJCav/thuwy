@@ -12,21 +12,26 @@ App({
         // 发送 res.code 到后台换取 openId, sessionKey, unionId
         wx.request({
           url: this.globalData.url+'/login',
-          method:'GET',
+          method:'POST',
           data:{
             code:res.code
           },
           success: function (res) {
             console.log('登录请求成功');
-            this.globalData.userInfo=res.code;
+            this.globalData.userInfo=res.bound;
             if(res.code==0){
               wx.setStorage({ //将得到的openid存储到缓存里面方便后面调用
               key: "openid",
               data: res.data.openid
               })
             }
-            else if(res.code==1){
-
+            else {
+              console.log(res.code,res.errmsg);
+              wx.showToast({
+                title: '登录失败',
+                icon: 'error',
+                duration: 1500
+              });
             }
           }
         })
@@ -34,7 +39,7 @@ App({
     })
   },
   globalData:{
-    userInfo: 1,
-    url: '这是接口的url'
+    userInfo: false,
+    url: "这是服务器url"
   }
 })
