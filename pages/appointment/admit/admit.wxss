@@ -1,4 +1,4 @@
-/* pages/orderTime/index.wxss */
+/* pages/appointment/admit/admit.wxss */
 .infotext {
   font-size: large;
   margin-bottom: 30rpx;
@@ -10,13 +10,15 @@
   color: #fff;
   background-color: rgb(47, 187, 47);
 }
-.title{
+
+.title {
   font-weight: 550;
   margin-top: 20rpx;
   margin-left: 15%;
   color: #333;
 }
-.option{
+
+.option {
   height: 80rpx;
   display: flex;
   margin-top: 5rpx;
@@ -26,10 +28,15 @@
   flex-direction: row;
   align-items: center;
 }
-.optiontext{
+
+.optiontext1 {
   color: #333;
 }
-  
+
+.optiontext2 {
+  color: #aaa;
+}
+
 .inputbox {
   background-color: rgba(135, 206, 250, 0.2);
   border: 2px solid #ddd;
@@ -39,6 +46,7 @@
   height: 150rpx;
 
 }
+
 .operate {
   width: 100%;
   padding: 30rpx 0;

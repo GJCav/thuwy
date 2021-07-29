@@ -16,7 +16,7 @@ App({
           data:{
             code:res.code
           },
-          success: function (res) {
+          success: res=> {
             console.log('登录请求成功');
             this.globalData.userInfo=res.bound;
             if(res.code==0){

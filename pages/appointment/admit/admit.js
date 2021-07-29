@@ -1,10 +1,24 @@
-// pages/appointment/admit.js
+// pages/appointment/admit/admit.js
+const app = getApp()
+
 Page({
   data: {
-    name: '',
-    id:'',
+    disabled: false,
+    disable: [
+      [true, true, true, true],
+      [true, true, true, true],
+      [true, true, true, true],
+      [true, true, true, true],
+      [true, true, true, true],
+      [true, true, true, true],
+      [true, true, true, true]
+    ],
+    loading: false,
+    name: null,
+    id: null,
     reason: '',
     list: [],
+    haslist: ['2021-7-30 1', '2021-7-31 4'],
     calendar: [],
     width: 0,
     currentIndex: 0,
@@ -29,12 +43,14 @@ Page({
   },
   onLoad: function (options) {
     this.setData({
-      id:options.id,
-      name:options.name
+      id: options.id,
+      name: options.name
     })
     wx.setNavigationBarTitle({
       title: '提交申请'
     })
+
+    //计算接下来七天的日期
     var that = this;
 
     function getThisMonthDays(year, month) {
@@ -74,10 +90,53 @@ Page({
       that.data.calendar[i] = new calendar(i, [weeks_ch[x]][0])
       x++;
     }
-    //限制要渲染的日历数据天数为7天以内
-    var flag = that.data.calendar.splice(cur_date + 1, that.data.calendar[cur_date].week == '星期六' ? 8 : 7)
+    var flag = that.data.calendar.splice(cur_date + (that.data.calendar[cur_date].week == '星期六' ? 2 : 1), 7)
     that.setData({
       calendar: flag
+    })
+    wx.request({
+      url: app.globalData.url + '/reservatioin/item-id',
+      method: 'GET',
+      data: {
+        item_id: this.data.id
+      },
+      success: (res) => {
+        console.log('获取成功');
+        if (res.code == 0) {
+          var haslist = res.rsvs;
+          var tmp = this.data.disable;
+          for (var i = 0; i < haslist.length; ++i) {
+            for (var j = 0; j < this.data.calendar.length; ++j) {
+              var da = this.data.calendar[j];
+              if (haslist[i].slice(0, -2) == da.date) {
+                console.log(haslist[i].slice(-1));
+                tmp[j][haslist[i].slice(-1) - 1] = false
+                if (da.week == '星期六')
+                  tmp[j + 1][haslist[i].slice(-1) - 1] = false;
+              }
+            }
+          }
+          this.setData({
+            disable: tmp
+          })
+        } else {
+          console.log(res.code, res.errmsg)
+        }
+      },
+      // fail: (res) => {
+      //   this.setData({
+      //     disabled: true
+      //   })
+      //   wx.showToast({
+      //     title: '网络异常',
+      //     icon: 'error'
+      //   });
+      //   setTimeout(function () {
+      //     wx.navigateBack({
+      //       delta: 1
+      //     })
+      //   }, 1500)
+      // }
     })
   },
   inputwhy: function (e) {
@@ -86,6 +145,9 @@ Page({
     });
   },
   appoint: function () {
+    this.setData({
+      loading: true,
+    })
     console.log(this.selectedIdxs)
     this.setData({
       list: []
@@ -110,28 +172,35 @@ Page({
       }
       console.log(this.data.list)
       wx.request({
-        url: app.globalData.url+'/reserve',
-        method:'POST',
-        data:{
-          'item-id':this.data.id,
-          reason:this.data.reason,
-          method:1,
-          interval:this.data.list
+        url: app.globalData.url + '/reserve',
+        method: 'POST',
+        data: {
+          item_id: this.data.id,
+          reason: this.data.reason,
+          method: 1,
+          interval: this.data.list
         },
         success: function (res) {
-          if(res.code==0)
-          {
+          if (res.code == 0) {
             wx.showToast({
               title: '提交成功',
-              icon:'success'
+              icon: 'success'
             })
+          } else {
+            console.log(res.code, res.errmsg)
           }
-          else{
-            console.log(res.code,res.errmsg)
-          }
+        },
+        fail: function (res) {
+          wx.showToast({
+            title: '网络异常',
+            icon: 'error'
+          });
         }
       })
     }
+    this.setData({
+      loading: false,
+    })
   },
   checkboxChange(e) {
     console.log('checkbox发生change事件，携带value值为：', e.detail.value)

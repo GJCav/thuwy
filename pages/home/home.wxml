@@ -11,3 +11,6 @@
         <showMy kind="{{kind}}" refresh="{{refresh}}" />
     </van-tab>
 </van-tabs>
+<view>
+    
+</view>

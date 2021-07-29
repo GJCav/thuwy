@@ -4,6 +4,7 @@ const app = getApp()
 
 Page({
   data: {
+    loading: false,
     name: '',
     id: '',
     clz: ''
@@ -29,6 +30,9 @@ Page({
     });
   },
   addUser(e) {
+    this.setData({
+      loading: true,
+    })
     console.log(app.globalData.url),
       wx.request({
         url: app.globalData.url + '/bind',
@@ -56,5 +60,8 @@ Page({
           }
         }
       })
+    this.setData({
+      loading: false,
+    })
   }
 })

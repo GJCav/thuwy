@@ -51,8 +51,19 @@ Page({
     })
   },
   bindinfo() {
-    wx.navigateTo({
+    if(app.globalData.userInfo)
+    {
+      wx.showToast({
+        title: '您已绑定信息',
+        icon:'error',
+        duration:1500
+      })
+    }
+    else{
+       wx.navigateTo({
       url: '../bind/bind'
     })
+    }
+   
   }
 })
