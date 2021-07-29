@@ -44,8 +44,9 @@ Page({
     wx.setNavigationBarTitle({
       title: '预约设备'
     })
+    var page=1;
     wx.request({
-      url: app.globalData.url + '/itemlist?p=1',
+      url: app.globalData.url + '/itemlist?p='+page,
       method: 'GET',
       success: (res)=> {
         console.log('获取成功');

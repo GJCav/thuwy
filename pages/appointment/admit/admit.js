@@ -25,20 +25,20 @@ Page({
     currentTime: 0,
     items1: [{
         value: '1',
-        name: '上午（8：00-12：00）'
+        name: '上午（8：00-12：00）  '
       },
       {
         value: '2',
-        name: '下午（13：00-17：00）'
+        name: '下午（13：00-17：00）  '
       },
       {
         value: '3',
-        name: '晚上（18：00-23：00）'
+        name: '晚上（18：00-23：00）  '
       }
     ],
     items2: [{
       value: '4',
-      name: '周末两日全天'
+      name: '周末两日全天    '
     }]
   },
   onLoad: function (options) {

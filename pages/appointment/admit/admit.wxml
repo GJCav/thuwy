@@ -9,10 +9,13 @@
     <view wx:for="{{ calendar }}" wx:for-item="items" wx:for-index="indexs" data-index="{{ index }}"
       class='listItem {{index==currentIndex? "current":""}}' wx:key='' data-date="{{ item.date}}">
       <view class="title">{{ items.week }}（{{ items.date }}）</view>
-      <view wx:for="{{items.week!='星期六'&& items.week!='星期日' ? items1:items2}}" wx:if="{{items.week!='星期六'}}" wx:key="{{item.value}}">
+      <view wx:for="{{items.week!='星期六'&& items.week!='星期日' ? items1:items2}}" wx:if="{{items.week!='星期六'}}"
+        wx:key="{{item.value}}">
         <view class="option">
-          <checkbox style="margin-left:20rpx" value="{{indexs}}{{item.value}}" disabled="{{!disable[indexs][item.value-1]}}" />
-          <view class="{{disable[indexs][item.value-1]?optiontext2:optiontext1}}">{{item.name}}</view>
+          <checkbox style="margin-left: 20rpx;width:100%" value="{{indexs}}{{item.value}}"
+            disabled="{{!disable[indexs][item.value-1]}}">
+            <view class="{{disable[indexs][item.value-1]?optiontext2:optiontext1}}">{{item.name}}</view>
+          </checkbox>
         </view>
       </view>
     </view>
