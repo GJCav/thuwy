@@ -1,4 +1,4 @@
-from flask import Blueprint, request, session
+from flask import Blueprint, request, session, current_app
 import requests as R
 import requests.exceptions as RE
 import json as Json
@@ -8,7 +8,7 @@ import time as Time
 
 from .models import *
 from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID
-from . import rsvIdPool
+from . import rsvIdPool, itemIdPool
 from . import comerrs as ErrCode
 from . import timetools as timestamp
 from .models import RsvMethodLongTimeRsv as LongTimeRsv
@@ -93,6 +93,9 @@ def login():
 def requireLogin(handler):
     @functools.wraps(handler)
     def inner(*args, **kwargs):
+        if current_app.config['DEBUG'] and not session.get('openid', None):
+            session['openid'] = 'openid for debug'
+            session['wx-skey'] = 'secret key for debug'
         if not session.get('openid', None):
             return ErrCode.CODE_NOT_LOGGED_IN
         else:
@@ -111,6 +114,19 @@ def requireBinding(handler):
             return handler(*args, **kwargs)
     return inner
 
+def requireAdmin(handler):
+    @functools.wraps(handler)
+    def inner(*args, **kwargs):
+        if current_app.config['DEBUG']:
+            return handler(*args, **kwargs)
+        
+        openid = session['openid']
+        exist = db.session.query(Admin.openid).filter(Admin.openid == openid).one_or_none()
+        if exist:
+            return handler(*args, **kwargs)
+        else:
+            return ErrCode.CODE_NOT_ADMIN
+    return inner
 
 @router.route('/bind/', methods=['POST'])
 @requireLogin
@@ -176,8 +192,8 @@ def itemlist():
     
     page -= 1
     
-    itemCount = db.session.query(Item.id).count()
-    items = Item.query.limit(20).offset(20*page).all()
+    itemCount = db.session.query(Item.id).filter(Item.delete == 0).count()
+    items = Item.query.filter(Item.delete == 0).limit(20).offset(20*page).all()
     items = [e.toDict() for e in items]
 
     rst = ErrCode.CODE_SUCCESS.copy()
@@ -189,6 +205,98 @@ def itemlist():
 
     return rst
 
+
+def _addItem(reqJson: dict):
+
+    if not reqJson.get('name') \
+        or not reqJson.get('brief-intro') \
+        or not reqJson.get('md-intro') \
+        or not reqJson.get('thumbnail') \
+        or not reqJson.get('rsv-method'):
+        return ErrCode.CODE_ARG_MESSING
+
+    try:
+        item            = Item()
+        item.id         = itemIdPool.next()
+        item.name       = str(reqJson['name'])
+        item.available  = True
+        item.delete     = False
+        item.rsvMethod  = int(reqJson['rsv-method'])
+        item.briefIntro = reqJson['brief-intro']
+        item.thumbnail  = reqJson['thumbnail']
+        item.mdIntro    = reqJson['md-intro']
+    except:
+        return ErrCode.CODE_ARG_TYPE_ERR
+
+    try:
+        db.session.add(item)
+        db.session.commit()
+    except:
+        db.session.rollback()
+        return ErrCode.CODE_DATABASE_ERROR
+
+    return ErrCode.CODE_SUCCESS
+
+def _modifyItem(item: Item, itemJson):
+    try:
+        if 'name' in itemJson: item.name              = str(itemJson['name'])
+        if 'available' in itemJson: item.available    = bool(itemJson['available'])
+        if 'rsv-method' in itemJson: item.rsvMethod   = int(itemJson['rsv-method'])
+        if 'brief-intro' in itemJson: item.briefIntro = itemJson['brief-intro']
+        if 'thumbnail' in itemJson: item.thumbnail    = itemJson['thumbnail']
+        if 'md-intro' in itemJson: item.mdIntro       = itemJson['md-intro']
+    except:
+        return ErrCode.CODE_ARG_TYPE_ERR
+    
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
+        return ErrCode.CODE_DATABASE_ERROR
+
+    return ErrCode.CODE_SUCCESS
+
+def _delItem(item: Item):
+    try:
+        item.delete = True
+        db.session.commit()
+    except:
+        db.session.rollback()
+        return ErrCode.CODE_DATABASE_ERROR
+    
+    return ErrCode.CODE_SUCCESS
+    
+
+@router.route('/item/', methods=['POST'])
+@requireLogin
+@requireBinding
+@requireAdmin
+def postItem():
+    CODE_ITEMID_NOT_FOUND = {'code': 101, 'errmsg': 'item id not found.'}
+    CODE_UNKNOWN_METHOD = {'code': 102, 'errmsg': 'unknown method'}
+
+    json: dict = request.get_json()
+    if not json: return ErrCode.CODE_ARG_MESSING
+    if not json.get('method') or not json.get('item'): 
+        return ErrCode.CODE_ARG_MESSING
+
+    try:
+        itemJson = json['item']
+        method   = int(json['method'])
+    except:
+        return ErrCode.CODE_ARG_TYPE_ERR
+
+    if method == 1:
+        return _addItem(itemJson)
+    else:
+        item: Item = Item.query.filter(Item.id == itemJson['id']).one_or_none()
+        if not item: return CODE_ITEMID_NOT_FOUND
+        if method == 2:
+            return _modifyItem(item, itemJson)
+        elif method == 3:
+            return _delItem(item)
+        else:
+            return CODE_UNKNOWN_METHOD
 
 def _makeRsvInfoArr(qryRst, _makeRsvJson):
     """
@@ -230,13 +338,20 @@ def _makeRsvInfoArr(qryRst, _makeRsvJson):
                 if 'sub-rsvs' in relation:
                     rsv['interval'] = []
                     rsv['interval'].append(_singleInterval(row))
+                    for subRsvIds in relation['sub-rsvs']:
+                        if subRsvIds in groups:
+                            rsv['interval'].append(_singleInterval(groups[subRsvIds]))
                     groups[rsv['id']] = rsv
                     rsvArr.append(rsv)
                 else:
-                    groups[relation['fth-rsv']]['interval'].append(_singleInterval(row))
+                    if relation['fth-rsv'] in groups:
+                        groups[relation['fth-rsv']]['interval'].append(_singleInterval(row))
+                    else:
+                        groups[relation['fth-rsv']] = row
+                    rsvArr.append(rsv)
         return rsvArr
 
-@router.route('/item/<int:itemId', methods="GET")
+@router.route('/item/<int:itemId>', methods="GET")
 def itemrsvinfo(itemId):
     qryRst = \
         db.session.query(

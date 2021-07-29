@@ -6,3 +6,5 @@ CODE_ARG_MESSING    = {'code': 4, 'errmsg': 'request args missing'}
 CODE_ARG_FORMAT_ERR = {'code': 5, 'errmsg': 'request args format error'}
 CODE_ARG_TYPE_ERR   = {'code': 6, 'errmsg': 'request args type error'}
 CODE_ARG_INVALID    = {'code': 7, 'errmsg': 'request args are invalid'}
+
+CODE_DATABASE_ERROR = {'code': 20, 'errmsg': 'database error'}

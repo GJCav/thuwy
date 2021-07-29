@@ -33,7 +33,9 @@ class User(db.Model):
 class Item(db.Model):
     __tablename__ = "items"
     id            = db.Column(db.Integer, primary_key=True)
-    name          = db.Column(db.Text, nullable=False)
+    name          = db.Column(db.Text, nullable=False),
+    available     = db.Column(db.Integer)
+    delete        = db.Column(db.Integer)
     rsvMethod     = db.Column('rsv_method', db.Integer, nullable=False)
     briefIntro    = db.Column('brief_intro', db.Text)
     thumbnail     = db.Column(db.Text)
@@ -43,6 +45,7 @@ class Item(db.Model):
         return {
             'name': self.name,
             'id': self.id,
+            'available': bool(self.available),
             'brief-intro': self.briefIntro,
             'thumbnail': self.thumbnail,
             'rsv-method': self.rsvMethod,

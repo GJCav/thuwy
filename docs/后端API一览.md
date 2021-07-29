@@ -82,23 +82,36 @@
 
 
 
-## iamadmin
+## POST /admin/
 
 **Des:** 申请当前用户成为管理员
 
-**URL:** `/iamadmin`
+**URL:** `/admin/`
 
-这个接口先占着，详细的之后再说。
+**Method:** POST
+
+**Login:** True，且需要绑定
+
+**请求参数：** 无
+
+**返回值：** Json Object，属性如下：
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
 
 
 
-## item
+
+
+## GET /item/
 
 > 我们把所有能被预约的东西都称之为 `item` ，包括摄像机、29号楼房间等。
 
 **Des:** 获取物品预约信息。
 
-**URL**： `/itemlist?p=<page>`
+**URL**： `/item?p=<page>/`
 
 **Method:** GET
 
@@ -120,6 +133,78 @@
 | page       | int        | 返回的是第几页                               |
 | items      | Json Array | 包含`Item`对象，详见 [对象说明](#对象说明)， |
 |            |            | ~~其中的Rsv包含未来一周的预约信息。~~        |
+
+
+
+## POST /item/
+
+**Des：** 添加、修改某个物品的属性
+
+**URL：** `POST /item/`
+
+**Method:** POST
+
+**Login?:** True，且绑定，且是管理员
+
+**URL参数：** `item-id`，物品的唯一 id
+
+**请求参数：** Json Object，属性如下：
+
+| 属性   | 类型 | 必填 | 说明                      |
+| ------ | ---- | ---- | ------------------------- |
+| method | int  | 是   | 不同的值表示不同的操作    |
+|        |      |      | 1：增加；2：修改；3：删除 |
+| item   | Item | 是   | 不同操作，Item要求如下：  |
+
+Item对象：
+
+1. 增加，要求传入服务器的Item对象包含且只包含如下属性：
+
+   * name
+   * brief-intro
+   * md-intro
+   * thumbnail
+   * rsv-method
+
+2. 修改，要求传入服务器的Item对象
+
+   必须包含属性：
+
+   * id
+
+   可选包含属性：
+
+   * name
+   * available
+   * brief-intro
+   * md-intro
+   * thumbnail
+   * rsv-method
+
+3. 删除，包含且只包含：
+
+   * id
+   * delete，且必须为true
+
+**注：** 如果传入了其他参数，服务器会忽略他们。
+
+
+
+**返回参数：**
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
+
+**错误码说明**
+
+| code | errmsg            | 说明                |
+| ---- | ----------------- | ------------------- |
+| 101  | item id not found | 指定的item-id不存在 |
+| 102  | unknown method    | 指定了未知的method  |
+
+
 
 
 
@@ -270,6 +355,7 @@
 | 5    | request args format error | 请求参数格式错误          |
 | 6    | request args type error   | 请求参数类型错误          |
 | 7    | request args are invalid  | 请求参数值非法            |
+| 20   | database error            | 数据库错误                |
 
 
 
@@ -279,14 +365,16 @@
 
 Item对象是一个Json Object对象，包含如下属性：
 
-| 属性         | 类型           | 说明                 |
-| ------------ | -------------- | -------------------- |
-| name         | string         | 名字                 |
-| id           | int32          | 设备id               |
-| brief-intro  | string         | 简要介绍，小于50字符 |
-| thumbnail    | url, string    | 缩略图的url          |
-| rsv-method   | RsvMethod      | 支持的预约方式       |
-| ~~rsv-info~~ | ~~Json Array~~ | ~~包含`Rsv`对象~~    |
+| 属性         | 类型           | 说明                                              |
+| ------------ | -------------- | ------------------------------------------------- |
+| name         | string         | 名字                                              |
+| id           | int32          | 设备id                                            |
+| available    | bool           | 设备是否可用，如果设备被下架，为0                 |
+| delete       | bool           | 是否删除设备，只在`POST /item/`且是删除操作时存在 |
+| brief-intro  | string         | 简要介绍，小于50字符                              |
+| thumbnail    | url, string    | 缩略图的url                                       |
+| rsv-method   | RsvMethod      | 支持的预约方式                                    |
+| ~~rsv-info~~ | ~~Json Array~~ | ~~包含`Rsv`对象~~                                 |
 
 
 

@@ -21,12 +21,7 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///data.db'
 
-config = {
-    'dev': DevelopmentConfig,
-    'test': TestingConfig,
-    'pro': ProductionConfig,
-    'default': DevelopmentConfig
-}
+config = DevelopmentConfig
 
 WX_APP_ID = 'wx7bfe035eee90419b'
 WX_APP_SECRET = '51ed227eed49319fa6474bc79559dc2f'
