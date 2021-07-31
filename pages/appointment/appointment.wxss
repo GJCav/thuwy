@@ -1,4 +1,4 @@
-/**index.wxss**/
+/**appointment.wxss**/
 .avatar {
   width: 70px;
   height: 70px;
@@ -8,7 +8,6 @@
   border: 3px solid #eee;
   overflow: hidden
 }
-
 .row {
   margin-top: 80rpx;
 }

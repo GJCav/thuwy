@@ -82,7 +82,7 @@ Page({
     //当前月份的第一天是星期几
     var week = getFirstDayOfWeek(cur_year, cur_month)
     var x = week;
-    for (var i = 1; i <= monthLength + 7; i++) {
+    for (var i = 1; i <= monthLength + 8; i++) {
       if (x > 6) {
         x = 0;
       }

@@ -1,31 +1,24 @@
- <!--index.wxml-->
-  <swiper
-          indicator-dots="{{indicatorDots}}"
-          autoplay="{{autoplay}}"
-          interval="{{interval}}"
-          duration="{{duration}}"
-          circular="true"
-          previous-margin="60px"
-          next-margin="60px"
-  >
-    <block wx:for="{{imgUrls}}" wx:key="*this">
-      <swiper-item class="slide-wrapper">
-        <image src="{{item}}" class="slide-image" width="375" height="150" />
-      </swiper-item>
-    </block>
-  </swiper>
-<block>
-    <van-row custom-class="row" wx:for="{{items}}" wx:for-item="equip" wx:for-index="number">
-      <van-col span="4" offset="1"><view class="avatar" style='background-image:url({{equip.thumbnail}})'></view></van-col>
-      <van-col span="8" offset="2">
-        <view class='server-name'>{{equip.name}}</view>
-        <view class='server-description'>{{equip.brief_intro}}</view>
-      </van-col>
-      <van-col span="4" offset="3">
-        <van-button data-value="{{number}}" type="primary" bind:tap="chooseMe" size="small">预约</van-button>
-      </van-col>
-    </van-row>
+<!--index.wxml-->
+<swiper indicator-dots="true" autoplay="true" interval="5000" duration="1000" circular="true" previous-margin="60px" next-margin="60px">
+  <block wx:for="{{imgUrls}}" wx:key="*this">
+    <swiper-item class="slide-wrapper">
+      <image src="{{item}}" class="slide-image" width="375" height="150" />
+    </swiper-item>
   </block>
-  <van-button style="margin-left:20%" bindtap="great" id="1" type="primary"size="small">强制绑定</van-button>
-  <van-button style="margin-left:20%" bindtap="bad" id="1" type="primary"size="small">强制解除</van-button>
-
+</swiper>
+<block>
+  <van-row custom-class="row" wx:for="{{items}}" wx:for-item="equip" wx:for-index="number">
+    <van-col span="4" offset="1">
+      <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>
+    </van-col>
+    <van-col span="8" offset="2">
+      <view class='server-name'>{{equip.name}}</view>
+      <view class='server-description'>{{equip.brief_intro}}</view>
+    </van-col>
+    <van-col span="4" offset="3">
+      <van-button data-value="{{number}}" type="primary" bind:tap="chooseMe" size="small">预约</van-button>
+    </van-col>
+  </van-row>
+</block>
+<van-button style="margin-left:20%" bindtap="great" id="1" type="primary" size="small">强制绑定</van-button>
+<van-button style="margin-left:20%" bindtap="bad" id="1" type="primary" size="small">强制解除</van-button>

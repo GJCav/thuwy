@@ -8,8 +8,8 @@
   ],
   "window":{
     "backgroundTextStyle":"light",
-    "navigationBarBackgroundColor": "#fff",
-    "navigationBarTextStyle":"black"
+    "navigationBarBackgroundColor": "#0087a9",
+    "navigationBarTextStyle":"white"
   },
   "tabBar": {
     "selectedColor": "#353535",

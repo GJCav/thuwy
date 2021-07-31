@@ -19,12 +19,13 @@
 }
 
 .option{
-  height: 80rpx;
+  height: 75rpx;
   display: flex;
-  margin-top: 5rpx;
+  margin-top: 10rpx;
   margin-left: 15%;
   margin-right: 15%;
-  border: 1px solid #ddd;
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
   flex-direction: row;
   align-items: center;
 }
@@ -38,18 +39,18 @@
 }
 
 .inputbox {
-  background-color: rgba(135, 206, 250, 0.2);
+  background-color: #fff;
   border: 2px solid #ddd;
   margin-bottom: 20rpx;
   margin-left: 10%;
   margin-right: 10%;
-  height: 150rpx;
+  height: 250rpx;
 
 }
 
 .operate {
+  margin-top: 100rpx;
   width: 100%;
   padding: 30rpx 0;
-  background-color: #fff;
   bottom: 0;
 }

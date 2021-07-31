@@ -14,7 +14,7 @@
   font-size: larger;
 }
 .inputbox{
-  background-color: rgba(135, 206, 250, 0.2);
+  background-color: #fff;
   border: 2px solid #ddd;
   margin-left: 120rpx;
   margin-right: 120rpx;

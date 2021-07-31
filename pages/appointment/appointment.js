@@ -24,10 +24,6 @@ Page({
       'https://zos.alipayobjects.com/rmsportal/TekJlZRVCjLFexlOCuWn.png',
       'https://zos.alipayobjects.com/rmsportal/IJOtIlfsYdTyaDTRVrLI.png',
     ],
-    indicatorDots: true,
-    autoplay: true,
-    interval: 5000,
-    duration: 1000
   },
   great() {
     app.globalData.userInfo = true
@@ -58,15 +54,17 @@ Page({
         } else {
           console.log(res.code, res.errmsg)
           wx.showToast({
-            title: '网络异常',
-            icon: 'error'
+            title: '连接错误',
+            icon: 'error',
+            duration:1500
           })
         }
       },
       fail:(res)=>{
         wx.showToast({
-          title: '网络异常',
-          icon:'error'
+          title: '连接失败',
+          icon:'error',
+          duration:1500
         })
       }
     })

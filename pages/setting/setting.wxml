@@ -14,16 +14,17 @@
     </block>
     <block wx:else>
       <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
+      <text>{{userInfo.nickName}}</text>
     </block>
   </view>
 </view>
-<view class="container" style="margin-top: 20rpx">
+<view class="total">
   <view class="option">
     <view class="optiontext" style="font-weight: bold">用户权限</view>
     <view class="optionblank"></view>
     <view class="optiontext">{{motto1[num1]}}</view>
   </view>
+  <view class="divline"></view>
   <view class="option">
     <view class="optiontext" style="font-weight: bold">用户信息</view>
     <view class="optionblank"></view>
@@ -31,7 +32,12 @@
   </view>
 </view>
 
-<view class="container" style="margin-top: 150rpx">
-  <view class="select" bindtap="bindinfo" hover-class="haveselect">绑定账户信息</view>
-  <view class="select" hover-class="haveselect">申请成为管理员</view>
+<view class="total" style="margin-top: 150rpx; font-weight: lighter;color:#666666">
+  <view class="repeat" wx:for="{{selection}}">
+    <view class="divline" wx:if="{{index!=0}}"></view>
+    <view class="select" bindtap="{{item.go}}" hover-class="haveselect">
+      <view style="width:40%">{{item.text}}</view>
+      <view style="width:50%;text-align:right">></view>
+    </view>
+  </view>
 </view>
