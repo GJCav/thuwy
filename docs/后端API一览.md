@@ -95,7 +95,7 @@ wx.request({
 
 
 
-一次登陆后过多久需要重新登陆还在纠结(ー`´ー)，先不管吧。
+一次登陆后过多久需要重新登陆还在纠结(ー`´ー)，先不管吧。****
 
 
 
@@ -177,14 +177,14 @@ wx.request({
 
 **返回值:** Json Object，其中包含：
 
-| 属性       | 类型       | 说明                                         |
-| ---------- | ---------- | -------------------------------------------- |
-| code       | int        | 错误码                                       |
-| errmsg     | string     | 错误信息                                     |
-| item-count | int        | item的总个数                                 |
-| page       | int        | 返回的是第几页                               |
-| items      | Json Array | 包含`Item`对象，详见 [对象说明](#对象说明)， |
-|            |            | ~~其中的Rsv包含未来一周的预约信息。~~        |
+| 属性       | 类型       | 说明                                     |
+| ---------- | ---------- | ---------------------------------------- |
+| code       | int        | 错误码                                   |
+| errmsg     | string     | 错误信息                                 |
+| item-count | int        | item的总个数                             |
+| page       | int        | 返回的是第几页                           |
+| items      | Json Array | 包含`Item`对象，详见 [说明](#对象说明)， |
+|            |            | ~~其中的Rsv包含未来一周的预约信息。~~    |
 
 
 
@@ -197,8 +197,6 @@ wx.request({
 **Method:** POST
 
 **Login?:** True，且绑定，且是管理员
-
-**URL参数：** `item-id`，物品的唯一 id
 
 **请求参数：** Json Object，属性如下：
 
@@ -255,6 +253,7 @@ Item对象：
 | ---- | ----------------- | ------------------- |
 | 101  | item id not found | 指定的item-id不存在 |
 | 102  | unknown method    | 指定了未知的method  |
+|      |                   |                     |
 
 
 
@@ -274,7 +273,7 @@ Item对象：
 
 | 属性    | 类型  | 必填 | 说明           |
 | ------- | ----- | ---- | -------------- |
-| item-id | int32 | 是   | 要查询的物品id |
+| item-id | int64 | 是   | 要查询的物品id |
 
 **返回值：**Json Object，属性如下：
 
@@ -420,10 +419,11 @@ Item对象是一个Json Object对象，包含如下属性：
 | 属性         | 类型           | 说明                                              |
 | ------------ | -------------- | ------------------------------------------------- |
 | name         | string         | 名字                                              |
-| id           | int32          | 设备id                                            |
+| id           | int64          | 设备id                                            |
 | available    | bool           | 设备是否可用，如果设备被下架，为0                 |
 | delete       | bool           | 是否删除设备，只在`POST /item/`且是删除操作时存在 |
 | brief-intro  | string         | 简要介绍，小于50字符                              |
+| md-intro     | string         | 详细介绍，只在`/item/mdintro`返回                 |
 | thumbnail    | url, string    | 缩略图的url                                       |
 | rsv-method   | RsvMethod      | 支持的预约方式                                    |
 | ~~rsv-info~~ | ~~Json Array~~ | ~~包含`Rsv`对象~~                                 |
@@ -437,7 +437,7 @@ Rsv对象是一个Json Object，包含如下属性：
 | 属性     | 类型      | 说明                             |
 | -------- | --------- | -------------------------------- |
 | id       | RsvId     | 这个预约的编号                   |
-| item-id  | int32     | 物品ID                           |
+| item-id  | int64     | 物品ID                           |
 | guest    | string    | 预约人的openid                   |
 | reason   | string    | 预约理由                         |
 | method   | RsvMethod | 使用的预约方法，保证只有一位为 1 |
