@@ -1,4 +1,3 @@
-from exam.wechatlogin import WX_APP_ID, WX_APP_SECRET
 import os
 
 class Config():

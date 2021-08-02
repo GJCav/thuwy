@@ -33,7 +33,7 @@ class User(db.Model):
 class Item(db.Model):
     __tablename__ = "items"
     id            = db.Column(db.Integer, primary_key=True)
-    name          = db.Column(db.Text, nullable=False),
+    name          = db.Column(db.Text, nullable=False)
     available     = db.Column(db.Integer)
     delete        = db.Column(db.Integer)
     rsvMethod     = db.Column('rsv_method', db.Integer, nullable=False)
@@ -42,14 +42,16 @@ class Item(db.Model):
     mdIntro       = db.Column('md_intro', db.Text)
 
     def toDict(self):
+        """
+        json without md-intro
+        """
         return {
             'name': self.name,
             'id': self.id,
             'available': bool(self.available),
             'brief-intro': self.briefIntro,
             'thumbnail': self.thumbnail,
-            'rsv-method': self.rsvMethod,
-            'rsv-info': []  # TODO: load rsv info
+            'rsv-method': self.rsvMethod
         }
 
     # no value check on dic

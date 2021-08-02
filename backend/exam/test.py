@@ -21,7 +21,39 @@ class Student(db.Model):
     def __str__(self):
         return f'{self.name} {self.id} {self.city}'
 
+class Item(db.Model):
+    __tablename__ = "items"
+    id            = db.Column(db.Integer, primary_key=True)
+    name          = db.Column(db.Text)
+    available     = db.Column(db.Integer)
+    delete        = db.Column(db.Integer)
+    rsvMethod     = db.Column('rsv_method', db.Integer, nullable=False)
+    briefIntro    = db.Column('brief_intro', db.Text)
+    thumbnail     = db.Column(db.Text)
+    mdIntro       = db.Column('md_intro', db.Text)
 
+    def toDict(self):
+        return {
+            'name': self.name,
+            'id': self.id,
+            'available': bool(self.available),
+            'brief-intro': self.briefIntro,
+            'thumbnail': self.thumbnail,
+            'rsv-method': self.rsvMethod
+        }
+
+    # no value check on dic
+    def fromDict(self, dic):
+        self.name = dic['name']
+        self.id = dic['id']
+        self.briefIntro = dic['brief-intro']
+        self.thumbnail = dic['thumbnail']
+        self.rsvMethod = dic['rsv-method']
+
+    def __repr__(self) -> str:
+        return f'Item({self.name}, {self.briefIntro}, {self.id}, {self.mdIntro if len(self.mdIntro) < 30 else (self.mdIntro[:27]+"...")})'
+
+db.create_all()
 
 @app.route('/')
 def hello():

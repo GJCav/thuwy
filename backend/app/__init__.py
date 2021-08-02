@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
+import config
 from config import MACHINE_ID
-from . import config
 from .snowflake import Snowflake
 
 app = Flask(__name__)

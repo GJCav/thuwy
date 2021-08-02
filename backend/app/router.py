@@ -15,6 +15,7 @@ from .models import RsvMethodLongTimeRsv as LongTimeRsv
 from .models import RsvMethodFlexibleTimeRsv as FlexTimeRsv
 from . import rsvstate as RsvState
 from . import snowflake as Snowflake
+from . import checkargs as CheckArgs
 
 from . import ColorConsole as C
 from pprint import pprint
@@ -96,6 +97,7 @@ def requireLogin(handler):
         if current_app.config['DEBUG'] and not session.get('openid', None):
             session['openid'] = 'openid for debug'
             session['wx-skey'] = 'secret key for debug'
+            return handler(*args, **kwargs)
         if not session.get('openid', None):
             return ErrCode.CODE_NOT_LOGGED_IN
         else:
@@ -106,6 +108,9 @@ def requireLogin(handler):
 def requireBinding(handler):
     @functools.wraps(handler)
     def inner(*args, **kwargs):
+        if current_app.config.get('DEBUG', False):
+            return handler(*args, **kwargs)
+
         openid = session['openid']
         schoolId = db.session.query(User.schoolId).filter(User.openid == openid).one_or_none()
         if schoolId == None:
@@ -113,6 +118,7 @@ def requireBinding(handler):
         else:
             return handler(*args, **kwargs)
     return inner
+
 
 def requireAdmin(handler):
     @functools.wraps(handler)
@@ -182,7 +188,7 @@ def bind():
 
 
 # 没有详尽的测试
-@router.route('/item/')
+@router.route('/item/', methods=['GET'])
 def itemlist():
     page = request.args.get('p', '1')
     try:
@@ -191,10 +197,14 @@ def itemlist():
         return ErrCode.CODE_ARG_TYPE_ERR
     
     page -= 1
+    if page >= (1<<64)-1 or page < 0:
+        return ErrCode.CODE_ARG_INVALID
     
     itemCount = db.session.query(Item.id).filter(Item.delete == 0).count()
     items = Item.query.filter(Item.delete == 0).limit(20).offset(20*page).all()
     items = [e.toDict() for e in items]
+
+    pprint(items)
 
     rst = ErrCode.CODE_SUCCESS.copy()
     rst.update({
@@ -212,17 +222,27 @@ def _addItem(reqJson: dict):
         or not reqJson.get('brief-intro') \
         or not reqJson.get('md-intro') \
         or not reqJson.get('thumbnail') \
-        or not reqJson.get('rsv-method'):
+        or reqJson.get('rsv-method') == None:
+
+        # pprint(reqJson)
         return ErrCode.CODE_ARG_MESSING
+
+    if not CheckArgs.areStr(reqJson, ['name', 'brief-intro', 'md-intro', 'thumbnail']) \
+        or not CheckArgs.areInt(reqJson, ['rsv-method']):
+        pprint(reqJson)
+        return ErrCode.CODE_ARG_TYPE_ERR
 
     try:
         item            = Item()
         item.id         = itemIdPool.next()
-        item.name       = str(reqJson['name'])
+        item.name       = reqJson['name']
         item.available  = True
         item.delete     = False
         item.rsvMethod  = int(reqJson['rsv-method'])
         item.briefIntro = reqJson['brief-intro']
+
+        if not CheckArgs.isUrl(reqJson['thumbnail']): # TODO: 这里可以进一步限制
+            return ErrCode.CODE_ARG_FORMAT_ERR
         item.thumbnail  = reqJson['thumbnail']
         item.mdIntro    = reqJson['md-intro']
     except:
@@ -286,7 +306,9 @@ def postItem():
     except:
         return ErrCode.CODE_ARG_TYPE_ERR
 
-    if method == 1:
+    if method < 0 or method > 3:
+        return CODE_UNKNOWN_METHOD
+    elif method == 1:
         return _addItem(itemJson)
     else:
         item: Item = Item.query.filter(Item.id == itemJson['id']).one_or_none()
@@ -351,7 +373,7 @@ def _makeRsvInfoArr(qryRst, _makeRsvJson):
                     rsvArr.append(rsv)
         return rsvArr
 
-@router.route('/item/<int:itemId>', methods="GET")
+@router.route('/item/<int:itemId>', methods=["GET"])
 def itemrsvinfo(itemId):
     qryRst = \
         db.session.query(
