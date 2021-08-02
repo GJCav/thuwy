@@ -47,6 +47,58 @@
 
 
 
+**实例代码：**
+
+登陆：
+
+```js
+function onLogin() {
+  wx.login({ // 调用微信的登陆API
+    timeout: 5000,
+    success(res) {
+      if (res.code) {
+        wx.request({
+          url: 'http://127.0.0.1:5000/login/', // 这里填服务器地址或测试测试
+          timeout: 3000,
+          data: { code: res.code }, // 把微信返回的code传给服务器
+          method: 'POST',
+          success(o) {
+            //console.log(o);
+            //本地储存后端传回的第一个cookie，对应session信息，便于后续使用
+            wx.setStorageSync('cookie', o.cookies[0]);
+          },
+          fail() {
+            console.log('fail to com backend')
+          }
+        })
+      } else {
+        console.log('fails');
+      }
+    }
+  })
+};
+```
+
+之后要求登陆的地方只要这么做：
+
+```js
+wx.request({
+  url: 'http://127.0.0.1:5000/bind/', // API 地址
+  method: 'POST',
+  header: {
+    'content-type': 'application/json; charset=utf-8',
+    'cookie': wx.getStorageSync('cookie') // 这里取出储存的登陆信息，传给服务器
+  }
+  //...其他代码
+});
+```
+
+
+
+一次登陆后过多久需要重新登陆还在纠结(ー`´ー)，先不管吧。
+
+
+
 ## bind
 
 **Des:**  设置用户的学号、姓名、班级
