@@ -2,21 +2,21 @@ import re as Regex
 
 def areStr(map: dict, attrs: list):
     for k in attrs:
-        if type(map[k]) != str:
+        if not isinstance(map[k], str):
             # print('type error: ' + k + f', type is: {type(map[k])}, value is {map[k]}')
             return False
     return True
 
 def areInt(map: dict, attrs: list):
     for k in attrs:
-        if type(map[k]) != int:
+        if not isinstance(map[k], int):
             # print('type error: ' + k + f', type is: {type(map[k])}, value is {map[k]}')
             return False
     return True
 
 def areBool(map: dict, attrs: list):
     for k in attrs:
-        if type(map[k]) != bool:
+        if not isinstance(map[k], bool):
             # print('type error: ' + k + f', type is: {type(map[k])}, value is {map[k]}')
             return False
     return True

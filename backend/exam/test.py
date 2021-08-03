@@ -1,6 +1,8 @@
+from operator import and_
 from flask import Flask, request, redirect, session
 from flask.templating import render_template
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_, and_
 import os
 import json as Json
 import requests
@@ -54,13 +56,38 @@ class Item(db.Model):
     def __repr__(self) -> str:
         return f'Item({self.name}, {self.briefIntro}, {self.id}, {self.mdIntro if len(self.mdIntro) < 30 else (self.mdIntro[:27]+"...")})'
 
+class Num(db.Model):
+    a = db.Column(db.Integer, primary_key = True)
+
+    def __init__(self, a) -> None:
+        self.a = a
+
 db.create_all()
 
 @app.route('/')
 def hello():
-    a = db.session.query(Student.id, Student.name).all()
-    a = [dict(e) for e in a]
-    return {'arr': a}
+    # db.session.add(Num(1))
+    # db.session.add(Num(2))
+    # db.session.add(Num(3))
+    # db.session.add(Num(4))
+    # db.session.add(Num(5))
+    # db.session.add(Num(6))
+    # db.session.add(Num(7))
+    db.session.commit()
+
+    arr = db.session.query(Num.a).filter(*{
+        or_(
+            # 1 <= Num.a <= 3,
+            # 6 <= Num.a <= 10
+
+            and_(Num.a >= 1, Num.a <= 3),
+            and_(Num.a >= 6, Num.a <= 10)
+        )
+    }).all()
+
+    arr = [dict(e) for e in arr]
+
+    return {'arr': arr}
 
 @app.route('/showall/')
 def showall():

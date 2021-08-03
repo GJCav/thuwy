@@ -26,12 +26,12 @@ def date(stamp) -> str:
 def clock(stamp) -> str:
     return time.strftime('%H:%M', time.localtime(stamp/1000))
 
-def daysAfter():
+def daysAfter() -> int:
     today = _todayStart()
     after = today + datetime.timedelta(days=d)
     return int(after.timestamp()*1000)
 
-def aWeekAfter():
+def aWeekAfter() -> int:
     return daysAfter(7)
 
 def hoursAfter(stamp, hours) -> int:

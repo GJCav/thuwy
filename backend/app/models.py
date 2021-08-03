@@ -1,5 +1,6 @@
+from operator import and_
 from app import db
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_, and_
 import json as Json
 
 from . import timetools as timestamp
@@ -81,6 +82,27 @@ class Reservation(db.Model):
     examRst  = db.Column('exam_rst', db.Text)
     chore    = db.Column(db.Text)
 
+    def hasTimeConflict(self):
+        # 不支持连续小于号
+        # cdn = {or_(
+        #     self.st <= Reservation.st < self.ed,
+        #     self.st <= Reservation.ed < self.ed,
+        #     Reservation.st <= self.st < Reservation.ed,
+        # )}
+
+        cdn = {or_(
+            and_(Reservation.st >= self.st, Reservation.st < self.ed),
+            and_(Reservation.ed >= self.st, Reservation.ed < self.ed),
+            and_(Reservation.st <= self.st, Reservation.ed >= self.ed)
+        )}
+
+        conflict = db.session\
+            .query(Reservation.st, Reservation.ed) \
+            .filter(*cdn) \
+            .first() != None
+
+        return conflict
+
 
 class LongTimeRsv:
     methodValue = 1
@@ -98,9 +120,78 @@ class LongTimeRsv:
 
     weekendCode = 4
 
+    def parseInterval(interval: str) -> tuple or None:
+        """
+        return: (st, ed) timestamp, 
+                or (None, None) if format of interval is wrong
+                or (None, -1) if interval is invalid
+        """
+        dateStr, codeStr = interval.split(' ')
+        try:
+            code = int(codeStr)
+        except:
+            return (None, None)
+        
+        st, ed = None, None
+        try:
+            if code == LongTimeRsv.morningCode:
+                st = timestamp.hoursAfter(
+                    timestamp.dateToTimestamp(dateStr),
+                    LongTimeRsv.morningStartHour
+                )
+                ed = timestamp.hoursAfter(
+                    timestamp.dateToTimestamp(dateStr),
+                    LongTimeRsv.morningEndHour
+                )
+            elif code == LongTimeRsv.afternoonCode:
+                st = timestamp.hoursAfter(
+                    timestamp.dateToTimestamp(dateStr),
+                    LongTimeRsv.afternoonStartHour
+                )
+                ed = timestamp.hoursAfter(
+                    timestamp.dateToTimestamp(dateStr),
+                    LongTimeRsv.afternoonEndHour
+                )
+            elif code == LongTimeRsv.nightCode:
+                st = timestamp.hoursAfter(
+                    timestamp.dateToTimestamp(dateStr),
+                    LongTimeRsv.nightStartHour
+                )
+                ed = timestamp.hoursAfter(
+                    timestamp.dateToTimestamp(dateStr),
+                    LongTimeRsv.nightEndHour
+                )
+            elif code == LongTimeRsv.weekendCode:
+                st = timestamp.dateToTimestamp(dateStr)
+                if timestamp.getWDay(st) != 6:
+                    return (None, -1)  # means dateStr is invalid as it should be a Saturday.
+                ed = timestamp.daysAfter(st, 2)
+        except:
+            pass # this means the format of dateStr is wrong..
+
+        return (st, ed)
+
+
 class FlexTimeRsv:
     methodValue = 2
     methodMask  = 2
+
+    def parseInterval(interval: str):
+        """
+        return: (st, ed) or (None, None) if format of interval is wrong
+        """
+        try:
+            dateStr, durationStr = interval.split(' ')
+            stStr, edStr = durationStr.split('-')
+            datePart = timestamp.dateToTimestamp(dateStr)
+            toArgs = lambda x: [int(e) for e in x.split(':')]
+
+            st = timestamp.clockAfter(datePart, *toArgs(stStr))
+            ed = timestamp.clockAfter(datePart, *toArgs(edStr))
+
+            return (st, ed)
+        except:
+            return (None, None) # TODO: 这里的检查可以更精细些，区分INVALID和FORMAT两种错误
 
 # post-binding methods for Reservation
 def _getIntervalStr(self: Reservation):

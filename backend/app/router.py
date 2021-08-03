@@ -3,8 +3,9 @@ import requests as R
 import requests.exceptions as RE
 import json as Json
 import functools
-from re import escape, match as reMatch
+from re import match as reMatch
 import time as Time
+from copy import copy
 
 from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID
 from . import db
@@ -35,7 +36,7 @@ def login():
 
     data: dict = request.get_json()
     if not data or not data.get('code', None):
-        return ErrCode.CODE_ARG_MESSING
+        return ErrCode.CODE_ARG_MISSING
 
     try:
         res = R.get(f'https://api.weixin.qq.com/sns/jscode2session?'  \
@@ -152,7 +153,7 @@ def bind():
         or not reqJson['name'] \
         or 'clazz' not in reqJson \
         or not reqJson['clazz']:
-        return ErrCode.CODE_ARG_MESSING
+        return ErrCode.CODE_ARG_MISSING
 
     try:
         schoolId = str(reqJson['id'])
@@ -241,7 +242,7 @@ def _addItem(reqJson: dict):
         or reqJson.get('rsv-method') == None:
 
         # pprint(reqJson)
-        return ErrCode.CODE_ARG_MESSING
+        return ErrCode.CODE_ARG_MISSING
 
     if not CheckArgs.areStr(reqJson, ['name', 'brief-intro', 'md-intro', 'thumbnail']) \
         or not CheckArgs.areInt(reqJson, ['rsv-method']):
@@ -312,9 +313,9 @@ def postItem():
     CODE_UNKNOWN_METHOD = {'code': 102, 'errmsg': 'unknown method'}
 
     json: dict = request.get_json()
-    if not json: return ErrCode.CODE_ARG_MESSING
+    if not json: return ErrCode.CODE_ARG_MISSING
     if not json.get('method') or not json.get('item'): 
-        return ErrCode.CODE_ARG_MESSING
+        return ErrCode.CODE_ARG_MISSING
 
     try:
         itemJson = json['item']
@@ -341,59 +342,6 @@ def postItem():
         else:
             return CODE_UNKNOWN_METHOD
 
-
-def ____makeRsvInfoArr(qryRst, _makeRsvJson):
-    """
-    dealwith query result like this
-    db.session.query(
-        Reservation.id,     # 0
-        Reservation.method, 
-        Reservation.state,
-        Reservation.st,     # 3
-        Reservation.ed,
-        Reservation.chore   # 6
-    )
-    """
-
-    def _singleInterval(row):
-        if row[1] == LongTimeRsv.methodValue:
-            hour = timestamp.getHour(row[3])
-            if hour == LongTimeRsv.morningStartHour:
-                return f'{timestamp.date(row[3])()} {LongTimeRsv.morningCode}'
-            elif hour == LongTimeRsv.afternoonStartHour:
-                return f'{timestamp.date(row[3])()} {LongTimeRsv.afternoonCode}'
-            elif hour == LongTimeRsv.nightStartHour:
-                return f'{timestamp.date(row[3])()} {LongTimeRsv.nightCode}'
-            else:
-                return f'{timestamp.date(row[3])()} {LongTimeRsv.weekendCode}'
-
-        elif row[1] == FlexTimeRsv.methodValue:
-            return f'{timestamp.date(row[3])} {timestamp.clock(row[3])}-{timestamp.clock(row[4])}'
-
-    groups = {}
-    rsvArr = []
-    for row in qryRst:
-        rsv = _makeRsvJson(row)
-        if rsv['method'] == FlexTimeRsv.methodValue:
-            rsv['interval'] = _singleInterval(row)
-            rsvArr.append(rsv)
-        elif rsv['method'] == LongTimeRsv.methodValue:
-            relation: dict = Json.loads(row[6])['group-rsv']
-            if 'sub-rsvs' in relation:
-                rsv['interval'] = []
-                rsv['interval'].append(_singleInterval(row))
-                for subRsvIds in relation['sub-rsvs']:
-                    if subRsvIds in groups:
-                        rsv['interval'].append(_singleInterval(groups[subRsvIds]))
-                groups[rsv['id']] = rsv
-                rsvArr.append(rsv)
-            else:
-                if relation['fth-rsv'] in groups:
-                    groups[relation['fth-rsv']]['interval'].append(_singleInterval(row))
-                else:
-                    groups[relation['fth-rsv']] = row
-                # rsvArr.append(rsv)
-    return rsvArr
 
 @router.route('/reservation/<int:itemId>')
 def itemRsvInfo(itemId):
@@ -425,116 +373,60 @@ def itemRsvInfo(itemId):
     rst['rsvs'] = [_process(e) for e in rsvArr] # 因为字段名和协议中属性名相同，所以不用多处理
     return rst
 
-# TODO: 增加检查目标预约时间是否已经被预约了
-@router.route('/reserve/', methods=['POST'])
+@router.route('/reservation/', methods=['POST'])
 @requireLogin
 @requireBinding
 def reserve():
+    CODE_TIME_CONFLICT = {'code': 101, 'errmsg': 'time conflict'}
+    CODE_TIME_OUT_OF_RANGE = {'code': 102, 'errmsg': 'reservation time out of range'}
+
     reqJson:dict = request.get_json()
-    if not reqJson \
-        or not reqJson.get('item-id', None) \
-        or not reqJson.get('rsv-req', None) \
-        or not reqJson.get('reason', None):
+    if not reqJson or \
+        not CheckArgs.hasAttrs(reqJson, ['item-id', 'rsv-req', 'reason']):
 
-        return ErrCode.CODE_ARG_MESSING
-    
-    try:
-        itemId = str(reqJson['item-id'])
-        reason = str(reqJson['reason'])
-        reqRsv: dict = reqJson['rsv-req']
+        return ErrCode.CODE_ARG_MISSING
 
-        if not isinstance(reqRsv, dict): return ErrCode.CODE_ARG_TYPE_ERR
-    except:
+    if not CheckArgs.areStr(reqJson, ['reason']) \
+        or not CheckArgs.areInt(reqJson, ['item-id', 'method']):
+
         return ErrCode.CODE_ARG_TYPE_ERR
 
-    if not reqRsv \
-        or reqRsv.get('method', None) \
-        or reqRsv.get('interval', None):
-        return ErrCode.CODE_ARG_MESSING
-    
-    try:
-        method = int(reqRsv['method'])
-    except:
-        return ErrCode.CODE_ARG_TYPE_ERR
+    itemId = reqJson['item-id']
+    reason = reqJson['reason']
+    method = reqJson['method']
 
-    def makeLongTimeRsv(interval: str):
-        dateStr, codeStr = interval.split(' ')
-        r = Reservation()
-        r.id = rsvIdPool.next()
-        r.itemId = itemId
-        r.guest = session['openid']
-        r.reason = reason
-        r.method = method
-        r.state = RsvState.STATE_WAITING
-        r.chore = {'group-rsv': {}} # remember to cast to str
-        
-        code = int(codeStr)
-        if code == LongTimeRsv.morningCode:
-            r.st = timestamp.hoursAfter(
-                timestamp.dateToTimestamp(dateStr),
-                LongTimeRsv.morningStartHour
-            )
-            r.ed = timestamp.hoursAfter(
-                timestamp.dateToTimestamp(dateStr),
-                LongTimeRsv.morningEndHour
-            )
-        elif code == LongTimeRsv.afternoonCode:
-            r.st = timestamp.hoursAfter(
-                timestamp.dateToTimestamp(dateStr),
-                LongTimeRsv.afternoonStartHour
-            )
-            r.ed = timestamp.hoursAfter(
-                timestamp.dateToTimestamp(dateStr),
-                LongTimeRsv.afternoonEndHour
-            )
-        elif code == LongTimeRsv.nightCode:
-            r.st = timestamp.hoursAfter(
-                timestamp.dateToTimestamp(dateStr),
-                LongTimeRsv.nightStartHour
-            )
-            r.ed = timestamp.hoursAfter(
-                timestamp.dateToTimestamp(dateStr),
-                LongTimeRsv.nightEndHour
-            )
-        elif code == LongTimeRsv.weekendCode:
-            r.st = timestamp.dateToTimestamp(dateStr)
-            if timestamp.getWDay(r.st) != 6:
-                raise Exception()
-            r.ed = timestamp.daysAfter(r.st, 2)
-        else:
-            raise Exception()
-    
-    def makeFlexTimeRsv():
-        dateStr, durationStr = reqRsv['inteval'].split(' ')
-        stStr, edStr = durationStr.split('-')
-        datePart = timestamp.dateToTimestamp(dateStr)
-        toArgs = lambda x: [int(e) for e in x.split(':')]
-
-        r = Reservation()
-        r.id = rsvIdPool.next()
-        r.itemId = itemId
-        r.guest = session['openid']
-        r.method = method
-        r.state = RsvState.STATE_WAITING
-        r.chore = ''
-
-        r.st = timestamp.clockAfter(datePart, *toArgs(stStr))
-        r.ed = timestamp.clockAfter(datePart, *toArgs(edStr))
-
-        return r
+    r = Reservation()
+    # r.id = rsvIdPool.next() 下面单独生成
+    r.itemId = itemId
+    r.guest = session['openid']
+    r.reason = reason
+    r.method = method
+    r.state = RsvState.STATE_WAITING
+    r.chore = ''
 
     if method == LongTimeRsv.methodValue:
-        if not isinstance(reqRsv['inteval'], list):
+        if not isinstance(reqJson['inteval'], list):
             return ErrCode.CODE_ARG_TYPE_ERR
-        if len(reqRsv['inteval']) == 0:
-            return ErrCode.CODE_ARG_MESSING
+        if len(reqJson['inteval']) == 0:
+            return ErrCode.CODE_ARG_MISSING
         
+        interval: list = reqJson['interval']
+        r.chore = {'group-rsv': {}} # remember to cast to str
+
         rsvGroup = []
-        try:
-            for itl in reqRsv['inteval']:
-                rsvGroup.append(makeLongTimeRsv(itl))
-        except:
-            return ErrCode.CODE_ARG_INVALID
+
+        for itl in interval:
+            st, ed = LongTimeRsv.parseInterval(itl)
+            if ed == None: return ErrCode.CODE_ARG_FORMAT_ERR
+            elif ed == -1: return ErrCode.CODE_ARG_INVALID
+
+            if ed > timestamp.aWeekAfter() or st < timestamp.now():
+                return CODE_TIME_OUT_OF_RANGE
+
+            new = copy(r)
+            new.id = rsvIdPool.next()
+            new.st, new.ed = LongTimeRsv.parseInterval(itl)
+            rsvGroup.append(new)
         
         rsvGroup[0].chore['group-rsv']['sub-rsvs'] = []
         for i in range(1, len(rsvGroup)):
@@ -542,19 +434,62 @@ def reserve():
             rsvGroup[i].chore['group-rsv']['fth-rsv'] = rsvGroup[0].id
         
         for e in rsvGroup:
+            if e.hasTimeConflict():
+                return CODE_TIME_CONFLICT
+
+        for e in rsvGroup:
             e.chore = Json.dumps(e.chore)
             db.session.add(e)
-        db.session.commit()
+        
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print('Error: ' + str(e))
+            return ErrCode.CODE_DATABASE_ERROR
+
+        rtn = {}
+        rtn.update(ErrCode.CODE_SUCCESS)
+        rtn['rsv-id'] = rsvGroup[0].id
+        return rtn
 
     elif method == FlexTimeRsv.methodValue:
-        rsv = makeFlexTimeRsv()
-        db.session.add(rsv)
-        db.session.commit()
+        if not isinstance(reqJson['interval'], str):
+            return ErrCode.CODE_ARG_TYPE_ERR
 
+        interval = reqJson['interval']
+
+        st, ed = FlexTimeRsv.parseInterval(interval)
+        if ed == None:
+            return ErrCode.CODE_ARG_FORMAT_ERR
+        elif ed == -1:
+            return ErrCode.CODE_ARG_INVALID
+        
+        if ed > timestamp.aWeekAfter() or st < timestamp.now():
+                return CODE_TIME_OUT_OF_RANGE
+
+        r.id = rsvIdPool.next()
+        r.st, r.ed = st, ed
+
+        if r.hasTimeConflict():
+            return CODE_TIME_CONFLICT
+
+        db.session.add(r)
+
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print('Error: ' + str(e))
+            return ErrCode.CODE_DATABASE_ERROR
+
+        rtn = {}
+        rtn.update(ErrCode.CODE_SUCCESS)
+        rtn['rsv-id'] = r.id
+        return rtn
+        
     else:
         return ErrCode.CODE_ARG_INVALID
-    
-    return ErrCode.CODE_SUCCESS
 
 
 @router.route('/reservation/me')
@@ -579,18 +514,21 @@ def querymyrsv():
         Reservation.examRst # 10
     ).filter(Reservation.guest == openid)
 
-    # TODO: 增加格式检查
-    try:
-        stId = makeSnowId(request.args['st'], 0)
-        sql = sql.filter(Reservation.id >= stId)
-    except:
-        pass
-    try:
-        stId = makeSnowId(request.args['ed'], 0)
-        sql = sql.filter(Reservation.id < stId)
-    except:
-        pass
-
+    st = request.args.get('st', None)
+    if st and reMatch('\d{4}-\d{2}-\d{2}', st):
+        try:
+            stId = makeSnowId(st, 0)
+            sql = sql.filter(Reservation.id >= stId)
+        except:
+            return ErrCode.CODE_ARG_INVALID
+    
+    ed = request.args.get('ed', None)
+    if ed and reMatch('\d{4}-\d{2}-\d{2}', ed):
+        try:
+            edId = makeSnowId(ed, 0)
+            sql = sql.filter(Reservation.ed <= edId)
+        except:
+            return ErrCode.CODE_ARG_INVALID
     
     rsvJsonArr = Models.mergeAndBeautify(sql.all())
     adminNames = {} # openid --> name
@@ -631,7 +569,7 @@ def cancel():
 
     if not reqJson \
         or not reqJson.get('rsv-id', None):
-        return ErrCode.CODE_ARG_MESSING
+        return ErrCode.CODE_ARG_MISSING
 
     rsvId = reqJson['rsvId']
     

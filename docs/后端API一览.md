@@ -161,7 +161,7 @@ wx.request({
 
 > 我们把所有能被预约的东西都称之为 `item` ，包括摄像机、29号楼房间等。
 
-**Des:** 获取物品预约信息。
+**Des:** 获取物品列表
 
 **URL**： `/item?p=<page>/`
 
@@ -184,7 +184,34 @@ wx.request({
 | item-count | int        | item的总个数                             |
 | page       | int        | 返回的是第几页                           |
 | items      | Json Array | 包含`Item`对象，详见 [说明](#对象说明)， |
-|            |            | ~~其中的Rsv包含未来一周的预约信息。~~    |
+
+
+
+## GET /item/\<item-id>
+
+**Des：** 获取物品详细信息，包括`md-intro`、`delete`属性
+
+**Login?：** False
+
+**请求参数：**
+
+* `item-id`：要查询的物品id
+
+**返回值：** Json Object，包含属性如下
+
+| 属性   | 类型         | 说明     |
+| ------ | ------------ | -------- |
+| code   | int          | 错误码   |
+| errmsg | string       | 错误信息 |
+| item   | Item, Object | Item对象 |
+
+**错误码说明：**
+
+| code | errmsg            | 说明                |
+| ---- | ----------------- | ------------------- |
+| 101  | item id not found | 指定的item-id不存在 |
+
+
 
 
 
@@ -234,7 +261,7 @@ Item对象：
 3. 删除，包含且只包含：
 
    * id
-   * delete，且必须为true
+   * ~~delete，且必须为true~~，最后一波思考，觉得莫得必要
 
 **注：** 如果传入了其他参数，服务器会忽略他们。
 
@@ -253,7 +280,8 @@ Item对象：
 | ---- | ----------------- | ------------------- |
 | 101  | item id not found | 指定的item-id不存在 |
 | 102  | unknown method    | 指定了未知的method  |
-|      |                   |                     |
+
+
 
 
 
@@ -261,7 +289,7 @@ Item对象：
 
 ## GET /reservation/\<item-id>
 
-**Des:** 查询某个物品的预约信息。
+**Des:** 查询某个物品未来一周的预约信息。
 
 **URL:** `/reservatioin/item-id`
 
@@ -292,7 +320,7 @@ Item对象：
 
 
 
-## POST /reservation
+## POST /reservation/
 
 **Des:** 提交一个预约
 
@@ -304,12 +332,12 @@ Item对象：
 
 **请求参数** ：Rsv对象，只需包含如下属性，其余省略：
 
-* item-id
-* reason
-* method
-* interval
-
-
+| 属性     | 类型           | 说明                             |
+| -------- | -------------- | -------------------------------- |
+| item-id  | int64          | 要预约物品的id                   |
+| reason   | string         | 预约理由                         |
+| method   | RsvMethod, int | 使用的预约方法，只能有一位为1    |
+| interval | any            | 描述预约时间段，格式由method决定 |
 
 **返回值** ：Json Object，属性如下：
 
@@ -318,6 +346,17 @@ Item对象：
 | code   | int    | 错误码   |
 | errmsg | string | 错误信息 |
 | rsv-id | RsvId  | 预约ID   |
+
+**错误码说明：** 
+
+| code | errmsg                        | 说明                                        |
+| ---- | ----------------------------- | ------------------------------------------- |
+| 101  | time conflict                 | 预约时间冲突                                |
+| 102  | reservation time out of range | 不允许预约过去的时间且不允许预约7天后的时间 |
+
+
+
+
 
 
 
