@@ -1,5 +1,8 @@
 from app import db
 from flask_sqlalchemy import SQLAlchemy
+import json as Json
+
+from . import timetools as timestamp
 
 # db: SQLAlchemy
 # class Student(db.Model):
@@ -79,7 +82,7 @@ class Reservation(db.Model):
     chore    = db.Column(db.Text)
 
 
-class RsvMethodLongTimeRsv:
+class LongTimeRsv:
     methodValue = 1
     methodMask = 1
     
@@ -95,6 +98,69 @@ class RsvMethodLongTimeRsv:
 
     weekendCode = 4
 
-class RsvMethodFlexibleTimeRsv:
+class FlexTimeRsv:
     methodValue = 2
-    meghodMask  = 2
+    methodMask  = 2
+
+# post-binding methods for Reservation
+def _getIntervalStr(self: Reservation):
+    """
+    self中至少有Reservation中的如下属性：
+        * method
+        * st
+        * ed
+    return: 可读的时间段信息
+    """
+    if self.method == LongTimeRsv.methodValue:
+        hour = timestamp.getHour(self.st)
+        if hour == LongTimeRsv.morningStartHour:
+            return f'{timestamp.date(self.st)()} {LongTimeRsv.morningCode}'
+        elif hour == LongTimeRsv.afternoonStartHour:
+            return f'{timestamp.date(self.st)()} {LongTimeRsv.afternoonCode}'
+        elif hour == LongTimeRsv.nightStartHour:
+            return f'{timestamp.date(self.st)()} {LongTimeRsv.nightCode}'
+        else:
+            return f'{timestamp.date(self.st)()} {LongTimeRsv.weekendCode}'
+
+    elif self.method == FlexTimeRsv.methodValue:
+        return f'{timestamp.date(self.st)} {timestamp.clock(self.st)}-{timestamp.clock(self.ed)}'
+Reservation.getIntervalStr = _getIntervalStr
+
+# TODO: 换个更恰当的名字
+def mergeAndBeautify(qryRst: list):
+    """
+    qryRst中的rsv对象至少包含如下属性：
+        * id
+        * method
+        * st
+        * ed
+        * chore
+    """
+    groups = {}
+    rsvArr = []
+    for e in qryRst:
+        e: Reservation
+        e.interval = None
+
+        if e.method == FlexTimeRsv.methodValue:
+            e.interval = _getIntervalStr(e)
+            rsvArr.append(e)
+        
+        elif e.method == LongTimeRsv.methodValue:
+            relation: dict = Json.loads(e.chore)['group-rsv']
+            if 'sub-rsvs' in relation:
+                e.interval = []
+                e.interval.append(_getIntervalStr(e))
+
+                for subRsvIds in relation['sub-rsvs']:
+                    if subRsvIds in groups:
+                        e.interval.append(_getIntervalStr(groups[subRsvIds]))
+                
+                groups[e.id] = e
+                rsvArr.append(e)
+            else:
+                if relation['fth-rsv'] in groups:
+                    groups[relation['fth-rsv']].interval.append(_getIntervalStr(e))
+                else:
+                    groups[e.id] = e
+    return rsvArr

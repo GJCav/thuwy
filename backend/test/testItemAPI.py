@@ -288,3 +288,44 @@ def testModifyItem():
             assert oldItem == json['items'][idx]
         # TODO: test md-intro here
 
+@pytest.mark.modifyItem
+def testDelItem():
+    global testItemUrl
+    url = testItemUrl
+
+    delJson = {
+        'method': 3,
+        'item': {
+            'id': 0
+        }
+    }
+
+    res = R.post(url, json=delJson)
+    assert res
+    assert res.json()['code'] == 101, '测试一个删除一个不存在的id'
+
+    delJson['item']['id'] = -1
+    res = R.post(url, json=delJson)
+    assert res
+    assert res.json()['code'] == ErrCode.CODE_ARG_INVALID['code'], '测试负数id'
+
+    delJson['item']['id'] = 2**128
+    res = R.post(url, json=delJson)
+    assert res
+    assert res.json()['code'] == ErrCode.CODE_ARG_INVALID['code'], '测试一个过大id'
+
+    delJson['item']['id'] = '1235'
+    res = R.post(url, json=delJson)
+    assert res
+    assert res.json()['code'] == ErrCode.CODE_ARG_TYPE_ERR['code'], '测试类型错误的id'
+
+    json = R.get(url).json()
+    while json['items']:
+        for item in json['items']:
+            delJson['item']['id'] = item['id']
+            res = R.post(url, json=delJson)
+            assert res
+            assert res.json()['code'] == 0, f'删除物品: {item["name"]}, {item["id"]}'
+        json = R.get(url).json()
+    
+    assert json['item-count'] == 0

@@ -3,6 +3,7 @@ from flask.templating import render_template
 from flask_sqlalchemy import SQLAlchemy
 import os
 import json as Json
+import requests
 
 import sqlalchemy
 
@@ -14,7 +15,7 @@ db = SQLAlchemy(app)
 
 class Student(db.Model):
     __tablename__ = 'students'
-    id = db.Column('id', db.Integer, primary_key = True)
+    id = db.Column('i--d', db.Integer, primary_key = True)
     name = db.Column(db.String(100))
     city = db.Column(db.String(100))
 
@@ -57,7 +58,9 @@ db.create_all()
 
 @app.route('/')
 def hello():
-    return 'hello, world. DEBUG mode'
+    a = db.session.query(Student.id, Student.name).all()
+    a = [dict(e) for e in a]
+    return {'arr': a}
 
 @app.route('/showall/')
 def showall():
@@ -80,7 +83,7 @@ def addstu():
         s = Student()
         s.name = request.form['name']
         s.id = request.form['id']
-        s.city = {'dict': {'arr': [1, 2, 3]}}
+        s.city = request.form['city']
     else:
         s = Student()
         s.name = None

@@ -6,16 +6,18 @@ import functools
 from re import escape, match as reMatch
 import time as Time
 
-from .models import *
 from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID
+from . import db
 from . import rsvIdPool, itemIdPool
 from . import comerrs as ErrCode
 from . import timetools as timestamp
-from .models import RsvMethodLongTimeRsv as LongTimeRsv
-from .models import RsvMethodFlexibleTimeRsv as FlexTimeRsv
 from . import rsvstate as RsvState
 from . import snowflake as Snowflake
 from . import checkargs as CheckArgs
+from . import models as Models
+from .models import Admin, User, Item, Reservation
+from .models import LongTimeRsv as LongTimeRsv
+from .models import FlexTimeRsv as FlexTimeRsv
 
 from . import ColorConsole as C
 from pprint import pprint
@@ -187,7 +189,6 @@ def bind():
     return ErrCode.CODE_SUCCESS
 
 
-# 没有详尽的测试
 @router.route('/item/', methods=['GET'])
 def itemlist():
     page = request.args.get('p', '1')
@@ -197,14 +198,14 @@ def itemlist():
         return ErrCode.CODE_ARG_TYPE_ERR
     
     page -= 1
-    if page >= (1<<64)-1 or page < 0:
+    if page >= (1<<65)-1 or page < 0:
         return ErrCode.CODE_ARG_INVALID
     
     itemCount = db.session.query(Item.id).filter(Item.delete == 0).count()
     items = Item.query.filter(Item.delete == 0).limit(20).offset(20*page).all()
     items = [e.toDict() for e in items]
 
-    pprint(items)
+    # pprint(items)
 
     rst = ErrCode.CODE_SUCCESS.copy()
     rst.update({
@@ -215,6 +216,21 @@ def itemlist():
 
     return rst
 
+
+@router.route('/item/<int:itemId>', methods=['GET'])
+def itemInfo(itemId):
+    CODE_ITEMID_NOT_FOUND = {'code': 101, 'errmsg': 'item id not found'}
+
+    if itemId < 0 or itemId > (1<<65)-1:
+        return ErrCode.CODE_ARG_INVALID
+    
+    item = db.session.query(Item).filter(Item.id == itemId).one_or_none()
+    if not item:
+        return CODE_ITEMID_NOT_FOUND
+    else:
+        rst = {}
+        rst.update(ErrCode.CODE_SUCCESS)
+        rst['item'] = item
 
 def _addItem(reqJson: dict):
 
@@ -229,7 +245,7 @@ def _addItem(reqJson: dict):
 
     if not CheckArgs.areStr(reqJson, ['name', 'brief-intro', 'md-intro', 'thumbnail']) \
         or not CheckArgs.areInt(reqJson, ['rsv-method']):
-        pprint(reqJson)
+        # pprint(reqJson)
         return ErrCode.CODE_ARG_TYPE_ERR
 
     try:
@@ -311,6 +327,11 @@ def postItem():
     elif method == 1:
         return _addItem(itemJson)
     else:
+        if not CheckArgs.areInt(itemJson, ['id']):
+            return ErrCode.CODE_ARG_TYPE_ERR
+        if itemJson['id'] < 0 or itemJson['id'] > (1<<65)-1:
+            return ErrCode.CODE_ARG_INVALID
+
         item: Item = Item.query.filter(Item.id == itemJson['id']).one_or_none()
         if not item: return CODE_ITEMID_NOT_FOUND
         if method == 2:
@@ -320,7 +341,8 @@ def postItem():
         else:
             return CODE_UNKNOWN_METHOD
 
-def _makeRsvInfoArr(qryRst, _makeRsvJson):
+
+def ____makeRsvInfoArr(qryRst, _makeRsvJson):
     """
     dealwith query result like this
     db.session.query(
@@ -348,33 +370,33 @@ def _makeRsvInfoArr(qryRst, _makeRsvJson):
         elif row[1] == FlexTimeRsv.methodValue:
             return f'{timestamp.date(row[3])} {timestamp.clock(row[3])}-{timestamp.clock(row[4])}'
 
-        groups = {}
-        rsvArr = []
-        for row in qryRst:
-            rsv = _makeRsvJson(row)
-            if rsv['method'] == FlexTimeRsv.methodValue:
-                rsv['interval'] = _singleInterval(row)
+    groups = {}
+    rsvArr = []
+    for row in qryRst:
+        rsv = _makeRsvJson(row)
+        if rsv['method'] == FlexTimeRsv.methodValue:
+            rsv['interval'] = _singleInterval(row)
+            rsvArr.append(rsv)
+        elif rsv['method'] == LongTimeRsv.methodValue:
+            relation: dict = Json.loads(row[6])['group-rsv']
+            if 'sub-rsvs' in relation:
+                rsv['interval'] = []
+                rsv['interval'].append(_singleInterval(row))
+                for subRsvIds in relation['sub-rsvs']:
+                    if subRsvIds in groups:
+                        rsv['interval'].append(_singleInterval(groups[subRsvIds]))
+                groups[rsv['id']] = rsv
                 rsvArr.append(rsv)
-            elif rsv['method'] == LongTimeRsv.methodValue:
-                relation: dict = Json.loads(row[6])['group-rsv']
-                if 'sub-rsvs' in relation:
-                    rsv['interval'] = []
-                    rsv['interval'].append(_singleInterval(row))
-                    for subRsvIds in relation['sub-rsvs']:
-                        if subRsvIds in groups:
-                            rsv['interval'].append(_singleInterval(groups[subRsvIds]))
-                    groups[rsv['id']] = rsv
-                    rsvArr.append(rsv)
+            else:
+                if relation['fth-rsv'] in groups:
+                    groups[relation['fth-rsv']]['interval'].append(_singleInterval(row))
                 else:
-                    if relation['fth-rsv'] in groups:
-                        groups[relation['fth-rsv']]['interval'].append(_singleInterval(row))
-                    else:
-                        groups[relation['fth-rsv']] = row
-                    rsvArr.append(rsv)
-        return rsvArr
+                    groups[relation['fth-rsv']] = row
+                # rsvArr.append(rsv)
+    return rsvArr
 
-@router.route('/item/<int:itemId>', methods=["GET"])
-def itemrsvinfo(itemId):
+@router.route('/reservation/<int:itemId>')
+def itemRsvInfo(itemId):
     qryRst = \
         db.session.query(
             Reservation.id,     # 0
@@ -382,25 +404,25 @@ def itemrsvinfo(itemId):
             Reservation.state,
             Reservation.st,     # 3
             Reservation.ed,
-            Reservation.chore   # 6
+            Reservation.chore   # 6, 记得最后返回时删除这个属性
         ) \
         .filter(Reservation.itemId == itemId) \
         .filter(Reservation.st >= timestamp.today()) \
         .filter(Reservation.ed <= timestamp.aWeekAfter()) \
-        .all()
-
-    def _makeRsvJson(row):
-        rsvJson = {
-            'id': row[0],
-            'method': row[1],
-            'state': row[2],
-            'interval': None
-        }
-        return rsvJson
+        .all()  
 
     rst = {}
     rst.update(ErrCode.CODE_SUCCESS)
-    rst['rsvs'] = _makeRsvInfoArr(qryRst, _makeRsvJson)
+
+    rsvArr = Models.mergeAndBeautify(qryRst)
+    def _process(e): # TODO: 想个好名字吧。。。
+        e = dict(e)
+        del e['chore']
+        del e['st']
+        del e['ed']
+        return e
+
+    rst['rsvs'] = [_process(e) for e in rsvArr] # 因为字段名和协议中属性名相同，所以不用多处理
     return rst
 
 # TODO: 增加检查目标预约时间是否已经被预约了
@@ -534,7 +556,8 @@ def reserve():
     
     return ErrCode.CODE_SUCCESS
 
-@router.route('/querymyrsv/')
+
+@router.route('/reservation/me')
 @requireLogin
 def querymyrsv():
     openid = session['openid']
@@ -556,6 +579,7 @@ def querymyrsv():
         Reservation.examRst # 10
     ).filter(Reservation.guest == openid)
 
+    # TODO: 增加格式检查
     try:
         stId = makeSnowId(request.args['st'], 0)
         sql = sql.filter(Reservation.id >= stId)
@@ -567,30 +591,30 @@ def querymyrsv():
     except:
         pass
 
-    def _makeRsvJson(row):
-        return {
-            'id': row[0],
-            'method': row[1],
-            'state': row[2],
-            'interval': None,
-            'item-id': row[7],
-            'reason': row[8],
-            'approver': row[9],
-            'exam-rst': row[10]
-        }
     
-    rsvJsonArr = _makeRsvInfoArr(sql.all(), _makeRsvJson)
-    adminNames = {}
-    for admin in Admin.query.all():
-        name = db.session.query(User.name).filter(User.openid == admin.openid).one()[0]
-        adminNames[admin.openid] = name
+    rsvJsonArr = Models.mergeAndBeautify(sql.all())
+    adminNames = {} # openid --> name
+    qryRst = db.session\
+        .query(Admin.openid, User.name)\
+        .join(User, User.openid == Admin.openid) \
+        .all()
+    for row in qryRst:
+        adminNames[row.openid] = row.name
 
-    for rsv in rsvJsonArr:
-        rsv['approver'] = adminNames[rsv['approver']]
+    def _pcs(e):
+        nonlocal adminNames
+        e = dict(e)
+        del e['st']
+        del e['ed']
+        del e['chore']
+        e['exam-rst'] = e.pop('examRst')
+        e['item-id'] = e.pop('itemId')
+        e['approver'] = adminNames[e['approver']]
+        return e
 
     rst = {}
     rst.update(ErrCode.CODE_SUCCESS)
-    rst['my-rsv'] = rsvJsonArr
+    rst['my-rsv'] = [_pcs(e) for e in rsvJsonArr]
     return rst
 
 @router.route('/cancel/')
