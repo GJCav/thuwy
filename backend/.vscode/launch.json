@@ -1,0 +1,36 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // vscode之python配置之官方文档，请访问: https://code.visualstudio.com/docs/python/debugging
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flask-python",
+            "type": "python",
+            "request": "launch",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "app/__init__.py",
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1"
+            },
+            "args": [
+                "run",
+            ],
+            "jinja": true
+            /***(以下这些vscode有默认值，可以省略)
+                //提供python程序的入口模块（启动文件）的完全限定路径。通过指定特定的启动文件，无论打开哪个文件，您始终可以确保使用相同的入口点启动程序。
+                //"program": "${workspaceFolder}/main.py",
+                //"program": "${file}",
+                //指向用于调试的Python解释器，它可以是包含Python解释器的文件夹(在seting中有配置python.pythonPath)
+                // "python": "${command:python.interpreterPath}",
+                // //指定程序输出的显示方式(VS代码集成终端显示)
+                // "console": "integratedTerminal",
+                // //系统默认设置,可省略！
+                // "cwd": "${workspaceFolder}",
+                // //系统默认设置,可省略！
+                // "stopOnEntry": false,           
+            */
+        }
+    ]
+}

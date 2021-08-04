@@ -13,7 +13,7 @@ import app.checkargs as CheckArgs
 
 testItemCount = 100
 
-addNewItem = False
+addNewItem = True
 testItemUrl = 'http://127.0.0.1:5000/item/'
 
 # 在使用该测试前删除原来的数据库
@@ -22,7 +22,7 @@ testItemUrl = 'http://127.0.0.1:5000/item/'
 def testAddItem():
     global testItemCount, testItemCount
     count = testItemCount
-    url = testItemCount
+    url = testItemUrl
 
     print(f'test add {count} items...')
     for i in range(count):
@@ -329,3 +329,26 @@ def testDelItem():
         json = R.get(url).json()
     
     assert json['item-count'] == 0
+
+
+# ------------ 给其他模块使用的函数 --------------
+def addItem(i, rsvMethod, headers={}):
+    global testItemUrl
+    url = testItemUrl
+    json = {
+        'method': 1,
+        'item': {
+            'name': f'Item {i}',
+            'brief-intro': f'bf-intro {i}',
+            'md-intro': f'md {i}',
+            'thumbnail': f'http://server/thumb{i}',
+            'rsv-method': rsvMethod
+        }
+    }
+
+    res = R.post(url, json=json, headers=headers)
+    assert res
+    
+    json = res.json()
+    assert json['code'] == 0, f'{json}'
+    return json['item-id']

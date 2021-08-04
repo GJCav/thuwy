@@ -10,7 +10,7 @@ cfg = config.config
 app.config.from_object(cfg)
 cfg.set(app)
 
-db = SQLAlchemy(app)
+db = SQLAlchemy(app, use_native_unicode='utf8')
 from .models import Admin, User, Item, Reservation
 db.create_all()
 

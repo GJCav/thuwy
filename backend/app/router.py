@@ -3,11 +3,10 @@ import requests as R
 import requests.exceptions as RE
 import json as Json
 import functools
-from re import match as reMatch
 import time as Time
 from copy import copy
 
-from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID
+from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID, skipLoginAndBind, skipAdmin
 from . import db
 from . import rsvIdPool, itemIdPool
 from . import comerrs as ErrCode
@@ -24,6 +23,8 @@ from . import ColorConsole as C
 from pprint import pprint
 
 router = Blueprint('router', __name__)
+
+# -----------------   鉴权    ----------------------
 
 @router.route('/login/', methods=['POST'])
 def login():
@@ -93,11 +94,10 @@ def login():
     rtn['bound'] = user[1] != None
     return rtn
 
-
 def requireLogin(handler):
     @functools.wraps(handler)
     def inner(*args, **kwargs):
-        if current_app.config['DEBUG'] and not session.get('openid', None):
+        if skipLoginAndBind and not session.get('openid', None):
             session['openid'] = 'openid for debug'
             session['wx-skey'] = 'secret key for debug'
             return handler(*args, **kwargs)
@@ -107,26 +107,25 @@ def requireLogin(handler):
             return handler(*args, **kwargs)
     return inner
 
-
 def requireBinding(handler):
     @functools.wraps(handler)
     def inner(*args, **kwargs):
-        if current_app.config.get('DEBUG', False):
+        if skipLoginAndBind:
             return handler(*args, **kwargs)
 
         openid = session['openid']
-        schoolId = db.session.query(User.schoolId).filter(User.openid == openid).one_or_none()
+        schoolId = db.session.query(User.schoolId).filter(User.openid == openid).one_or_none()[0] # 这里可以安全的直接使用[0]，因为这个函数总在 requireLogin 后调用
+
         if schoolId == None:
             return ErrCode.CODE_UNBOUND
         else:
             return handler(*args, **kwargs)
     return inner
 
-
 def requireAdmin(handler):
     @functools.wraps(handler)
     def inner(*args, **kwargs):
-        if current_app.config['DEBUG']:
+        if skipAdmin:
             return handler(*args, **kwargs)
         
         openid = session['openid']
@@ -161,12 +160,8 @@ def bind():
         clazz = str(reqJson['clazz'])
     except:
         return ErrCode.CODE_ARG_TYPE_ERR
-
-    def notMatch(pat, val):
-        if not reMatch(pat, val):
-            return True
     
-    if notMatch(r'^\d{10}$', schoolId) or notMatch('^未央-.+\d\d$', clazz):
+    if not CheckArgs.isSchoolId(schoolId) or not CheckArgs.isClazz(clazz):
         return ErrCode.CODE_ARG_INVALID
 
     openid = session['openid']
@@ -189,6 +184,15 @@ def bind():
 
     return ErrCode.CODE_SUCCESS
 
+@router.route('/profile/')
+@requireLogin
+def getProfile():
+    rtn = db.session.query(User).filter(User.openid == session['openid']).one().toDict()
+    rtn.update(ErrCode.CODE_SUCCESS)
+    return rtn
+
+
+# ---------------- /item/ 系列 ----------------------
 
 @router.route('/item/', methods=['GET'])
 def itemlist():
@@ -217,7 +221,7 @@ def itemlist():
 
     return rst
 
-
+# TODO: 在testItemAPI.py中添加测试代码
 @router.route('/item/<int:itemId>', methods=['GET'])
 def itemInfo(itemId):
     CODE_ITEMID_NOT_FOUND = {'code': 101, 'errmsg': 'item id not found'}
@@ -231,7 +235,8 @@ def itemInfo(itemId):
     else:
         rst = {}
         rst.update(ErrCode.CODE_SUCCESS)
-        rst['item'] = item
+        rst['item'] = item.toDict()
+        return rst
 
 def _addItem(reqJson: dict):
 
@@ -271,8 +276,10 @@ def _addItem(reqJson: dict):
     except:
         db.session.rollback()
         return ErrCode.CODE_DATABASE_ERROR
-
-    return ErrCode.CODE_SUCCESS
+    rtn = {}
+    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn['item-id'] = item.id
+    return rtn
 
 def _modifyItem(item: Item, itemJson):
     try:
@@ -303,7 +310,6 @@ def _delItem(item: Item):
     
     return ErrCode.CODE_SUCCESS
     
-
 @router.route('/item/', methods=['POST'])
 @requireLogin
 @requireBinding
@@ -343,7 +349,9 @@ def postItem():
             return CODE_UNKNOWN_METHOD
 
 
-@router.route('/reservation/<int:itemId>')
+# -------------------- /reservation/ --------------------
+
+@router.route('/item/<int:itemId>/reservation')
 def itemRsvInfo(itemId):
     qryRst = \
         db.session.query(
@@ -372,6 +380,26 @@ def itemRsvInfo(itemId):
 
     rst['rsvs'] = [_process(e) for e in rsvArr] # 因为字段名和协议中属性名相同，所以不用多处理
     return rst
+
+
+@router.route('/reservation/<int:rsvId>', methods=['GET'])
+def getRsvInfo(rsvId):
+    CODE_RSV_NOT_FOUND = {'code': 101, 'errmsg': 'reservation not found.'}
+
+    if rsvId < 0 or rsvId > (1<<65)-1:
+        return ErrCode.CODE_ARG_INVALID
+
+    rsv = Reservation.fromRsvId(rsvId)
+    if not rsv:
+        return CODE_RSV_NOT_FOUND
+    
+    if   rsv.method == LongTimeRsv.methodValue: rsvJson = LongTimeRsv.toDict(rsv)
+    elif rsv.method == FlexTimeRsv.methodValue: rsvJson = FlexTimeRsv.toDict(rsv)
+    else: return ErrCode.CODE_DATABASE_ERROR # 如果执行这个分支，说明存在外部添加 Rsv 的行为，或代码出Bug
+
+    rtn = {'rsv': rsvJson}
+    rtn.update(ErrCode.CODE_SUCCESS)
+    return rtn
 
 @router.route('/reservation/', methods=['POST'])
 @requireLogin
@@ -515,7 +543,7 @@ def querymyrsv():
     ).filter(Reservation.guest == openid)
 
     st = request.args.get('st', None)
-    if st and reMatch('\d{4}-\d{2}-\d{2}', st):
+    if st and CheckArgs.isDate(st):
         try:
             stId = makeSnowId(st, 0)
             sql = sql.filter(Reservation.id >= stId)
@@ -523,7 +551,7 @@ def querymyrsv():
             return ErrCode.CODE_ARG_INVALID
     
     ed = request.args.get('ed', None)
-    if ed and reMatch('\d{4}-\d{2}-\d{2}', ed):
+    if ed and CheckArgs.isDate(ed):
         try:
             edId = makeSnowId(ed, 0)
             sql = sql.filter(Reservation.ed <= edId)

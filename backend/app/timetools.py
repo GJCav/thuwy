@@ -20,13 +20,10 @@ def today() -> int:
 def todayStr() -> str:
     return datetime.datetime.now().strftime('%Y-%m-%d')
 
-def date(stamp) -> str:
-    return time.strftime('%Y-%m-%d', time.localtime(stamp/1000))
-
 def clock(stamp) -> str:
     return time.strftime('%H:%M', time.localtime(stamp/1000))
 
-def daysAfter() -> int:
+def daysAfter(d) -> int:
     today = _todayStart()
     after = today + datetime.timedelta(days=d)
     return int(after.timestamp()*1000)
@@ -45,10 +42,16 @@ def clockAfter(stamp, hours, mins) -> int:
     return int(t.timestamp() * 1000)
 
 def dateToTimestamp(dateStr) -> int:
-    return int(time.mktime(time.localtime(time.strptime(dateStr, '%Y-%m-%d')))*1000)
+    return int(time.mktime(time.strptime(dateStr, '%Y-%m-%d'))*1000)
+
+def getDate(stamp) -> str:
+    return time.strftime('%Y-%m-%d', time.localtime(stamp/1000))
 
 def getHour(stamp):
     return time.localtime(stamp / 1000).tm_hour
+
+def getMins(stamp):
+    return time.localtime(stamp / 1000).tm_min
 
 # 1 - 7
 def getWDay(stamp):

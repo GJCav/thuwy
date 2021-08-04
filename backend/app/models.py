@@ -34,6 +34,24 @@ class User(db.Model):
     def __repr__(self) -> str:
         return f'User({self.name}, {self.schoolId}, {self.clazz}, {self.openid})'
 
+    def toDict(self):
+        return {
+            'school-id': self.schoolId,
+            'name': self.name,
+            'clazz': self.clazz
+        }
+
+    def queryName(openid):
+        """
+        return: name of openid, none if not found.
+        """
+
+        rst = db.session\
+            .query(User.name)\
+            .filter(User.openid == openid)\
+            .one_or_none()
+        return rst[0] if rst else None
+
 class Item(db.Model):
     __tablename__ = "items"
     id            = db.Column(db.Integer, primary_key=True)
@@ -98,10 +116,17 @@ class Reservation(db.Model):
 
         conflict = db.session\
             .query(Reservation.st, Reservation.ed) \
+            .filter(Reservation.itemId == self.itemId)\
             .filter(*cdn) \
             .first() != None
 
         return conflict
+
+    def fromRsvId(rsvId):
+        return db.session\
+            .query(Reservation)\
+            .filter(Reservation.id == rsvId)\
+            .one_or_none()
 
 
 class LongTimeRsv:
@@ -111,13 +136,16 @@ class LongTimeRsv:
     morningStartHour   = 8
     morningEndHour     = 12
     morningCode        = 1
+
     afternoonStartHour = 13
     afternoonEndHour   = 17
     afternoonCode      = 2
+
     nightStartHour     = 17
     nightEndHour       = 23
     nightCode          = 3
 
+    weekendStartHour   = 0
     weekendCode = 4
 
     def parseInterval(interval: str) -> tuple or None:
@@ -171,6 +199,59 @@ class LongTimeRsv:
 
         return (st, ed)
 
+    def timestamp2Interval(st) -> str:
+        """
+        timestamp to str
+        """
+        dateStr = timestamp.getDate(st)
+        hour = timestamp.getHour(st)
+        if hour == LongTimeRsv.morningStartHour:
+            return f'{dateStr} {LongTimeRsv.morningCode}'
+        elif hour == LongTimeRsv.afternoonStartHour:
+            return f'{dateStr} {LongTimeRsv.afternoonCode}'
+        elif hour == LongTimeRsv.nightStartHour:
+            return f'{dateStr} {LongTimeRsv.nightCode}'
+        elif hour == LongTimeRsv.weekendStartHour:
+            return f'{dateStr} {LongTimeRsv.weekendCode}' 
+
+    def getInterval(rsv: Reservation):
+        rsv = LongTimeRsv.getFatherRsv(rsv)
+        interval = []
+        interval.append(LongTimeRsv.timestamp2Interval(rsv.st))
+        for rsvId in Json.loads(rsv.chore)['group-rsv']['sub-rsvs']:
+            st = db.session\
+                .query(Reservation.st)\
+                .filter(Reservation.id == rsvId)\
+                .one()[0]
+            interval.append(LongTimeRsv.timestamp2Interval(st))
+        return interval
+
+    def getFatherRsv(rsv: Reservation):
+        choreJson: dict = Json.loads(rsv.chore)
+        if 'sub-rsvs' in choreJson['group-rsv']:
+            return rsv
+        else:
+            return db.session\
+                .query(Reservation)\
+                .filter(Reservation.id == choreJson['group-rsv']['fth-rsv'])\
+                .one()
+
+    def toDict(rsv: Reservation):
+        if rsv.method != LongTimeRsv.methodValue:
+            raise ValueError(f'this is not a long time reservation. id: {rsv.id}')
+
+        rsvDict = {
+            'id': rsv.id,
+            'item-id': rsv.itemId,
+            'guest': User.queryName(rsv.guest),
+            'reason': rsv.reason,
+            'method': rsv.method,
+            'state': rsv.state,
+            'interval': LongTimeRsv.getInterval(rsv),
+            'approver': User.queryName(rsv.approver),
+            'exam-rst': rsv.examRst
+        }
+        return rsvDict
 
 class FlexTimeRsv:
     methodValue = 2
@@ -193,6 +274,30 @@ class FlexTimeRsv:
         except:
             return (None, None) # TODO: 这里的检查可以更精细些，区分INVALID和FORMAT两种错误
 
+    def timestamp2Interval(st, ed):
+        dateStr = timestamp.getDate(st)
+        H = timestamp.getHour
+        M = timestamp.getMins
+        return f'{dateStr} {H(st)}:{M(st)}-{H(ed)}:{M(ed)}'
+
+
+    def toDict(rsv: Reservation):
+        if rsv.method != FlexTimeRsv.methodValue:
+            raise ValueError(f'this is not a flexiable time reservation. id: {rsv.id}')
+        rsvDict = {
+            'id': rsv.id,
+            'item-id': rsv.itemId,
+            'guest': User.queryName(rsv.guest),
+            'reason': rsv.reason,
+            'method': rsv.method,
+            'state': rsv.state,
+            'interval': FlexTimeRsv.timestamp2Interval(rsv.st, rsv.ed),
+            'approver': User.queryName(rsv.approver),
+            'exam-rst': rsv.examRst
+        }
+        return rsvDict
+
+
 # post-binding methods for Reservation
 def _getIntervalStr(self: Reservation):
     """
@@ -205,16 +310,16 @@ def _getIntervalStr(self: Reservation):
     if self.method == LongTimeRsv.methodValue:
         hour = timestamp.getHour(self.st)
         if hour == LongTimeRsv.morningStartHour:
-            return f'{timestamp.date(self.st)()} {LongTimeRsv.morningCode}'
+            return f'{timestamp.getDate(self.st)()} {LongTimeRsv.morningCode}'
         elif hour == LongTimeRsv.afternoonStartHour:
-            return f'{timestamp.date(self.st)()} {LongTimeRsv.afternoonCode}'
+            return f'{timestamp.getDate(self.st)()} {LongTimeRsv.afternoonCode}'
         elif hour == LongTimeRsv.nightStartHour:
-            return f'{timestamp.date(self.st)()} {LongTimeRsv.nightCode}'
+            return f'{timestamp.getDate(self.st)()} {LongTimeRsv.nightCode}'
         else:
-            return f'{timestamp.date(self.st)()} {LongTimeRsv.weekendCode}'
+            return f'{timestamp.getDate(self.st)()} {LongTimeRsv.weekendCode}'
 
     elif self.method == FlexTimeRsv.methodValue:
-        return f'{timestamp.date(self.st)} {timestamp.clock(self.st)}-{timestamp.clock(self.ed)}'
+        return f'{timestamp.getDate(self.st)} {timestamp.clock(self.st)}-{timestamp.clock(self.ed)}'
 Reservation.getIntervalStr = _getIntervalStr
 
 # TODO: 换个更恰当的名字

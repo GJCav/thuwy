@@ -132,6 +132,22 @@ wx.request({
 
 
 
+## GET /profile/
+
+**Des：** 获取当前用户信息
+
+**请求参数：** 无
+
+**返回值：** Json Object，属性如下：
+
+| 属性      | 类型   | 说明     |
+| --------- | ------ | -------- |
+| name      | string | 姓名     |
+| clazz     | string | 班级     |
+| school-id | string | 学号     |
+| code      | int    | 错误码   |
+| errmsg    | string | 错误信息 |
+
 
 
 ## POST /admin/
@@ -184,34 +200,6 @@ wx.request({
 | item-count | int        | item的总个数                             |
 | page       | int        | 返回的是第几页                           |
 | items      | Json Array | 包含`Item`对象，详见 [说明](#对象说明)， |
-
-
-
-## GET /item/\<item-id>
-
-**Des：** 获取物品详细信息，包括`md-intro`、`delete`属性
-
-**Login?：** False
-
-**请求参数：**
-
-* `item-id`：要查询的物品id
-
-**返回值：** Json Object，包含属性如下
-
-| 属性   | 类型         | 说明     |
-| ------ | ------------ | -------- |
-| code   | int          | 错误码   |
-| errmsg | string       | 错误信息 |
-| item   | Item, Object | Item对象 |
-
-**错误码说明：**
-
-| code | errmsg            | 说明                |
-| ---- | ----------------- | ------------------- |
-| 101  | item id not found | 指定的item-id不存在 |
-
-
 
 
 
@@ -269,10 +257,11 @@ Item对象：
 
 **返回参数：**
 
-| 属性   | 类型   | 说明     |
-| ------ | ------ | -------- |
-| code   | int    | 错误码   |
-| errmsg | string | 错误信息 |
+| 属性    | 类型          | 说明                           |
+| ------- | ------------- | ------------------------------ |
+| code    | int           | 错误码                         |
+| errmsg  | string        | 错误信息                       |
+| item-id | ItemID, int64 | 添加的物品ID，仅在“添加”时返回 |
 
 **错误码说明**
 
@@ -283,15 +272,39 @@ Item对象：
 
 
 
+## GET /item/\<item-id>
+
+**Des：** 获取物品详细信息，包括`md-intro`、`delete`属性
+
+**Login?：** False
+
+**请求参数：**
+
+* `item-id`：要查询的物品id
+
+**返回值：** Json Object，包含属性如下
+
+| 属性   | 类型         | 说明     |
+| ------ | ------------ | -------- |
+| code   | int          | 错误码   |
+| errmsg | string       | 错误信息 |
+| item   | Item, Object | Item对象 |
+
+**错误码说明：**
+
+| code | errmsg            | 说明                |
+| ---- | ----------------- | ------------------- |
+| 101  | item id not found | 指定的item-id不存在 |
 
 
 
 
-## GET /reservation/\<item-id>
+
+## GET /item/\<item-id>/**reservation**
 
 **Des:** 查询某个物品未来一周的预约信息。
 
-**URL:** `/reservatioin/item-id`
+**URL:** `/item/<item-id>/reservation`
 
 **Method:** GET
 
@@ -317,6 +330,34 @@ Item对象：
 * method
 * state
 * interval
+
+
+
+## GET /reservation/\<rsv-id>
+
+**Des：** 获取某个预约的详细信息
+
+**Login?：** False
+
+**请求参数：** `rsv-id`
+
+**返回值：** Json Object，属性如下：
+
+| 属性   | 类型   | 说明       |
+| ------ | ------ | ---------- |
+| code   | int    | 错误码     |
+| errmsg | string | 错误信息   |
+| rsv    | Rsv    | 查询的预约 |
+
+**错误信息说明：** 
+
+| code | errmsg                | 说明               |
+| ---- | --------------------- | ------------------ |
+| 101  | reservation not found | 没有找到对应的预约 |
+
+
+
+
 
 
 
@@ -392,7 +433,7 @@ Item对象：
 
 
 
-## DELETE /reservation/\<rsv-id>
+## ~~DELETE /reservation/\<rsv-id>~~
 
 **Des:** 取消一个预约
 
@@ -477,7 +518,7 @@ Rsv对象是一个Json Object，包含如下属性：
 | -------- | --------- | -------------------------------- |
 | id       | RsvId     | 这个预约的编号                   |
 | item-id  | int64     | 物品ID                           |
-| guest    | string    | 预约人的openid                   |
+| guest    | string    | 预约人的**名字**                 |
 | reason   | string    | 预约理由                         |
 | method   | RsvMethod | 使用的预约方法，保证只有一位为 1 |
 | state    | RsvState  | 预约状态                         |
@@ -521,10 +562,10 @@ interval 是一个Json Array，其中每一个元素的格式：`yyyy-mm-dd c`
 
  - c：时间段编号，值为：
 
-   	- 1：上午
-      	- 2：下午
-      	- 3：晚上
-      	- 4：周末整体
+   - 1：上午
+   - 2：下午
+   - 3：晚上
+   - 4：周末整体
 
    且 c = 4 时，yyyy-mm-dd 日期对应周末两天中的周六日期。
 

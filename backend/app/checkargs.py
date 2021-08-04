@@ -29,3 +29,11 @@ def hasAttrs(map: dict, attrs: list):
 def isUrl(url):
     return Regex.match(r'https?://.+', url)
 
+def isDate(s: str):
+    return Regex.match(r'\d{4}-\d{1,2}-\d{1,2}', s)
+
+def isSchoolId(s: str):
+    return Regex.match(r'^\d{10}$', s)
+
+def isClazz(s: str):
+    return Regex.match(r'^未央-.+\d\d$', s)
