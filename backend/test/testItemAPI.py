@@ -13,7 +13,7 @@ import app.checkargs as CheckArgs
 
 testItemCount = 100
 
-addNewItem = True
+addNewItem = False
 testItemUrl = 'http://127.0.0.1:5000/item/'
 
 # 在使用该测试前删除原来的数据库
@@ -27,14 +27,11 @@ def testAddItem():
     print(f'test add {count} items...')
     for i in range(count):
         json = {
-            'method': 1,
-            'item': {
-                'name': f'Item {i}',
-                'brief-intro': f'bf-intro {i}',
-                'md-intro': f'md {i}',
-                'thumbnail': f'http://server/thumb{i}',
-                'rsv-method': i % 2
-            }
+            'name': f'Item {i}',
+            'brief-intro': f'bf-intro {i}',
+            'md-intro': f'md {i}',
+            'thumbnail': f'http://server/thumb{i}',
+            'rsv-method': i % 2
         }
         res = R.post(url, json=json)
         assert res.status_code == 200
@@ -74,14 +71,11 @@ def testAddDuItem():
     global testItemUrl
     url = testItemUrl
     json = {
-        'method': 1,
-        'item': {
-            'name': f'Item 0',
-            'brief-intro': f'bf-intro 0',
-            'md-intro': f'md 0',
-            'thumbnail': f'http://server/thumb0',
-            'rsv-method': 0
-        }
+        'name': f'Item 0',
+        'brief-intro': f'bf-intro 0',
+        'md-intro': f'md 0',
+        'thumbnail': f'http://server/thumb0',
+        'rsv-method': 0
     }
     res = R.post(url=url, json = json)
     assert res.status_code == 200
@@ -90,61 +84,23 @@ def testAddDuItem():
     rtn: dict = res.json()
     assert rtn['code'] == 0  # duplicate item is allowed.
 
-@pytest.mark.addItem
-def testAddItemWithBadMethod():
-    global testItemUrl
-    url = testItemUrl
-    json = {
-        'method': 1,
-        'item': {
-            'name': f'Item 0',
-            'brief-intro': f'bf-intro 0',
-            'md-intro': f'md 0',
-            'thumbnail': f'http://server/thumb0',
-            'rsv-method': 0
-        }
-    }
-
-    print('missing method')
-    del json['method']
-    res = R.post(url, json=json)
-    assert res.status_code == 200
-    resJson = res.json()
-    assert resJson['code'] == 4
-
-    print('unknown method')
-    json['method'] = 1000
-    res = R.post(url, json=json)
-    assert res.status_code == 200
-    resJson = res.json()
-    assert resJson['code'] == 102
-
-    print('wrong type method')
-    json['method'] = 'fuck!!'
-    res = R.post(url, json=json)
-    assert res.status_code == 200
-    resJson = res.json()
-    assert resJson['code'] == 6
 
 @pytest.mark.addItem
 def testAddItemWithBadArg():
     global testItemUrl
     url = testItemUrl
     json = {
-        'method': 1,
-        'item': {
-            'name': f'Item 0',
-            'brief-intro': f'bf-intro 0',
-            'md-intro': f'md 0',
-            'thumbnail': f'http://server/thumb0',
-            'rsv-method': 0
-        }
+        'name': f'Item 0',
+        'brief-intro': f'bf-intro 0',
+        'md-intro': f'md 0',
+        'thumbnail': f'http://server/thumb0',
+        'rsv-method': 0
     }
 
     print('missing args')
-    for k in json['item'].keys():
+    for k in json.keys():
         missArg = deepcopy(json)
-        del missArg['item'][k]
+        del missArg[k]
         res = R.post(url=url, json=missArg)
         
         assert res.status_code == 200
@@ -152,9 +108,9 @@ def testAddItemWithBadArg():
         assert resJson['code'] == 4
         assert resJson.keys() == {'code', 'errmsg'}
 
-    for k in json['item'].keys():
+    for k in json.keys():
         missArg = deepcopy(json)
-        missArg['item'][k] = None
+        missArg[k] = None
         res = R.post(url=url, json=missArg)
         
         assert res.status_code == 200
@@ -165,7 +121,7 @@ def testAddItemWithBadArg():
     print('wrong type args')
     for k in ['name', 'brief-intro', 'md-intro', 'thumbnail']:
         wtArg = deepcopy(json)
-        wtArg['item'][k] = 123
+        wtArg[k] = 123
         res = R.post(url=url, json=wtArg)
         
         assert res.status_code == 200
@@ -175,7 +131,7 @@ def testAddItemWithBadArg():
 
     for k in ['rsv-method']:
         wtArg = deepcopy(json)
-        wtArg['item'][k] = 'asdfasdf'
+        wtArg[k] = 'asdfasdf'
         res = R.post(url=url, json=wtArg)
         
         assert res.status_code == 200
@@ -186,7 +142,7 @@ def testAddItemWithBadArg():
     print('wrong format args')
     for k in ['thumbnail']:
         wfArg = deepcopy(json)
-        wfArg['item'][k] = '------------'
+        wfArg[k] = '------------'
         # pprint(wfArg)
         res = R.post(url=url, json=wfArg)
         
@@ -265,14 +221,10 @@ def testModifyItem():
     }
 
     for k in mdf:
-        reqJson = {
-            'method': 2,
-            'item': {
-                'id': itemId,
-                k: mdf[k]
-            }
-        }
-        res = R.post(url, json=reqJson)
+        if k == 'md-intro': continue
+
+        reqJson = {k:mdf[k]}
+        res = R.post(url+f'{itemId}', json=reqJson)
         assert res.status_code == 200
         json: dict = res.json()
         assert json.keys() == {'code', 'errmsg'}
@@ -283,47 +235,39 @@ def testModifyItem():
         json: dict = res.json()
 
 
-        if k != 'md-intro':
-            oldItem.update({k: mdf[k]})
-            assert oldItem == json['items'][idx]
-        # TODO: test md-intro here
+        oldItem.update({k: mdf[k]})
+        assert oldItem == json['items'][idx], oldItem
 
-@pytest.mark.modifyItem
+    # TODO: test md-intro here
+
+
+# TODO: testModifyItemWithBadArg
+
+@pytest.mark.delItem
 def testDelItem():
     global testItemUrl
     url = testItemUrl
 
-    delJson = {
-        'method': 3,
-        'item': {
-            'id': 0
-        }
-    }
-
-    res = R.post(url, json=delJson)
+    res = R.delete(url+'0')
     assert res
-    assert res.json()['code'] == 101, '测试一个删除一个不存在的id'
+    assert res.json()['code'] == 101, '删除一个不存在的id'
 
-    delJson['item']['id'] = -1
-    res = R.post(url, json=delJson)
-    assert res
-    assert res.json()['code'] == ErrCode.CODE_ARG_INVALID['code'], '测试负数id'
+    res = R.delete(url+'-1')
+    assert res.status_code == 404, 'flask 不允许负数的url变量'
 
-    delJson['item']['id'] = 2**128
-    res = R.post(url, json=delJson)
+    res = R.delete(url+f'{2**128}')
     assert res
     assert res.json()['code'] == ErrCode.CODE_ARG_INVALID['code'], '测试一个过大id'
 
-    delJson['item']['id'] = '1235'
-    res = R.post(url, json=delJson)
+    res = R.delete(url+'12233')
     assert res
-    assert res.json()['code'] == ErrCode.CODE_ARG_TYPE_ERR['code'], '测试类型错误的id'
+    assert res.json()['code'] == ErrCode.Item.CODE_ITEM_NOT_FOUND['code'], '测试不存在的id'
 
     json = R.get(url).json()
     while json['items']:
         for item in json['items']:
-            delJson['item']['id'] = item['id']
-            res = R.post(url, json=delJson)
+            itemId = item['id']
+            res = R.delete(url+f'{itemId}')
             assert res
             assert res.json()['code'] == 0, f'删除物品: {item["name"]}, {item["id"]}'
         json = R.get(url).json()

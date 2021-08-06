@@ -242,7 +242,7 @@ def itemInfo(itemId):
 @requireBinding
 @requireAdmin
 def addItem():
-    reqJson = request.json()
+    reqJson = request.json
 
     if not reqJson.get('name') \
         or not reqJson.get('brief-intro') \
@@ -294,7 +294,7 @@ def modifyItem(itemId):
     item = db.session.query(Item).filter(Item.id == itemId).one_or_none()
     if not item: return ErrCode.Item.CODE_ITEM_NOT_FOUND
 
-    itemJson = request.json()
+    itemJson = request.json
 
     try:
         if 'name' in itemJson: item.name              = str(itemJson['name'])

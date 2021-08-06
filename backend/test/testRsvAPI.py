@@ -102,4 +102,4 @@ def testRsvFlexTime():
     assert rsv['state'] == RsvState.STATE_WAITING
     assert rsv['interval'] == interval
 
-# TODO: 添加FlexTimeRsv的更多测试
+def testRsvFlexTime():
