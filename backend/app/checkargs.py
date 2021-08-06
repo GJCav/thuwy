@@ -37,3 +37,7 @@ def isSchoolId(s: str):
 
 def isClazz(s: str):
     return Regex.match(r'^未央-.+\d\d$', s)
+
+def isUint64(a):
+    if a < 0 or a > (1<<65)-1: return False
+    return True

@@ -224,21 +224,25 @@ def itemlist():
 # TODO: 在testItemAPI.py中添加测试代码
 @router.route('/item/<int:itemId>', methods=['GET'])
 def itemInfo(itemId):
-    CODE_ITEMID_NOT_FOUND = {'code': 101, 'errmsg': 'item id not found'}
 
-    if itemId < 0 or itemId > (1<<65)-1:
+    if not CheckArgs.isUint64(itemId):
         return ErrCode.CODE_ARG_INVALID
     
     item = db.session.query(Item).filter(Item.id == itemId).one_or_none()
     if not item:
-        return CODE_ITEMID_NOT_FOUND
+        return ErrCode.Item.CODE_ITEM_NOT_FOUND
     else:
         rst = {}
         rst.update(ErrCode.CODE_SUCCESS)
         rst['item'] = item.toDict()
         return rst
 
-def _addItem(reqJson: dict):
+@router.route('/item/', methods=['POST'])
+@requireLogin
+@requireBinding
+@requireAdmin
+def addItem():
+    reqJson = request.json()
 
     if not reqJson.get('name') \
         or not reqJson.get('brief-intro') \
@@ -281,7 +285,17 @@ def _addItem(reqJson: dict):
     rtn['item-id'] = item.id
     return rtn
 
-def _modifyItem(item: Item, itemJson):
+
+@router.route('/item/<int:itemId>', methods=['POST'])
+@requireLogin
+@requireBinding
+@requireAdmin
+def modifyItem(itemId):
+    item = db.session.query(Item).filter(Item.id == itemId).one_or_none()
+    if not item: return ErrCode.Item.CODE_ITEM_NOT_FOUND
+
+    itemJson = request.json()
+
     try:
         if 'name' in itemJson: item.name              = str(itemJson['name'])
         if 'available' in itemJson: item.available    = bool(itemJson['available'])
@@ -300,7 +314,16 @@ def _modifyItem(item: Item, itemJson):
 
     return ErrCode.CODE_SUCCESS
 
-def _delItem(item: Item):
+
+@router.route('/item/<int:itemId>', methods=['DELETE'])
+@requireLogin
+@requireBinding
+@requireAdmin
+def delItem(itemId):
+    if not CheckArgs.isUint64(itemId): return ErrCode.CODE_ARG_INVALID
+    item = db.session.query(Item).filter(Item.id == itemId).one_or_none() 
+    if not item: return ErrCode.Item.CODE_ITEM_NOT_FOUND
+
     try:
         item.delete = True
         db.session.commit()
@@ -309,44 +332,7 @@ def _delItem(item: Item):
         return ErrCode.CODE_DATABASE_ERROR
     
     return ErrCode.CODE_SUCCESS
-    
-@router.route('/item/', methods=['POST'])
-@requireLogin
-@requireBinding
-@requireAdmin
-def postItem():
-    CODE_ITEMID_NOT_FOUND = {'code': 101, 'errmsg': 'item id not found.'}
-    CODE_UNKNOWN_METHOD = {'code': 102, 'errmsg': 'unknown method'}
 
-    json: dict = request.get_json()
-    if not json: return ErrCode.CODE_ARG_MISSING
-    if not json.get('method') or not json.get('item'): 
-        return ErrCode.CODE_ARG_MISSING
-
-    try:
-        itemJson = json['item']
-        method   = int(json['method'])
-    except:
-        return ErrCode.CODE_ARG_TYPE_ERR
-
-    if method < 0 or method > 3:
-        return CODE_UNKNOWN_METHOD
-    elif method == 1:
-        return _addItem(itemJson)
-    else:
-        if not CheckArgs.areInt(itemJson, ['id']):
-            return ErrCode.CODE_ARG_TYPE_ERR
-        if itemJson['id'] < 0 or itemJson['id'] > (1<<65)-1:
-            return ErrCode.CODE_ARG_INVALID
-
-        item: Item = Item.query.filter(Item.id == itemJson['id']).one_or_none()
-        if not item: return CODE_ITEMID_NOT_FOUND
-        if method == 2:
-            return _modifyItem(item, itemJson)
-        elif method == 3:
-            return _delItem(item)
-        else:
-            return CODE_UNKNOWN_METHOD
 
 
 # -------------------- /reservation/ --------------------

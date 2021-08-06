@@ -8,3 +8,6 @@ CODE_ARG_TYPE_ERR   = {'code': 6, 'errmsg': 'request args type error'}
 CODE_ARG_INVALID    = {'code': 7, 'errmsg': 'request args are invalid'}
 
 CODE_DATABASE_ERROR = {'code': 20, 'errmsg': 'database error'}
+
+class Item:
+   CODE_ITEM_NOT_FOUND = {'code': 101, 'errmsg': 'item not found'}
