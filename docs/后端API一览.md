@@ -1,6 +1,8 @@
 # API 约定
 
-## login
+## 鉴权
+
+### login
 
 **Des:** 第一次登陆
 
@@ -99,7 +101,7 @@ wx.request({
 
 
 
-## bind
+### bind
 
 **Des:**  设置用户的学号、姓名、班级
 
@@ -132,7 +134,7 @@ wx.request({
 
 
 
-## GET /profile/
+### GET /profile/3
 
 **Des：** 获取当前用户信息
 
@@ -150,7 +152,7 @@ wx.request({
 
 
 
-## POST /admin/
+### POST /admin/
 
 **Des:** 申请当前用户成为管理员
 
@@ -171,9 +173,9 @@ wx.request({
 
 
 
+## 物品管理
 
-
-## GET /item/
+### GET /item/
 
 > 我们把所有能被预约的东西都称之为 `item` ，包括摄像机、29号楼房间等。
 
@@ -203,9 +205,9 @@ wx.request({
 
 
 
-## POST /item/
+### POST /item/
 
-**Des：** 添加、修改某个物品的属性
+**Des：** 添加物品
 
 **URL：** `POST /item/`
 
@@ -213,66 +215,32 @@ wx.request({
 
 **Login?:** True，且绑定，且是管理员
 
-**请求参数：** Json Object，属性如下：
+**请求参数：**Item，包含且只包含如下属性：
 
-| 属性   | 类型 | 必填 | 说明                      |
-| ------ | ---- | ---- | ------------------------- |
-| method | int  | 是   | 不同的值表示不同的操作    |
-|        |      |      | 1：增加；2：修改；3：删除 |
-| item   | Item | 是   | 不同操作，Item要求如下：  |
+* name
 
-Item对象：
-
-1. 增加，要求传入服务器的Item对象包含且只包含如下属性：
-
-   * name
-   * brief-intro
-   * md-intro
-   * thumbnail
-   * rsv-method
-
-2. 修改，要求传入服务器的Item对象
-
-   必须包含属性：
-
-   * id
-
-   可选包含属性：
-
-   * name
-   * available
-   * brief-intro
-   * md-intro
-   * thumbnail
-   * rsv-method
-
-3. 删除，包含且只包含：
-
-   * id
-   * ~~delete，且必须为true~~，最后一波思考，觉得莫得必要
-
-**注：** 如果传入了其他参数，服务器会忽略他们。
-
-
+* brief-intro
+* md-intro
+* thumbnail
+* rsv-method
 
 **返回参数：**
 
-| 属性    | 类型          | 说明                           |
-| ------- | ------------- | ------------------------------ |
-| code    | int           | 错误码                         |
-| errmsg  | string        | 错误信息                       |
-| item-id | ItemID, int64 | 添加的物品ID，仅在“添加”时返回 |
+| 属性    | 类型          | 说明         |
+| ------- | ------------- | ------------ |
+| code    | int           | 错误码       |
+| errmsg  | string        | 错误信息     |
+| item-id | ItemID, int64 | 添加的物品ID |
 
 **错误码说明**
 
-| code | errmsg            | 说明                |
-| ---- | ----------------- | ------------------- |
-| 101  | item id not found | 指定的item-id不存在 |
-| 102  | unknown method    | 指定了未知的method  |
+| code | errmsg         | 说明                |
+| ---- | -------------- | ------------------- |
+| 101  | item not found | 指定的item-id不存在 |
 
 
 
-## GET /item/\<item-id>
+### GET /item/\<item-id>
 
 **Des：** 获取物品详细信息，包括`md-intro`、`delete`属性
 
@@ -298,9 +266,63 @@ Item对象：
 
 
 
+### POST /item/\<item-id>
+
+**Des：** 修改物品信息
+
+**Login?：** True，要求绑定、登陆
+
+**请求参数：** 
+
+* **URL：** item-id，物品id
+
+* **Body：** Rsv，只能包含下表属性，不需要修改的属性可以省略
+  * name
+  * available
+  * brief-intro
+  * md-intro
+  * thumbnail
+  * rsv-method
+
+**返回值：** Json Object，包含属性如下
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
+
+**错误码说明：**
+
+| code | errmsg         | 说明                |
+| ---- | -------------- | ------------------- |
+| 101  | item not found | 指定的item-id不存在 |
 
 
-## GET /item/\<item-id>/**reservation**
+
+### DELETE /item/\<item-id>
+
+**Des：** 删除物品
+
+**请求参数：** 
+
+* **URL：** item-id，物品id
+
+**返回值：** Json Object，包含属性如下
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
+
+**错误码说明：**
+
+| code | errmsg         | 说明                |
+| ---- | -------------- | ------------------- |
+| 101  | item not found | 指定的item-id不存在 |
+
+
+
+### GET /item/\<item-id>/**reservation**
 
 **Des:** 查询某个物品未来一周的预约信息。
 
@@ -333,7 +355,9 @@ Item对象：
 
 
 
-## GET /reservation/\<rsv-id>
+## 预约
+
+### GET /reservation/\<rsv-id>
 
 **Des：** 获取某个预约的详细信息
 
@@ -361,7 +385,7 @@ Item对象：
 
 
 
-## POST /reservation/
+### POST /reservation/
 
 **Des:** 提交一个预约
 
@@ -401,7 +425,7 @@ Item对象：
 
 
 
-## reservation/me
+### reservation/me
 
 **Des:** 查询“我的”所有预约
 
@@ -433,7 +457,7 @@ Item对象：
 
 
 
-## ~~DELETE /reservation/\<rsv-id>~~
+### ~~DELETE /reservation/\<rsv-id>~~
 
 **Des:** 取消一个预约
 
@@ -468,9 +492,9 @@ Item对象：
 
 
 
-# 对象说明
+## 对象说明
 
-## code 错误码
+### code 错误码
 
 错误码保留\[0, 100\]，作为公共错误码；\[101, +inf) 为某个API特定错误码。
 
@@ -492,7 +516,7 @@ Item对象：
 
 
 
-## Item对象
+### Item对象
 
 Item对象是一个Json Object对象，包含如下属性：
 
@@ -510,7 +534,7 @@ Item对象是一个Json Object对象，包含如下属性：
 
 
 
-## Rsv对象
+### Rsv对象
 
 Rsv对象是一个Json Object，包含如下属性：
 
@@ -530,9 +554,9 @@ Rsv对象是一个Json Object，包含如下属性：
 
 
 
-## RsvMethod对象
+### RsvMethod对象
 
-### 对象说明
+#### 对象说明
 
 RsvMethod是一个32位的无符号整数（可以更长，但我觉得没必要），每一位是否为 1 代表是否支持对应的预约方法。现在存在的几种预约方法：
 
@@ -546,7 +570,7 @@ RsvMethod是一个32位的无符号整数（可以更长，但我觉得没必要
 
 如果一个RsvMethod值为 3，则意味着这个Item即可以按照时间段预约、又可以灵活预约，因为 `3 = 0b11`。如果为 2 ，则意味着只支持灵活预约。
 
-### 对应的interval格式
+#### 对应的interval格式
 
 **1. 时间段预约：**
 
@@ -589,7 +613,7 @@ interval 格式：`yyyy-mm-dd HH:MM-HH:MM`
 
 
 
-## RsvId 对象
+### RsvId 对象
 
 RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算法设计。
 
@@ -616,7 +640,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 
 
-## RsvState 对象
+### RsvState 对象
 
 RsvState 是一个 int 对象(具体多少位再说)，每一位对应不同的含义：
 
