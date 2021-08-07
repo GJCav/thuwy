@@ -16,11 +16,11 @@ from . import timetools as timestamp
 
 
 class Admin(db.Model):
-    __tablename__ = 'admins'
+    __tablename__ = 'admin'
     openid        = db.Column(db.Text, primary_key = True)
 
 class User(db.Model):
-    __tablename__ = "users"
+    __tablename__ = "user"
     openid        = db.Column(db.Text, primary_key = True)
     schoolId      = db.Column('school_id', db.Text, unique=True)
     name          = db.Column(db.Text)
@@ -58,7 +58,7 @@ class User(db.Model):
         return rst[0] if rst else None
 
 class Item(db.Model):
-    __tablename__ = "items"
+    __tablename__ = "item"
     id            = db.Column(db.Integer, primary_key=True)
     name          = db.Column(db.Text, nullable=False)
     available     = db.Column(db.Integer)
@@ -104,6 +104,7 @@ class Item(db.Model):
 
 
 class Reservation(db.Model):
+    __tablename__ = 'reservation'
     id       = db.Column(db.Integer, primary_key=True)
     itemId   = db.Column('item_id', db.Integer)
     guest    = db.Column(db.Text, nullable=False)
