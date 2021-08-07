@@ -39,7 +39,7 @@
 
 
 
-**Set-Cookie？：**True
+**Set-Cookie？：** True
 
 该接口会设置形如`session=xxxxx`的Cookie作为登陆信息，下文调用要求`Login?:True`的接口时，需要把这个Cookie传回给后端。
 
@@ -95,7 +95,7 @@ wx.request({
 
 
 
-一次登陆后过多久需要重新登陆还在纠结(ー`´ー)，先不管吧。****
+一次登陆后过多久需要重新登陆还在纠结(ー`´ー)，先不管吧。
 
 
 
@@ -203,13 +203,13 @@ wx.request({
 
 ### 物品详细信息
 
-**API: ** `GET /item/<item-id>`
+**API:** `GET /item/<item-id>`
 
 **Des：** 获取物品详细信息，包括`md-intro`、`delete`属性
 
 **Login?：** False
 
-**请求参数：**
+**请求参数：** 无
 
 * `item-id`：要查询的物品id
 
@@ -237,7 +237,7 @@ wx.request({
 
 **Login?:** True，且绑定，且是管理员
 
-**请求参数：**Item，包含且只包含如下属性：
+**请求参数：** Item，包含且只包含如下属性：
 
 * name
 
@@ -264,7 +264,7 @@ wx.request({
 
 ### 修改物品
 
-**API: ** `POST /item/<item-id>`
+**API:** `POST /item/<item-id>`
 
 **Des：** 修改物品信息
 
@@ -336,7 +336,7 @@ wx.request({
 | ------- | ----- | ---- | -------------- |
 | item-id | int64 | 是   | 要查询的物品id |
 
-**返回值：**Json Object，属性如下：
+**返回值：** Json Object，属性如下：
 
 | 属性   | 类型       | 说明                                |
 | ------ | ---------- | ----------------------------------- |
