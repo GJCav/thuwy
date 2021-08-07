@@ -1,5 +1,5 @@
 import pytest
-import requests as R
+# import requests as R
 import os.path as Path
 import os
 import math
@@ -7,6 +7,9 @@ from pprint import pprint
 from copy import deepcopy
 from random import randint
 import sys
+
+from config4test import R
+
 sys.path.append('..')
 import app.comerrs as ErrCode
 import app.checkargs as CheckArgs
@@ -276,23 +279,20 @@ def testDelItem():
 
 
 # ------------ 给其他模块使用的函数 --------------
-def addItem(i, rsvMethod, headers={}):
+def addItem(i, rsvMethod):
     global testItemUrl
     url = testItemUrl
     json = {
-        'method': 1,
-        'item': {
-            'name': f'Item {i}',
-            'brief-intro': f'bf-intro {i}',
-            'md-intro': f'md {i}',
-            'thumbnail': f'http://server/thumb{i}',
-            'rsv-method': rsvMethod
-        }
+        'name': f'Item {i}',
+        'brief-intro': f'bf-intro {i}',
+        'md-intro': f'md {i}',
+        'thumbnail': f'http://server/thumb{i}',
+        'rsv-method': rsvMethod
     }
 
-    res = R.post(url, json=json, headers=headers)
-    assert res
+    res = R.post(url, json=json)
+    assert res, f"{res.reason} "
     
     json = res.json()
-    assert json['code'] == 0, f'{json}'
+    assert json['code'] == 0, json
     return json['item-id']

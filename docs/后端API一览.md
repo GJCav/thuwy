@@ -397,12 +397,12 @@ wx.request({
 
 **请求参数** ：Rsv对象，只需包含如下属性，其余省略：
 
-| 属性     | 类型           | 说明                             |
-| -------- | -------------- | -------------------------------- |
-| item-id  | int64          | 要预约物品的id                   |
-| reason   | string         | 预约理由                         |
-| method   | RsvMethod, int | 使用的预约方法，只能有一位为1    |
-| interval | any            | 描述预约时间段，格式由method决定 |
+| 属性     | 类型           | 说明                                  |
+| -------- | -------------- | ------------------------------------- |
+| item-id  | int64          | 要预约物品的id                        |
+| reason   | string         | 预约理由                              |
+| method   | RsvMethod, int | 使用的预约方法，二进制下只能有一位为1 |
+| interval | any            | 描述预约时间段，格式由method决定      |
 
 **返回值** ：Json Object，属性如下：
 
@@ -418,6 +418,8 @@ wx.request({
 | ---- | ----------------------------- | ------------------------------------------- |
 | 101  | time conflict                 | 预约时间冲突                                |
 | 102  | reservation time out of range | 不允许预约过去的时间且不允许预约7天后的时间 |
+| 103  | using duplicated method       | method包含多个预约方法                      |
+| 201  | item not found                | 想要预约的物品不存在                        |
 
 
 

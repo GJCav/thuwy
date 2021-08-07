@@ -1,10 +1,6 @@
-# change this before test
-cookieStr = \
-"""session=eyJvcGVuaWQiOiJvZHo0QjR4bFRnbEJaWGpHSVZoNjVhRnNpeUFZIiwid3gtc2tleSI6Iis1aGxMcUlaZytzWWt0b3VUT3pJRGc9PSJ9.YQprBw.OuNPCemXItpUbTkougYvyBrnRO0; HttpOnly"""
-
 import pytest
-import requests as R
 from testItemAPI import addItem
+from config4test import R
 
 import sys
 sys.path.append('..')
@@ -16,14 +12,13 @@ import app.rsvstate as RsvState
 
 url_server = 'http://127.0.0.1:5000/'
 url_profile = url_server + 'profile/'
-headers = {
-    'cookie': cookieStr
-}
+
 
 url_rsv = url_server + 'reservation/'
 
 # ------------- pre test --------------
 
+@pytest.mark.skip
 def testRsvWithoutLogin():
     global url_rsv
     res = R.post(url_rsv, json={
@@ -36,10 +31,11 @@ def testRsvWithoutLogin():
     assert res
     assert res.json()['code'] == ErrCode.CODE_NOT_LOGGED_IN['code']
 
+@pytest.mark.skip
 def testLoginAndBinding():
     global headers
 
-    res = R.post(url_rsv, headers=headers, json={})
+    res = R.post(url_rsv, json={})
     assert res
 
     reqJson = res.json()
@@ -55,10 +51,10 @@ def testLoginAndBinding():
 itemIds = []
 
 def testPrepareItems():
-    itemIds.append(addItem(1, 1, headers))
-    itemIds.append(addItem(2, 2, headers))
-    itemIds.append(addItem(3, 3, headers))
-    itemIds.append(addItem(4, 0, headers))
+    itemIds.append(addItem(1, 1))
+    itemIds.append(addItem(2, 2))
+    itemIds.append(addItem(3, 3))
+    itemIds.append(addItem(4, 0))
 
 def _flexInterval(daysAfter: int, st, ed) -> str:
     st = T.clockAfter(T.daysAfter(daysAfter), *st)
@@ -70,36 +66,218 @@ def testRsvFlexTime():
     if not itemIds:
         testPrepareItems()
 
-    interval = _flexInterval(1, (8, 30), (14, 59))
-    itemId = itemIds[1]
+    # -----------------  功能测试  ----------------------
+    testData = [
+        # (daysAfter, stHour, stMins, edHour, edMins, code, msg)
+        (1,  8, 30, 14, 59,   0, '正常预约'),
+        (1,  5,  0,  5, 30,   0, '正常预约'),
+        (1,  6,  0,  8, 31, 101, '包含左端'),
+        (1,  9,  0, 12,  0, 101, '被全包含'),
+        (1, 13,  0, 15,  0, 101, '包含右端'),
+        (1, 18,  0, 20,  0,   0, '正常预约'),
+        (1,  8,  0, 15, 10, 101, '包含全段'),
+
+        # 极限情况测试
+        (1,  4, 30,  5,  0,   0, '重合右端，允许'),
+        (1,  5,  0,  5,  1, 101, '重合左端，禁止'),
+        (1,  5,  0,  5, 30, 101, '完全重合，禁止'), 
+        
+        # 再过一天
+        (2,  8, 30, 14, 59,   0, '正常预约'),
+        (2,  5,  0,  5, 30,   0, '正常预约'),
+        (2, 18,  0, 20,  0,   0, '正常预约'),
+
+        # 超过出预约范围
+        (-1, 8,  0,  9, 10, 102, '预约昨天'),
+        (8,  8,  0,  9, 10, 102, '预约一个星期之后的时间')
+    ]
+
+    for tId, data in enumerate(testData):
+        days, stH, stM, edH, edM, code, msg = data
+
+        interval = _flexInterval(days, (stH, stM), (edH, edM))
+        itemId = itemIds[1]
+
+        reqJson = {
+            'item-id': itemId,
+            'reason': f'test flex time rsv {tId}',
+            'method': 2,
+            'interval': interval
+        }
+
+        res = R.post(url_rsv, json=reqJson)
+        assert res
+        
+        json = res.json()
+        assert json['code'] == code, f"test: {msg}, get: {json['code']}, expect: {code}"
+
+        if code != 0:
+            continue
+
+        rsvId = json['rsv-id']
+        res = R.get(url_rsv + str(rsvId))
+        assert res
+        
+        json = res.json()
+        assert json['code'] == 0, (json, reqJson)
+
+        rsv = json['rsv']
+        assert CheckArgs.hasAttrs(rsv, ['id', 'item-id', 'guest', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), str(rsv)
+        assert rsv['id'] == rsvId, str(rsv)
+        assert rsv['item-id'] == itemId, str(rsv)
+        assert rsv['reason'] == reqJson['reason'], rsv
+        assert rsv['method'] == FlexTimeRsv.methodValue, str(rsv)
+        assert rsv['state'] == RsvState.STATE_WAITING
+        assert rsv['interval'] == interval
 
     reqJson = {
-        'item-id': itemId,
-        'reason': 'test flex time rsv',
+        'item-id': itemIds[0],
+        'reason': f'test flex time rsv, rsv method not support',
+        'method': 2,
+        'interval': interval
+    }
+    res = R.post(url_rsv, json=reqJson)
+    assert res
+    json = res.json()
+    assert json['code'] == ErrCode.Rsv.CODE_METHOD_NOT_SUPPORT['code'], f'测试方法不支持的情况: {json}'
+
+    reqJson = {
+        'item-id': 123,
+        'reason': f'test flex time rsv, item not found',
+        'method': 2,
+        'interval': interval
+    }
+    res = R.post(url_rsv, json=reqJson)
+    assert res
+    json = res.json()
+    assert json['code'] == ErrCode.Rsv.CODE_ITEM_NOT_FOUND['code'], f'测试找不到物品的情况: {json}'
+
+
+    interval = _flexInterval(3, (8, 0), (9, 0))
+    # ----------------------- 测试缺少参数的情况 ------------------------
+    reqJson = {
+        'item-id': itemIds[1],
+        'reason': f'test flex time rsv, arg missing',
         'method': 2,
         'interval': interval
     }
 
-    res = R.post(url_rsv, headers=headers, json=reqJson)
-    assert res
+    for k in reqJson.keys():
+        mj = reqJson.copy()
+        del mj[k]
+
+        res = R.post(url_rsv, json=mj)
+        assert res
+        json = res.json()
+        assert json['code'] == ErrCode.CODE_ARG_MISSING['code'], f'测试缺少参数的情况: {mj}'
+
     
-    json = res.json()
-    assert json['code'] == 0, (json, reqJson)
+    # --------------------- 测试参数类型错误的情况 ------------------------
+    reqJson = {
+        'item-id': itemIds[1],
+        'reason': f'test flex time rsv, arg type error',
+        'method': 2,
+        'interval': interval
+    }
 
-    rsvId = json['rsv-id']
-    res = R.get(url_rsv + str(rsvId))
-    assert res
+    typeErrJson = {
+        'item-id': 'abc',
+        'reason': 125,
+        'method': 1.5,
+        'interval': ['nihao']
+    }
+    for k in typeErrJson.keys():
+        temp = reqJson.copy()
+        temp[k] = typeErrJson[k]
+
+        res = R.post(url_rsv, json=temp)
+        assert res
+        json = res.json()
+        assert json['code'] == ErrCode.CODE_ARG_TYPE_ERR['code'], f'测试参数类型错误的情况: {temp}'
+
+    # ------------------- 测试参数格式错误的情况  -----------------------
+    reqJson = {
+        'item-id': itemIds[1],
+        'reason': f'test flex time rsv, arg format error',
+        'method': 2,
+        'interval': interval
+    }
+    fmtErrJson = {
+        'interval': 'abc'
+    }
+    for k in fmtErrJson.keys():
+        temp = reqJson.copy()
+        temp[k] = fmtErrJson[k]
+
+        res = R.post(url_rsv, json=temp)
+        assert res
+        json = res.json()
+        assert json['code'] == ErrCode.CODE_ARG_FORMAT_ERR['code'], f'测试参数格式错误的情况: {temp}\r\n{json}'
     
-    json = res.json()
-    assert json['code'] == 0, (json, reqJson)
+    # TODO: 等后端区分INVALID ERROR和FORMAT ERROR后添加INVALID的测试
 
-    rsv = json['rsv']
-    assert CheckArgs.hasAttrs(rsv, ['id', 'item-id', 'guest', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), str(rsv)
-    assert rsv['id'] == rsvId, str(rsv)
-    assert rsv['item-id'] == itemId, str(rsv)
-    assert rsv['reason'] == 'test flex time rsv', str(rsv)
-    assert rsv['method'] == FlexTimeRsv.methodValue, str(rsv)
-    assert rsv['state'] == RsvState.STATE_WAITING
-    assert rsv['interval'] == interval
 
-def testRsvFlexTime():
+def testRsvLongTime():
+    if not itemIds:
+        testPrepareItems()
+
+    def _da(d):
+        return T.getDate(T.daysAfter(d))
+
+    testDataSet = [
+        # code, interval
+        (  0, [_da(1)+' 1']), # 单个预约
+        (  0, [_da(1)+' 2']),
+        (  0, [_da(1)+' 3']),
+
+        (  0, [_da(2)+' 1', _da(2)+' 2']),  # 多个预约
+        (  0, [_da(3)+' 2', _da(3)+' 3']),
+        (  0, [_da(2)+' 3', _da(3)+' 1']),
+
+        (101, [_da(1)+' 1']), # 时间冲突,
+        (101, [_da(1)+' 2']),
+        (101, [_da(1)+' 3']),
+        (101, [_da(2)+' 1']),
+        (101, [_da(2)+' 2']),
+        (101, [_da(2)+' 3']),
+        (101, [_da(3)+' 1']),
+        (101, [_da(3)+' 2']),
+        (101, [_da(3)+' 3']),
+        (101, [_da(4)+' 1', _da(4)+' 1']), # 内部时间冲突
+        (101, [_da(4)+' 2', _da(4)+' 2']),
+        (101, [_da(4)+' 1', _da(4)+' 2', _da(4)+' 3', _da(4)+' 2']),
+
+        (102, [_da(-1)+' 1']), # 超出预约范围
+        (102, [_da(-1)+' 2']),
+        (102, [_da(-1)+' 3']),
+        (102, [_da(7)+' 1']),
+        (102, [_da(7)+' 2']),
+        (102, [_da(7)+' 3']),
+
+        (  5, ['abcdeafccd 0']), # 日期格式错误
+        (  5, [_da(5)]),
+        (  5, ['225-asd5e cde e']),
+        (  7, [_da(5)+' 6']),    # 时间码错误
+    ]
+
+    for idx, data in enumerate(testDataSet):
+        expCode, interval = data
+        reqJson = {
+            'item-id': itemIds[0],
+            'reason': f'test long time rsv, {idx}',
+            'method': 1,
+            'interval': interval
+        }
+
+        res = R.post(url_rsv, json=reqJson)
+        assert res, data
+        json = res.json()
+        assert json['code'] == expCode, f"test: {data}, code: {json['code']}, exp: {expCode}"
+
+        if expCode != 0: continue
+        res = R.get(url_rsv+f"{json['rsv-id']}")
+        assert res, f"test: {data}, recheck"
+        json = res.json()
+        assert json['code'] == 0
+        rsv = json['rsv']
+        assert rsv['interval'] == interval, f"test: {data}, recheck"

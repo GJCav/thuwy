@@ -11,3 +11,15 @@ CODE_DATABASE_ERROR = {'code': 20, 'errmsg': 'database error'}
 
 class Item:
    CODE_ITEM_NOT_FOUND = {'code': 101, 'errmsg': 'item not found'}
+
+
+class Rsv:
+   CODE_TIME_CONFLICT = {'code': 101, 'errmsg': 'time conflict'}
+   CODE_TIME_OUT_OF_RANGE = {'code': 102, 'errmsg': 'reservation time out of range'}
+   CODE_DUPLICATE_METHOD = {'code': 103, 'errmsg': 'using duplicated method'}
+   CODE_METHOD_NOT_SUPPORT = {'code': 103, 'errmsg': 'rsv method not supported yet'}
+
+   CODE_ITEM_NOT_FOUND = {
+      'code': Item.CODE_ITEM_NOT_FOUND['code']+100,
+      'errmsg': Item.CODE_ITEM_NOT_FOUND['errmsg']
+   }

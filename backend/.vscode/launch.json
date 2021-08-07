@@ -5,7 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Flask-python",
+            "name": "Flask: exam",
+            "type": "python",
+            "request": "launch",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "${file}",
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1"
+            },
+            "args": [
+                "run",
+            ],
+            "jinja": true
+        },
+        {
+            "name": "run server",
             "type": "python",
             "request": "launch",
             "module": "flask",
@@ -17,7 +32,7 @@
             "args": [
                 "run",
             ],
-            "jinja": true
+            // "jinja": true
             /***(以下这些vscode有默认值，可以省略)
                 //提供python程序的入口模块（启动文件）的完全限定路径。通过指定特定的启动文件，无论打开哪个文件，您始终可以确保使用相同的入口点启动程序。
                 //"program": "${workspaceFolder}/main.py",

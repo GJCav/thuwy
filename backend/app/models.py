@@ -1,7 +1,9 @@
 from operator import and_
 from app import db
 from sqlalchemy import or_, and_
+from sqlalchemy.engine.row import Row
 import json as Json
+import re as Regex
 
 from . import timetools as timestamp
 
@@ -40,6 +42,9 @@ class User(db.Model):
             'name': self.name,
             'clazz': self.clazz
         }
+
+    def fromOpenid(openid):
+        return db.session.query(User).filter(User.openid == openid).one_or_none()
 
     def queryName(openid):
         """
@@ -84,8 +89,19 @@ class Item(db.Model):
         self.thumbnail = dic['thumbnail']
         self.rsvMethod = dic['rsv-method']
 
+    def querySupportedMethod(id):
+        """
+        return none if item not found.
+        """
+        qry = db.session\
+            .query(Item.rsvMethod)\
+            .filter(Item.id == id)\
+            .one_or_none()
+        return qry[0] if qry else None
+
     def __repr__(self) -> str:
         return f'Item({self.name}, {self.briefIntro}, {self.id}, {self.mdIntro if len(self.mdIntro) < 30 else (self.mdIntro[:27]+"...")})'
+
 
 class Reservation(db.Model):
     id       = db.Column(db.Integer, primary_key=True)
@@ -110,7 +126,7 @@ class Reservation(db.Model):
 
         cdn = {or_(
             and_(Reservation.st >= self.st, Reservation.st < self.ed),
-            and_(Reservation.ed >= self.st, Reservation.ed < self.ed),
+            and_(Reservation.ed > self.st, Reservation.ed < self.ed),
             and_(Reservation.st <= self.st, Reservation.ed >= self.ed)
         )}
 
@@ -154,7 +170,10 @@ class LongTimeRsv:
                 or (None, None) if format of interval is wrong
                 or (None, -1) if interval is invalid
         """
+        if not Regex.match(r'^\d{4}-\d{1,2}-\d{1,2} \d$', interval):
+            return (None, None)
         dateStr, codeStr = interval.split(' ')
+
         try:
             code = int(codeStr)
         except:
@@ -194,6 +213,9 @@ class LongTimeRsv:
                 if timestamp.getWDay(st) != 6:
                     return (None, -1)  # means dateStr is invalid as it should be a Saturday.
                 ed = timestamp.daysAfter(st, 2)
+            else:
+                st = None
+                ed = -1
         except:
             pass # this means the format of dateStr is wrong..
 
@@ -310,17 +332,35 @@ def _getIntervalStr(self: Reservation):
     if self.method == LongTimeRsv.methodValue:
         hour = timestamp.getHour(self.st)
         if hour == LongTimeRsv.morningStartHour:
-            return f'{timestamp.getDate(self.st)()} {LongTimeRsv.morningCode}'
+            return f'{timestamp.getDate(self.st)} {LongTimeRsv.morningCode}'
         elif hour == LongTimeRsv.afternoonStartHour:
-            return f'{timestamp.getDate(self.st)()} {LongTimeRsv.afternoonCode}'
+            return f'{timestamp.getDate(self.st)} {LongTimeRsv.afternoonCode}'
         elif hour == LongTimeRsv.nightStartHour:
-            return f'{timestamp.getDate(self.st)()} {LongTimeRsv.nightCode}'
+            return f'{timestamp.getDate(self.st)} {LongTimeRsv.nightCode}'
         else:
-            return f'{timestamp.getDate(self.st)()} {LongTimeRsv.weekendCode}'
+            return f'{timestamp.getDate(self.st)} {LongTimeRsv.weekendCode}'
 
     elif self.method == FlexTimeRsv.methodValue:
         return f'{timestamp.getDate(self.st)} {timestamp.clock(self.st)}-{timestamp.clock(self.ed)}'
 Reservation.getIntervalStr = _getIntervalStr
+
+# 太TM神奇了，python的dict没有__dict__属性，不能动态添加属性，如：
+#   a = {}
+#   a.foo = 10 # 报错：AttributeError
+# 此时setattr也没用，因为dict重写了__setattr__
+# 但自己写的类默认是有__dict__的，也就是可以setattr
+# 如果自己写的类有__slot__，那么也不能动态添加，sqlachemy.engine.row.Row 就这么干的
+
+class _Dict(dict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(self, *args, **kwargs)
+
+    def __getattribute__(self, name: str):
+        if name in self: return self[name]
+        else: return super().__getattribute__(name)
+
+    def __setattr__(self, name: str, value) -> None:
+        self[name] = value
 
 # TODO: 换个更恰当的名字
 def mergeAndBeautify(qryRst: list):
@@ -335,7 +375,9 @@ def mergeAndBeautify(qryRst: list):
     groups = {}
     rsvArr = []
     for e in qryRst:
-        e: Reservation
+        # e: Row,
+        # setattr(e, 'interval', None), 因为 e 是Row类型，不能动态添加属性，所以hack一下
+        e = _Dict(**dict(e))
         e.interval = None
 
         if e.method == FlexTimeRsv.methodValue:

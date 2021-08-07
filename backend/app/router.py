@@ -4,7 +4,7 @@ import requests.exceptions as RE
 import json as Json
 import functools
 import time as Time
-from copy import copy
+import copy as Copy
 
 from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID, skipLoginAndBind, skipAdmin
 from . import db
@@ -101,8 +101,10 @@ def requireLogin(handler):
             session['openid'] = 'openid for debug'
             session['wx-skey'] = 'secret key for debug'
             return handler(*args, **kwargs)
-        if not session.get('openid', None):
+        if not session.get('openid'):
             return ErrCode.CODE_NOT_LOGGED_IN
+        elif not User.fromOpenid(session.get('openid')):
+            return ErrCode.CODE_NOT_LOGGED_IN # 这里意味着用户登录过，但数据库中没有记录，多半是管理员删库了
         else:
             return handler(*args, **kwargs)
     return inner
@@ -358,7 +360,6 @@ def itemRsvInfo(itemId):
 
     rsvArr = Models.mergeAndBeautify(qryRst)
     def _process(e): # TODO: 想个好名字吧。。。
-        e = dict(e)
         del e['chore']
         del e['st']
         del e['ed']
@@ -391,12 +392,9 @@ def getRsvInfo(rsvId):
 @requireLogin
 @requireBinding
 def reserve():
-    CODE_TIME_CONFLICT = {'code': 101, 'errmsg': 'time conflict'}
-    CODE_TIME_OUT_OF_RANGE = {'code': 102, 'errmsg': 'reservation time out of range'}
-
     reqJson:dict = request.get_json()
     if not reqJson or \
-        not CheckArgs.hasAttrs(reqJson, ['item-id', 'rsv-req', 'reason']):
+        not CheckArgs.hasAttrs(reqJson, ['item-id', 'method', 'reason', 'interval']):
 
         return ErrCode.CODE_ARG_MISSING
 
@@ -404,6 +402,7 @@ def reserve():
         or not CheckArgs.areInt(reqJson, ['item-id', 'method']):
 
         return ErrCode.CODE_ARG_TYPE_ERR
+
 
     itemId = reqJson['item-id']
     reason = reqJson['reason']
@@ -418,28 +417,38 @@ def reserve():
     r.state = RsvState.STATE_WAITING
     r.chore = ''
 
+    supportedMethod = Item.querySupportedMethod(itemId)
+    if supportedMethod == None:
+        return ErrCode.Rsv.CODE_ITEM_NOT_FOUND
+    if not CheckArgs.isPowOf2(method):
+        return ErrCode.Rsv.CODE_DUPLICATE_METHOD
+    if not supportedMethod & method:
+        return ErrCode.Rsv.CODE_METHOD_NOT_SUPPORT
+
     if method == LongTimeRsv.methodValue:
-        if not isinstance(reqJson['inteval'], list):
+        if not isinstance(reqJson['interval'], list):
             return ErrCode.CODE_ARG_TYPE_ERR
-        if len(reqJson['inteval']) == 0:
+        if len(reqJson['interval']) == 0:
             return ErrCode.CODE_ARG_MISSING
         
         interval: list = reqJson['interval']
+        r.chore = ''
         r.chore = {'group-rsv': {}} # remember to cast to str
 
         rsvGroup = []
 
         for itl in interval:
             st, ed = LongTimeRsv.parseInterval(itl)
-            if ed == None: return ErrCode.CODE_ARG_FORMAT_ERR
-            elif ed == -1: return ErrCode.CODE_ARG_INVALID
+            if ed == None: return ErrCode.CODE_ARG_FORMAT_ERR # date str fmt error
+            elif ed == -1: return ErrCode.CODE_ARG_INVALID # date is not saturday, time code invalid
 
-            if ed > timestamp.aWeekAfter() or st < timestamp.now():
-                return CODE_TIME_OUT_OF_RANGE
+            if st > timestamp.aWeekAfter() or ed < timestamp.now():
+                return ErrCode.Rsv.CODE_TIME_OUT_OF_RANGE
 
-            new = copy(r)
+            new = Copy.copy(r)
             new.id = rsvIdPool.next()
-            new.st, new.ed = LongTimeRsv.parseInterval(itl)
+            new.st = st
+            new.ed = ed
             rsvGroup.append(new)
         
         rsvGroup[0].chore['group-rsv']['sub-rsvs'] = []
@@ -447,13 +456,50 @@ def reserve():
             rsvGroup[0].chore['group-rsv']['sub-rsvs'].append(rsvGroup[i].id)
             rsvGroup[i].chore['group-rsv']['fth-rsv'] = rsvGroup[0].id
         
-        for e in rsvGroup:
+        for cur, e in enumerate(rsvGroup):
             if e.hasTimeConflict():
-                return CODE_TIME_CONFLICT
+                return ErrCode.Rsv.CODE_TIME_CONFLICT
+            
+            for i in range(cur):    # 避免内部出现时间冲突，防止有尝试传入 ['2021-5-16 1', '2021-5-16 1'] 这种导致bug
+                if e.st <= rsvGroup[i].st < e.ed or\
+                   e.st < rsvGroup[i].ed < e.ed or\
+                   rsvGroup[i].st <= e.st and e.ed <=rsvGroup[i].ed:
+                   return ErrCode.Rsv.CODE_TIME_CONFLICT
+            
 
+        rsvGroup = [Reservation(
+                id = e.id,
+                itemId = e.itemId,
+                guest = e.guest,
+                reason = e.reason,
+                method = e.method,
+                st = e.st,
+                ed = e.ed,
+                state = e.state,
+                approver = e.approver,
+                examRst = e.examRst,
+                chore = Json.dumps(e.chore)
+            ) for e in rsvGroup]
+        db.session.add_all(rsvGroup)
+        
+        """ 不如改成上面这句话
         for e in rsvGroup:
             e.chore = Json.dumps(e.chore)
-            db.session.add(e)
+            # db.session.add(e) # 太TM神奇了，直接用这一行，sqlachemy传入的chore还是dict类型的，上面那句话没用，但下面这么干又可以
+            db.session.add(Reservation(
+                id = e.id,
+                itemId = e.itemId,
+                guest = e.guest,
+                reason = e.reason,
+                method = e.method,
+                st = e.st,
+                ed = e.ed,
+                state = e.state,
+                approver = e.approver,
+                examRst = e.examRst,
+                chore = e.chore
+            ))
+        """
         
         try:
             db.session.commit()
@@ -479,14 +525,14 @@ def reserve():
         elif ed == -1:
             return ErrCode.CODE_ARG_INVALID
         
-        if ed > timestamp.aWeekAfter() or st < timestamp.now():
-                return CODE_TIME_OUT_OF_RANGE
+        if st > timestamp.aWeekAfter() or ed < timestamp.now():
+                return ErrCode.Rsv.CODE_TIME_OUT_OF_RANGE
 
         r.id = rsvIdPool.next()
         r.st, r.ed = st, ed
 
         if r.hasTimeConflict():
-            return CODE_TIME_CONFLICT
+            return ErrCode.Rsv.CODE_TIME_CONFLICT
 
         db.session.add(r)
 
@@ -546,6 +592,7 @@ def querymyrsv():
     
     rsvJsonArr = Models.mergeAndBeautify(sql.all())
     adminNames = {} # openid --> name
+    adminNames[None] = None
     qryRst = db.session\
         .query(Admin.openid, User.name)\
         .join(User, User.openid == Admin.openid) \
@@ -555,7 +602,6 @@ def querymyrsv():
 
     def _pcs(e):
         nonlocal adminNames
-        e = dict(e)
         del e['st']
         del e['ed']
         del e['chore']

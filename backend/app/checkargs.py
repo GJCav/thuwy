@@ -23,7 +23,7 @@ def areBool(map: dict, attrs: list):
 
 def hasAttrs(map: dict, attrs: list):
     for k in attrs:
-        if k not in attrs: return False
+        if k not in map: return False
     return True
 
 def isUrl(url):
@@ -41,3 +41,8 @@ def isClazz(s: str):
 def isUint64(a):
     if a < 0 or a > (1<<65)-1: return False
     return True
+
+def isPowOf2(a):
+    while a & 1 == 0:
+        a >>= 1
+    return a == 1
