@@ -130,13 +130,37 @@ wx.request({
 
 
 
-### 获取档案
+### 获取本人档案
 
 **API**: `GET /profile/`
 
 **Des：** 获取当前用户信息
 
+**Login:** True
+
 **请求参数：** 无
+
+**返回值：** Json Object，属性如下：
+
+| 属性      | 类型   | 说明     |
+| --------- | ------ | -------- |
+| name      | string | 姓名     |
+| clazz     | string | 班级     |
+| school-id | string | 学号     |
+| code      | int    | 错误码   |
+| errmsg    | string | 错误信息 |
+
+
+
+### 获取他人档案
+
+**API**: `GET /profile/<open-id>`
+
+**Des：** 获取其他用户信息
+
+**Login:** True, 有管理员权限
+
+**请求参数：** open-id，目标用户的openid
 
 **返回值：** Json Object，属性如下：
 
@@ -154,7 +178,7 @@ wx.request({
 
 **Des:** 申请当前用户成为管理员
 
-**API:** `POST /admin/`
+**API:** `POST /admin/request/`
 
 **Login:** True，且需要绑定
 
@@ -166,8 +190,84 @@ wx.request({
 | ------ | ------ | -------- |
 | code   | int    | 错误码   |
 | errmsg | string | 错误信息 |
+| id     | int    | 申请id   |
 
-这个怎么做以后再说吧。
+申请后，该请求会加入等待审核清单，等待其他管理员通过后该用户成为管理员。
+
+
+
+### 管理员请求列表
+
+**API:** `GET /admin/request/`
+
+**Login:?** True, 有管理员权限
+
+**请求参数:** 无
+
+**返回值：** Json Object，属性如下：
+
+| 属性   | 类型       | 说明             |
+| ------ | ---------- | ---------------- |
+| code   | int        | 错误码           |
+| errmsg | string     | 错误信息         |
+| list   | json array | 包含AdminReq对象 |
+
+AdminReq属性：
+
+* id, 请求id
+* requestor，申请者的profile
+* approver, 审核者，可能为空
+* reason, 审核批语，可能为空
+
+**返回值：** Json Object，属性如下：
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
+
+
+
+
+
+### 审核管理员
+
+**Des:** 决定某用户是否通过管理员审核。
+
+**API:** `POST /admin/request/<requst-id>` 
+
+**Login?:** True, 需要绑定，需要为管理员
+
+**请求参数:** Json Object，
+
+| 属性   | 类型   |                              |
+| ------ | ------ | ---------------------------- |
+| pass   | int    | 是否通过，1 为通过，0 为拒绝 |
+| reason | string | 理由                         |
+
+**返回值：** Json Object，属性如下：
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
+
+
+
+### 删除管理员
+
+**API:** `DELETE /admin/<open-id>`
+
+**Login:** 登陆绑定，且有管理员权限
+
+**请求参数：** open-id，要删除的管理员id
+
+**返回值：** Json Object，属性如下：
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
 
 
 

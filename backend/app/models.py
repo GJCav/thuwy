@@ -19,6 +19,9 @@ class Admin(db.Model):
     __tablename__ = 'admin'
     openid        = db.Column(db.Text, primary_key = True)
 
+    def fromId(id):
+        return db.session.query(Admin).filter(Admin.openid == id).one_or_none()
+
 class User(db.Model):
     __tablename__ = "user"
     openid        = db.Column(db.Text, primary_key = True)
@@ -320,6 +323,25 @@ class FlexTimeRsv:
         }
         return rsvDict
 
+class AdminRequest(db.Model):
+    __tablename__ = 'admin_req'
+    id            = db.Column(db.Integer, primary_key = True)
+    requestor     = db.Column(db.Text)
+    approver      = db.Column(db.Text)
+    state         = db.Column(db.Integer) # 0: waiting, 1: accept, 2: reject
+    reason        = db.Column(db.Text)
+
+    def fromId(id):
+        return db.session.query(AdminRequest).filter(AdminRequest.id == id).one_or_none()
+
+    def toDict(self):
+        return {
+            'id': self.id,
+            'requestor': User.fromOpenid(self.requestor).toDict(),
+            'approver': User.queryName(self.approver),
+            'state': self.state,
+            'reason': self.reason
+        }
 
 # post-binding methods for Reservation
 def _getIntervalStr(self: Reservation):

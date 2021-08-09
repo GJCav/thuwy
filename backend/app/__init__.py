@@ -14,8 +14,9 @@ db = SQLAlchemy(app, use_native_unicode='utf8')
 from .models import Admin, User, Item, Reservation
 db.create_all()
 
-rsvIdPool  = Snowflake(MACHINE_ID)
-itemIdPool = Snowflake(MACHINE_ID)
+rsvIdPool      = Snowflake(MACHINE_ID)
+itemIdPool     = Snowflake(MACHINE_ID)
+adminReqIdPool = Snowflake(MACHINE_ID)
 
 from .router import router
 app.register_blueprint(router)
