@@ -1,0 +1,43 @@
+<!--index.wxml-->
+<view class="container">
+  <view class="userinfo">
+    <block wx:if="{{canIUseOpenData}}">
+      <view class="userinfo-avatar">
+        <open-data type="userAvatarUrl"></open-data>
+      </view>
+      <open-data type="userNickName"></open-data>
+    </block>
+    <block wx:elif="{{!hasUserInfo}}">
+      <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
+      <button wx:elif="{{canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
+      <view wx:else> 请使用1.4.4及以上版本基础库 </view>
+    </block>
+    <block wx:else>
+      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+      <text>{{userInfo.nickName}}</text>
+    </block>
+  </view>
+</view>
+<view class="total">
+  <view class="option">
+    <view class="optiontext" style="font-weight: bold">用户权限</view>
+    <view class="optionblank"></view>
+    <view class="optiontext">{{motto1[num1]}}</view>
+  </view>
+  <view class="divline"></view>
+  <view class="option">
+    <view class="optiontext" style="font-weight: bold">用户信息</view>
+    <view class="optionblank"></view>
+    <view class="optiontext">{{motto2[num2]}}</view>
+  </view>
+</view>
+
+<view class="total" style="margin-top: 150rpx;color:#777777">
+  <view class="repeat" wx:for="{{selection}}">
+    <view class="divline" wx:if="{{index!=0}}"></view>
+    <view class="select" bindtap="{{item.go}}" hover-class="haveselect">
+      <view style="width:40%">{{item.text}}</view>
+      <view style="width:50%"><view style="margin-left:90%" class="arrow"></view></view>
+    </view>
+  </view>
+</view>
