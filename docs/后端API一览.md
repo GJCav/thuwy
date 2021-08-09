@@ -455,36 +455,6 @@ AdminReq属性：
 
 ## 预约
 
-### 预约详细信息
-
-**API**: `GET /reservation/<rsv-id>`
-
-**Des：** 获取某个预约的详细信息
-
-**Login?：** False
-
-**请求参数：** `rsv-id`
-
-**返回值：** Json Object，属性如下：
-
-| 属性   | 类型   | 说明       |
-| ------ | ------ | ---------- |
-| code   | int    | 错误码     |
-| errmsg | string | 错误信息   |
-| rsv    | Rsv    | 查询的预约 |
-
-**错误信息说明：** 
-
-| code | errmsg                | 说明               |
-| ---- | --------------------- | ------------------ |
-| 101  | reservation not found | 没有找到对应的预约 |
-
-
-
-
-
-
-
 ### 提交预约
 
 **API:**  `POST /reservation/`
@@ -523,8 +493,6 @@ AdminReq属性：
 
 
 
-
-
 ### 查询我的预约
 
 **Des:** 查询“我的”所有预约
@@ -555,9 +523,35 @@ AdminReq属性：
 
 
 
-### 取消预约
+### 预约详细信息
 
-> 这个借口还没实现 QAQ
+**API**: `GET /reservation/<rsv-id>`
+
+**Des：** 获取某个预约的详细信息
+
+**Login?：** False
+
+**请求参数：** `rsv-id`
+
+**返回值：** Json Object，属性如下：
+
+| 属性   | 类型   | 说明       |
+| ------ | ------ | ---------- |
+| code   | int    | 错误码     |
+| errmsg | string | 错误信息   |
+| rsv    | Rsv    | 查询的预约 |
+
+**错误信息说明：** 
+
+| code | errmsg                | 说明               |
+| ---- | --------------------- | ------------------ |
+| 201  | reservation not found | 没有找到对应的预约 |
+
+
+
+
+
+### 取消预约
 
 **Des:** 取消一个预约
 
@@ -580,13 +574,45 @@ AdminReq属性：
 
 **错误码说明：**
 
-| code | errcode       | 说明           |
-| ---- | ------------- | -------------- |
-| 101  | rsv not exist | 不存在这个预约 |
-| 102  | rsv has began | 预约已经开始   |
-| 103  | rsv completed | 预约已经完成   |
-| 104  | rsv rejected  | 预约被审核拒绝 |
-|      |               |                |
+| code | errcode               | 说明           |
+| ---- | --------------------- | -------------- |
+| 201  | reservation not found | 不存在这个预约 |
+| 202  | rsv has began         | 预约已经开始   |
+| 203  | rsv completed         | 预约已经完成   |
+| 204  | rsv rejected          | 预约被审核拒绝 |
+
+
+
+### 审核预约
+
+**API：** `POST /reservation/<rsv-id>`
+
+**Login?:** True，且绑定，且为管理员
+
+**请求参数：** Json Object,
+
+| 属性   | 类型   | 说明           |
+| ------ | ------ | -------------- |
+| pass   | int    | 1 通过，0 拒绝 |
+| reason | string | 审核批语       |
+
+**返回值：** Json Object
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
+
+**错误码：** 
+
+| code | errcode               | 说明           |
+| ---- | --------------------- | -------------- |
+| 201  | reservation not found | 不存在这个预约 |
+| 202  | rsv has began         | 预约已经开始   |
+| 203  | rsv completed         | 预约已经完成   |
+| 204  | rsv rejected          | 预约被审核拒绝 |
+
+
 
 
 

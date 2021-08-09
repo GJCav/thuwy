@@ -1,5 +1,6 @@
 cookieStr = \
-"""session=eyJvcGVuaWQiOiJvZHo0QjR4bFRnbEJaWGpHSVZoNjVhRnNpeUFZIiwid3gtc2tleSI6Im1pNU5Qam5VeTBRWVFqSDVvb0d6YlE9PSJ9.YQ4WPQ.PDOjX2fHUK-sYkFq9VHK3CC0BiM"""
+"""session=eyJvcGVuaWQiOiJvZHo0QjR4bFRnbEJaWGpHSVZoNjVhRnNpeUFZIiwid3gtc2tleSI6IjlWTjVsQ3d5dFlDbVl3NWdVOWZUelE9PSJ9.YRDhVw.5f0dKCB41eNxhHBKuF4ChFNCIYU; HttpOnly; Path=/"""
+
 
 headers = {
     'cookie': cookieStr

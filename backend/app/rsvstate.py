@@ -1,37 +1,30 @@
 
-STATE_WAITING     = 0b000000
-STATE_EXAM_END    = 0b000010
-STATE_EXAM_PASS   = 0b000110
-STATE_EXAM_REJECT = 0b000010
-STATE_EXAM_RST    = 0b000100 # this is bitwise mask
-STATE_CANCEL      = 0b001000
-STATE_COMPLETE    = 0b010000
-STATE_VIOLATION   = 0b100000
+STATE_WAIT     = 0b000001
+STATE_START    = 0b000010
+STATE_COMPLETE = 0b000100
 
-def isWaiting(state: int) -> bool:
-    return (state & STATE_EXAM_END) == 0
+STATE_CANCEL   = 0b001000
+STATE_REJECT   = 0b010000
+STATE_VIOLATE  = 0b100000
 
-def isExamEnded(state: int) -> bool:
-    return not isWaiting(state)
+COMPLETE_BY_CANCEL  = STATE_COMPLETE | STATE_CANCEL
+COMPLETE_BY_REJECT  = STATE_COMPLETE | STATE_REJECT
+COMPLETE_BY_VIOLATE = STATE_COMPLETE | STATE_VIOLATE
 
-def isExamPassed(state: int) -> bool:
-    return isExamEnded() and (state & STATE_EXAM_RST)
+def isWait(s):
+    return bool(s & STATE_WAIT)
 
-def isExamRejected(state: int) -> bool:
-    return isExamEnded() and not (state & STATE_EXAM_RST)
+def isStart(s):
+    return bool(s & STATE_START)
 
-def isCanceled(state: int) -> bool:
-    return bool(state & STATE_CANCEL)
+def isComplete(s):
+    return bool(s & STATE_COMPLETE)
 
-def isCompleted(state: int) -> bool:
-    return bool(state & STATE_COMPLETE)
+def isCancel(s):
+    return bool(s & STATE_CANCEL)
 
-def isViolation(state: int) -> bool:
-    return bool(state & STATE_VIOLATION)
+def isReject(s):
+    return bool(s & STATE_REJECT)
 
-
-def cancel(state: int) -> bool:
-    """
-    cancel this rsv and return canceled state.
-    """
-    return state | STATE_CANCEL | STATE_COMPLETE
+def isViolate(s):
+    return bool(s & STATE_VIOLATE)

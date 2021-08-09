@@ -492,6 +492,8 @@ def getRsvInfo(rsvId):
     rsv = Reservation.fromRsvId(rsvId)
     if not rsv:
         return CODE_RSV_NOT_FOUND
+
+    if rsv.method == LongTimeRsv.methodValue: rsv = LongTimeRsv.getFatherRsv(rsv)
     
     if   rsv.method == LongTimeRsv.methodValue: rsvJson = LongTimeRsv.toDict(rsv)
     elif rsv.method == FlexTimeRsv.methodValue: rsvJson = FlexTimeRsv.toDict(rsv)
@@ -527,7 +529,7 @@ def reserve():
     r.guest = session['openid']
     r.reason = reason
     r.method = method
-    r.state = RsvState.STATE_WAITING
+    r.state = RsvState.STATE_START
     r.chore = ''
 
     supportedMethod = Item.querySupportedMethod(itemId)
@@ -728,36 +730,24 @@ def querymyrsv():
     rst['my-rsv'] = [_pcs(e) for e in rsvJsonArr]
     return rst
 
-@router.route('/cancel/')
+@router.route('/reservation/<int:rsvId>', methods=['DELETE'])
 @requireLogin
 @requireBinding
-def cancel():
-    CODE_RSV_NOT_EXIST = {'code': 101, 'errmsg': 'rsv not exist'}
-    CODE_RSV_BEGAN     = {'code': 102, 'errmsg': 'rsv has began'}
-    CODE_RSV_COMPLETED = {'code': 103, 'errmsg': 'rsv completed'}
-    CODE_RSV_REJECTED  = {'code': 104, 'errmsg': 'rsv rejected'}
-    
-
-    reqJson: dict = request.get_json()
-
-    if not reqJson \
-        or not reqJson.get('rsv-id', None):
-        return ErrCode.CODE_ARG_MISSING
-
-    rsvId = reqJson['rsvId']
+def cancelRsv(rsvId):
     
     rsv: Reservation = Reservation.query \
         .filter(Reservation.id == rsvId) \
         .one_or_none()
     
-    if not rsv                           : return CODE_RSV_NOT_EXIST
-    if RsvState.isExamRejected(rsv.state): return CODE_RSV_REJECTED
-    if RsvState.isCompleted(rsv.state)   : return CODE_RSV_COMPLETED
+    if not rsv                       : return ErrCode.Rsv.CODE_RSV_NOT_FOUND
+    if RsvState.isReject(rsv.state)  : return ErrCode.Rsv.CODE_RSV_REJECTED
+    if RsvState.isComplete(rsv.state): return ErrCode.Rsv.CODE_RSV_COMPLETED
     
     now = timestamp.now()
-    isBegan = rsv.st <= now <= rsv.ed
+    isBegan = (rsv.st <= now <= rsv.ed)
 
     if not isBegan and rsv.method == LongTimeRsv.methodValue:
+        rsv = LongTimeRsv.getFatherRsv(rsv)
         choreJson: dict = Json.loads(rsv.chore)
         subRsvIdArr = choreJson['group-rsv'].get('sub-rsvs', [])
         for subRsvId in subRsvIdArr:
@@ -768,24 +758,76 @@ def cancel():
                 isBegan = True
                 break
     
-    if isBegan: return CODE_RSV_BEGAN
+    if isBegan: return ErrCode.Rsv.CODE_RSV_START
 
-    def toFthRsv(rsv: Reservation) -> Reservation:
+    # def toFthRsv(rsv: Reservation) -> Reservation:
+    #     choreJson: dict = Json.loads(rsv.chore)
+    #     if 'fth-rsv' not in choreJson['group-rsv']:
+    #         return rsv
+    #     else:
+    #         fthId = choreJson['group-rsv']['fth-rsv']
+    #         return Reservation.query.filter(Reservation.id == fthId).one()
+
+    rsv.state = RsvState.COMPLETE_BY_CANCEL
+
+    if rsv.method == LongTimeRsv.methodValue:
         choreJson: dict = Json.loads(rsv.chore)
-        if 'fth-rsv' not in choreJson['group-rsv']:
-            return rsv
-        else:
-            fthId = choreJson['group-rsv']['fth-rsv']
-            return Reservation.query.filter(Reservation.id == fthId).one()
+        subRsvIdArr = choreJson['group-rsv']['sub-rsvs']
+        for subRsvId in subRsvIdArr:
+            db.session\
+                .query(Reservation)\
+                .filter(Reservation.id == subRsvId)\
+                .update({'state': RsvState.COMPLETE_BY_CANCEL})
 
-    rsv = toFthRsv(rsv)
-    rsv.state = RsvState.cancel(rsv.state)
-
-    choreJson: dict = Json.loads(rsv.chore)
-    subRsvIdArr = choreJson['group-rsv']['sub-rsvs']
-    for subRsvId in subRsvIdArr:
-        subRsv: Reservation = Reservation.query.filter(Reservation.id == subRsvId).one()
-        subRsv.state = RsvState.cancel(subRsv.state)
-
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return ErrCode.CODE_DATABASE_ERROR
     return ErrCode.CODE_SUCCESS
+
+
+@router.route('/reservation/<int:rsvId>', methods=['POST'])
+@requireLogin
+@requireBinding
+@requireAdmin
+def examRsv(rsvId):
+    rsv: Reservation = Reservation.query \
+        .filter(Reservation.id == rsvId) \
+        .one_or_none()
+    
+    if not rsv                       : return ErrCode.Rsv.CODE_RSV_NOT_FOUND
+    if RsvState.isStart(rsv.state)   : return ErrCode.Rsv.CODE_RSV_START
+    if RsvState.isReject(rsv.state)  : return ErrCode.Rsv.CODE_RSV_REJECTED
+    if RsvState.isComplete(rsv.state): return ErrCode.Rsv.CODE_RSV_COMPLETED
+
+    json = request.get_json()
+    if not CheckArgs.hasAttrs(json, ['pass', 'reason']):
+        return ErrCode.CODE_ARG_MISSING
+    if not CheckArgs.areInt(json, ['pass']):
+        return ErrCode.CODE_ARG_TYPE_ERR
+    if not CheckArgs.areStr(json, ['reason']):
+        return ErrCode.CODE_ARG_TYPE_ERR
+
+    if rsv.method == LongTimeRsv.getFatherRsv:
+        rsv = LongTimeRsv.getFatherRsv(rsv)
+
+    pazz = json['pass']
+    reason = json['reason']
+    rsv.reason = reason
+
+    if pazz == 0:
+        rsv.state = RsvState.COMPLETE_BY_REJECT
+    elif pazz == 1:
+        rsv.state = RsvState.STATE_START
+    else:
+        return 
+    
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return ErrCode.CODE_DATABASE_ERROR
+
+    return ErrCode.CODE_SUCCESS
+

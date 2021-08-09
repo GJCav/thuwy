@@ -148,7 +148,6 @@ class Reservation(db.Model):
             .filter(Reservation.id == rsvId)\
             .one_or_none()
 
-
 class LongTimeRsv:
     methodValue = 1
     methodMask = 1

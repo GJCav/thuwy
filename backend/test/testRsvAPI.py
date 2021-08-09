@@ -281,3 +281,42 @@ def testRsvLongTime():
         assert json['code'] == 0
         rsv = json['rsv']
         assert rsv['interval'] == interval, f"test: {data}, recheck"
+
+
+def testCancel():
+    itemId = addItem('test cancel', 3)
+    
+    # long time rsv
+    reqJson = {
+        'item-id': itemId,
+        'reason': f'test cancel',
+        'method': 1,
+        'interval': [
+            '2021-8-11 1', '2021-8-11 2', '2021-8-11 3'
+        ]
+    }
+
+    res = R.post(url_rsv, json=reqJson)
+    assert res
+    json = res.json()
+    assert json['code'] == 0, json
+
+    rsvId = json['rsv-id']
+
+    res = R.delete(url_rsv+f'{rsvId}')
+    assert res
+    json = res.json()
+    assert json['code'] == 0, json
+
+    res = R.get(url_rsv+f'{rsvId}')
+    assert res
+    json = res.json()
+    assert json['code'] == 0, json
+    assert json['rsv']['state'] == RsvState.COMPLETE_BY_CANCEL, json
+
+    res = R.delete(url_rsv+f'{rsvId}')
+    assert res
+    json = res.json()
+    assert json['code'] == 203, json
+
+

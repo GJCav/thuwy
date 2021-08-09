@@ -14,10 +14,15 @@ class Item:
 
 
 class Rsv:
-   CODE_TIME_CONFLICT = {'code': 101, 'errmsg': 'time conflict'}
-   CODE_TIME_OUT_OF_RANGE = {'code': 102, 'errmsg': 'reservation time out of range'}
-   CODE_DUPLICATE_METHOD = {'code': 103, 'errmsg': 'using duplicated method'}
+   CODE_TIME_CONFLICT      = {'code': 101, 'errmsg': 'time conflict'}
+   CODE_TIME_OUT_OF_RANGE  = {'code': 102, 'errmsg': 'reservation time out of range'}
+   CODE_DUPLICATE_METHOD   = {'code': 103, 'errmsg': 'using duplicated method'}
    CODE_METHOD_NOT_SUPPORT = {'code': 103, 'errmsg': 'rsv method not supported yet'}
+
+   CODE_RSV_NOT_FOUND = {'code': 101, 'errmsg': 'rsv id not found'}
+   CODE_RSV_START     = {'code': 202, 'errmsg': 'rsv has started'}
+   CODE_RSV_COMPLETED = {'code': 203, 'errmsg': 'rsv completed'}
+   CODE_RSV_REJECTED  = {'code': 204, 'errmsg': 'rsv rejected'}
 
    CODE_ITEM_NOT_FOUND = {
       'code': Item.CODE_ITEM_NOT_FOUND['code']+100,
