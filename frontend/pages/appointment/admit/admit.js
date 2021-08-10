@@ -93,6 +93,10 @@ Page({
     that.setData({
       calendar: flag
     })
+    wx.showLoading({
+      mask:true,
+      title: '加载中',
+    })
     wx.request({
       url: app.globalData.url + '/item/' + this.data.id + '/reservation',
       method: 'GET',
@@ -116,19 +120,36 @@ Page({
           this.setData({
             disable: tmp
           })
+          wx.hideLoading();
         } else {
           console.log(res.data.code, res.data.errmsg)
+          this.setData({
+            disabled: true
+          })
+          wx.hideLoading();
+          wx.showToast({
+            title: '连接错误',
+            icon: 'error',
+            duration: 1500
+          })
+          setTimeout(function () {
+            wx.navigateBack({
+              delta: 1
+            })
+          }, 1500)
         }
       },
       fail: (res) => {
+        console.log(res.data.code, res.code.errmsg)
         this.setData({
           disabled: true
         })
+        wx.hideLoading();
         wx.showToast({
-          title: '网络异常',
+          title: '连接失败',
           icon: 'error'
         });
-        console.log(res.data.code, res.code.errmsg)
+        
         setTimeout(function () {
           wx.navigateBack({
             delta: 1
@@ -156,6 +177,10 @@ Page({
         icon: 'error'
       })
     } else {
+      wx.showLoading({
+        mask:true,
+        title: '提交中',
+      })
       for (var i = 0; i < this.selectedIdxs.length; i++) {
         var d = Math.floor(this.selectedIdxs[i] / 10)
         var m = this.selectedIdxs[i] % 10
@@ -192,8 +217,10 @@ Page({
             wx.navigateBack({
               delta: 1,
             })
+            wx.hideLoading();
           } else {
             console.log(res.data.code, res.data.errmsg)
+            wx.hideLoading();
             wx.showToast({
               title: '提交失败',
               icon: 'error'
@@ -202,6 +229,7 @@ Page({
         },
         fail: function (res) {
           console.log(res.data.code, res.data.errmsg)
+          wx.hideLoading();
           wx.showToast({
             title: '网络异常',
             icon: 'error'
@@ -214,7 +242,7 @@ Page({
     })
   },
   checkboxChange(e) {
-    console.log('携带value值为：', e.detail.value)
+    console.log('选中时间为：', e.detail.value)
     this.selectedIdxs = e.detail.value
   },
 })

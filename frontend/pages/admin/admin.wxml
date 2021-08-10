@@ -1,0 +1,9 @@
+<!--pages/admin/admin.wxml-->
+<van-tabs active="{{ activeTab }}" custom-class="tabbar" swipeable="{{false}}" animated="{{true}}"
+    bind:change="switchTab" z-index="0">
+    <van-tab title="审批预约"></van-tab>
+    <van-tab title="管理设备"></van-tab>
+    <van-tab title="调整管理员"></van-tab>
+</van-tabs>
+
+

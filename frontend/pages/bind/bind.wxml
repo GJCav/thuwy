@@ -33,6 +33,6 @@
     </view>
   </view>
   <view>
-      <button class="bindbutton" type="primary" bindtap="addUser" style="width: 300rpx; height: 80rpx; top:60rpx" loading="{{loading}}">提交</button>
+      <button type="primary" bindtap="addUser" style="width: 300rpx; height: 80rpx; top:60rpx">提交</button>
   </view>
 </view>

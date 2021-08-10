@@ -36,6 +36,7 @@ App({
   },
   globalData: {
     login: false,
+    isadmin: true,
     userInfo: false,
     url: "http://127.0.0.1:5000"
   }

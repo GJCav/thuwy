@@ -21,20 +21,11 @@ Page({
       'https://zos.alipayobjects.com/rmsportal/IJOtIlfsYdTyaDTRVrLI.png',
     ],
   },
-
-  great() {
-    app.globalData.userInfo = true
-  },
-  bad() {
-    app.globalData.userInfo = false
-  },
-  better() {
-    app.globalData.login = true
-  },
-  worse() {
-    app.globalData.login = false
-  },
   onReachBottom() {
+    wx.showLoading({
+      mask: true,
+      title: '加载中',
+    })
     if (this.data.page * 20 < this.data.sum) {
       wx.request({
         url: app.globalData.url + '/item?p=<page>/',
@@ -50,8 +41,10 @@ Page({
               sum: res.data['item-count'],
               items: this.data.items.concat(res.data.items)
             })
+            wx.hideLoading();
           } else {
             console.log('读取物品：', res.data.code, res.data.errmsg)
+            wx.hideLoading();
             wx.showToast({
               title: '连接错误',
               icon: 'error',
@@ -61,6 +54,7 @@ Page({
         },
         fail: (res) => {
           console.log(res.data.code, res.data.errmsg)
+          wx.hideLoading();
           wx.showToast({
             title: '连接失败',
             icon: 'error',
@@ -70,13 +64,13 @@ Page({
         }
       });
     } else {
+      wx.hideLoading();
       wx.showToast({
         title: '没有更多了',
         icon: 'none',
         duration: 1500
       });
     }
-
   },
   onLoad() {
     if (wx.getUserProfile) {
@@ -86,6 +80,10 @@ Page({
     }
     wx.setNavigationBarTitle({
       title: '预约设备'
+    })
+    wx.showLoading({
+      mask: true,
+      title: '加载中',
     })
     wx.request({
       url: app.globalData.url + '/item?p=<page>/',
@@ -101,8 +99,10 @@ Page({
             sum: res.data['item-count'],
             items: this.data.items.concat(res.data.items)
           })
+          wx.hideLoading();
         } else {
           console.log('读取物品：', res.data.code, res.data.errmsg)
+          wx.hideLoading();
           wx.showToast({
             title: '连接错误',
             icon: 'error',
@@ -112,6 +112,7 @@ Page({
       },
       fail: (res) => {
         console.log(res.data.code, res.data.errmsg)
+        wx.hideLoading();
         wx.showToast({
           title: '连接失败',
           icon: 'error',
@@ -144,5 +145,24 @@ Page({
         })
       }, 1000)
     }
-  }
+  },
+  //测试专用
+  great() {
+    if (app.globalData.userInfo)
+      app.globalData.userInfo = false
+    else
+      app.globalData.userInfo = true
+  },
+  better() {
+    if (app.globalData.login)
+      app.globalData.login = false
+    else
+      app.globalData.login = true
+  },
+  evolve() {
+    if (app.globalData.isadmin)
+      app.globalData.isadmin = false
+    else
+      app.globalData.isadmin = true
+  },
 })

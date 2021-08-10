@@ -22,8 +22,7 @@
     </van-col>
   </van-row>
 </block>
-
-<van-button style="margin-left:20%" bindtap="great" id="1" type="primary" size="small">强制绑定</van-button>
-<van-button style="margin-left:20%" bindtap="bad" id="1" type="primary" size="small">强制解除</van-button>
-<van-button style="margin-left:20%" bindtap="better" id="1" type="primary" size="small">强制登录</van-button>
-<van-button style="margin-left:20%" bindtap="worse" id="1" type="primary" size="small">强制退出</van-button>
+<!-- 测试专用 -->
+<van-button style="margin-left:10%" bindtap="great" type="primary" size="small">绑定</van-button>
+<van-button style="margin-left:10%" bindtap="better" type="primary" size="small">登录</van-button>
+<van-button style="margin-left:10%" bindtap="evolve" type="primary" size="small">管理员</van-button>
