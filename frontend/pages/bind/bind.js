@@ -29,11 +29,24 @@ Page({
       clz: e.detail.value
     });
   },
-  addUser(e) {
-    this.setData({
-      loading: true,
-    })
-    console.log(app.globalData.url),
+  addUser() {
+    if (!(/(^\d+$)/.test(this.data.id))) {
+      wx.showToast({
+        title: '学号输入有误',
+        icon: 'error',
+        duration: 1500
+      });
+    } else if (!(/^未央-.+\d\d$/.test(this.data.clz))) {
+      wx.showToast({
+        title: '班级输入有误',
+        icon: 'error',
+        duration: 1500
+      });
+    } else {
+      wx.showLoading({
+        mask: true,
+        title: '提交中',
+      })
       wx.request({
         header: {
           'content-type': 'application/json; charset=utf-8',
@@ -46,8 +59,9 @@ Page({
           name: this.data.name,
           clazz: this.data.clz
         },
-        success(res) {
+        success: (res) => {
           if (res.data.code == 0) {
+            wx.hideLoading();
             wx.showToast({
               title: '绑定成功',
               icon: 'success',
@@ -60,12 +74,25 @@ Page({
               })
             }, 1500)
           } else {
-            console.log(res.data.code,res.data.errMsg)
+            console.log(res.data.code, res.data.errmsg)
+            wx.hideLoading()
+            wx.showToast({
+              title: '连接错误',
+              icon: 'error',
+              duration: 1500
+            })
           }
+        },
+        fail: (res) => {
+          console.log(res.data.code, res.data.errmsg)
+          wx.hideLoading();
+          wx.showToast({
+            title: '连接失败',
+            icon: 'error',
+            duration: 1500
+          });
         }
       })
-    this.setData({
-      loading: false,
-    })
+    }
   }
 })

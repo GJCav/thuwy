@@ -6,14 +6,17 @@ Page({
         show: false,
         //记录显示
         ddl: null,
-        st: ["受理中", "已审批", "已取消", "已结束"],
+        st: ["受理中", "已审批", "已取消", "已结束", "已违约"],
         colst: ["待审批", "未通过", "已通过", "未审批"],
         success: [],
         ongoing: [],
         history: [],
         activeTab: 0,
-        kind: [],
-        refresh: ''
+        //细节显示
+        rsv_detail: null
+    },
+    num: function (x, t) {
+        return parseInt(x / Math.pow(2, t)) % 2
     },
     onLoad() {
         wx.setNavigationBarTitle({
@@ -37,6 +40,10 @@ Page({
     //刷新状态
     refresh: function (t) {
         if (app.globalData.userInfo) {
+            wx.showLoading({
+                mask: true,
+                title: '加载中',
+            })
             var my_rsvs = [{
                 id: 236237236,
                 item_id: 1001,
@@ -75,17 +82,28 @@ Page({
                     'content-type': 'application/json; charset=utf-8',
                     'cookie': wx.getStorageSync('cookie')
                 },
-                success: res => {
+                success: (res) => {
                     if (res.data.code == 0) {
                         his_rsvs = res['my-rsv']
+                        wx.hideLoading();
                     } else {
                         console.log(res.data.code, res.data.errmsg);
+                        wx.hideLoading();
                         wx.showToast({
-                            title: '获取信息失败',
+                            title: '连接错误',
                             icon: 'error',
                             duration: 1500
                         });
                     }
+                },
+                fail: (res) => {
+                    console.log(res.data.code, res.data.errmsg);
+                    wx.hideLoading();
+                    wx.showToast({
+                        title: '连接失败',
+                        icon: 'error',
+                        duration: 1500
+                    });
                 }
             })
             //获取近七天的预约
@@ -96,23 +114,35 @@ Page({
                     'content-type': 'application/json; charset=utf-8',
                     'cookie': wx.getStorageSync('cookie')
                 },
-                success: res => {
+                success: (res) => {
                     if (res.data.code == 0) {
                         my_rsvs = res['my-rsv']
+                        wx.hideLoading();
                     } else {
                         console.log(res.data.code, res.data.errmsg);
+                        wx.hideLoading();
                         wx.showToast({
-                            title: '获取信息失败',
+                            title: '连接错误',
                             icon: 'error',
                             duration: 1500
                         });
                     }
+                },
+                fail: (res) => {
+                    console.log(res.data.code, res.data.errmsg);
+                    wx.hideLoading();
+                    wx.showToast({
+                        title: '连接失败',
+                        icon: 'error',
+                        duration: 1500
+                    });
                 }
             })
+            //处理需要显示的数据
             var tmp = [];
             if (t == 0) {
                 for (var i = 0; i < my_rsvs.length; ++i) {
-                    if (parseInt(my_rsvs[i].state / 8) % 2 == 0 && parseInt(my_rsvs[i].state / 2) % 2 == 1) {
+                    if (this.num(my_rsvs[i].state, 1) || this.num(my_rsvs[i].state, 2) && (this.num(my_rsvs[i].state, 4) || this.num(my_rsvs[i].state, 5))) {
                         tmp = tmp.concat(my_rsvs[i])
                     }
                 }
@@ -121,7 +151,7 @@ Page({
                 });
             } else if (t == 1) {
                 for (var i = 0; i < my_rsvs.length; ++i) {
-                    if (parseInt(my_rsvs[i].state / 8) % 2 == 0 && parseInt(my_rsvs[i].state / 2) % 2 == 0) {
+                    if (this.num(my_rsvs[i].state, 0)) {
                         tmp = tmp.concat(my_rsvs[i])
                     }
                 }
@@ -130,7 +160,7 @@ Page({
                 });
             } else {
                 for (var i = 0; i < my_rsvs.length; ++i) {
-                    if (parseInt(my_rsvs[i].state / 8) % 2 == 1) {
+                    if (this.num(my_rsvs[i].state, 2) && this.num(my_rsvs[i].state, 3)) {
                         tmp = tmp.concat(my_rsvs[i])
                     }
                 }
@@ -146,6 +176,7 @@ Page({
             });
         }
     },
+    //更新时间
     thetime() {
         function getThisMonthDays(year, month) {
             return new Date(year, month, 0).getDate();
@@ -171,6 +202,7 @@ Page({
         })
         console.log(this.data.ddl);
     },
+    //转换选择
     switchTab(e) {
         switch (e.detail.index) {
             case 0:
@@ -191,9 +223,48 @@ Page({
         }
         this.refresh(this.data.activeTab)
     },
-    show() {
+    //展示细节
+    showdetail(e) {
+        var rsvid = e.currentTarget.dataset['id'];
+        wx.showLoading({
+            mask: true,
+            title: '加载中',
+        })
+        wx.request({
+            url: app.globalData.url + '/reservation/' + rsvid,
+            method: 'GET',
+            success: (res) => {
+                if (res.data.code == 0) {
+                    this.setData({
+                        rsv_detail: res.data.rsv,
+                        show: true
+                    })
+                    wx.hideLoading()
+                } else {
+                    console.log(res.data.code, res.data.errmsg);
+                    wx.hideLoading();
+                    wx.showToast({
+                        title: '连接错误',
+                        icon: 'error',
+                        duration: 1500,
+                    })
+                }
+            },
+            fail: (res) => {
+                console.log(res.data.code, res.data.errmsg)
+                wx.hideLoading();
+                wx.showToast({
+                    title: '连接失败',
+                    icon: 'error',
+                    duration: 1500
+                });
+            }
+        })
+    },
+    //细节页面
+    hideit() {
         this.setData({
-            show: true
+            show: false
         })
     },
     delete: function (e) {
@@ -204,17 +275,22 @@ Page({
             content: '确认要取消本次预约?',
             success: function (res) {
                 if (res.confirm) {
+                    wx.showLoading({
+                        mask: true,
+                        title: '取消中',
+                    })
                     console.log('用户点击确定')
                     wx.request({
                         url: app.globalData.url + "/reservation",
                         method: "DELETE",
                         data: {
-                            ['rsv-id']:123
+                            ['rsv-id']: 123
                         },
                         success: function (res) {
                             console.log(res.data.code);
                             if (res.statusCode == 200) {
-                                //访问正常
+                                //访问正常 
+                                wx.hideLoading();
                                 if (res.data.code == 0) {
                                     wx.showToast({
                                         title: "取消成功",
@@ -223,13 +299,23 @@ Page({
                                     })
                                 }
                             } else {
-                                console.log(res.data.code,res.data.errmsg)
-                                wx.showLoading({
+                                console.log(res.data.code, res.data.errmsg);
+                                wx.hideLoading();
+                                wx.showToasting({
                                     title: '取消失败',
                                     icon: 'error',
                                     duration: 1500,
                                 })
                             }
+                        },
+                        fail: (res) => {
+                            console.log(res.data.code, res.data.errmsg);
+                            wx.hideLoading();
+                            wx.showToast({
+                                title: '连接失败',
+                                icon: 'error',
+                                duration: 1500
+                            });
                         }
                     })
                 } else if (res.cancel) {

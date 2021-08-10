@@ -43,9 +43,8 @@
 <view class="total" wx:for="{{activeTab==0?success:(activeTab==1?ongoing:history)}}">
     <view class="detail">
         <view class="which">预约设备：{{item.item_id}}</view>
-        <view class="pic{{Math.colcal(item.state,activeTab)}}" hover-class="haspic{{Math.colcal(item.state,activeTab)}}"
-            style=" text-align: center;width: 30%;border-radius: 20rpx" bindtap="show"><text
-                decode="{{true}}">{{colst[Math.colcal(item.state,activeTab)]}}&nbsp;&nbsp;></text>
+        <view class="pic{{Math.colcal(item.state,activeTab)}}" hover-class="haspic{{Math.colcal(item.state,activeTab)}}" style="text-align:center; width:30%; border-radius:20rpx" bindtap="showdetail" data-id="{{item.id}}">
+            <text decode="{{true}}">{{colst[Math.colcal(item.state,activeTab)]}}&nbsp;&nbsp;></text>
         </view>
     </view>
     <view class="divline"></view>
@@ -59,32 +58,33 @@
     </view>
 </view>
 <!-- 详细信息 -->
-<page-container show="{{show}}" position="top" overlay-style="black" z-index="1" >
+<page-container show="{{show}}" position="bottom" overlay-style="black" z-index="1" >
     <view class="whole">
         <view class="title">预约详细信息</view>
         <view class="detail-list">
             <view class="left-detail"> 设备名称：</view>
-            <view class="right-detail">sdhjd</view>
+            <view class="right-detail">{{rsv_detail['item-id']}}</view>
         </view>
         <view class="detail-list">
             <view class="left-detail"> 预约时间：</view>
-            <view class="right-detail">sdhjd</view>
+            <view class="right-detail">{{rsv_detail.interval}}</view>
         </view>
         <view class="detail-list">
             <view class="left-detail"> 审批状态：</view>
-            <view class="right-detail">sdhjd</view>
+            <view class="right-detail">{{colst[Math.colcal(rsv_detail.state,activeTab)]}}</view>
         </view>
         <view class="detail-list">
             <view class="left-detail"> 审批回复：</view>
-            <view class="right-detail">sdhjd</view>
+            <view class="right-detail">{{rsv_detail['exam-rst']}}</view>
         </view>
         <view class="detail-list">
             <view class="left-detail"> 审批人：</view>
-            <view class="right-detail">sdhjd</view>
+            <view class="right-detail">{{rsv_detail.approver}}</view>
         </view>
     </view>
 <view style="height:60rpx"></view>
-    <view>
-        <button class="warn" bindtap="delete" data-id="123" wx:if="{{activeTab!=2}}">取消预约</button>
+    <view class="buttonbox">
+        <button class="ok" style="width:30%" bindtap="hideit">关闭详情</button>
+        <button class="warn" style="width:30%" bindtap="delete" data-id="123" wx:if="{{activeTab==1}}">取消预约</button>
     </view>
 </page-container>
