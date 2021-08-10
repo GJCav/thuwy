@@ -47,7 +47,7 @@ Page({
             var my_rsvs = [{
                 id: 236237236,
                 item_id: 1001,
-                state: 2
+                state: 1
             }, {
                 id: 328392832,
                 item_id: 1002,
@@ -63,7 +63,7 @@ Page({
             }, {
                 id: 20200148394,
                 item_id: 1005,
-                state: 10
+                state: 20
             }, {
                 id: 20200148394,
                 item_id: 1007,
@@ -160,7 +160,7 @@ Page({
                 });
             } else {
                 for (var i = 0; i < my_rsvs.length; ++i) {
-                    if (this.num(my_rsvs[i].state, 2) && this.num(my_rsvs[i].state, 3)) {
+                    if (this.num(my_rsvs[i].state, 2) && this.num(my_rsvs[i].state, 4)!=1) {
                         tmp = tmp.concat(my_rsvs[i])
                     }
                 }
