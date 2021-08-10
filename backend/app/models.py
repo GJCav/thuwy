@@ -49,6 +49,16 @@ class User(db.Model):
     def fromOpenid(openid):
         return db.session.query(User).filter(User.openid == openid).one_or_none()
 
+    def queryProfile(openId):
+        openId = str(openId)
+        usr = db.session.query(User).filter(User.openid == openId).one_or_none()
+        if usr == None:
+            return None
+        else:
+            usr = usr.toDict()
+            usr['admin'] = bool(Admin.fromId(openId))
+            return usr
+
     def queryName(openid):
         """
         return: name of openid, none if not found.

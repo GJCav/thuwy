@@ -142,13 +142,14 @@ wx.request({
 
 **返回值：** Json Object，属性如下：
 
-| 属性      | 类型   | 说明     |
-| --------- | ------ | -------- |
-| name      | string | 姓名     |
-| clazz     | string | 班级     |
-| school-id | string | 学号     |
-| code      | int    | 错误码   |
-| errmsg    | string | 错误信息 |
+| 属性      | 类型   | 说明         |
+| --------- | ------ | ------------ |
+| name      | string | 姓名         |
+| clazz     | string | 班级         |
+| school-id | string | 学号         |
+| admin     | bool   | 是否为管理员 |
+| code      | int    | 错误码       |
+| errmsg    | string | 错误信息     |
 
 
 
@@ -162,15 +163,7 @@ wx.request({
 
 **请求参数：** open-id，目标用户的openid
 
-**返回值：** Json Object，属性如下：
-
-| 属性      | 类型   | 说明     |
-| --------- | ------ | -------- |
-| name      | string | 姓名     |
-| clazz     | string | 班级     |
-| school-id | string | 学号     |
-| code      | int    | 错误码   |
-| errmsg    | string | 错误信息 |
+**返回值：** Json Object，同`GET /profile/`
 
 
 

@@ -191,7 +191,8 @@ def bind():
 @router.route('/profile/')
 @requireLogin
 def getMyProfile():
-    rtn = db.session.query(User).filter(User.openid == session['openid']).one().toDict()
+    rtn = User.queryProfile(session['openid'])
+    if rtn == None: return ErrCode.CODE_ARG_INVALID
     rtn.update(ErrCode.CODE_SUCCESS)
     return rtn
 
@@ -201,13 +202,10 @@ def getMyProfile():
 @requireAdmin
 def getProfile(openId):
     openId = str(openId)
-    usr = db.session.query(User).filter(User.openid == openId).one_or_none()
-    if usr == None:
-        return ErrCode.CODE_ARG_INVALID
-    else:
-        usr = usr.toDict()
-        usr.update(ErrCode.CODE_SUCCESS)
-        return usr
+    profile = User.queryProfile(openId)
+    if profile == None: return ErrCode.CODE_ARG_INVALID
+    profile.update(ErrCode.CODE_SUCCESS)
+    return profile
 
 
 @router.route('/admin/request/', methods=['POST'])
