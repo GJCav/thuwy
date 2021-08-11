@@ -6,7 +6,7 @@ Page({
   data: {
     sum: 0,
     page: 1,
-    items: [{name:"RTX3060",id:1001,available:true,['brief-intro']:'为降低温度及我觉得大姐大街我i大家',thumbnail:"../../icon/add.png"}],
+    items: [{name:"RTX3060",id:1001,available:true,'brief-intro':'为降低温度及我觉得大姐大街我i大家',thumbnail:"../../icon/add.png"}],
 
     userInfo: {},
     hasUserInfo: false,

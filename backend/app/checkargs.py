@@ -14,6 +14,9 @@ def areInt(map: dict, attrs: list):
             return False
     return True
 
+def isInt(a):
+    return isinstance(a, int)
+
 def areBool(map: dict, attrs: list):
     for k in attrs:
         if not isinstance(map[k], bool):
@@ -39,6 +42,7 @@ def isClazz(s: str):
     return Regex.match(r'^未央-.+\d\d$', s)
 
 def isUint64(a):
+    if not isInt(a): return False
     if a < 0 or a > (1<<65)-1: return False
     return True
 

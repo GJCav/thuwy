@@ -127,7 +127,7 @@ def testRsvFlexTime():
         assert rsv['item-id'] == itemId, str(rsv)
         assert rsv['reason'] == reqJson['reason'], rsv
         assert rsv['method'] == FlexTimeRsv.methodValue, str(rsv)
-        assert rsv['state'] == RsvState.STATE_WAITING
+        assert rsv['state'] == RsvState.STATE_WAIT, rsv
         assert rsv['interval'] == interval
 
     reqJson = {
@@ -233,6 +233,7 @@ def testRsvLongTime():
         (  0, [_da(2)+' 1', _da(2)+' 2']),  # 多个预约
         (  0, [_da(3)+' 2', _da(3)+' 3']),
         (  0, [_da(2)+' 3', _da(3)+' 1']),
+        (  0, [_da(5)+' 1', _da(5)+' 2', _da(5)+' 3', _da(6)+' 2']),
 
         (101, [_da(1)+' 1']), # 时间冲突,
         (101, [_da(1)+' 2']),
@@ -292,7 +293,7 @@ def testCancel():
         'reason': f'test cancel',
         'method': 1,
         'interval': [
-            '2021-8-11 1', '2021-8-11 2', '2021-8-11 3'
+            '2021-8-12 1', '2021-8-12 2', '2021-8-12 3'
         ]
     }
 

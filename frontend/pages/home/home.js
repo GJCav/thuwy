@@ -284,7 +284,7 @@ Page({
                         url: app.globalData.url + "/reservation",
                         method: "DELETE",
                         data: {
-                            ['rsv-id']: 123
+                            'rsv-id': typeid
                         },
                         success: function (res) {
                             console.log(res.data.code);

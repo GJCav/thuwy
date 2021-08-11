@@ -7,7 +7,7 @@
     <view class="after-title">
       <view class="tipbox">
         <view class="labelbox">
-          <image src="../../icon/id.png" class="iconCss"></image>
+          <image src="../../icon/equip.png" class="iconCss"></image>
           <text class="textbox">设备名称:</text>
         </view>
         <view>
@@ -16,7 +16,7 @@
       </view>
       <view class="tipbox">
         <view class="labelbox">
-          <image src="../../icon/clz.png" class="iconCss"></image>
+          <image src="../../icon/method.png" class="iconCss"></image>
           <text class="textbox">预约方式:</text>
         </view>
         <checkbox-group style="margin-left:20%;margin-right:20%" bindchange="rsvmethod">
@@ -31,7 +31,7 @@
     </view>
     <view class="tipbox">
       <view class="labelbox">
-        <image src="../../icon/clz.png" class="iconCss"></image>
+        <image src="../../icon/pic.png" class="iconCss"></image>
         <text class="textbox">设备图片:</text>
       </view>
       <view>
@@ -40,7 +40,7 @@
     </view>
     <view class="tipbox">
       <view class="labelbox">
-        <image src="../../icon/name.png" class="iconCss"></image>
+        <image src="../../icon/brief.png" class="iconCss"></image>
         <text class="textbox">简要介绍:</text>
       </view>
       <view>
@@ -49,7 +49,7 @@
     </view>
     <view class="tipbox">
       <view class="labelbox">
-        <image src="../../icon/clz.png" class="iconCss"></image>
+        <image src="../../icon/md.png" class="iconCss"></image>
         <text class="textbox">详细介绍:</text>
       </view>
       <view>

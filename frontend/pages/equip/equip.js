@@ -77,10 +77,10 @@ Page({
           data: {
             item: {
               name: that.name,
-              ['brief-intro']: that.brief_intro,
-              ['md-intro']: that.md_intro,
+              'brief-intro': that.brief_intro,
+              'md-intro': that.md_intro,
               thumbnail: that.thumbnail,
-              ['rsv-method']: that.rsv_method
+              'rsv-method': that.rsv_method
             }
           },
           success: (res) => {

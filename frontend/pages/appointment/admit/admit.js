@@ -207,7 +207,7 @@ Page({
         url: app.globalData.url + '/reservation',
         method: 'POST',
         data: {
-          ['item-id']: this.data.id,
+          'item-id': this.data.id,
           reason: this.data.reason,
           method: 1,
           interval: this.data.list
