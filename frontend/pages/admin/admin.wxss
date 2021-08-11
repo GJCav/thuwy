@@ -1,1 +1,34 @@
 /* pages/admin/admin.wxss */
+.square{
+  width: 24px;
+  height: 24px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+.small_title{
+  width: 100%;
+  height: 80rpx;
+  display: flex;
+  margin-bottom: 20rpx;
+  align-items: center;
+  flex-direction: column;
+  font-size: large;
+}
+.detail {
+  width: 90%;
+  color: #999999;
+  display: flex;
+  padding: 10rpx;
+  align-items: center;
+  justify-content: left;
+  flex-direction: column;
+}
+.text{
+  width: 90%;
+  height: 75rpx;
+  display: flex;
+  align-items: center;
+}
+.haveselect{
+  background-color: #dddddd;
+}

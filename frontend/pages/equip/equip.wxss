@@ -1,4 +1,4 @@
-/* pages/bind/bind.wxss */
+/* pages/equip/equip.wxss */
 .iconCss{
   width: 80rpx; height: 80rpx;
 }
@@ -15,12 +15,16 @@
   font-size: larger;
 }
 .inputbox{
+  width: 70%;
   background-color: #fff;
   border: 2px solid #ddd;
   margin-left: 15%;
   margin-right: 15%;
   margin-bottom: 20rpx;
 }
-.place-holder{
-  font-style: italic;
+.checkbox{
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
 }

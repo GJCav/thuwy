@@ -96,13 +96,3 @@
   align-items: center;
   justify-content:space-around;
 }
-.warn {
-  margin-bottom: 60rpx;
-  background-color: rgba(255, 0, 0, 0.7);
-  color: white;
-}
-.ok{
-  margin-bottom: 60rpx;
-  background-color:limegreen ;
-  color: white;
-}

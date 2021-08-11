@@ -16,13 +16,14 @@ App({
             if (res.code == 0) {
               this.globalData.login = true;
               this.globalData.userInfo = res.data.bound;
-              wx.setStorage({ //将得到的openid存储到缓存里面方便后面调用
+              //将得到的openid存储到缓存里面方便后面调用
+              wx.setStorage({
                 key: "cookie",
                 data: res.cookies[0]
               })
               console.log('登陆成功')
             } else {
-              console.log('用户登录：', res.data.code, res.data.errmsg);
+              console.log(res.data.code, res.data.errmsg);
               wx.showToast({
                 title: '登录失败',
                 icon: 'error',

@@ -4,7 +4,8 @@
     "pages/bind/bind",
     "pages/setting/setting",
     "pages/home/home",
-    "pages/admin/admin"
+    "pages/admin/admin",
+    "pages/equip/equip"
   ],
   "window":{
     "onReachBottomDistance":20,

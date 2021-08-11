@@ -160,7 +160,7 @@ Page({
                 });
             } else {
                 for (var i = 0; i < my_rsvs.length; ++i) {
-                    if (this.num(my_rsvs[i].state, 2) && this.num(my_rsvs[i].state, 4)!=1) {
+                    if (this.num(my_rsvs[i].state, 2) && this.num(my_rsvs[i].state, 4) != 1) {
                         tmp = tmp.concat(my_rsvs[i])
                     }
                 }
@@ -289,23 +289,23 @@ Page({
                         success: function (res) {
                             console.log(res.data.code);
                             if (res.statusCode == 200) {
-                                //访问正常 
-                                wx.hideLoading();
-                                if (res.data.code == 0) {
+                                //访问正常                         
+                                if (res.data.code == 0) { 
+                                    wx.hideLoading();
                                     wx.showToast({
                                         title: "取消成功",
                                         icon: 'success',
                                         duration: 1500,
                                     })
+                                } else {
+                                    console.log(res.data.code, res.data.errmsg);
+                                    wx.hideLoading();
+                                    wx.showToasting({
+                                        title: '取消失败',
+                                        icon: 'error',
+                                        duration: 1500,
+                                    })
                                 }
-                            } else {
-                                console.log(res.data.code, res.data.errmsg);
-                                wx.hideLoading();
-                                wx.showToasting({
-                                    title: '取消失败',
-                                    icon: 'error',
-                                    duration: 1500,
-                                })
                             }
                         },
                         fail: (res) => {

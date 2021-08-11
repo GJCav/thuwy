@@ -19,7 +19,7 @@ Page({
       condition: !app.globalData.isadmin
     }, {
       text: "反馈问题和建议",
-      go: "",
+      go: "advice",
       condition: true
     }],
     num1: 0,
@@ -157,5 +157,12 @@ Page({
         duration: 1500
       });
     }
+  },
+  advice(){
+    wx.showToast({
+      title: '功能尚未开通',
+      icon: 'error',
+      duration: 1500
+    });
   }
 })

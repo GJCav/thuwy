@@ -62,6 +62,7 @@
         <view style="margin-left:200rpx;text-align:right">{{st[Math.cal(item.state,activeTab)]}}</view>
     </view>
 </view>
+<view style="font-weight:lighter;color:#999999;margin-top:50%;text-align: center" wx:if="{{success.length==0&&activeTab==0||ongoing.length==0&&activeTab==1||history.length==0&&activeTab==2}}">——暂无详细信息——</view>
 <!-- 详细信息 -->
 <page-container show="{{show}}" position="bottom" overlay-style="black" z-index="1">
     <view class="whole">
@@ -89,7 +90,7 @@
     </view>
     <view style="height:60rpx"></view>
     <view class="buttonbox">
-        <button class="ok" style="width:30%" bindtap="hideit">关闭详情</button>
-        <button class="warn" style="width:30%" bindtap="delete" data-id="123" wx:if="{{activeTab==1}}">取消预约</button>
+        <button type="primary" style="width:30%;margin-bottom:60rpx;" bindtap="hideit">关闭详情</button>
+        <button type="warn" style="width:30%;margin-bottom:60rpx;" bindtap="delete" data-id="123" wx:if="{{activeTab==1}}">取消预约</button>
     </view>
 </page-container>

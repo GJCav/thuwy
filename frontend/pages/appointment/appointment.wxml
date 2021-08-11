@@ -1,6 +1,7 @@
 <!--appointment.wxml-->
 <!-- 宣传框 -->
-<swiper indicator-dots="true" autoplay="true" interval="5000" duration="1000" circular="true" previous-margin="60px" next-margin="60px">
+<swiper indicator-dots="true" autoplay="true" interval="5000" duration="1000" circular="true" previous-margin="60px"
+  next-margin="60px">
   <block wx:for="{{imgUrls}}" wx:key="*this">
     <swiper-item class="slide-wrapper">
       <image src="{{item}}" class="slide-image" width="375" height="150" />
@@ -8,21 +9,21 @@
   </block>
 </swiper>
 <!-- 预约设备 -->
-<block>
-  <van-row custom-class="row" wx:for="{{items}}" wx:for-item="equip" wx:for-index="number" wx:if="{{equip.available}}">
-    <van-col span="4" offset="1">
-      <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>
-    </van-col>
-    <van-col span="8" offset="2">
-      <view class='server-name'>{{equip.name}}</view>
-      <view class='server-description'>{{equip['brief-intro']}}</view>
-    </van-col>
-    <van-col span="4" offset="3">
-      <van-button data-value="{{number}}" type="primary" bind:tap="chooseMe" size="small">预约</van-button>
-    </van-col>
-  </van-row>
-</block>
+<van-row custom-class="row" wx:for="{{items}}" wx:for-item="equip" wx:for-index="number" wx:if="{{equip.available}}">
+  <van-col span="4" offset="1">
+    <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>
+  </van-col>
+  <van-col span="10" offset="2">
+    <view class='server-name'>{{equip.name}}</view>
+    <view class='server-description'>{{equip['brief-intro']}}</view>
+  </van-col>
+  <van-col span="4" offset="2">
+    <button data-value="{{number}}" type="primary" style="margin-top:30%" bindtap="chooseMe" size="mini">预约</button>
+  </van-col>
+</van-row>
 <!-- 测试专用 -->
-<van-button style="margin-left:10%" bindtap="great" type="primary" size="small">绑定</van-button>
-<van-button style="margin-left:10%" bindtap="better" type="primary" size="small">登录</van-button>
-<van-button style="margin-left:10%" bindtap="evolve" type="primary" size="small">管理员</van-button>
+<view style="margin-top:50rpx">
+<button style="margin-left:10%" bindtap="great" type="primary" size="mini">绑定</button>
+<button style="margin-left:10%" bindtap="better" type="primary" size="mini">登录</button>
+<button style="margin-left:10%" bindtap="evolve" type="primary" size="mini">管理员</button>
+</view>

@@ -1,0 +1,63 @@
+<!--pages/equip/equip.wxml-->
+<view>
+  <view class="titleCss" style="margin: 40rpx">
+    <text class="titletext">——请完整填写以下信息——</text>
+  </view>
+  <form bindsubmit="addit">
+    <view class="after-title">
+      <view class="tipbox">
+        <view class="labelbox">
+          <image src="../../icon/id.png" class="iconCss"></image>
+          <text class="textbox">设备名称:</text>
+        </view>
+        <view>
+          <input class="inputbox" placeholder="请填写设备名称" bindblur="inputname" />
+        </view>
+      </view>
+      <view class="tipbox">
+        <view class="labelbox">
+          <image src="../../icon/clz.png" class="iconCss"></image>
+          <text class="textbox">预约方式:</text>
+        </view>
+        <checkbox-group style="margin-left:20%;margin-right:20%" bindchange="rsvmethod">
+          <label class="checkbox" wx:for="{{methods}}">
+            <view>
+              <checkbox value="{{item.value}}" checked="{{item.checked}}" />
+            </view>
+            <view>{{item.name}}</view>
+          </label>
+        </checkbox-group>
+      </view>
+    </view>
+    <view class="tipbox">
+      <view class="labelbox">
+        <image src="../../icon/clz.png" class="iconCss"></image>
+        <text class="textbox">设备图片:</text>
+      </view>
+      <view>
+
+      </view>
+    </view>
+    <view class="tipbox">
+      <view class="labelbox">
+        <image src="../../icon/name.png" class="iconCss"></image>
+        <text class="textbox">简要介绍:</text>
+      </view>
+      <view>
+        <textarea class="inputbox" style="height:120rpx" placeholder="请简述设备情况,不超过40个字符" bindblur="inputintro" />
+      </view>
+    </view>
+    <view class="tipbox">
+      <view class="labelbox">
+        <image src="../../icon/clz.png" class="iconCss"></image>
+        <text class="textbox">详细介绍:</text>
+      </view>
+      <view>
+        <textarea class="inputbox" style="height:200rpx" placeholder="选填,支持markdown格式" bindblur="inputmd" />
+      </view>
+    </view>
+    <view style="margin-bottom:100rpx">
+      <button form-type="submit" type="primary" style="width:300rpx;height:80rpx;top:60rpx">提交</button>
+    </view>
+  </form>
+</view>

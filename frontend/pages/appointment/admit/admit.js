@@ -46,6 +46,7 @@ Page({
       id: options.id,
       name: options.name
     })
+    console.log(1);
     wx.setNavigationBarTitle({
       title: '提交申请'
     })
@@ -94,17 +95,16 @@ Page({
       calendar: flag
     })
     wx.showLoading({
-      mask:true,
+      mask: true,
       title: '加载中',
     })
     wx.request({
       url: app.globalData.url + '/item/' + this.data.id + '/reservation',
       method: 'GET',
       success: (res) => {
-        console.log('获取成功');
         console.log(res)
         if (res.data.code == 0) {
-          var haslist = res.rsvs;
+          var haslist = res.data.rsvs;
           var tmp = this.data.disable;
           for (var i = 0; i < haslist.length; ++i) {
             for (var j = 0; j < this.data.calendar.length; ++j) {
@@ -149,7 +149,7 @@ Page({
           title: '连接失败',
           icon: 'error'
         });
-        
+
         setTimeout(function () {
           wx.navigateBack({
             delta: 1
@@ -176,9 +176,14 @@ Page({
         title: '未选择预约时间',
         icon: 'error'
       })
+    } else if (this.data.reason == null) {
+      wx.showToast({
+        title: '未填写预约理由',
+        icon: 'error'
+      })
     } else {
       wx.showLoading({
-        mask:true,
+        mask: true,
         title: '提交中',
       })
       for (var i = 0; i < this.selectedIdxs.length; i++) {

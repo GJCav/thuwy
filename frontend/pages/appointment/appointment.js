@@ -6,7 +6,7 @@ Page({
   data: {
     sum: 0,
     page: 1,
-    items: [],
+    items: [{name:"RTX3060",id:1001,available:true,['brief-intro']:'为降低温度及我觉得大姐大街我i大家',thumbnail:"../../icon/add.png"}],
 
     userInfo: {},
     hasUserInfo: false,
@@ -34,7 +34,6 @@ Page({
         },
         method: 'GET',
         success: (res) => {
-          console.log('获取成功');
           if (res.data.code == 0) {
             this.setData({
               page: this.data.page + 1,
@@ -43,7 +42,7 @@ Page({
             })
             wx.hideLoading();
           } else {
-            console.log('读取物品：', res.data.code, res.data.errmsg)
+            console.log(res.data.code, res.data.errmsg)
             wx.hideLoading();
             wx.showToast({
               title: '连接错误',
@@ -92,7 +91,6 @@ Page({
       },
       method: 'GET',
       success: (res) => {
-        console.log('获取成功');
         if (res.data.code == 0) {
           this.setData({
             page: this.data.page + 1,
@@ -101,7 +99,7 @@ Page({
           })
           wx.hideLoading();
         } else {
-          console.log('读取物品：', res.data.code, res.data.errmsg)
+          console.log(res.data.code, res.data.errmsg)
           wx.hideLoading();
           wx.showToast({
             title: '连接错误',

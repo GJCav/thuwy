@@ -20,11 +20,13 @@
       </view>
     </view>
   </checkbox-group>
-  <view class="infotext" style="font-weight: bold;margin-top:50rpx">申请预约理由：</view>
-  <view>
-    <textarea class="inputbox" placeholder="请简述预约设备用途，不超过120字" bindblur="inputwhy" />
-  </view>
-</view>
-<view class='operate'>
-  <button class='save' bindtap="appoint" loading="{{loading}}" disabled="{{disabled}}">提交</button>
+  <form bindsubmit="appoint">
+    <view class="infotext" style="font-weight: bold;margin-top:50rpx">申请预约理由：</view>
+    <view>
+      <textarea class="inputbox" placeholder="请简述预约设备用途,不超过120个字符" bindblur="inputwhy" />
+    </view>
+    <view class='operate'>
+      <button form-type="submit" class="save" loading="{{loading}}" disabled="{{disabled}}">提交</button>
+    </view>
+  </form>
 </view>

@@ -2,7 +2,38 @@
 page {
   background-color: #f3f3f3
 }
-
+.warn {
+  background-color: rgba(255, 0, 0, 0.7);
+  color: white;
+}
+.ok {
+  background-color: rgba(50, 205, 50);
+  color: white;
+}
+.warns{
+  background-color: rgba(255, 0, 0);
+}
+.oks{
+  background-color: rgb(45, 160, 45);
+}
+.avatar {
+  width: 70px;
+  height: 70px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  border-radius: 50%;
+  border: 3px solid #777777;
+  overflow: hidden
+}
+.server-name {
+  color: black;
+  font-size: larger;
+  font-weight: bold;
+}
+.server-description {
+  color: #999999;
+  font-size: smaller;
+}
 .total {
   box-shadow: 1rpx 1rpx 1rpx 1rpx #dddddd;
   background-color: #ffffff;
@@ -15,7 +46,6 @@ page {
   border-radius: 20rpx;
   border: 1px solid #dddddd;
 }
-
 .arrow {
   width: 10px;
   height: 10px;
@@ -24,7 +54,6 @@ page {
   border-right: 2px solid #999;
   transform: rotate(45deg);
 }
-
 .titleCss {
   font-style: italic;
   color: #999;
@@ -32,10 +61,13 @@ page {
   align-items: center;
   justify-content: center;
 }
-
 .divline {
   background: #e0e3da;
   width: 90%;
   display: flex;
-  height: 2rpx;
+  height: 3rpx;
+}
+checkbox .wx-checkbox-input {
+  width: 50rpx;
+  height: 50rpx;
 }

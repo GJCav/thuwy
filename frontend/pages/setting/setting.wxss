@@ -49,7 +49,6 @@
   justify-content: center;
   background-color: #ffffff;
 }
-
 .haveselect{
   background-color: #dddddd;
 }
