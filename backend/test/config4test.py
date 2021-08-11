@@ -1,6 +1,5 @@
 cookieStr = \
-"""session=eyJvcGVuaWQiOiJvZHo0QjR4bFRnbEJaWGpHSVZoNjVhRnNpeUFZIiwid3gtc2tleSI6IjlWTjVsQ3d5dFlDbVl3NWdVOWZUelE9PSJ9.YRDhVw.5f0dKCB41eNxhHBKuF4ChFNCIYU; HttpOnly; Path=/"""
-
+"""session=eyJvcGVuaWQiOiJvZHo0QjR4bFRnbEJaWGpHSVZoNjVhRnNpeUFZIiwid3gtc2tleSI6InY1OXg1K1Ara3NlcktiUDlNQmVNWHc9PSJ9.YROCvQ.PYNg_J4rZkX7Gfk1D1SvoERx73E; HttpOnly; Path=/"""
 
 headers = {
     'cookie': cookieStr

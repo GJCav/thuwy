@@ -18,8 +18,9 @@ from . import snowflake as Snowflake
 from . import checkargs as CheckArgs
 from . import models as Models
 from .models import Admin, AdminRequest, User, Item, Reservation
-from .models import LongTimeRsv as LongTimeRsv
-from .models import FlexTimeRsv as FlexTimeRsv
+from .models import LongTimeRsv
+from .models import FlexTimeRsv
+from .models import _Dict
 
 from . import ColorConsole as C
 from pprint import pprint
@@ -480,25 +481,60 @@ def itemRsvInfo(itemId):
     return rst
 
 
-@router.route('/reservation/<int:rsvId>', methods=['GET'])
-def getRsvInfo(rsvId):
-    CODE_RSV_NOT_FOUND = {'code': 101, 'errmsg': 'reservation not found.'}
+@router.route('/reservation/')
+@requireLogin
+@requireBinding
+@requireAdmin
+def getRsvList():
 
-    if rsvId < 0 or rsvId > (1<<65)-1:
-        return ErrCode.CODE_ARG_INVALID
+    qry = db.session.query(Reservation)
 
-    rsv = Reservation.fromRsvId(rsvId)
-    if not rsv:
-        return CODE_RSV_NOT_FOUND
+    st = request.args.get('st')
+    ed = request.args.get('ed')
+    state = request.args.get('state', None, type=int)
+    method = request.args.get('method', None, type=int)
+    p  = request.args.get('p', 1, type=int)
 
-    if rsv.method == LongTimeRsv.methodValue: rsv = LongTimeRsv.getFatherRsv(rsv)
+    if st:
+        if not CheckArgs.isDate(st): return ErrCode.CODE_ARG_FORMAT_ERR
+        st = timestamp.parseDate(st)
+        qry = qry.filter(Reservation.st >= st)
     
-    if   rsv.method == LongTimeRsv.methodValue: rsvJson = LongTimeRsv.toDict(rsv)
-    elif rsv.method == FlexTimeRsv.methodValue: rsvJson = FlexTimeRsv.toDict(rsv)
-    else: return ErrCode.CODE_DATABASE_ERROR # 如果执行这个分支，说明存在外部添加 Rsv 的行为，或代码出Bug
+    if ed and CheckArgs.isDate(ed):
+        if not CheckArgs.isDate(ed): return ErrCode.CODE_ARG_FORMAT_ERR
+        ed = timestamp.parseDate(ed)
+        qry = qry.filter(Reservation.ed < ed)
 
-    rtn = {'rsv': rsvJson}
+    if state != None:
+        qry = qry.filter(Reservation.state.op('&')(state))
+
+    if method != None:
+        qry = qry.filter(Reservation.method == method)
+
+    qryRst = qry.limit(20).offset(20*(p-1)).all()
+
+    arr = []
+    groupRsvSet = set()
+    for rsv in qryRst:
+        if rsv.id in groupRsvSet:
+            continue
+
+        if LongTimeRsv.isChildRsv(rsv):
+            rsv = LongTimeRsv.getFatherRsv(rsv)
+
+        if LongTimeRsv.isFatherRsv(rsv):
+            choreJson = Json.loads(rsv.chore)
+            groupRsvSet |= set(choreJson['group-rsv']['sub-rsvs'])
+            groupRsvSet.add(rsv.id)
+
+        arr.append(rsv.toDict())
+
+    rtn = {
+        'page': p,
+        'rsvs': arr
+    }
     rtn.update(ErrCode.CODE_SUCCESS)
+
     return rtn
 
 @router.route('/reservation/', methods=['POST'])
@@ -521,15 +557,6 @@ def reserve():
     reason = reqJson['reason']
     method = reqJson['method']
 
-    r = Reservation()
-    # r.id = rsvIdPool.next() 下面单独生成
-    r.itemId = itemId
-    r.guest = session['openid']
-    r.reason = reason
-    r.method = method
-    r.state = RsvState.STATE_START
-    r.chore = ''
-
     supportedMethod = Item.querySupportedMethod(itemId)
     if supportedMethod == None:
         return ErrCode.Rsv.CODE_ITEM_NOT_FOUND
@@ -545,11 +572,7 @@ def reserve():
             return ErrCode.CODE_ARG_MISSING
         
         interval: list = reqJson['interval']
-        r.chore = ''
-        r.chore = {'group-rsv': {}} # remember to cast to str
-
         rsvGroup = []
-
         for itl in interval:
             st, ed = LongTimeRsv.parseInterval(itl)
             if ed == None: return ErrCode.CODE_ARG_FORMAT_ERR # date str fmt error
@@ -558,10 +581,12 @@ def reserve():
             if st > timestamp.aWeekAfter() or ed < timestamp.now():
                 return ErrCode.Rsv.CODE_TIME_OUT_OF_RANGE
 
-            new = Copy.copy(r)
+            new = _Dict()
             new.id = rsvIdPool.next()
             new.st = st
             new.ed = ed
+            new.itemId = itemId
+            new.chore = {'group-rsv': {}} # remember to cast to str
             rsvGroup.append(new)
         
         rsvGroup[0].chore['group-rsv']['sub-rsvs'] = []
@@ -570,7 +595,7 @@ def reserve():
             rsvGroup[i].chore['group-rsv']['fth-rsv'] = rsvGroup[0].id
         
         for cur, e in enumerate(rsvGroup):
-            if e.hasTimeConflict():
+            if Reservation.hasTimeConflict(e):
                 return ErrCode.Rsv.CODE_TIME_CONFLICT
             
             for i in range(cur):    # 避免内部出现时间冲突，防止有尝试传入 ['2021-5-16 1', '2021-5-16 1'] 这种导致bug
@@ -582,15 +607,15 @@ def reserve():
 
         rsvGroup = [Reservation(
                 id = e.id,
-                itemId = e.itemId,
-                guest = e.guest,
-                reason = e.reason,
-                method = e.method,
+                itemId = itemId,
+                guest = session['openid'],
+                reason = reason,
+                method = method,
                 st = e.st,
                 ed = e.ed,
-                state = e.state,
-                approver = e.approver,
-                examRst = e.examRst,
+                state = RsvState.STATE_WAIT,
+                approver = None,
+                examRst = None,
                 chore = Json.dumps(e.chore)
             ) for e in rsvGroup]
         db.session.add_all(rsvGroup)
@@ -641,7 +666,14 @@ def reserve():
         if st > timestamp.aWeekAfter() or ed < timestamp.now():
                 return ErrCode.Rsv.CODE_TIME_OUT_OF_RANGE
 
+        r = Reservation()
         r.id = rsvIdPool.next()
+        r.itemId = itemId
+        r.guest = session['openid']
+        r.reason = reason
+        r.method = method
+        r.state = RsvState.STATE_WAIT
+        r.chore = ''
         r.st, r.ed = st, ed
 
         if r.hasTimeConflict():
@@ -728,6 +760,97 @@ def querymyrsv():
     rst['my-rsv'] = [_pcs(e) for e in rsvJsonArr]
     return rst
 
+
+@router.route('/reservation/<int:rsvId>', methods=['GET'])
+def getRsvInfo(rsvId):
+    CODE_RSV_NOT_FOUND = {'code': 101, 'errmsg': 'reservation not found.'}
+
+    if rsvId < 0 or rsvId > (1<<65)-1:
+        return ErrCode.CODE_ARG_INVALID
+
+    rsv = Reservation.fromRsvId(rsvId)
+    if not rsv:
+        return CODE_RSV_NOT_FOUND
+
+    if rsv.method == LongTimeRsv.methodValue: rsv = LongTimeRsv.getFatherRsv(rsv)
+    
+    if   rsv.method == LongTimeRsv.methodValue: rsvJson = LongTimeRsv.toDict(rsv)
+    elif rsv.method == FlexTimeRsv.methodValue: rsvJson = FlexTimeRsv.toDict(rsv)
+    else: return ErrCode.CODE_DATABASE_ERROR # 如果执行这个分支，说明存在外部添加 Rsv 的行为，或代码出Bug
+
+    rtn = {'rsv': rsvJson}
+    rtn.update(ErrCode.CODE_SUCCESS)
+    return rtn
+
+
+
+@router.route('/reservation/<int:rsvId>', methods=['POST'])
+@requireLogin
+@requireBinding
+@requireAdmin
+def modifyRsv(rsvId):
+    rsv: Reservation = Reservation.query \
+        .filter(Reservation.id == rsvId) \
+        .one_or_none()
+    
+    if not rsv: return ErrCode.Rsv.CODE_RSV_NOT_FOUND
+    json = request.get_json()
+    op = json.get('op')
+    if op == None: return ErrCode.CODE_ARG_MISSING
+    if CheckArgs.isInt(op): return ErrCode.CODE_ARG_TYPE_ERR
+
+    if   op == 1: return examRsv(rsv, json)
+    elif op == 2: return completeRsv(rsv)
+    else: return ErrCode.CODE_SERVER_BUGS
+    
+def examRsv(rsv, json):
+    if RsvState.isStart(rsv.state)   : return ErrCode.Rsv.CODE_RSV_START
+    if RsvState.isReject(rsv.state)  : return ErrCode.Rsv.CODE_RSV_REJECTED
+    if RsvState.isComplete(rsv.state): return ErrCode.Rsv.CODE_RSV_COMPLETED
+
+    if not CheckArgs.hasAttrs(json, ['pass', 'reason']):
+        return ErrCode.CODE_ARG_MISSING
+    if not CheckArgs.areInt(json, ['pass']):
+        return ErrCode.CODE_ARG_TYPE_ERR
+    if not CheckArgs.areStr(json, ['reason']):
+        return ErrCode.CODE_ARG_TYPE_ERR
+
+    if rsv.method == LongTimeRsv.getFatherRsv:
+        rsv = LongTimeRsv.getFatherRsv(rsv)
+
+    pazz = json['pass']
+    reason = json['reason']
+    rsv.reason = reason
+
+    if pazz == 0:
+        rsv.state = RsvState.COMPLETE_BY_REJECT
+    elif pazz == 1:
+        rsv.state = RsvState.STATE_START
+    else:
+        return 
+    
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return ErrCode.CODE_DATABASE_ERROR
+
+    return ErrCode.CODE_SUCCESS
+
+def completeRsv(rsv):
+    if RsvState.isWait(rsv.state): return ErrCode.Rsv.CODE_RSV_WAITING
+    if RsvState.isComplete(rsv.state): return ErrCode.Rsv.CODE_RSV_COMPLETED
+    if not RsvState.isStart(rsv.state): return ErrCode.CODE_SERVER_BUGS
+
+    rsv.state = RsvState.STATE_COMPLETE
+    try:
+        db.session.commit()
+    except Exception as e:
+        print(e)
+        return ErrCode.CODE_DATABASE_ERROR
+
+    return ErrCode.CODE_SUCCESS
+
 @router.route('/reservation/<int:rsvId>', methods=['DELETE'])
 @requireLogin
 @requireBinding
@@ -783,49 +906,3 @@ def cancelRsv(rsvId):
         db.session.rollback()
         return ErrCode.CODE_DATABASE_ERROR
     return ErrCode.CODE_SUCCESS
-
-
-@router.route('/reservation/<int:rsvId>', methods=['POST'])
-@requireLogin
-@requireBinding
-@requireAdmin
-def examRsv(rsvId):
-    rsv: Reservation = Reservation.query \
-        .filter(Reservation.id == rsvId) \
-        .one_or_none()
-    
-    if not rsv                       : return ErrCode.Rsv.CODE_RSV_NOT_FOUND
-    if RsvState.isStart(rsv.state)   : return ErrCode.Rsv.CODE_RSV_START
-    if RsvState.isReject(rsv.state)  : return ErrCode.Rsv.CODE_RSV_REJECTED
-    if RsvState.isComplete(rsv.state): return ErrCode.Rsv.CODE_RSV_COMPLETED
-
-    json = request.get_json()
-    if not CheckArgs.hasAttrs(json, ['pass', 'reason']):
-        return ErrCode.CODE_ARG_MISSING
-    if not CheckArgs.areInt(json, ['pass']):
-        return ErrCode.CODE_ARG_TYPE_ERR
-    if not CheckArgs.areStr(json, ['reason']):
-        return ErrCode.CODE_ARG_TYPE_ERR
-
-    if rsv.method == LongTimeRsv.getFatherRsv:
-        rsv = LongTimeRsv.getFatherRsv(rsv)
-
-    pazz = json['pass']
-    reason = json['reason']
-    rsv.reason = reason
-
-    if pazz == 0:
-        rsv.state = RsvState.COMPLETE_BY_REJECT
-    elif pazz == 1:
-        rsv.state = RsvState.STATE_START
-    else:
-        return 
-    
-    try:
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        return ErrCode.CODE_DATABASE_ERROR
-
-    return ErrCode.CODE_SUCCESS
-

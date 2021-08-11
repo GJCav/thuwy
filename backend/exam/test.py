@@ -6,7 +6,7 @@ from sqlalchemy import or_, and_
 import os
 import json as Json
 import requests
-
+from pprint import pprint
 import sqlalchemy
 
 app = Flask(__name__)
@@ -145,6 +145,13 @@ def testlogin():
         return f'You have logged in. {session["user"]}'
     else:
         return 'You haven\tt logged in.'
+
+
+@app.route('/foo')
+def foo():
+    r = db.session.query(Num).filter(Num.a.op('&')(2)).all()
+    pprint(r)
+    return 'yes'
 
 if __name__ == '__main__':
     app.run(debug=1)

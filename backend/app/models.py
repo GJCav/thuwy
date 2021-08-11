@@ -115,7 +115,6 @@ class Item(db.Model):
     def __repr__(self) -> str:
         return f'Item({self.name}, {self.briefIntro}, {self.id}, {self.mdIntro if len(self.mdIntro) < 30 else (self.mdIntro[:27]+"...")})'
 
-
 class Reservation(db.Model):
     __tablename__ = 'reservation'
     id       = db.Column(db.Integer, primary_key=True)
@@ -130,7 +129,12 @@ class Reservation(db.Model):
     examRst  = db.Column('exam_rst', db.Text)
     chore    = db.Column(db.Text)
 
+    __subrsvtypes__ = {}
+
     def hasTimeConflict(self):
+        """
+        self 不一定必须是 Reservation 类型，只要具有 st, ed, itemId 几个属性即可
+        """
         # 不支持连续小于号
         # cdn = {or_(
         #     self.st <= Reservation.st < self.ed,
@@ -158,7 +162,26 @@ class Reservation(db.Model):
             .filter(Reservation.id == rsvId)\
             .one_or_none()
 
-class LongTimeRsv:
+    # TODO: 慢慢把getInterval等用同样的方法代理下去
+    # TODO: 考虑一下要不要修改 __getattr__ 把未知属性也代理下去
+    def toDict(self):
+        """
+        根据 method 的值自动调用恰当的方法。
+        """
+        return SubRsvDelegator.toDict(self)
+
+class SubRsvDelegator:
+    methodValue = 0
+
+    def toDict(rsv: Reservation):
+        for cls in SubRsvDelegator.__subclasses__():
+            if rsv.method == cls.methodValue:
+                return cls.toDict(rsv)
+
+        raise TypeError(f'Unknown method: {rsv.method}')
+            
+
+class LongTimeRsv(SubRsvDelegator):
     methodValue = 1
     methodMask = 1
     
@@ -250,7 +273,10 @@ class LongTimeRsv:
             return f'{dateStr} {LongTimeRsv.weekendCode}' 
 
     def getInterval(rsv: Reservation):
-        rsv = LongTimeRsv.getFatherRsv(rsv)
+        """
+        rsv should be father reservation.
+        """
+        # rsv = LongTimeRsv.getFatherRsv(rsv)
         interval = []
         interval.append(LongTimeRsv.timestamp2Interval(rsv.st))
         for rsvId in Json.loads(rsv.chore)['group-rsv']['sub-rsvs']:
@@ -275,6 +301,8 @@ class LongTimeRsv:
         if rsv.method != LongTimeRsv.methodValue:
             raise ValueError(f'this is not a long time reservation. id: {rsv.id}')
 
+        rsv = LongTimeRsv.getFatherRsv(rsv)
+
         rsvDict = {
             'id': rsv.id,
             'item-id': rsv.itemId,
@@ -288,7 +316,17 @@ class LongTimeRsv:
         }
         return rsvDict
 
-class FlexTimeRsv:
+    def isChildRsv(rsv: Reservation):
+        if rsv.method != LongTimeRsv.methodValue: return False
+        chore = Json.loads(rsv.chore)
+        return 'fth-rsv' in chore['group-rsv']
+
+    def isFatherRsv(rsv):
+        if rsv.method != LongTimeRsv.methodValue: return False
+        chore = Json.loads(rsv.chore)
+        return 'sub-rsvs' in chore['group-rsv']
+
+class FlexTimeRsv(SubRsvDelegator):
     methodValue = 2
     methodMask  = 2
 
@@ -332,6 +370,7 @@ class FlexTimeRsv:
         }
         return rsvDict
 
+
 class AdminRequest(db.Model):
     __tablename__ = 'admin_req'
     id            = db.Column(db.Integer, primary_key = True)
@@ -352,29 +391,7 @@ class AdminRequest(db.Model):
             'reason': self.reason
         }
 
-# post-binding methods for Reservation
-def _getIntervalStr(self: Reservation):
-    """
-    self中至少有Reservation中的如下属性：
-        * method
-        * st
-        * ed
-    return: 可读的时间段信息
-    """
-    if self.method == LongTimeRsv.methodValue:
-        hour = timestamp.getHour(self.st)
-        if hour == LongTimeRsv.morningStartHour:
-            return f'{timestamp.getDate(self.st)} {LongTimeRsv.morningCode}'
-        elif hour == LongTimeRsv.afternoonStartHour:
-            return f'{timestamp.getDate(self.st)} {LongTimeRsv.afternoonCode}'
-        elif hour == LongTimeRsv.nightStartHour:
-            return f'{timestamp.getDate(self.st)} {LongTimeRsv.nightCode}'
-        else:
-            return f'{timestamp.getDate(self.st)} {LongTimeRsv.weekendCode}'
 
-    elif self.method == FlexTimeRsv.methodValue:
-        return f'{timestamp.getDate(self.st)} {timestamp.clock(self.st)}-{timestamp.clock(self.ed)}'
-Reservation.getIntervalStr = _getIntervalStr
 
 # 太TM神奇了，python的dict没有__dict__属性，不能动态添加属性，如：
 #   a = {}

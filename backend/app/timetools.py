@@ -17,6 +17,9 @@ def now() -> int:
 def today() -> int:
     return int(_todayStart().timestamp() * 1000)
 
+def parseDate(s) -> int:
+    return int(datetime.datetime.strptime(s, '%Y-%m-%d').timestamp() * 1000)
+
 def todayStr() -> str:
     return datetime.datetime.now().strftime('%Y-%m-%d')
 

@@ -512,7 +512,7 @@ AdminReq属性：
 | errmsg | string     | 错误信息                              |
 | my-rsv | Json Array | 包含`Rsv`对象，为需要查询的预约信息。 |
 
-注：此时`Rsv`对线不包含`guest`属性
+注：此时`Rsv`对象不包含`guest`属性
 
 
 
@@ -576,7 +576,54 @@ AdminReq属性：
 
 
 
-### 审核预约
+
+
+### 管理员查看预约
+
+**API:** `GET /reservation/?st=<start-time>&<ed-time>&state=<state>&method=<method>&p=<page>`
+
+**Des：** 查询预约时间介于`st`和`ed`间的预约
+
+> 注意：不是 提交预约 的时间，这个和`GET /reservation/me`的有所不同，之后可能会修改`GET /reservation/me`的约定。
+
+**Login?:** True，绑定、且为管理员
+
+**请求参数：** 一下参数都是可选的。
+
+* st：限定在该时间之后开始的预约
+
+* ed：限定在该时间之前结束的预约
+
+  以上两个时间格式均满足yyyy-mm-dd，表示的时间都为该日期的 00:00 时刻
+
+* state：筛选状态，状态码见RsvState；匹配规则为 `Rsv.state & state > 0` 则入选
+
+* method: 筛选预约使用的方法
+
+* p：返回的结果可能会很多，对结果分页，每页20条记录左右，该参数用于指定第几页
+
+
+
+**返回值：** Json Object, 
+
+| 属性   | 类型       | 说明           |
+| ------ | ---------- | -------------- |
+| code   | int        | 错误码         |
+| errmsg | string     | 错误信息       |
+| page   | int        | 返回的是第几页 |
+| rsvs   | Json Array | 包含`Rsv`对象  |
+
+> 为啥每页的记录数不确定？为什么不返回一个rsv-count指明查询到的订单总数？
+>
+> 因为一个LongTimeRsv会被拆分，在查询时经过合并和补足（比如一个LongTimeRsv只有一部分在查询时间内），记录条数就不好说了，但可以明确的是恰当选取p的值，rsvs返回一个空列表时，表示已经查询到所有结果了。
+>
+> 注意：由于上述原因，每一页返回的Rsv对象可能相同（比如一个LongTimeRsv一部分在上一次查询出现，另一部分在下一次查询）
+
+
+
+### 管理员更改预约状态
+
+**Des：** 供管理员审核、结束一个预约
 
 **API：** `POST /reservation/<rsv-id>`
 
@@ -584,10 +631,21 @@ AdminReq属性：
 
 **请求参数：** Json Object,
 
-| 属性   | 类型   | 说明           |
-| ------ | ------ | -------------- |
-| pass   | int    | 1 通过，0 拒绝 |
-| reason | string | 审核批语       |
+| 属性 | 类型 | 说明                       |
+| ---- | ---- | -------------------------- |
+| op   | int  | 指明操作类型，现支持的值： |
+|      |      | 1: 审核预约， 2：完成预约  |
+
+* 当`op == 1`时，包含如下属性：
+
+  | 属性   | 类型   | 说明           |
+  | ------ | ------ | -------------- |
+  | pass   | int    | 1 通过，0 拒绝 |
+  | reason | string | 审核批语       |
+  
+* 当`op == 2`时，不需要包含其他属性
+
+
 
 **返回值：** Json Object
 
@@ -598,12 +656,13 @@ AdminReq属性：
 
 **错误码：** 
 
-| code | errcode               | 说明           |
-| ---- | --------------------- | -------------- |
-| 201  | reservation not found | 不存在这个预约 |
-| 202  | rsv has began         | 预约已经开始   |
-| 203  | rsv completed         | 预约已经完成   |
-| 204  | rsv rejected          | 预约被审核拒绝 |
+| code | errcode               | 说明             |
+| ---- | --------------------- | ---------------- |
+| 201  | reservation not found | 不存在这个预约   |
+| 202  | rsv has began         | 预约已经开始     |
+| 203  | rsv completed         | 预约已经完成     |
+| 204  | rsv rejected          | 预约被审核拒绝   |
+| 205  | rsv is waiting        | 预约还在等待审核 |
 
 
 
@@ -615,21 +674,22 @@ AdminReq属性：
 
 ### code 错误码
 
-错误码保留\[0, 100\]，作为公共错误码；\[101, +inf) 为某个API特定错误码。
+错误码保留\[-$\infin$, 100\]，作为公共错误码；\[101, +inf) 为某个API特定错误码。
 
 公共错误码对应一览：
 
-| code | errmsg                    | 说明                      |
-| ---- | ------------------------- | ------------------------- |
-| 0    | success                   | 操作成功                  |
-| 1    | not logged in             | 未登录                    |
-| 2    | unbound                   | 未绑定姓名、班级、学号    |
-| 3    | not admin                 | 非管理员使用管理员限定API |
-| 4    | request args missing      | 请求参数缺失或遗漏        |
-| 5    | request args format error | 请求参数格式错误          |
-| 6    | request args type error   | 请求参数类型错误          |
-| 7    | request args are invalid  | 请求参数值非法            |
-| 20   | database error            | 数据库错误                |
+| code | errmsg                    | 说明                                 |
+| ---- | ------------------------- | ------------------------------------ |
+| 0    | success                   | 操作成功                             |
+| 1    | not logged in             | 未登录                               |
+| 2    | unbound                   | 未绑定姓名、班级、学号               |
+| 3    | not admin                 | 非管理员使用管理员限定API            |
+| 4    | request args missing      | 请求参数缺失或遗漏                   |
+| 5    | request args format error | 请求参数格式错误                     |
+| 6    | request args type error   | 请求参数类型错误                     |
+| 7    | request args are invalid  | 请求参数值非法                       |
+| 20   | database error            | 数据库错误                           |
+| -100 | bugs in server side       | 服务器出现了bug，请把顾家铭打一顿 ●\|￣\|＿ |
 
 
 
@@ -764,20 +824,9 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 ### RsvState 对象
 
-**即将更新到新版本，详见`docs/订单状态.*`**
+**已经更新到新版本，详见`docs/订单状态.*`**
 
-RsvState 是一个 int 对象(具体多少位再说)，每一位对应不同的含义：
 
-| 第 n 位 | 为True时的含义                         |
-| ------- | -------------------------------------- |
-| 0       | ~~等待审核~~，没有必要使用，做保留位吧 |
-| 1       | 审核结束                               |
-| 2       | 审核通过；为False，被审核拒绝          |
-| 3       | 用户取消订单                           |
-| 4       | 预约订单完成，指预约的Item已归还       |
-| 5       | 存在违规行为                           |
-
-注：违规行为相关的API后面再添加吧。<TODO/>
 
  
 

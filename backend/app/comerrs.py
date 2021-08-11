@@ -9,6 +9,8 @@ CODE_ARG_INVALID    = {'code': 7, 'errmsg': 'request args are invalid'}
 
 CODE_DATABASE_ERROR = {'code': 20, 'errmsg': 'database error'}
 
+CODE_SERVER_BUGS = {'code': -100, 'errmsg': 'bugs in server side'}
+
 class Item:
    CODE_ITEM_NOT_FOUND = {'code': 101, 'errmsg': 'item not found'}
 
@@ -23,6 +25,7 @@ class Rsv:
    CODE_RSV_START     = {'code': 202, 'errmsg': 'rsv has started'}
    CODE_RSV_COMPLETED = {'code': 203, 'errmsg': 'rsv completed'}
    CODE_RSV_REJECTED  = {'code': 204, 'errmsg': 'rsv rejected'}
+   CODE_RSV_WAITING   = {'code': 205, 'errmsg': 'rsv is waiting'}
 
    CODE_ITEM_NOT_FOUND = {
       'code': Item.CODE_ITEM_NOT_FOUND['code']+100,
