@@ -16,8 +16,8 @@ import app.checkargs as CheckArgs
 
 testItemCount = 100
 
-addNewItem = False
-testItemUrl = 'http://127.0.0.1:5000/item/'
+addNewItem = True
+testItemUrl = 'http://weiyang.grw20.cn:9090/item/'
 
 # 在使用该测试前删除原来的数据库
 @pytest.mark.skipif(addNewItem == False, reason='no need to add item')

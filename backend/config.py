@@ -4,7 +4,7 @@ class Config():
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     def set(app):
-        app.secret_key = os.urandom(24)
+        pass
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -18,11 +18,14 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///data-dev.db?charset=utf8'
 
+    def set(app):
+        app.secret_key = 'test -----'
+
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///data.db?charset=utf8'
 
     def set(app):
-        app.secret_key = 'test -----'
+        app.secret_key = os.urandom(24)
         
 
 config = DevelopmentConfig
