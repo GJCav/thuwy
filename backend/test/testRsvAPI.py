@@ -1,6 +1,6 @@
 import pytest
 from testItemAPI import addItem
-from config4test import R
+from config4test import R, baseUrl
 
 import sys
 sys.path.append('..')
@@ -10,11 +10,9 @@ import app.timetools as T
 from app.models import FlexTimeRsv
 import app.rsvstate as RsvState
 
-url_server = 'http://weiyang.grw20.cn:9090/'
-url_profile = url_server + 'profile/'
 
-
-url_rsv = url_server + 'reservation/'
+url_profile = baseUrl + 'profile/'
+url_rsv = baseUrl + 'reservation/'
 
 # ------------- pre test --------------
 
