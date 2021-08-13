@@ -28,7 +28,7 @@ class ProductionConfig(Config):
         app.secret_key = os.urandom(24)
         
 
-config = DevelopmentConfig
+config = ProductionConfig
 skipLoginAndBind = False
 skipAdmin = False
 
