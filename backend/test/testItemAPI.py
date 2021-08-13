@@ -8,7 +8,7 @@ from copy import deepcopy
 from random import randint
 import sys
 
-from config4test import R
+from config4test import R, baseUrl
 
 sys.path.append('..')
 import app.comerrs as ErrCode
@@ -16,8 +16,8 @@ import app.checkargs as CheckArgs
 
 testItemCount = 100
 
-addNewItem = True
-testItemUrl = 'http://weiyang.grw20.cn:9090/item/'
+addNewItem = False
+testItemUrl = baseUrl + 'item/'
 
 # 在使用该测试前删除原来的数据库
 @pytest.mark.skipif(addNewItem == False, reason='no need to add item')
@@ -243,6 +243,32 @@ def testModifyItem():
 
     # TODO: test md-intro here
 
+
+def testGetItemFullInfo():
+    json = {
+        'name': f'Item testGetItemFullInfo',
+        'brief-intro': f'bf-intro, calculus is so fucking difficult.',
+        'md-intro': f'so is linear algebra..',
+        'thumbnail': f'http://server/ilovemath',
+        'rsv-method': 4
+    }
+
+    res = R.post(testItemUrl, json=json)
+    assert res
+    reqJson = res.json()
+    assert reqJson['code'] == 0, reqJson
+    itemId = reqJson['item-id']
+
+    res = R.get(testItemUrl+f'{itemId}')
+    assert res
+    reqJson = res.json()
+    assert reqJson['code'] == 0, reqJson['errmsg']
+    reqJson = reqJson['item']
+
+    for k in json.keys():
+        assert reqJson[k] == json[k], k
+    assert reqJson['delete'] == 0, reqJson
+    
 
 # TODO: testModifyItemWithBadArg
 

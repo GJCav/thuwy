@@ -16,3 +16,5 @@ def _wrap(inner):
 R.get = _wrap(R.get)
 R.post = _wrap(R.post)
 R.delete = _wrap(R.delete)
+
+baseUrl = 'http://127.0.0.1:5000/'
