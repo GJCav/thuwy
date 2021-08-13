@@ -1,5 +1,6 @@
 **/__pycache__/
 **/__pycache__
+venv/
 
 # Windows
 [Dd]esktop.ini
@@ -15,3 +16,6 @@ $RECYCLE.BIN/
 
 # Node.js
 node_modules/
+
+# db
+*.db

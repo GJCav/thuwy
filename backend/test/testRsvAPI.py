@@ -10,7 +10,7 @@ import app.timetools as T
 from app.models import FlexTimeRsv
 import app.rsvstate as RsvState
 
-url_server = 'http://127.0.0.1:5000/'
+url_server = 'http://weiyang.grw20.cn:9090/'
 url_profile = url_server + 'profile/'
 
 
@@ -286,6 +286,9 @@ def testRsvLongTime():
 
 def testCancel():
     itemId = addItem('test cancel', 3)
+
+    def _da(d):
+        return T.getDate(T.daysAfter(d))
     
     # long time rsv
     reqJson = {
@@ -293,7 +296,7 @@ def testCancel():
         'reason': f'test cancel',
         'method': 1,
         'interval': [
-            '2021-8-12 1', '2021-8-12 2', '2021-8-12 3'
+            _da(1) + ' 1', _da(1) + ' 2', _da(1) + ' 3'
         ]
     }
 
