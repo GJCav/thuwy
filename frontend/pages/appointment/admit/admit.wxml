@@ -1,7 +1,6 @@
 <!--pages/appointment/admit/admit.wxml-->
-<view class="titleCss" style="margin: 40rpx">
-  <text class="titletext">——请确认预约信息——</text>
-</view>
+<view class="beauty">提交预约申请</view>
+<view class="tips" style="margin-bottom:50rpx">——请确认预约信息——</view>
 <view class="info">
   <view class="infotext" style="font-weight: bold">申请预约设备：{{name}}</view>
   <view class="infotext" style="font-weight: bold">申请使用时间：</view>
@@ -26,7 +25,7 @@
       <textarea class="inputbox" placeholder="请简述预约设备用途,不超过120个字符" bindblur="inputwhy" />
     </view>
     <view class='operate'>
-      <button form-type="submit" class="save" loading="{{loading}}" disabled="{{disabled}}">提交</button>
+      <button form-type="submit" type="primary" style="margin-bottom:50rpx" disabled="{{disabled}}">提交</button>
     </view>
   </form>
 </view>

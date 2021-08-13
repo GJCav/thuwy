@@ -44,36 +44,8 @@ Page({
                 mask: true,
                 title: '加载中',
             })
-            var my_rsvs = [{
-                id: 236237236,
-                item_id: 1001,
-                state: 1
-            }, {
-                id: 328392832,
-                item_id: 1002,
-                state: 4
-            }, {
-                id: 20200148394,
-                item_id: 1003,
-                state: 6
-            }, {
-                id: 20200148394,
-                item_id: 1004,
-                state: 8
-            }, {
-                id: 20200148394,
-                item_id: 1005,
-                state: 20
-            }, {
-                id: 20200148394,
-                item_id: 1007,
-                state: 14
-            }];
-            var his_rsvs = [{
-                id: 20200148394,
-                item_id: 1006,
-                state: 4
-            }, ];
+            var my_rsvs = [];
+            var his_rsvs = [];
             //获取七天前的预约
             wx.request({
                 url: app.globalData.url + '/reservation/me?ed=' + this.data.ddl,

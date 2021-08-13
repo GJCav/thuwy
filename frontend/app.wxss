@@ -2,19 +2,15 @@
 page {
   background-color: #f3f3f3
 }
-.warn {
-  background-color: rgba(255, 0, 0, 0.7);
-  color: white;
+.row {
+  margin-top: 20rpx;
 }
-.ok {
-  background-color: rgba(50, 205, 50);
+.warn {
+  background-color: rgb(255, 50, 50);
   color: white;
 }
 .warns{
-  background-color: rgba(255, 0, 0);
-}
-.oks{
-  background-color: rgb(45, 160, 45);
+  background-color: rgba(210, 50, 50);
 }
 .avatar {
   width: 70px;
@@ -22,7 +18,7 @@ page {
   background-repeat: no-repeat;
   background-size: 100% 100%;
   border-radius: 50%;
-  border: 3px solid #777777;
+  border: 3px solid #660874;
   overflow: hidden
 }
 .server-name {
@@ -33,6 +29,9 @@ page {
 .server-description {
   color: #999999;
   font-size: smaller;
+}
+.iconCss{
+  width: 80rpx; height: 80rpx;
 }
 .total {
   box-shadow: 1rpx 1rpx 1rpx 1rpx #dddddd;
@@ -54,8 +53,18 @@ page {
   border-right: 2px solid #999;
   transform: rotate(45deg);
 }
-.titleCss {
-  font-style: italic;
+.beauty{
+  color:#0087a9;
+  width: 70%;
+  height: 100rpx;
+  display: flex;
+  align-items:flex-end;
+  justify-content:center;
+  margin:20rpx 15% 0 15%;
+  font-weight: bolder;
+  font-size:x-large;
+}
+.tips {
   color: #999;
   display: flex;
   align-items: center;

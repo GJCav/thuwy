@@ -1,7 +1,4 @@
 /**appointment.wxss**/
-.row {
-  margin-top: 80rpx;
-}
 .slide-image {
   width: 100%;
   height: 100%;

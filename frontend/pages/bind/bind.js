@@ -14,6 +14,11 @@ Page({
       title: '绑定信息'
     })
   },
+  onShow(){
+    wx.enableAlertBeforeUnload({
+      message: '您确定要离开此页面吗？已经填写的信息将会丢失',
+    })
+  },
   inputname: function (e) {
     this.setData({
       name: e.detail.value
@@ -63,6 +68,7 @@ Page({
           if (res.data.code == 0) {
             wx.hideLoading();
             wx.showToast({
+              mask: true,
               title: '绑定成功',
               icon: 'success',
               duration: 1500

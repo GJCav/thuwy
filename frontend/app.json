@@ -5,7 +5,8 @@
     "pages/setting/setting",
     "pages/home/home",
     "pages/admin/admin",
-    "pages/equip/equip"
+    "pages/equip/equip",
+    "pages/reservation/reservation"
   ],
   "window":{
     "onReachBottomDistance":20,

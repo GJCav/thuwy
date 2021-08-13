@@ -26,7 +26,7 @@ class ProductionConfig(Config):
         
 
 config = DevelopmentConfig
-skipLoginAndBind = False
+skipLoginAndBind = True
 skipAdmin = True
 
 WX_APP_ID = 'wx7bfe035eee90419b'

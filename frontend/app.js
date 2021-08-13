@@ -33,7 +33,38 @@ App({
           }
         })
       }
-    })
+    });
+    if (this.globalData.userInfo) {
+      wx.request({
+        url: this.globalData.url + '/profile/',
+        method: 'GET',
+        header: {
+          'content-type': 'application/json; charset=utf-8',
+          'cookie': wx.getStorageSync('cookie')
+        },
+        success: (res) => {
+          if (res.data.code == 0) {
+              this.globalData.isadmin=res.data.admin?true:false
+          } else {
+            console.log(res.data.code, res.data.errmsg);
+            wx.hideLoading();
+            wx.showToast({
+              title: '信息读取失败',
+              icon: 'error',
+              duration: 1500,
+            })
+          }
+        },
+        fail: (res) => {
+          console.log(res.data.code, res.data.errmsg);
+          wx.showToast({
+            title: '信息读取失败',
+            icon: 'error',
+            duration: 1500
+          });
+        }
+      })
+    }
   },
   globalData: {
     login: false,

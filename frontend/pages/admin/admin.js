@@ -6,13 +6,7 @@ Page({
     sum: 0,
     page: 1,
     rsv_list: [],
-    item_list: [{
-      name: "RTX3060",
-      id: 1001,
-      available: true,
-      'brief-intro': '为降低温度及我觉得大姐大街我i大家',
-      thumbnail: "../../icon/add.png"
-    }],
+    item_list: [],
     be_list: [],
     admin_list: [],
   },
@@ -52,7 +46,7 @@ Page({
           this.setData({
             page: 2,
             sum: res.data['item-count'],
-            item_list: this.data.item_list.concat(res.data.items)
+            item_list:res.data.items
           })
           wx.hideLoading();
         } else {
@@ -91,7 +85,7 @@ Page({
       success: (res) => {
         if (res.data.code == 0) {
           this.setData({
-            admin_list: res.data.list
+            be_list: res.data.list
           });
           wx.hideLoading()
         } else {
@@ -209,22 +203,19 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确认要删除物品?',
-      success: function (res) {
+      success:  (res)=> {
         if (res.confirm) {
           wx.showLoading({
             mask: true,
             title: '提交中',
           })
           wx.request({
-            url: app.globalData.url + '/item/<item-id>',
+            url: app.globalData.url + '/item/'+value,
             header: {
               'content-type': 'application/json; charset=utf-8',
               'cookie': wx.getStorageSync('cookie')
             },
             method: 'DELETE',
-            data: {
-              'item-id': value
-            },
             success: (res) => {
               if (res.data.code == 0) {
                 wx.hideLoading();
@@ -233,6 +224,7 @@ Page({
                   icon: 'success',
                   duration: 1500
                 });
+                  this.refresh_equip();
               } else {
                 console.log(res.data.code, res.data.errmsg)
                 wx.hideLoading()
@@ -280,6 +272,7 @@ Page({
             icon: 'success',
             duration: 1500
           })
+          this.refresh_admin();
         } else {
           console.log(res.data.code, res.data.errmsg)
           wx.hideLoading();

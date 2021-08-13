@@ -17,8 +17,7 @@
         </view>
         <view class="divline"></view>
     </view>
-    <van-row custom-class="row" wx:for="{{item_list}}" wx:for-item="equip" wx:for-index="number"
-        wx:if="{{equip.available}}">
+    <van-row custom-class="row" wx:for="{{item_list}}" wx:for-item="equip">
         <van-col span="4" offset="1">
             <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>
         </van-col>
@@ -56,7 +55,7 @@
         <view style="width:30%;display:flex;flex-direction:column;align-items:center">
             <button type="primary" size="mini" style="margin-bottom:5%" bindtap="approve"
                 data-value="{{item.id}}">同意</button>
-            <button type="warn" size="mini" style="margin-top:5%" bindtap="refuse" data-value="{{item.id}}">拒绝</button>
+            <button class="warn" hover-class="warns" size="mini" style="margin-top:5%" bindtap="refuse" data-value="{{item.id}}">拒绝</button>
         </view>
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{be_list.length==0}}">
@@ -81,7 +80,7 @@
             </view>
         </view>
         <view style="width:30%;display:flex;flex-direction:column;align-items:center">
-            <button type="warn" size="mini" bindtap="fired"><text>解除\n权限</text></button>
+            <button class="warn" hover-class="warns" size="mini" bindtap="fired"><text>解除\n权限</text></button>
         </view>
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{admin_list.length==0}}">

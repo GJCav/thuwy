@@ -1,4 +1,7 @@
 /* pages/appointment/admit/admit.wxss */
+page {
+  background-color: #ffffff
+}
 .infotext {
   font-size: large;
   margin-bottom: 30rpx;
@@ -6,10 +9,6 @@
   margin-left: 10%;
 }
 
-.save {
-  color: #fff;
-  background-color: rgb(47, 187, 47);
-}
 
 .title {
   font-weight: 550;
@@ -41,11 +40,9 @@
 .inputbox {
   background-color: #fff;
   border: 2px solid #ddd;
-  margin-bottom: 20rpx;
-  margin-left: 10%;
-  margin-right: 10%;
+  width: 80%;
+  margin: 0 10% 20rpx 10%; 
   height: 250rpx;
-
 }
 
 .operate {

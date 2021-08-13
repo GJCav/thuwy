@@ -5,8 +5,8 @@ const app = getApp()
 Page({
   data: {
     sum: 0,
-    page: 1,
-    items: [{name:"RTX3060",id:1001,available:true,'brief-intro':'为降低温度及我觉得大姐大街我i大家',thumbnail:"../../icon/add.png"}],
+    page: 0,
+    items: [],
 
     userInfo: {},
     hasUserInfo: false,
@@ -30,7 +30,7 @@ Page({
       wx.request({
         url: app.globalData.url + '/item?p=<page>/',
         data: {
-          p: this.data.page
+          p: this.data.page + 1
         },
         method: 'GET',
         success: (res) => {
@@ -80,20 +80,25 @@ Page({
     wx.setNavigationBarTitle({
       title: '预约设备'
     })
+  },
+  onShow() {
     wx.showLoading({
       mask: true,
       title: '加载中',
     })
+    this.setData({
+      items:[]
+    })
     wx.request({
       url: app.globalData.url + '/item?p=<page>/',
       data: {
-        p: this.data.page
+        p: 1
       },
       method: 'GET',
       success: (res) => {
         if (res.data.code == 0) {
           this.setData({
-            page: this.data.page + 1,
+            page: 1,
             sum: res.data['item-count'],
             items: this.data.items.concat(res.data.items)
           })

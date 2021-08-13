@@ -1,6 +1,6 @@
 /* pages/equip/equip.wxss */
-.iconCss{
-  width: 80rpx; height: 80rpx;
+page {
+  background-color: #ffffff
 }
 .labelbox{
   width: 70%;
@@ -11,7 +11,7 @@
   align-items: center;
 }
 .textbox{
-  margin-left: 30rpx;
+  margin-left: 20rpx;
   font-size: larger;
 }
 .inputbox{

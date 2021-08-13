@@ -13,7 +13,6 @@ Page({
       [true, true, true, true],
       [true, true, true, true]
     ],
-    loading: false,
     name: null,
     id: null,
     reason: '',
@@ -42,6 +41,9 @@ Page({
     }]
   },
   onLoad: function (options) {
+    wx.enableAlertBeforeUnload({
+      message: '您确定要离开此页面吗？已经填写的信息将会丢失',
+    })
     this.setData({
       id: options.id,
       name: options.name
@@ -164,9 +166,6 @@ Page({
     });
   },
   appoint: function () {
-    this.setData({
-      loading: true,
-    })
     console.log(this.selectedIdxs)
     this.setData({
       list: []
@@ -202,7 +201,7 @@ Page({
       wx.request({
         header: {
           'content-type': 'application/json; charset=utf-8',
-          'cookie': wx.getStorageSync('cookie') // 这里取出储存的登陆信息，传给服务器
+          'cookie': wx.getStorageSync('cookie')
         },
         url: app.globalData.url + '/reservation',
         method: 'POST',

@@ -1,30 +1,29 @@
 <!--pages/equip/equip.wxml-->
 <view>
-  <view class="titleCss" style="margin: 40rpx">
-    <text class="titletext">——请完整填写以下信息——</text>
-  </view>
+  <view class="beauty">{{item_id==0?'添加预约设备':'修改预约设备'}}</view>
+  <view class="tips" style="margin-buttom:50rpx">——请完整填写以下信息——</view>
   <form bindsubmit="addit">
     <view class="after-title">
       <view class="tipbox">
         <view class="labelbox">
           <image src="../../icon/equip.png" class="iconCss"></image>
-          <text class="textbox">设备名称:</text>
+          <text class="textbox">设备名称：</text>
         </view>
         <view>
-          <input class="inputbox" placeholder="请填写设备名称" bindblur="inputname" />
+          <input value="{{name}}" class="inputbox" placeholder="请填写设备名称" bindblur="inputname" />
         </view>
       </view>
       <view class="tipbox">
         <view class="labelbox">
           <image src="../../icon/method.png" class="iconCss"></image>
-          <text class="textbox">预约方式:</text>
+          <text class="textbox">预约方式：</text>
         </view>
         <checkbox-group style="margin-left:20%;margin-right:20%" bindchange="rsvmethod">
           <label class="checkbox" wx:for="{{methods}}">
             <view>
-              <checkbox value="{{item.value}}" checked="{{item.checked}}" />
+              <checkbox value="{{item.value}}" checked="{{item.checked}}" disabled="{{!item.can}}" />
             </view>
-            <view>{{item.name}}</view>
+            <view style="{{(!item.can)?'color:#999999':''}}">{{item.name}}</view>
           </label>
         </checkbox-group>
       </view>
@@ -32,7 +31,7 @@
     <view class="tipbox">
       <view class="labelbox">
         <image src="../../icon/pic.png" class="iconCss"></image>
-        <text class="textbox">设备图片:</text>
+        <text class="textbox">设备图片：</text>
       </view>
       <view>
 
@@ -41,19 +40,28 @@
     <view class="tipbox">
       <view class="labelbox">
         <image src="../../icon/brief.png" class="iconCss"></image>
-        <text class="textbox">简要介绍:</text>
+        <text class="textbox">简要介绍：</text>
       </view>
       <view>
-        <textarea class="inputbox" style="height:120rpx" placeholder="请简述设备情况,不超过40个字符" bindblur="inputintro" />
+        <textarea value="{{brief_intro}}" class="inputbox" style="height:120rpx" placeholder="请简述设备情况,不超过40个字符"
+          bindblur="inputintro" />
       </view>
     </view>
     <view class="tipbox">
       <view class="labelbox">
         <image src="../../icon/md.png" class="iconCss"></image>
-        <text class="textbox">详细介绍:</text>
+        <text class="textbox">详细介绍：</text>
       </view>
       <view>
-        <textarea class="inputbox" style="height:200rpx" placeholder="选填,支持markdown格式" bindblur="inputmd" />
+        <textarea value="{{md_intro}}" class="inputbox" style="height:200rpx" placeholder="仅支持markdown格式"
+          bindblur="inputmd" />
+      </view>
+    </view>
+    <view class="tipbox" wx:if="{{item_id!==0}}">
+      <view class="labelbox">
+        <image src="../../icon/can.png" class="iconCss"></image>
+        <text class="textbox">能否使用：</text>
+        <switch style="margin-left:20%" checked="{{available}}" bindchange="inputcan"></switch>
       </view>
     </view>
     <view style="margin-bottom:100rpx">
