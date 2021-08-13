@@ -349,6 +349,8 @@ def itemInfo(itemId):
         rst = {}
         rst.update(ErrCode.CODE_SUCCESS)
         rst['item'] = item.toDict()
+        rst['item']['md-intro'] = item.mdIntro
+        rst['item']['delete'] = item.delete
         return rst
 
 @router.route('/item/', methods=['POST'])
