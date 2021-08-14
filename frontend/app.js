@@ -13,7 +13,7 @@ App({
             code: res.code
           },
           success: res => {
-            if (res.code == 0) {
+            if (res.data.code == 0) {
               this.globalData.login = true;
               this.globalData.userInfo = res.data.bound;
               //将得到的openid存储到缓存里面方便后面调用
@@ -70,6 +70,6 @@ App({
     login: false,
     isadmin: true,
     userInfo: false,
-    url: "http://127.0.0.1:5000"
+    url: "http://api.weiyang.grw20.cn/"
   }
 })

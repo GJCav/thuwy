@@ -14,14 +14,6 @@ page {
   margin-left: 20rpx;
   font-size: larger;
 }
-.inputbox{
-  width: 70%;
-  background-color: #fff;
-  border: 2px solid #ddd;
-  margin-left: 15%;
-  margin-right: 15%;
-  margin-bottom: 20rpx;
-}
 .checkbox{
   height: 80rpx;
   display: flex;

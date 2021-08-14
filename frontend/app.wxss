@@ -76,6 +76,14 @@ page {
   display: flex;
   height: 3rpx;
 }
+.inputbox{
+  width: 70%;
+  background-color: #fff;
+  border: 2px solid #ddd;
+  margin-left: 15%;
+  margin-right: 15%;
+  margin-bottom: 20rpx;
+}
 checkbox .wx-checkbox-input {
   width: 50rpx;
   height: 50rpx;

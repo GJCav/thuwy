@@ -43,8 +43,7 @@
         <text class="textbox">简要介绍：</text>
       </view>
       <view>
-        <textarea value="{{brief_intro}}" class="inputbox" style="height:120rpx" placeholder="请简述设备情况,不超过40个字符"
-          bindblur="inputintro" />
+        <textarea value="{{brief_intro}}" class="inputbox" style="height:120rpx" placeholder="请简述设备情况,不超过40个字符" bindblur="inputintro" />
       </view>
     </view>
     <view class="tipbox">

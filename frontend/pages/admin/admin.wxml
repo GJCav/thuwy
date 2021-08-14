@@ -6,7 +6,58 @@
     <van-tab title="调整管理员"></van-tab>
 </van-tabs>
 <!-- 审批预约 -->
-
+<view wx:if="{{activeTab==0}}">
+    <view class="small_title">
+        <view class="text">待审批预约</view>
+        <view class="divline"></view>
+    </view>
+    <view class="total" wx:for="{{rsv_list1}}"
+        style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx;">
+        <view class="detail">
+            <view class="which">预约设备：{{item['item-name']}}</view>
+            <view class="pic" hover-class="pics" style="text-align:center; width:30%; border-radius:20rpx"
+                bindtap="showdetail" data-id="{{item.id}}" data-name="{{item['item-name']}}" data-value="2">
+                详细信息
+            </view>
+        </view>
+        <view class="divline"></view>
+        <view class="detail">
+            <view style="width:50%">预约编号：</view>
+            <view style="width:50%;text-align:right">{{item.id}}</view>
+        </view>
+        <view class="detail">
+            <view style="width:50%">预约申请人：</view>
+            <view style="width:50%;text-align:right">{{item.guest}}</view>
+        </view>
+    </view>
+    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{rsv_list1.length==0}}">
+        ——暂无待审批预约——</view>
+    <view class="small_title">
+        <view class="text">进行中预约</view>
+        <view class="divline"></view>
+    </view>
+    <view class="total" wx:for="{{rsv_list2}}"
+        style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx;">
+        <view class="detail">
+            <view class="which">预约设备：{{item['item-name']}}</view>
+            <view class="pic" hover-class="pics" style="text-align:center; width:30%; border-radius:20rpx"
+                bindtap="showdetail" data-id="{{item.id}}" data-name="{{item['item-name']}}" data-value="3">
+                详细信息
+            </view>
+        </view>
+        <view class="divline"></view>
+        <view class="detail">
+            <view style="width:50%">预约编号：</view>
+            <view style="width:50%;text-align:right">{{item.id}}</view>
+        </view>
+        <view class="detail">
+            <view style="width:50%">预约申请人：</view>
+            <view style="width:50%;text-align:right">{{item.guest}}</view>
+        </view>
+    </view>
+    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{rsv_list2.length==0}}">
+        ——暂无进行中预约——</view>
+</view>
 <!-- 管理设备 -->
 <view wx:if="{{activeTab==1}}">
     <view class="small_title">
@@ -21,12 +72,13 @@
         <van-col span="4" offset="1">
             <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>
         </van-col>
-        <van-col span="10" offset="2">
+        <van-col span="9" offset="3">
             <view class='server-name'>{{equip.name}}</view>
             <view class='server-description'>{{equip['brief-intro']}}</view>
         </van-col>
-        <van-col span="4" offset="2">
-            <button data-value="{{equip.id}}" type="primary" style="margin-top:8%" bindtap="modify" size="mini">修改</button>
+        <van-col span="5" offset="2">
+            <button data-value="{{equip.id}}" type="primary" style="margin-top:8%" bindtap="modify"
+                size="mini">修改</button>
             <button data-value="{{equip.id}}" class="warn" hover-class="warns" bindtap="del" size="mini">删除</button>
         </van-col>
     </van-row>
@@ -38,7 +90,7 @@
         <view class="divline"></view>
     </view>
     <view class="total" style="flex-direction:row" wx:for="{{be_list}}">
-        <view class="detail" style="width:70%;margin-left:3%">
+        <view class="detail" style="flex-direction:column;width:70%;margin-left:3%">
             <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
                 <view style="width:25%;text-align:center">姓名：</view>
                 <view style="width:75%;text-align:right">{{item.requestor.name}}</view>
@@ -55,7 +107,8 @@
         <view style="width:30%;display:flex;flex-direction:column;align-items:center">
             <button type="primary" size="mini" style="margin-bottom:5%" bindtap="approve"
                 data-value="{{item.id}}">同意</button>
-            <button class="warn" hover-class="warns" size="mini" style="margin-top:5%" bindtap="refuse" data-value="{{item.id}}">拒绝</button>
+            <button class="warn" hover-class="warns" size="mini" style="margin-top:5%" bindtap="refuse"
+                data-value="{{item.id}}">拒绝</button>
         </view>
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{be_list.length==0}}">
@@ -65,7 +118,7 @@
         <view class="divline"></view>
     </view>
     <view class="total" style="flex-direction:row" wx:for="{{admin_list}}">
-        <view class="detail" style="width:70%;margin-left:3%">
+        <view class="detail" style="flex-direction:column;width:70%;margin-left:3%">
             <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
                 <view style="width:25%;text-align:center">姓名：</view>
                 <view style="width:75%;text-align:right">{{item.requestor.name}}</view>

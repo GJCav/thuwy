@@ -2,8 +2,6 @@
 const app = getApp()
 Page({
     data: {
-        //页内弹窗
-        show: false,
         //记录显示
         ddl: null,
         st: ["受理中", "已审批", "已取消", "已结束", "已违约"],
@@ -12,8 +10,6 @@ Page({
         ongoing: [],
         history: [],
         activeTab: 0,
-        //细节显示
-        rsv_detail: null
     },
     num: function (x, t) {
         return parseInt(x / Math.pow(2, t)) % 2
@@ -26,11 +22,6 @@ Page({
     onShow() {
         this.thetime();
         this.refresh(0);
-    },
-    onHide() {
-        this.setData({
-            show: false
-        })
     },
     onPullDownRefresh: function () {
         console.log('home 下拉');
@@ -110,6 +101,17 @@ Page({
                     });
                 }
             })
+            //读取设备名称
+            var util = require('../../utils/util.js')
+            var key = 'item-name'
+            for (var i = 0; i < my_rsvs.length; ++i) {
+                var value = util.the_name(my_rsvs[i]['item-id'])
+                my_rsv[i][key] = value
+            }
+            for (var i = 0; i < his_rsvs.length; ++i) {
+                var value = util.the_name(his_rsvs[i]['item-id'])
+                his_rsv[i][key] = value
+            }
             //处理需要显示的数据
             var tmp = [];
             if (t == 0) {
@@ -198,102 +200,8 @@ Page({
     //展示细节
     showdetail(e) {
         var rsvid = e.currentTarget.dataset['id'];
-        wx.showLoading({
-            mask: true,
-            title: '加载中',
-        })
-        wx.request({
-            url: app.globalData.url + '/reservation/' + rsvid,
-            method: 'GET',
-            success: (res) => {
-                if (res.data.code == 0) {
-                    this.setData({
-                        rsv_detail: res.data.rsv,
-                        show: true
-                    })
-                    wx.hideLoading()
-                } else {
-                    console.log(res.data.code, res.data.errmsg);
-                    wx.hideLoading();
-                    wx.showToast({
-                        title: '连接错误',
-                        icon: 'error',
-                        duration: 1500,
-                    })
-                }
-            },
-            fail: (res) => {
-                console.log(res.data.code, res.data.errmsg)
-                wx.hideLoading();
-                wx.showToast({
-                    title: '连接失败',
-                    icon: 'error',
-                    duration: 1500
-                });
-            }
+        wx.navigateTo({
+            url: '../reservation/reservation?rsvid=' + rsvid + '&who=' + this.data.activeTab % 2,
         })
     },
-    //细节页面
-    hideit() {
-        this.setData({
-            show: false
-        })
-    },
-    delete: function (e) {
-        var typeid = e.currentTarget.dataset['id'];
-        console.log("delete:" + typeid)
-        wx.showModal({
-            title: '提示',
-            content: '确认要取消本次预约?',
-            success: function (res) {
-                if (res.confirm) {
-                    wx.showLoading({
-                        mask: true,
-                        title: '取消中',
-                    })
-                    console.log('用户点击确定')
-                    wx.request({
-                        url: app.globalData.url + "/reservation",
-                        method: "DELETE",
-                        data: {
-                            'rsv-id': typeid
-                        },
-                        success: function (res) {
-                            console.log(res.data.code);
-                            if (res.statusCode == 200) {
-                                //访问正常                         
-                                if (res.data.code == 0) { 
-                                    wx.hideLoading();
-                                    wx.showToast({
-                                        title: "取消成功",
-                                        icon: 'success',
-                                        duration: 1500,
-                                    })
-                                } else {
-                                    console.log(res.data.code, res.data.errmsg);
-                                    wx.hideLoading();
-                                    wx.showToasting({
-                                        title: '取消失败',
-                                        icon: 'error',
-                                        duration: 1500,
-                                    })
-                                }
-                            }
-                        },
-                        fail: (res) => {
-                            console.log(res.data.code, res.data.errmsg);
-                            wx.hideLoading();
-                            wx.showToast({
-                                title: '连接失败',
-                                icon: 'error',
-                                duration: 1500
-                            });
-                        }
-                    })
-                } else if (res.cancel) {
-                    console.log('用户点击取消')
-                }
-            }
-        })
-    }
 });

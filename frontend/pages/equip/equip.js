@@ -56,6 +56,10 @@ Page({
       wx.setNavigationBarTitle({
         title: '修改设备'
       })
+      wx.showLoading({
+        mask: true,
+        title: '加载中',
+      })
       this.setData({
         item_id: options.id
       })
@@ -85,6 +89,7 @@ Page({
                 'methods[1].checked': true
               })
             }
+            wx.hideLoading()
           } else {
             console.log(res.data.code, res.data.errmsg)
             wx.hideLoading()

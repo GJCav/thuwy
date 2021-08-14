@@ -13,11 +13,11 @@
   <van-col span="4" offset="1">
     <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>
   </van-col>
-  <van-col span="10" offset="2">
+  <van-col span="9" offset="3">
     <view class='server-name'>{{equip.name}}</view>
     <view class='server-description'>{{equip['brief-intro']}}</view>
   </van-col>
-  <van-col span="4" offset="2">
+  <van-col span="5" offset="2">
     <button data-value="{{number}}" type="primary" style="margin-top:30%" bindtap="chooseMe" size="mini">预约</button>
   </van-col>
 </van-row>

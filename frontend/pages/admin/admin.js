@@ -5,7 +5,10 @@ Page({
     activeTab: 0,
     sum: 0,
     page: 1,
-    rsv_list: [],
+    p1: 0,
+    p2: 0,
+    rsv_list1: [],
+    rsv_list2: [],
     item_list: [],
     be_list: [],
     admin_list: [],
@@ -28,7 +31,100 @@ Page({
   },
   //处理不同界面的函数
   refresh_rsv: function () {
-
+    //读取待审批的预约
+    var tmp1 = []
+    wx.showLoading({
+      mask: true,
+      title: '加载中',
+    })
+    wx.request({
+      url: app.globalData.url + '/reservation/?&state=<state>',
+      data: {
+        state: 1
+      },
+      method: 'GET',
+      success: (res) => {
+        if (res.data.code == 0) {
+          this.setData({
+            p1: res.data.page,
+          })
+          tmp1 = res.data.rsvs
+          wx.hideLoading();
+        } else {
+          console.log(res.data.code, res.data.errmsg)
+          wx.hideLoading();
+          wx.showToast({
+            title: '连接错误',
+            icon: 'error',
+            duration: 1500
+          })
+        }
+      },
+      fail: (res) => {
+        console.log(res.data.code, res.data.errmsg)
+        wx.hideLoading();
+        wx.showToast({
+          title: '连接失败',
+          icon: 'error',
+          duration: 1500
+        });
+      }
+    });
+    //读取物品名称
+    var util = require('../../utils/util.js')
+    var key = 'item-name'
+    for (var i = 0; i < tmp1.length; ++i) {
+      var value = util.the_name(tmp1[i]['item-id'])
+      tmp1[i][key] = value
+    }
+    //读取进行中的预约
+    var tmp2 = []
+    wx.showLoading({
+      mask: true,
+      title: '加载中',
+    })
+    wx.request({
+      url: app.globalData.url + '/reservation/?&state=<state>',
+      data: {
+        state: 2
+      },
+      method: 'GET',
+      success: (res) => {
+        if (res.data.code == 0) {
+          this.setData({
+            p2: res.data.page,
+          })
+          tmp2 = res.data.rsvs
+          wx.hideLoading();
+        } else {
+          console.log(res.data.code, res.data.errmsg)
+          wx.hideLoading();
+          wx.showToast({
+            title: '连接错误',
+            icon: 'error',
+            duration: 1500
+          })
+        }
+      },
+      fail: (res) => {
+        console.log(res.data.code, res.data.errmsg)
+        wx.hideLoading();
+        wx.showToast({
+          title: '连接失败',
+          icon: 'error',
+          duration: 1500
+        });
+      }
+    });
+    //读取物品名称
+    for (var i = 0; i < tmp2.length; ++i) {
+      var value = util.the_name(tmp2[i]['item-id'])
+      tmp2[i][key] = value
+    }
+    this.setData({
+      rsv_list1: tmp1,
+      rsv_list2: tmp2
+    })
   },
   refresh_equip: function () {
     wx.showLoading({
@@ -46,7 +142,7 @@ Page({
           this.setData({
             page: 2,
             sum: res.data['item-count'],
-            item_list:res.data.items
+            item_list: res.data.items
           })
           wx.hideLoading();
         } else {
@@ -185,7 +281,14 @@ Page({
     this.refresh(this.data.activeTab)
   },
   //审批预约
-
+  showdetail(e) {
+    var rsvid = e.currentTarget.dataset['id']
+    var name=e.currentTarget.dataset['name']
+    var who=e.currentTarget.dataset['value']
+    wx.navigateTo({
+      url: '../reservation/reservation?rsvid=' + rsvid + '&who='+who+'&name='+name,
+    })
+  },
   //管理设备
   addequip(e) {
     wx.navigateTo({
@@ -203,14 +306,14 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确认要删除物品?',
-      success:  (res)=> {
+      success: (res) => {
         if (res.confirm) {
           wx.showLoading({
             mask: true,
             title: '提交中',
           })
           wx.request({
-            url: app.globalData.url + '/item/'+value,
+            url: app.globalData.url + '/item/' + value,
             header: {
               'content-type': 'application/json; charset=utf-8',
               'cookie': wx.getStorageSync('cookie')
@@ -224,7 +327,7 @@ Page({
                   icon: 'success',
                   duration: 1500
                 });
-                  this.refresh_equip();
+                this.refresh_equip();
               } else {
                 console.log(res.data.code, res.data.errmsg)
                 wx.hideLoading()

@@ -1,12 +1,4 @@
 /* home.wxss */
-.which {
-  color: #000;
-  margin-top: 20rpx;
-  margin-bottom: 20rpx;
-  font-size: large;
-  width: 70%;
-}
-
 .pic0 {
   color: lightskyblue;
   border: 2px solid lightskyblue;
@@ -47,6 +39,13 @@
   background-color: lightgray;
 }
 
+.which {
+  color: #000;
+  margin-top: 20rpx;
+  margin-bottom: 20rpx;
+  font-size: large;
+  width: 70%;
+}
 .detail {
   width: 90%;
   color: #999999;
@@ -55,44 +54,8 @@
   align-items: center;
   justify-content: left;
 }
-
 .title {
   margin-bottom: 30rpx;
   font-size: x-large;
   font-weight: bold;
-}
-
-.whole {
-  margin-top: 50rpx;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.detail-list {
-  margin-top: 30rpx;
-  width: 80%;
-  height: 100%;
-  display: flex;
-  align-items: right;
-}
-
-.left-detail {
-  font-size: large;
-  font-weight: bold;
-  color: rgba(0, 0, 0, 0.7);
-}
-
-.right-detail {
-  font-size: large;
-  color: rgb(60, 60, 60, 0.7);
-}
-
-.buttonbox{
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content:space-around;
 }
