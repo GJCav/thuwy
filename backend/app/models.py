@@ -403,7 +403,7 @@ class AdminRequest(db.Model):
             'id': self.id,
             'requestor': User.fromOpenid(self.requestor).toDict(),
             'approver': User.queryName(self.approver),
-            'state': self.state,
+            # 'state': self.state,
             'reason': self.reason
         }
 
