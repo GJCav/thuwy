@@ -149,9 +149,9 @@ def testlogin():
 
 @app.route('/foo')
 def foo():
-    r = db.session.query(Num).filter(Num.a.op('&')(2)).all()
-    pprint(r)
-    return 'yes'
+    with open('1.txt', 'w') as f:
+        f.write('asdfasdf')
+
 
 if __name__ == '__main__':
     app.run(debug=1)

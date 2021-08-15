@@ -335,7 +335,7 @@ def itemlist():
 
     return rst
 
-# TODO: 在testItemAPI.py中添加测试代码
+
 @router.route('/item/<int:itemId>', methods=['GET'])
 def itemInfo(itemId):
 
