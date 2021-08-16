@@ -248,13 +248,13 @@ def requestAdmin():
 @requireAdmin
 def adminReqList():
     qryRst = db.session\
-        .query(AdminRequest.requestor)\
+        .query(AdminRequest)\
         .filter(AdminRequest.state == 0)\
         .all()
     
     arr = []
     for r in qryRst:
-        arr.append(r.requestor)
+        arr.append(r.toDict())
     
     rtn = {'list': arr}
     rtn.update(ErrCode.CODE_SUCCESS)
@@ -335,7 +335,7 @@ def itemlist():
 
     return rst
 
-# TODO: 在testItemAPI.py中添加测试代码
+
 @router.route('/item/<int:itemId>', methods=['GET'])
 def itemInfo(itemId):
 

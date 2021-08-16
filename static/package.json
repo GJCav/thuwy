@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "minio": "^7.0.18"
+  }
+}

@@ -162,13 +162,19 @@ class Reservation(db.Model):
             .filter(Reservation.id == rsvId)\
             .one_or_none()
 
-    # TODO: 慢慢把getInterval等用同样的方法代理下去
+    
     # TODO: 考虑一下要不要修改 __getattr__ 把未知属性也代理下去
     def toDict(self):
         """
         根据 method 的值自动调用恰当的方法。
         """
         return SubRsvDelegator.toDict(self)
+
+    def getInterval(self):
+        """
+        delegate to SubRsvDelegator
+        """
+        return SubRsvDelegator.getInterval(self)
 
 class SubRsvDelegator:
     methodValue = 0
@@ -177,6 +183,13 @@ class SubRsvDelegator:
         for cls in SubRsvDelegator.__subclasses__():
             if rsv.method == cls.methodValue:
                 return cls.toDict(rsv)
+
+        raise TypeError(f'Unknown method: {rsv.method}')
+
+    def getInterval(rsv: Reservation):
+        for cls in SubRsvDelegator.__subclasses__():
+            if rsv.method == cls.methodValue:
+                return cls.getInterval(rsv)
 
         raise TypeError(f'Unknown method: {rsv.method}')
             
@@ -276,7 +289,8 @@ class LongTimeRsv(SubRsvDelegator):
         """
         rsv should be father reservation.
         """
-        # rsv = LongTimeRsv.getFatherRsv(rsv)
+        if LongTimeRsv.isChildRsv(rsv):
+            raise ValueError('this is not a father rsv')
         interval = []
         interval.append(LongTimeRsv.timestamp2Interval(rsv.st))
         for rsvId in Json.loads(rsv.chore)['group-rsv']['sub-rsvs']:
@@ -353,6 +367,8 @@ class FlexTimeRsv(SubRsvDelegator):
         M = timestamp.getMins
         return f'{dateStr} {H(st)}:{M(st)}-{H(ed)}:{M(ed)}'
 
+    def getInterval(rsv: Reservation):
+        return f'{timestamp.getDate(rsv.st)} {timestamp.clock(rsv.st)}-{timestamp.clock(rsv.ed)}'
 
     def toDict(rsv: Reservation):
         if rsv.method != FlexTimeRsv.methodValue:
@@ -387,7 +403,7 @@ class AdminRequest(db.Model):
             'id': self.id,
             'requestor': User.fromOpenid(self.requestor).toDict(),
             'approver': User.queryName(self.approver),
-            'state': self.state,
+            # 'state': self.state,
             'reason': self.reason
         }
 
@@ -410,6 +426,32 @@ class _Dict(dict):
 
     def __setattr__(self, name: str, value) -> None:
         self[name] = value
+
+"""
+即使是LongTimeRsv，也只返回单挑 interval 
+"""
+def _getIntervalStr(self: Reservation):
+    """
+    self中至少有Reservation中的如下属性：
+        * method
+        * st
+        * ed
+    return: 可读的时间段信息
+    """
+    if self.method == LongTimeRsv.methodValue:
+        hour = timestamp.getHour(self.st)
+        if hour == LongTimeRsv.morningStartHour:
+            return f'{timestamp.getDate(self.st)} {LongTimeRsv.morningCode}'
+        elif hour == LongTimeRsv.afternoonStartHour:
+            return f'{timestamp.getDate(self.st)} {LongTimeRsv.afternoonCode}'
+        elif hour == LongTimeRsv.nightStartHour:
+            return f'{timestamp.getDate(self.st)} {LongTimeRsv.nightCode}'
+        else:
+            return f'{timestamp.getDate(self.st)} {LongTimeRsv.weekendCode}'
+
+    elif self.method == FlexTimeRsv.methodValue:
+        return f'{timestamp.getDate(self.st)} {timestamp.clock(self.st)}-{timestamp.clock(self.ed)}'
+
 
 # TODO: 换个更恰当的名字
 def mergeAndBeautify(qryRst: list):
