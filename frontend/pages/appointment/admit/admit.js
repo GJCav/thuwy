@@ -3,25 +3,12 @@ const app = getApp()
 
 Page({
   data: {
-    disabled: false,
-    disable: [
-      [true, true, true, true],
-      [true, true, true, true],
-      [true, true, true, true],
-      [true, true, true, true],
-      [true, true, true, true],
-      [true, true, true, true],
-      [true, true, true, true]
-    ],
-    name: null,
-    id: null,
+    disable: [],//无法预约的时间段
+    name: '',
+    id: 0,
     reason: '',
     list: [],
-    haslist: ['2021-7-30 1', '2021-7-31 4'],
     calendar: [],
-    width: 0,
-    currentIndex: 0,
-    currentTime: 0,
     items1: [{
         value: '1',
         name: '上午（8：00-12：00）  '
@@ -45,10 +32,18 @@ Page({
       message: '您确定要离开此页面吗？已经填写的信息将会丢失',
     })
     this.setData({
-      id: options.id,
-      name: options.name
+      id: parseInt(options.id),
+      name: options.name,
+      disable: [
+        [true, true, true, true],
+        [true, true, true, true],
+        [true, true, true, true],
+        [true, true, true, true],
+        [true, true, true, true],
+        [true, true, true, true],
+        [true, true, true, true]
+      ],
     })
-    console.log(1);
     wx.setNavigationBarTitle({
       title: '提交申请'
     })
@@ -69,14 +64,21 @@ Page({
     const weeks_ch = ['日', '一', '二', '三', '四', '五', '六'];
     //利用构造函数创建对象
     function calendar(date, week) {
-      if (date > monthLength) {
-        if (cur_month == 12)
-          this.date = (cur_year + 1) + '-1-' + (date - 31);
-        else
-          this.date = cur_year + '-' + (cur_month + 1) + '-' + (date - monthLength);
-      } else {
-        this.date = cur_year + '-' + cur_month + '-' + date;
+      var y = cur_year;
+      var m = cur_month;
+      var d = date;  
+      if (d > monthLength) {
+        if (m == 12) {
+          y = y + 1;
+          m = 1;
+          d = d - 31;
+        } else {
+          y = y;
+          m = m + 1;
+          d = d - monthLength;
+        }
       }
+      this.date =String(y) + ((m < 10) ? '-0' : '-') + String(m) + ((d < 10) ? '-0' : '-') + String(d);
       this.week = '星期' + week;
     }
     //当前月份的天数
@@ -100,22 +102,23 @@ Page({
       mask: true,
       title: '加载中',
     })
+    //处理已经被预约的情况
     wx.request({
       url: app.globalData.url + '/item/' + this.data.id + '/reservation',
       method: 'GET',
       success: (res) => {
-        console.log(res)
         if (res.data.code == 0) {
-          var haslist = res.data.rsvs;
           var tmp = this.data.disable;
-          for (var i = 0; i < haslist.length; ++i) {
-            for (var j = 0; j < this.data.calendar.length; ++j) {
-              var da = this.data.calendar[j];
-              if (haslist[i].slice(0, -2) == da.date) {
-                console.log(haslist[i].slice(-1));
-                tmp[j][haslist[i].slice(-1) - 1] = false
-                if (da.week == '星期六')
-                  tmp[j + 1][haslist[i].slice(-1) - 1] = false;
+          for (var i = 0; i < this.data.calendar.length; ++i) { //枚举接下来七天的日期
+            var the_date = this.data.calendar[i];
+            for (var j = 0; j < res.data.rsvs.length; ++j) { //枚举未来七天内的预约
+              var rsv_time = res.data.rsvs[j].interval;
+              for (var k = 0; k < rsv_time.length; ++k) { //枚举具体的预约时间段
+                if (rsv_time[k].slice(0, -2) == the_date.date) {
+                  tmp[i][rsv_time[k].slice(-1) - 1] = false
+                  if (the_date.week == '星期六')
+                    tmp[i + 1][rsv_time[k].slice(-1) - 1] = false;
+                }
               }
             }
           }
@@ -125,14 +128,12 @@ Page({
           wx.hideLoading();
         } else {
           console.log(res.data.code, res.data.errmsg)
-          this.setData({
-            disabled: true
-          })
           wx.hideLoading();
           wx.showToast({
             title: '连接错误',
             icon: 'error',
-            duration: 1500
+            duration: 1500,
+            mask: true
           })
           setTimeout(function () {
             wx.navigateBack({
@@ -143,15 +144,13 @@ Page({
       },
       fail: (res) => {
         console.log(res.data.code, res.code.errmsg)
-        this.setData({
-          disabled: true
-        })
         wx.hideLoading();
         wx.showToast({
           title: '连接失败',
-          icon: 'error'
+          icon: 'error',
+          duration: 1500,
+          mask: true
         });
-
         setTimeout(function () {
           wx.navigateBack({
             delta: 1
@@ -175,7 +174,7 @@ Page({
         title: '未选择预约时间',
         icon: 'error'
       })
-    } else if (this.data.reason == null) {
+    } else if (this.data.reason == '') {
       wx.showToast({
         title: '未填写预约理由',
         icon: 'error'
@@ -186,7 +185,7 @@ Page({
         title: '提交中',
       })
       for (var i = 0; i < this.selectedIdxs.length; i++) {
-        var d = Math.floor(this.selectedIdxs[i] / 10)
+        var d = parseInt(this.selectedIdxs[i] / 10)
         var m = this.selectedIdxs[i] % 10
         if (this.data.calendar[d].week == '星期日')
           d = this.data.calendar[d - 1].date
@@ -214,13 +213,18 @@ Page({
         success: function (res) {
           console.log(res)
           if (res.data.code == 0) {
+            wx.hideLoading()
             wx.showToast({
               title: '提交成功',
-              icon: 'success'
+              icon: 'success',
+              duration: 1500,
+              mask: true
             })
-            wx.navigateBack({
-              delta: 1,
-            })
+            setTimeout(function () {
+              wx.navigateBack({
+                delta: 1
+              })
+            }, 1500)
             wx.hideLoading();
           } else {
             console.log(res.data.code, res.data.errmsg)

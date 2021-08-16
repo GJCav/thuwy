@@ -1,54 +1,54 @@
 <!--pages/reservation/reservation.wxml-->
 <view class="beauty">预约详细信息</view>
 <view class="tips">——请仔细核查以下信息——</view>
-<view class="whole">
+<view class="detail-whole">
   <view class="detail-list" wx:if="{{who==2}}">
-    <view class="left-detail"> 预约申请人：</view>
-    <view class="right-detail">{{rsv_detail.guest}}</view>
+    <view style="font-weight:bold">预约申请人：</view>
+    <view>{{rsv_detail.guest}}</view>
     <!-- 由于后端API的限制，暂时无法实现详细信息的显示 -->
-    <!-- <view class="detail">
-            <view style="width:50%">姓名：</view>
-            <view style="width:50%">李晗</view>
-        </view>
-        <view class="detail">
-            <view style="width:50%">班级：</view>
-            <view style="width:50%">未央-水木01</view>
-        </view>
-        <view class="detail">
-            <view style="width:50%">学号：</view>
-            <view style="width:50%">2020012856</view>
-        </view> -->
+    <!-- <view class="detail-list">
+      <view style="width:50%">姓名：</view>
+      <view style="width:50%">李晗</view>
+    </view>
+    <view class="detail-list">
+      <view style="width:50%">班级：</view>
+      <view style="width:50%">未央-水木01</view>
+    </view>
+    <view class="detail-list">
+      <view style="width:50%">学号：</view>
+      <view style="width:50%">2020012856</view>
+    </view> -->
   </view>
   <view class="detail-list">
-    <view class="left-detail"> 设备名称：</view>
-    <view class="right-detail">{{rsv_equip}}</view>
+    <view style="font-weight:bold"> 设备名称：</view>
+    <view>{{rsv_equip}}</view>
   </view>
   <view class="detail-list">
-    <view class="left-detail"> 预约方式：</view>
-    <view class="right-detail">{{rsv_detail==1?'固定时间段预约':'自由时间段预约'}}</view>
+    <view style="font-weight:bold"> 预约方式：</view>
+    <view>{{rsv_detail==1?'固定时间段预约':'自由时间段预约'}}</view>
   </view>
   <view class="detail-list" style="flex-direction:column">
-    <view class="left-detail"> 预约时间：</view>
-    <view class="right-detail">{{rsv_detail.interval}}</view>
+    <view style="font-weight:bold"> 预约时间：</view>
+    <view>{{rsv_detail.interval}}</view>
   </view>
-  <view class="detail-list" style="flex-direction:column"> 
-    <view class="left-detail"> 预约理由：</view>
-    <view class="right-detail">{{rsv_detail.reason}}</view>
+  <view class="detail-list" style="flex-direction:column">
+    <view style="font-weight:bold"> 预约理由：</view>
+    <view>{{rsv_detail.reason}}</view>
   </view>
   <view class="detail-list" style="flex-direction:column" wx:if="{{who!=1}}">
-    <view class="left-detail"> 审批回复：</view>
-    <view class="right-detail" wx:if="{{who==0}}">{{rsv_detail['exam-rst']}}</view>
-    <textarea class="inputbox" wx:if="{{who==2}}" style="height:120rpx" placeholder="请填写审批回复"
-          bindblur="inputreason" />
+    <view style="font-weight:bold"> 审批回复：</view>
+    <view wx:if="{{who==0}}">{{rsv_detail['exam-rst']}}</view>
+  </view>   
+  <textarea class="inputbox" wx:if="{{who==2}}" style="height:150rpx;margin-top:20rpx" placeholder="请填写审批回复" bindblur="inputreason" />
+  <view class="detail-list" style="flex-direction:column" wx:if="{{who==0}}">
+    <view style="font-weight:bold"> 审批人：{{rsv_detail.approver}}</view>
   </view>
 </view>
-<view style="height:60rpx"></view>
-<view class="buttonbox">
+<view class="buttonbox" style="margin-top:60rpx">
   <button type="primary" style="width:40%;margin-bottom:60rpx" bindtap="admit" wx:if="{{who==2}}">批准预约</button>
   <button class="warn" hover-class="warns" style="width:40%;margin-bottom:60rpx" bindtap="noway"
     wx:if="{{who==2}}">拒绝预约</button>
   <button class="warn" hover-class="warns" style="width:40%;margin-bottom:60rpx" bindtap="delete"
     wx:if="{{who==1}}">取消预约</button>
-    <button type="primary" style="width:40%;margin-bottom:60rpx" bindtap="over"
-    wx:if="{{who==3}}">结束预约</button>
+  <button type="primary" style="width:40%;margin-bottom:60rpx" bindtap="over" wx:if="{{who==3}}">结束预约</button>
 </view>

@@ -87,7 +87,7 @@ Page({
       title: '加载中',
     })
     this.setData({
-      items:[]
+      items: []
     })
     wx.request({
       url: app.globalData.url + '/item?p=<page>/',

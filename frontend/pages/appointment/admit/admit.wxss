@@ -2,52 +2,9 @@
 page {
   background-color: #ffffff
 }
-.infotext {
-  font-size: large;
-  margin-bottom: 30rpx;
-  margin-top: 20rpx;
-  margin-left: 10%;
-}
-
-
-.title {
+/* 日期标题 */
+.datetitle {
   font-weight: 550;
   margin-top: 20rpx;
   margin-left: 15%;
-  color: #333;
-}
-
-.option{
-  height: 75rpx;
-  display: flex;
-  margin-top: 10rpx;
-  margin-left: 15%;
-  margin-right: 15%;
-  background-color: #ffffff;
-  border: 1px solid #dddddd;
-  flex-direction: row;
-  align-items: center;
-}
-
-.optiontext1 {
-  color: #333;
-}
-
-.optiontext2 {
-  color: #aaa;
-}
-
-.inputbox {
-  background-color: #fff;
-  border: 2px solid #ddd;
-  width: 80%;
-  margin: 0 10% 20rpx 10%; 
-  height: 250rpx;
-}
-
-.operate {
-  margin-top: 100rpx;
-  width: 100%;
-  padding: 30rpx 0;
-  bottom: 0;
 }

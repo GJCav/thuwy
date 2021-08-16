@@ -1,5 +1,5 @@
 <!--index.wxml-->
-<view class="container">
+<view style="margin-bottom:-120rpx">
   <view class="userinfo">
     <block wx:if="{{canIUseOpenData}}">
       <view class="userinfo-avatar">
@@ -19,16 +19,16 @@
   </view>
 </view>
 <view class="total">
-  <view class="option">
-    <view class="optiontext" style="font-weight: bold">用户权限</view>
-    <view class="optionblank"></view>
-    <view class="optiontext">{{motto1[num1]}}</view>
+  <view class="setting_info">
+    <view class="setting_infotext" style="font-weight: bold">用户权限</view>
+    <view class="setting_infoblank"></view>
+    <view class="setting_infotext">{{motto1[num1]}}</view>
   </view>
   <view class="divline"></view>
-  <view class="option">
-    <view class="optiontext" style="font-weight: bold">用户信息</view>
-    <view class="optionblank"></view>
-    <view class="optiontext">{{motto2[num2]}}</view>
+  <view class="setting_info">
+    <view class="setting_infotext" style="font-weight: bold">用户信息</view>
+    <view class="setting_infoblank"></view>
+    <view class="setting_infotext">{{motto2[num2]}}</view>
   </view>
 </view>
 

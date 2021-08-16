@@ -1,4 +1,6 @@
 /* pages/admin/admin.wxss */
+
+/* 特殊图标 */
 .square{
   width: 24px;
   height: 24px;
@@ -14,27 +16,8 @@
   flex-direction: column;
   font-size: large;
 }
-.detail {
-  width: 90%;
-  color: #999999;
-  display: flex;
-  padding: 10rpx;
-  align-items: center;
-  justify-content: left;
-}
-.which {
-  color: #000;
-  margin-top: 20rpx;
-  margin-bottom: 20rpx;
-  font-size: large;
-  width: 70%;
-}
-.title {
-  margin-bottom: 30rpx;
-  font-size: x-large;
-  font-weight: bold;
-}
-.text{
+/* 小标题文字 */
+.thetext{
   width: 90%;
   height: 75rpx;
   display: flex;
@@ -43,11 +26,12 @@
 .haveselect{
   background-color: #dddddd;
 }
+/* 特殊按钮 */
 .pic {
   color: #660874;
   border: 2px solid #660874;
 }
-.pics {
+.haspic {
   color: #ffffff;
   background-color: #660874;
 }

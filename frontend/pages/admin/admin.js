@@ -1,5 +1,6 @@
 // pages/admin/admin.js
 const app = getApp()
+const util = require('../../utils/util.js')
 Page({
   data: {
     activeTab: 0,
@@ -29,101 +30,124 @@ Page({
     else
       this.refresh_admin();
   },
+  //封装信息读取函数
+  waiting() { //获取待审批预约
+    return new Promise(function (resolve, reject) {
+      wx.showLoading({
+        mask: true,
+        title: '加载中',
+      })
+      var wait_rsvs = [];
+      var p = 0
+      wx.request({
+        url: app.globalData.url + '/reservation/?&state=<state>',
+        header: {
+          'content-type': 'application/json; charset=utf-8',
+          'cookie': wx.getStorageSync('cookie')
+        },
+        data: {
+          state: 1
+        },
+        method: 'GET',
+        success: (res) => {
+          if (res.data.code == 0) {
+            wait_rsvs = res.data.rsvs
+            p = res.data.page
+            //读取设备名称                        
+            for (let i in wait_rsvs) {
+              let item = wait_rsvs[i]
+              util.the_name(item['item-id']).then(function (value) {
+                item.item_name = value
+              }).catch(function (res) {
+                reject(res)
+              })
+            }
+            resolve(wait_rsvs, p)
+          } else {
+            reject(res)
+          }
+        },
+        fail: (res) => {
+          reject(res)
+        }
+      })
+    })
+  },
+  going() { //获取进行中预约
+    return new Promise(function (resolve, reject) {
+      wx.showLoading({
+        mask: true,
+        title: '加载中',
+      })
+      var go_rsvs = []
+      var p = 0
+      wx.request({
+        url: app.globalData.url + '/reservation/?&state=<state>',
+        header: {
+          'content-type': 'application/json; charset=utf-8',
+          'cookie': wx.getStorageSync('cookie')
+        },
+        data: {
+          state: 2
+        },
+        method: 'GET',
+        success: (res) => {
+          if (res.data.code == 0) {
+            go_rsvs = res.data.rsvs
+            p = res.data.page
+            //读取设备名称                        
+            for (let i in go_rsvs) {
+              let item = go_rsvs[i]
+              util.the_name(item['item-id']).then(function (value) {
+                item.item_name = value
+              }).catch(function (res) {
+                reject(res)
+              })
+            }
+            resolve(go_rsvs, p)
+          } else {
+            reject(res)
+          }
+        },
+        fail: (res) => {
+          reject(res)
+        }
+      })
+    })
+  },
   //处理不同界面的函数
   refresh_rsv: function () {
-    //读取待审批的预约
-    var tmp1 = []
     wx.showLoading({
       mask: true,
       title: '加载中',
     })
-    wx.request({
-      url: app.globalData.url + '/reservation/?&state=<state>',
-      data: {
-        state: 1
-      },
-      method: 'GET',
-      success: (res) => {
-        if (res.data.code == 0) {
-          this.setData({
-            p1: res.data.page,
-          })
-          tmp1 = res.data.rsvs
-          wx.hideLoading();
-        } else {
-          console.log(res.data.code, res.data.errmsg)
+    let that = this
+    that.waiting().then(function (res1, page1) { //读取待审批的预约
+      that.going().then(function (res2, page2) { //读取进行中的预约
+        that.setData({   
+          rsv_list1: res1,
+          rsv_list2: res2,
+          p1: page1,
+          p2: page2
+        })
+        wx.hideLoading()
+      }).catch(function(res) {
+          console.log(res.data.code,res.data.errmsg)
           wx.hideLoading();
           wx.showToast({
-            title: '连接错误',
-            icon: 'error',
-            duration: 1500
-          })
-        }
-      },
-      fail: (res) => {
-        console.log(res.data.code, res.data.errmsg)
-        wx.hideLoading();
-        wx.showToast({
+              title: '连接失败',
+              icon: 'error',
+              duration: 1500
+          });
+      })
+    }).catch(function (res) {
+      console.log(res.data.code,res.data.errmsg)
+      wx.hideLoading();
+      wx.showToast({
           title: '连接失败',
           icon: 'error',
           duration: 1500
-        });
-      }
-    });
-    //读取物品名称
-    var util = require('../../utils/util.js')
-    var key = 'item-name'
-    for (var i = 0; i < tmp1.length; ++i) {
-      var value = util.the_name(tmp1[i]['item-id'])
-      tmp1[i][key] = value
-    }
-    //读取进行中的预约
-    var tmp2 = []
-    wx.showLoading({
-      mask: true,
-      title: '加载中',
-    })
-    wx.request({
-      url: app.globalData.url + '/reservation/?&state=<state>',
-      data: {
-        state: 2
-      },
-      method: 'GET',
-      success: (res) => {
-        if (res.data.code == 0) {
-          this.setData({
-            p2: res.data.page,
-          })
-          tmp2 = res.data.rsvs
-          wx.hideLoading();
-        } else {
-          console.log(res.data.code, res.data.errmsg)
-          wx.hideLoading();
-          wx.showToast({
-            title: '连接错误',
-            icon: 'error',
-            duration: 1500
-          })
-        }
-      },
-      fail: (res) => {
-        console.log(res.data.code, res.data.errmsg)
-        wx.hideLoading();
-        wx.showToast({
-          title: '连接失败',
-          icon: 'error',
-          duration: 1500
-        });
-      }
-    });
-    //读取物品名称
-    for (var i = 0; i < tmp2.length; ++i) {
-      var value = util.the_name(tmp2[i]['item-id'])
-      tmp2[i][key] = value
-    }
-    this.setData({
-      rsv_list1: tmp1,
-      rsv_list2: tmp2
+      });
     })
   },
   refresh_equip: function () {
@@ -283,10 +307,10 @@ Page({
   //审批预约
   showdetail(e) {
     var rsvid = e.currentTarget.dataset['id']
-    var name=e.currentTarget.dataset['name']
-    var who=e.currentTarget.dataset['value']
+    var name = e.currentTarget.dataset['name']
+    var who = e.currentTarget.dataset['value']
     wx.navigateTo({
-      url: '../reservation/reservation?rsvid=' + rsvid + '&who='+who+'&name='+name,
+      url: '../reservation/reservation?rsvid=' + rsvid + '&who=' + who + '&name=' + name,
     })
   },
   //管理设备
@@ -363,8 +387,12 @@ Page({
     wx.request({
       url: app.globalData.url + '/admin/request/' + id,
       method: 'POST',
+      header: {
+        'content-type': 'application/json; charset=utf-8',
+        'cookie': wx.getStorageSync('cookie')
+      },
       data: {
-        p: p,
+        pass: p,
         reason: ""
       },
       success: (res) => {
@@ -402,7 +430,7 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确认要拒绝管理员申请?',
-      success: function (res) {
+      success: (res) => {
         if (res.confirm) {
           console.log('用户点击确定')
           this.req(value, 0)
@@ -417,7 +445,7 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确认要同意管理员申请?',
-      success: function (res) {
+      success: (res) => {
         if (res.confirm) {
           console.log('用户点击确定')
           this.req(value, 1)

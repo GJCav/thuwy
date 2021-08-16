@@ -5,6 +5,7 @@ page {
 .row {
   margin-top: 20rpx;
 }
+/* 按钮 */
 .warn {
   background-color: rgb(255, 50, 50);
   color: white;
@@ -12,6 +13,14 @@ page {
 .warns{
   background-color: rgba(210, 50, 50);
 }
+.normal{
+  background-color:rgb(230, 230, 230);
+  color: rgb(0, 0, 0);
+}
+.normals{
+  background-color: lightgray;
+}
+/* 头像 */
 .avatar {
   width: 70px;
   height: 70px;
@@ -21,18 +30,10 @@ page {
   border: 3px solid #660874;
   overflow: hidden
 }
-.server-name {
-  color: black;
-  font-size: larger;
-  font-weight: bold;
-}
-.server-description {
-  color: #999999;
-  font-size: smaller;
-}
-.iconCss{
+.icon{
   width: 80rpx; height: 80rpx;
 }
+/* 预约显示框 */
 .total {
   box-shadow: 1rpx 1rpx 1rpx 1rpx #dddddd;
   background-color: #ffffff;
@@ -45,6 +46,7 @@ page {
   border-radius: 20rpx;
   border: 1px solid #dddddd;
 }
+/* 下级菜单箭头 */
 .arrow {
   width: 10px;
   height: 10px;
@@ -53,6 +55,7 @@ page {
   border-right: 2px solid #999;
   transform: rotate(45deg);
 }
+/* 提交表单大标题 */
 .beauty{
   color:#0087a9;
   width: 70%;
@@ -64,18 +67,21 @@ page {
   font-weight: bolder;
   font-size:x-large;
 }
+/* 提交表单提示 */
 .tips {
   color: #999;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+/* 分割线 */
 .divline {
   background: #e0e3da;
   width: 90%;
   display: flex;
   height: 3rpx;
 }
+/* 公用格式框 */
 .inputbox{
   width: 70%;
   background-color: #fff;
@@ -83,6 +89,69 @@ page {
   margin-left: 15%;
   margin-right: 15%;
   margin-bottom: 20rpx;
+}
+.labelbox{
+  width: 70%;
+  margin: 120rpx;
+  margin-top: 50rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+}
+.textbox{
+  margin-left: 20rpx;
+  font-size: larger;
+}
+.place-holder{
+  font-style: italic;
+}
+/* checkbox公用格式 */
+.option{
+  height: 80rpx;
+  display: flex;
+  margin-top: 10rpx;
+  margin-left: 15%;
+  margin-right: 15%;
+  border: 1px solid #dddddd;
+  flex-direction: row;
+  align-items: center;
+}
+.optiontext1 {
+  color: #333333;
+}
+.optiontext2 {
+  color: #aaaaaa;
+}
+/* 预约显示公用格式 */
+.detail {
+  width: 90%;
+  color: #999999;
+  display: flex;
+  padding: 10rpx;
+  align-items: center;
+  justify-content: left;
+}
+.which {
+  color: #000000;
+  font-size: larger;
+  width: 70%;
+  margin-top: 20rpx;
+  margin-bottom: 20rpx;
+}
+/* 预约细节公用格式 */
+.detail-whole {
+  margin-top: 20rpx;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+.detail-list {
+  font-size: large;
+  margin-top: 20rpx;
+  width: 80%;
+  display: flex;
 }
 checkbox .wx-checkbox-input {
   width: 50rpx;

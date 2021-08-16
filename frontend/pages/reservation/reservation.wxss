@@ -1,40 +1,6 @@
 /* pages/reservation/reservation.wxss */
-.whole {
-  margin-top: 20rpx;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-}
-.detail {
-  width: 90%;
-  margin-left: 6%;
-  font-size: large;
-  color: rgb(60, 60, 60);
-  display: flex;
-  align-items: center;
-  justify-content: left;
-}
-.detail-list {
-  margin-top: 20rpx;
-  width: 80%;
-  height: 100%;
-  display: flex;
-  align-items: right;
-}
 
-.left-detail {
-  font-size: large;
-  font-weight: bold;
-  color: rgba(0, 0, 0);
-}
-
-.right-detail {
-  font-size: large;
-  color: rgb(60, 60, 60);
-}
-
+/* 多个按钮显示框 */
 .buttonbox{
   width: 100%;
   display: flex;

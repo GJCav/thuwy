@@ -6,7 +6,7 @@
     <view class="after-title">
       <view class="tipbox">
         <view class="labelbox">
-          <image src="../../icon/equip.png" class="iconCss"></image>
+          <image src="../../icon/equip.png" class="icon"></image>
           <text class="textbox">设备名称：</text>
         </view>
         <view>
@@ -15,31 +15,32 @@
       </view>
       <view class="tipbox">
         <view class="labelbox">
-          <image src="../../icon/method.png" class="iconCss"></image>
+          <image src="../../icon/method.png" class="icon"></image>
           <text class="textbox">预约方式：</text>
         </view>
-        <checkbox-group style="margin-left:20%;margin-right:20%" bindchange="rsvmethod">
-          <label class="checkbox" wx:for="{{methods}}">
-            <view>
-              <checkbox value="{{item.value}}" checked="{{item.checked}}" disabled="{{!item.can}}" />
-            </view>
+        <checkbox-group bindchange="rsvmethod">
+          <label class="option" wx:for="{{methods}}">
+              <checkbox style="margin-left:20rpx;width:100%;height:100%;display:flex" value="{{item.value}}" checked="{{item.checked}}" disabled="{{!item.can}}">
             <view style="{{(!item.can)?'color:#999999':''}}">{{item.name}}</view>
+            </checkbox>
           </label>
         </checkbox-group>
       </view>
     </view>
     <view class="tipbox">
       <view class="labelbox">
-        <image src="../../icon/pic.png" class="iconCss"></image>
+        <image src="../../icon/pic.png" class="icon"></image>
         <text class="textbox">设备图片：</text>
       </view>
-      <view>
-
+      <view class="picbox">
+        <image style="height:500rpx;width:500rpx" src="{{thumbnail}}" mode="widthFix" wx:if="{{havepic}}"></image>
       </view>
+      <button class="normal" hover-class="normals" style="height:80rpx;margin-top:30rpx" bindtap="choosepic" data-way="album">从相册中选择</button>
+      <button class="normal" hover-class="normals"  style="height:80rpx;margin-top:30rpx" bindtap="choosepic" data-way="camera">使用相机拍照</button>
     </view>
     <view class="tipbox">
       <view class="labelbox">
-        <image src="../../icon/brief.png" class="iconCss"></image>
+        <image src="../../icon/brief.png" class="icon"></image>
         <text class="textbox">简要介绍：</text>
       </view>
       <view>
@@ -48,7 +49,7 @@
     </view>
     <view class="tipbox">
       <view class="labelbox">
-        <image src="../../icon/md.png" class="iconCss"></image>
+        <image src="../../icon/md.png" class="icon"></image>
         <text class="textbox">详细介绍：</text>
       </view>
       <view>
@@ -58,7 +59,7 @@
     </view>
     <view class="tipbox" wx:if="{{item_id!==0}}">
       <view class="labelbox">
-        <image src="../../icon/can.png" class="iconCss"></image>
+        <image src="../../icon/can.png" class="icon"></image>
         <text class="textbox">能否使用：</text>
         <switch style="margin-left:20%" checked="{{available}}" bindchange="inputcan"></switch>
       </view>

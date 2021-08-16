@@ -1,6 +1,6 @@
 // pages/reservation/reservation.js
+const app = getApp()
 Page({
-
   data: {
     who: 0,
     rsvid: 0,
@@ -9,7 +9,6 @@ Page({
     rsv_detail: {},
     reason: '',
   },
-
   onLoad: function (options) {
     wx.showLoading({
       mask: true,
@@ -25,7 +24,7 @@ Page({
     })
     //获取预约详细信息
     wx.request({
-      url: app.globalData.url + '/reservation/' + rsvid,
+      url: app.globalData.url + '/reservation/' + this.data.rsvid,
       method: 'GET',
       success: (res) => {
         if (res.data.code == 0) {
@@ -67,7 +66,7 @@ Page({
     })
   },
   //输入处理
-  inputreason() {
+  inputreason(e) {
     this.setData({
       reason: e.detail.value
     });
@@ -82,23 +81,21 @@ Page({
         duration: 1500
       });
       return false
-    } else 
+    } else
       return true
   },
   //处理情况
   admit() {
-    if (this.pan()) {
-      console.log("admit:" + this.data.rsvid)
-      wx.showModal({
-        title: '提示',
-        content: '确认要批准本次预约?',
-        success: function (res) {
+    wx.showModal({
+      title: '提示',
+      content: '确认要批准本次预约?',
+      success: (res) => {
+        if (this.pan()) {
           if (res.confirm) {
             wx.showLoading({
               mask: true,
               title: '提交中',
             })
-            console.log('用户点击确定')
             wx.request({
               header: {
                 'content-type': 'application/json; charset=utf-8',
@@ -106,10 +103,10 @@ Page({
               },
               url: app.globalData.url + "/reservation/" + this.data.rsvid,
               method: "POST",
-              data:{
-                op:1,
-                pass:1,
-                reason:this.data.reason
+              data: {
+                op: 1,
+                pass: 1,
+                reason: this.data.reason
               },
               success: function (res) {
                 if (res.data.code == 0) {
@@ -128,7 +125,7 @@ Page({
                 } else {
                   console.log(res.data.code, res.data.errmsg);
                   wx.hideLoading();
-                  wx.showToasting({
+                  wx.showToast({
                     title: '审阅失败',
                     icon: 'error',
                     duration: 1500,
@@ -145,71 +142,72 @@ Page({
                 });
               }
             })
-          } else if (res.cancel) {
-            console.log('用户点击取消')
           }
+        } else if (res.cancel) {
+          console.log('用户点击取消')
         }
-      })
-    }
+      }
+    })
   },
   noway() {
-    console.log("refuse:" + this.data.rsvid)
     wx.showModal({
       title: '提示',
       content: '确认要拒绝本次预约?',
-      success: function (res) {
+      success: (res)=> {
         if (res.confirm) {
-          wx.showLoading({
-            mask: true,
-            title: '提交中',
-          })
-          console.log('用户点击确定')
-          wx.request({
-            header: {
-              'content-type': 'application/json; charset=utf-8',
-              'cookie': wx.getStorageSync('cookie')
-            },
-            url: app.globalData.url + "/reservation/" + this.data.rsvid,
-            method: "POST",
-            data:{
-              op:1,
-              pass:0,
-              reason:this.data.reason
-            },
-            success: function (res) {
-              if (res.data.code == 0) {
-                wx.hideLoading();
-                wx.showToast({
-                  mask: true,
-                  title: "审阅成功",
-                  icon: 'success',
-                  duration: 1500,
-                })
-                setTimeout(function () {
-                  wx.navigateBack({
-                    delta: 1
+          if (this.pan()) {
+            wx.showLoading({
+              mask: true,
+              title: '提交中',
+            })
+            wx.request({
+              header: {
+                'content-type': 'application/json; charset=utf-8',
+                'cookie': wx.getStorageSync('cookie')
+              },
+              url: app.globalData.url + "/reservation/" + this.data.rsvid,
+              method: "POST",
+              data: {
+                op: 1,
+                pass: 0,
+                reason: this.data.reason
+              },
+              success: function (res) {
+                if (res.data.code == 0) {
+                  wx.hideLoading();
+                  wx.showToast({
+                    mask: true,
+                    title: "审阅成功",
+                    icon: 'success',
+                    duration: 1500,
                   })
-                }, 1500)
-              } else {
+                  setTimeout(function () {
+                    wx.navigateBack({
+                      delta: 1
+                    })
+                  }, 1500)
+                } else {
+                  console.log(res.data.code, res.data.errmsg);
+                  wx.hideLoading();
+                  wx.showToast({
+                    title: '审阅失败',
+                    icon: 'error',
+                    duration: 1500,
+                  })
+                }
+              },
+              fail: (res) => {
                 console.log(res.data.code, res.data.errmsg);
                 wx.hideLoading();
-                wx.showToasting({
-                  title: '审阅失败',
+                wx.showToast({
+                  title: '连接失败',
                   icon: 'error',
-                  duration: 1500,
-                })
+                  duration: 1500
+                });
               }
-            },
-            fail: (res) => {
-              console.log(res.data.code, res.data.errmsg);
-              wx.hideLoading();
-              wx.showToast({
-                title: '连接失败',
-                icon: 'error',
-                duration: 1500
-              });
-            }
-          })
+            })
+          }
+
         } else if (res.cancel) {
           console.log('用户点击取消')
         }
@@ -221,7 +219,7 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确认要取消本次预约?',
-      success: function (res) {
+      success: (res) => {
         if (res.confirm) {
           wx.showLoading({
             mask: true,
@@ -275,8 +273,8 @@ Page({
       }
     })
   },
-over(){
-  console.log("refuse:" + this.data.rsvid)
+  over() {
+    console.log("refuse:" + this.data.rsvid)
     wx.showModal({
       title: '提示',
       content: '确认要拒绝本次预约?',
@@ -294,8 +292,8 @@ over(){
             },
             url: app.globalData.url + "/reservation/" + this.data.rsvid,
             method: "POST",
-            data:{
-              op:2,
+            data: {
+              op: 2,
             },
             success: function (res) {
               if (res.data.code == 0) {
@@ -336,5 +334,5 @@ over(){
         }
       }
     })
-}
+  }
 })

@@ -8,15 +8,15 @@ Page({
     select: [{
       text: "进入管理员界面",
       go: "goadmin",
-      condition: app.globalData.isadmin
+      condition: false
     }, {
       text: "绑定账户信息",
       go: "bindinfo",
-      condition: !app.globalData.userInfo
+      condition: true
     }, {
       text: "申请成为管理员",
       go: "beadmin",
-      condition: !app.globalData.isadmin
+      condition: true
     }, {
       text: "反馈问题和建议",
       go: "advice",
@@ -41,6 +41,11 @@ Page({
     })
   },
   onShow() {
+    this.setData({
+      'select[0].condition':app.globalData.isadmin,
+      'select[1].condition':!app.globalData.userInfo,
+      'select[2].condition':!app.globalData.isadmin
+    })
     if (app.globalData.login) {
       if (app.globalData.userInfo) {
         this.setData({

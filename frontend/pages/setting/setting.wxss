@@ -1,4 +1,5 @@
 /**index.wxss**/
+/* 用户头像&昵称 */
 .userinfo {
   display: flex;
   height: 350rpx;
@@ -14,27 +15,24 @@
   margin: 20rpx;
   border-radius: 50%;
 }
-.container{
-  margin-bottom: -120rpx;
-}
-.option{
+/* setting信息栏 */
+.setting_info{
   width: 90%;
   height: 80rpx;
   display: flex;
   flex-direction:row;
   background-color: #ffffff;
 }
-
-.optiontext{
+.setting_infotext{
   width: 35%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.optionblank{
+.setting_infoblank{
   width:30%;
 }
+/* setting选项栏 */
 .repeat{
   width: 100%;
   display: flex;

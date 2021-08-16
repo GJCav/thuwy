@@ -15,42 +15,23 @@ const formatNumber = n => {
 }
 
 //获取设备名称
-function the_name(item_id){
-   wx.showLoading({
-    mask: true,
-    title: '加载中',
-  })
-  wx.request({
-    url: app.globalData.url + '/item/' + item_id,
-    method: 'GET',
-    success: (res) => {
-      let those = res.data
-      if (those.code == 0) {
-          return those.item.name,
-        wx.hideLoading()
-      } else {
-        console.log(res.data.code, res.data.errmsg)
-        wx.hideLoading()
-        wx.showToast({
-          mask: true,
-          title: '连接错误',
-          icon: 'error',
-          duration: 1500
-        })
-        return '未知物品'
-      }
-    },
-    fail: (res) => {
-      console.log(res.data.code, res.data.errmsg)
-      wx.hideLoading()
-      wx.showToast({
-        mask: true,
-        title: '连接失败',
-        icon: 'error',
-        duration: 1500
+const app = getApp()
+function the_name(item_id) {
+  return new Promise(function (resolve, reject) {
+      wx.request({
+          url: app.globalData.url + '/item/' + item_id,
+          method: 'GET',
+          success: (res) => {
+              if (res.data.code == 0) {                       
+                  resolve(res.data.item.name)  
+              } else {
+                  reject(res.data)               
+              }
+          },
+          fail: (res) => {console.log(1) 
+              reject(res)                   
+          }
       })
-      return '未知物品'
-    }
   })
 }
 

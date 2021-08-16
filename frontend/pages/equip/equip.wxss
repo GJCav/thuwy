@@ -2,21 +2,9 @@
 page {
   background-color: #ffffff
 }
-.labelbox{
-  width: 70%;
-  margin: 120rpx;
-  margin-top: 50rpx;
-  margin-bottom: 20rpx;
+/* 选择图片 */
+.picbox{
   display: flex;
   align-items: center;
-}
-.textbox{
-  margin-left: 20rpx;
-  font-size: larger;
-}
-.checkbox{
-  height: 80rpx;
-  display: flex;
-  align-items: center;
-  flex-direction: row;
+  flex-direction: column;
 }

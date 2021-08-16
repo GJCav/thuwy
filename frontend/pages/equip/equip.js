@@ -10,7 +10,8 @@ Page({
     brief_intro: '',
     md_intro: '',
     rsv_method: 0,
-    thumbnail: 'https://zos.alipayobjects.com/rmsportal/AiyWuByWklrrUDlFignR.png',
+    thumbnail: '',
+    havepic:false,
     methods: [{
       value: 1,
       checked: false,
@@ -50,6 +51,28 @@ Page({
       rsv_method: sum
     })
     console.log(this.data.rsv_method)
+  },
+  choosepic:function(e){
+    wx.chooseImage({
+      count: 1,
+      sourceType: e.currentTarget.dataset.way,
+      success:(res)=> {
+        this.setData({
+          thumbnail:res.tempFilePaths[0],
+          havepic:true
+        });
+      },
+      fail: (res)=>{
+        wx.showToast({
+            title: '读取失败',
+            icon: 'error'
+          })
+          this.setData({
+            thumbnail:'',
+            havepic:false
+          });
+        },
+    })
   },
   onLoad: function (options) {
     if (options.id != 0) {
@@ -146,6 +169,12 @@ Page({
         title: '提交中',
         mask: true
       })
+      //上传图片
+      // wx.uploadFile({
+      //   filePath: this.data.thumbnail,
+      //   name: 'name',
+      //   url: 'url',
+      // })
       wx.request({
         header: {
           'content-type': 'application/json; charset=utf-8',

@@ -2,6 +2,10 @@
 App({
   onLaunch() {
     // 登录
+    wx.showLoading({
+      mask: true,
+      title: '加载中',
+    })
     wx.login({
       timeout: 5000,
       success: res => {
@@ -21,9 +25,42 @@ App({
                 key: "cookie",
                 data: res.cookies[0]
               })
-              console.log('登陆成功')
+              if (this.globalData.userInfo) {
+                wx.request({
+                  url: this.globalData.url + '/profile/',
+                  method: 'GET',
+                  header: {
+                    'content-type': 'application/json; charset=utf-8',
+                    'cookie': wx.getStorageSync('cookie')
+                  },
+                  success: (res) => {
+                    if (res.data.code == 0) {
+                      this.globalData.isadmin = res.data.admin ? true : false
+                      wx.hideLoading();
+                    } else {
+                      console.log(res.data.code, res.data.errmsg);
+                      wx.hideLoading();
+                      wx.showToast({
+                        title: '信息读取失败',
+                        icon: 'error',
+                        duration: 1500,
+                      })
+                    }
+                  },
+                  fail: (res) => {
+                    console.log(res.data.code, res.data.errmsg);
+                    wx.hideLoading()
+                    wx.showToast({
+                      title: '信息读取失败',
+                      icon: 'error',
+                      duration: 1500
+                    });
+                  }
+                })
+              }
             } else {
               console.log(res.data.code, res.data.errmsg);
+              wx.hideLoading()
               wx.showToast({
                 title: '登录失败',
                 icon: 'error',
@@ -32,44 +69,22 @@ App({
             }
           }
         })
+      },
+      fail: res => {
+        console.log(res.data.code, res.data.errmsg);
+        wx.hideLoading()
+        wx.showToast({
+          title: '登录失败',
+          icon: 'error',
+          duration: 1500
+        });
       }
     });
-    if (this.globalData.userInfo) {
-      wx.request({
-        url: this.globalData.url + '/profile/',
-        method: 'GET',
-        header: {
-          'content-type': 'application/json; charset=utf-8',
-          'cookie': wx.getStorageSync('cookie')
-        },
-        success: (res) => {
-          if (res.data.code == 0) {
-              this.globalData.isadmin=res.data.admin?true:false
-          } else {
-            console.log(res.data.code, res.data.errmsg);
-            wx.hideLoading();
-            wx.showToast({
-              title: '信息读取失败',
-              icon: 'error',
-              duration: 1500,
-            })
-          }
-        },
-        fail: (res) => {
-          console.log(res.data.code, res.data.errmsg);
-          wx.showToast({
-            title: '信息读取失败',
-            icon: 'error',
-            duration: 1500
-          });
-        }
-      })
-    }
   },
   globalData: {
     login: false,
-    isadmin: true,
+    isadmin: false,
     userInfo: false,
-    url: "http://api.weiyang.grw20.cn/"
+    url: "http://api.weiyang.grw20.cn"
   }
 })
