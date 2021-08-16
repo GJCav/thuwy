@@ -28,8 +28,13 @@ function PresignedPutObject(bucket, filename) {
     });
 }
 
+function makeDate() {
+    const myDate = new Date();
+    return `${myDate.getFullYear()}/${myDate.getMonth() < 9 ? ('0' + (myDate.getMonth() + 1)) : (myDate.getMonth() + 1)}/${myDate.getDate()}`;
+}
+
 app.get(['/uploadurl/:name', '/uploadurl'], async (req, res) => {
-    let filename = `${Date.now()}_${req.params.name || 'unamed.bin'}`;
+    let filename = `${makeDate()}/${Date.now()}_${req.params.name || 'unamed.bin'}`;
     console.log('filename: %s', filename);
     try {
         let url = await PresignedPutObject(config.targetBucket, filename);
