@@ -38,6 +38,9 @@
                     method: 'PUT',
                     body: file
                 });
+                if (res.status !== 200) {
+                    throw (await res.text());
+                }
             } catch (e) {
                 Logger('错误');
                 throw (e);
