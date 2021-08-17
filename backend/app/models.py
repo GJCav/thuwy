@@ -192,7 +192,7 @@ class SubRsvDelegator:
                 return cls.getInterval(rsv)
 
         raise TypeError(f'Unknown method: {rsv.method}')
-            
+
 
 class LongTimeRsv(SubRsvDelegator):
     methodValue = 1
