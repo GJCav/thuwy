@@ -822,14 +822,15 @@ def examRsv(rsv, json):
 
     pazz = json['pass']
     reason = json['reason']
-    rsv.reason = reason
+    rsv.examRst = reason
+    rsv.approver = session['openid']
 
     if pazz == 0:
         rsv.state = RsvState.COMPLETE_BY_REJECT
     elif pazz == 1:
         rsv.state = RsvState.STATE_START
     else:
-        return 
+        return ErrCode.CODE_ARG_INVALID
     
     try:
         db.session.commit()
