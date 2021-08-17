@@ -26,8 +26,11 @@ def todayStr() -> str:
 def clock(stamp) -> str:
     return time.strftime('%H:%M', time.localtime(stamp/1000))
 
-def daysAfter(d) -> int:
-    today = _todayStart()
+def daysAfter(d, stamp = None) -> int:
+    if stamp == None:
+        today = _todayStart()
+    else:
+        today = datetime.datetime.fromtimestamp(stamp / 1000)
     after = today + datetime.timedelta(days=d)
     return int(after.timestamp()*1000)
 

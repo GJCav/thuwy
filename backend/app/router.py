@@ -799,7 +799,7 @@ def modifyRsv(rsvId):
     json = request.get_json()
     op = json.get('op')
     if op == None: return ErrCode.CODE_ARG_MISSING
-    if CheckArgs.isInt(op): return ErrCode.CODE_ARG_TYPE_ERR
+    if not CheckArgs.isInt(op): return ErrCode.CODE_ARG_TYPE_ERR
 
     if   op == 1: return examRsv(rsv, json)
     elif op == 2: return completeRsv(rsv)
