@@ -59,7 +59,7 @@ Page({
       success:(res)=> {
         this.setData({
           thumbnail:res.tempFilePaths[0],
-          havepic:true
+          // havepic:true
         });
       },
       fail: (res)=>{
@@ -67,10 +67,9 @@ Page({
             title: '读取失败',
             icon: 'error'
           })
-          this.setData({
-            thumbnail:'',
-            havepic:false
-          });
+          // this.setData({
+          //   havepic:false
+          // });
         },
     })
   },

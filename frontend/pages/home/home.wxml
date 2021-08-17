@@ -44,22 +44,22 @@
     <van-tab title="历史记录"></van-tab>
 </van-tabs>
 <!-- 显示记录 -->
-<view class="total" wx:for="{{(activeTab==0)?success:((activeTab==1)?ongoing:history)}}" style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx">
+<view class="total" wx:for="{{(activeTab==0)?success:((activeTab==1)?ongoing:history)}}" wx:for-item="equip" style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx">
     <view class="detail">
-        <view class="which">{{item.item_name}}</view>
-        <view class="pic{{Math.colcal(item.state,activeTab)}}" hover-class="haspic{{Math.colcal(item.state,activeTab)}}"
-            style="text-align:center; width:30%; border-radius:20rpx" bindtap="showdetail" data-id="{{item.id}}" data-name="{{item['item_name']}}">
-            <text decode="{{true}}">{{colst[Math.colcal(item.state,activeTab)]}}&nbsp;&nbsp;></text>
+        <view class="which">设备名称：{{equip.name}}</view>
+        <view class="pic{{Math.colcal(equip.state,activeTab)}}" hover-class="haspic{{Math.colcal(equip.state,activeTab)}}"
+            style="text-align:center; width:30%; border-radius:20rpx" bindtap="showdetail" data-id="{{equip.id}}" data-name="{{equip.name}}">
+            <text decode="{{true}}">{{colst[Math.colcal(equip.state,activeTab)]}}&nbsp;&nbsp;></text>
         </view>
     </view>
     <view class="divline"></view>
     <view class="detail">
         <view style="width:50%">预约编号：</view>
-        <view style="width:50%;text-align:right">{{item.id}}</view>
+        <view style="width:50%;text-align:right">{{equip.id}}</view>
     </view>
     <view class="detail">
         <view style="width:50%">预约状态：</view>
-        <view style="width:50%;text-align:right">{{st[Math.cal(item.state,activeTab)]}}</view>
+        <view style="width:50%;text-align:right">{{st[Math.cal(equip.state,activeTab)]}}</view>
     </view>
 </view>
 <view style="font-weight:lighter;color:#999999;margin-top:50%;text-align: center" wx:if="{{success.length==0&&activeTab==0||ongoing.length==0&&activeTab==1||history.length==0&&activeTab==2}}">——暂无详细信息——</view>

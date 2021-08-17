@@ -36,10 +36,12 @@ App({
                   success: (res) => {
                     if (res.data.code == 0) {
                       this.globalData.isadmin = res.data.admin ? true : false
+                      this.globalData.complete=true
                       wx.hideLoading();
                     } else {
                       console.log(res.data.code, res.data.errmsg);
                       wx.hideLoading();
+                      this.globalData.complete=true
                       wx.showToast({
                         title: '信息读取失败',
                         icon: 'error',
@@ -50,6 +52,7 @@ App({
                   fail: (res) => {
                     console.log(res.data.code, res.data.errmsg);
                     wx.hideLoading()
+                    this.globalData.complete=true
                     wx.showToast({
                       title: '信息读取失败',
                       icon: 'error',
@@ -82,9 +85,11 @@ App({
     });
   },
   globalData: {
+    complete:false,
     login: false,
     isadmin: false,
     userInfo: false,
-    url: "http://api.weiyang.grw20.cn"
+    url: "http://api.weiyang.grw20.cn",
+    picurl:"http://static.weiyang.grw20.cn/api/"
   }
 })

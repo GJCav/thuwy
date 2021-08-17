@@ -22,7 +22,7 @@
   </van-col>
 </van-row>
 <!-- 测试专用 -->
-<view style="margin-top:50rpx">
+<view style="margin-top:50rpx" wx:if="{{false}}">
 <button style="margin-left:10%" bindtap="great" type="primary" size="mini">绑定</button>
 <button style="margin-left:10%" bindtap="better" type="primary" size="mini">登录</button>
 <button style="margin-left:10%" bindtap="evolve" type="primary" size="mini">管理员</button>

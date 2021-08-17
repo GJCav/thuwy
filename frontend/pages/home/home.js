@@ -47,11 +47,11 @@ Page({
                 success: (res) => {
                     if (res.data.code == 0) {
                         his_rsvs = res.data['my-rsv']
-                        //读取设备名称                        
+                        //读取设备名称       
                         for (let i in his_rsvs) {
                             let item = his_rsvs[i]
                             util.the_name(item['item-id']).then(function (value) {
-                                item.item_name = value                            
+                                item.name = value                            
                             }).catch(function (res) {
                                 reject(res)
                             })
@@ -88,7 +88,7 @@ Page({
                         for (let i in my_rsvs) {
                             let item = my_rsvs[i]
                             util.the_name(item['item-id']).then(function (value) {
-                                item.item_name = value
+                                item.name = value
                             }).catch(function (res) {
                                 reject(res)
                             })

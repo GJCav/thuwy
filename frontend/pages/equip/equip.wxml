@@ -1,7 +1,7 @@
 <!--pages/equip/equip.wxml-->
 <view>
   <view class="beauty">{{item_id==0?'添加预约设备':'修改预约设备'}}</view>
-  <view class="tips" style="margin-buttom:50rpx">——请完整填写以下信息——</view>
+  <view class="tips" style="margin-bottom:50rpx">——请完整填写以下信息——</view>
   <form bindsubmit="addit">
     <view class="after-title">
       <view class="tipbox">
@@ -21,7 +21,7 @@
         <checkbox-group bindchange="rsvmethod">
           <label class="option" wx:for="{{methods}}">
               <checkbox style="margin-left:20rpx;width:100%;height:100%;display:flex" value="{{item.value}}" checked="{{item.checked}}" disabled="{{!item.can}}">
-            <view style="{{(!item.can)?'color:#999999':''}}">{{item.name}}</view>
+            <view class="{{item.can?'optiontext1':'optiontext2'}}">{{item.name}}</view>
             </checkbox>
           </label>
         </checkbox-group>
@@ -35,8 +35,8 @@
       <view class="picbox">
         <image style="height:500rpx;width:500rpx" src="{{thumbnail}}" mode="widthFix" wx:if="{{havepic}}"></image>
       </view>
-      <button class="normal" hover-class="normals" style="height:80rpx;margin-top:30rpx" bindtap="choosepic" data-way="album">从相册中选择</button>
-      <button class="normal" hover-class="normals"  style="height:80rpx;margin-top:30rpx" bindtap="choosepic" data-way="camera">使用相机拍照</button>
+      <button class="normal" hover-class="normals" style="margin-top:30rpx" bindtap="choosepic" data-way="album">从相册中选择</button>
+      <button class="normal" hover-class="normals"  style="margin-top:30rpx" bindtap="choosepic" data-way="camera">使用相机拍照</button>
     </view>
     <view class="tipbox">
       <view class="labelbox">
@@ -44,7 +44,7 @@
         <text class="textbox">简要介绍：</text>
       </view>
       <view>
-        <textarea value="{{brief_intro}}" class="inputbox" style="height:120rpx" placeholder="请简述设备情况,不超过40个字符" bindblur="inputintro" />
+        <textarea value="{{brief_intro}}" class="inputbox" style="height:120rpx" placeholder="请简述设备情况,不超过40个字" bindblur="inputintro" />
       </view>
     </view>
     <view class="tipbox">
@@ -57,15 +57,15 @@
           bindblur="inputmd" />
       </view>
     </view>
-    <view class="tipbox" wx:if="{{item_id!==0}}">
+    <view class="tipbox" >
       <view class="labelbox">
         <image src="../../icon/can.png" class="icon"></image>
         <text class="textbox">能否使用：</text>
-        <switch style="margin-left:20%" checked="{{available}}" bindchange="inputcan"></switch>
+        <switch style="margin-left:10%" checked="{{available}}" bindchange="inputcan"></switch>
       </view>
     </view>
     <view style="margin-bottom:100rpx">
-      <button form-type="submit" type="primary" style="width:300rpx;height:80rpx;top:60rpx">提交</button>
+      <button form-type="submit" type="primary" style="width:280rpx;margin-top:80rpx;">提交</button>
     </view>
   </form>
 </view>

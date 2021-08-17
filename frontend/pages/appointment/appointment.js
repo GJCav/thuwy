@@ -14,7 +14,6 @@ Page({
     canIUseOpenData: false,
 
     servers: '',
-    loading: true,
     imgUrls: [
       'https://zos.alipayobjects.com/rmsportal/AiyWuByWklrrUDlFignR.png',
       'https://zos.alipayobjects.com/rmsportal/TekJlZRVCjLFexlOCuWn.png',

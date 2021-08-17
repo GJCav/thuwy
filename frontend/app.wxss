@@ -81,6 +81,16 @@ page {
   display: flex;
   height: 3rpx;
 }
+/* 物品信息显示公用格式 */
+.server-name {
+  color: black;
+  font-size: larger;
+  font-weight: bold;
+}
+.server-description {
+  color: #999999;
+  font-size: smaller;
+}
 /* 公用格式框 */
 .inputbox{
   width: 70%;

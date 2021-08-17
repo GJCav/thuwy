@@ -32,6 +32,8 @@
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{rsv_list1.length==0}}">
         ——暂无待审批预约——</view>
+        <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" bindtap="loadwait" wx:if="{{rsv_list1.length!=0}}">
+        点击加载更多</view>
     <view class="small_title">
         <view class="thetext">进行中预约</view>
         <view class="divline"></view>
@@ -57,6 +59,8 @@
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{rsv_list2.length==0}}">
         ——暂无进行中预约——</view>
+        <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" bindtap="loadgo" wx:if="{{rsv_list2.length!=0}}">
+        点击加载更多</view>
 </view>
 <!-- 管理设备 -->
 <view wx:if="{{activeTab==1}}">

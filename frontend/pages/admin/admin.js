@@ -31,28 +31,28 @@ Page({
       this.refresh_admin();
   },
   //封装信息读取函数
-  waiting() { //获取待审批预约
+  waiting(page) { //获取待审批预约
+    let that=this
     return new Promise(function (resolve, reject) {
       wx.showLoading({
         mask: true,
         title: '加载中',
       })
       var wait_rsvs = [];
-      var p = 0
       wx.request({
-        url: app.globalData.url + '/reservation/?&state=<state>',
+        url: app.globalData.url + '/reservation/?state=1&p='+page,
         header: {
           'content-type': 'application/json; charset=utf-8',
           'cookie': wx.getStorageSync('cookie')
-        },
-        data: {
-          state: 1
         },
         method: 'GET',
         success: (res) => {
           if (res.data.code == 0) {
             wait_rsvs = res.data.rsvs
-            p = res.data.page
+            that.setData({
+              p1 : res.data.page
+            })
+            console.log(wait_rsvs);
             //读取设备名称                        
             for (let i in wait_rsvs) {
               let item = wait_rsvs[i]
@@ -62,7 +62,7 @@ Page({
                 reject(res)
               })
             }
-            resolve(wait_rsvs, p)
+            resolve(wait_rsvs)
           } else {
             reject(res)
           }
@@ -73,38 +73,38 @@ Page({
       })
     })
   },
-  going() { //获取进行中预约
+  going(page) { //获取进行中预约
+    let that=this
     return new Promise(function (resolve, reject) {
       wx.showLoading({
         mask: true,
         title: '加载中',
       })
       var go_rsvs = []
-      var p = 0
       wx.request({
-        url: app.globalData.url + '/reservation/?&state=<state>',
+        url: app.globalData.url + '/reservation/?state=2&p='+page,
         header: {
           'content-type': 'application/json; charset=utf-8',
           'cookie': wx.getStorageSync('cookie')
-        },
-        data: {
-          state: 2
         },
         method: 'GET',
         success: (res) => {
           if (res.data.code == 0) {
             go_rsvs = res.data.rsvs
-            p = res.data.page
+            that.setData({
+              p2 : res.data.page
+            })
+            console.log(go_rsvs);
             //读取设备名称                        
             for (let i in go_rsvs) {
               let item = go_rsvs[i]
               util.the_name(item['item-id']).then(function (value) {
-                item.item_name = value
+                item.name = value
               }).catch(function (res) {
                 reject(res)
               })
             }
-            resolve(go_rsvs, p)
+            resolve(go_rsvs)
           } else {
             reject(res)
           }
@@ -122,13 +122,11 @@ Page({
       title: '加载中',
     })
     let that = this
-    that.waiting().then(function (res1, page1) { //读取待审批的预约
-      that.going().then(function (res2, page2) { //读取进行中的预约
+    that.waiting(1).then(function (res1) { //读取待审批的预约
+      that.going(1).then(function (res2) { //读取进行中的预约
         that.setData({   
           rsv_list1: res1,
           rsv_list2: res2,
-          p1: page1,
-          p2: page2
         })
         wx.hideLoading()
       }).catch(function(res) {
@@ -164,7 +162,7 @@ Page({
       success: (res) => {
         if (res.data.code == 0) {
           this.setData({
-            page: 2,
+            page: 1,
             sum: res.data['item-count'],
             item_list: res.data.items
           })
@@ -230,7 +228,7 @@ Page({
     })
   },
   onReachBottom: function () {
-    if (app.globalData.activeTab == 1) {
+    if (this.data.activeTab == 1) {
       wx.showLoading({
         mask: true,
         title: '加载中',
@@ -239,7 +237,7 @@ Page({
         wx.request({
           url: app.globalData.url + '/item?p=<page>/',
           data: {
-            p: this.data.page
+            p: this.data.page+1
           },
           method: 'GET',
           success: (res) => {
@@ -268,7 +266,6 @@ Page({
               icon: 'error',
               duration: 1500
             });
-            stop = true;
           }
         });
       } else {
@@ -303,6 +300,69 @@ Page({
         break;
     }
     this.refresh(this.data.activeTab)
+  },
+  //加载更多信息
+  loadwait(){
+    wx.showLoading({
+      mask: true,
+      title: '加载中',
+    })
+    let that=this
+    this.waiting(this.data.p1+1).then(function(res){
+      if(res=='')
+      {
+        wx.hideLoading()
+        wx.showToast({
+          title: '没有更多了',
+          icon: 'none',
+          duration: 1500
+        });
+      } else{
+        that.setData({
+          rsv_list1:that.data.rsv_list1.concat(res)
+        })
+        wx.hideLoading()
+      }
+    }).catch(function(res){
+      console.log(res)
+      wx.hideLoading();
+      wx.showToast({
+        title: '连接失败',
+        icon: 'error',
+        duration: 1500
+      });
+    })
+  },
+  loadgo(){
+    wx.showLoading({
+      mask: true,
+      title: '加载中',
+    })
+    let that=this
+    this.going(this.data.p2+1).then(function(res){
+      if(res=='')
+      {
+        wx.hideLoading()
+        wx.showToast({
+          title: '没有更多了',
+          icon: 'none',
+          duration: 1500
+        });
+      } else{
+        that.setData({
+          rsv_list2:that.data.rsv_list2.concat(res)
+        })
+        wx.hideLoading()
+      }
+    }).catch(function(res){
+      console.log(res.data.code, res.data.errmsg)
+      wx.hideLoading();
+      wx.showToast({
+        title: '连接失败',
+        icon: 'error',
+        duration: 1500
+      });
+    })
   },
   //审批预约
   showdetail(e) {
