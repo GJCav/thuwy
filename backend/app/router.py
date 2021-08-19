@@ -736,6 +736,10 @@ def querymyrsv():
             sql = sql.filter(Reservation.ed <= edId)
         except:
             return ErrCode.CODE_ARG_INVALID
+
+    state = request.args.get('state', None, type=int)
+    if state != None:
+        sql = sql.filter(Reservation.state.op('&')(state))
     
     rsvJsonArr = Models.mergeAndBeautify(sql.all())
     adminNames = {} # openid --> name
