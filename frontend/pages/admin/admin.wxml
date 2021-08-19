@@ -8,15 +8,15 @@
 <!-- 审批预约 -->
 <view wx:if="{{activeTab==0}}">
     <view class="small_title">
-        <view class="thetext">待审批预约</view>
+        <view class="thetext">待审批预约：</view>
         <view class="divline"></view>
     </view>
-    <view class="total" wx:for="{{rsv_list1}}"
-        style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx;">
+    <view class="total" wx:for="{{rsv_list1}}" wx:key="id"
+        style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx">
         <view class="detail">
-            <view class="which">预约设备：{{item['item-name']}}</view>
+            <view class="which">预约设备：{{item.name}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"
-                bindtap="showdetail" data-id="{{item.id}}" data-name="{{item['item-name']}}" data-value="2">
+                bindtap="showdetail" data-id="{{item.id}}" data-name="{{item.name}}" data-value="2">
                 详细信息
             </view>
         </view>
@@ -35,15 +35,15 @@
         <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" bindtap="loadwait" wx:if="{{rsv_list1.length!=0}}">
         点击加载更多</view>
     <view class="small_title">
-        <view class="thetext">进行中预约</view>
+        <view class="thetext">进行中预约：</view>
         <view class="divline"></view>
     </view>
-    <view class="total" wx:for="{{rsv_list2}}"
+    <view class="total" wx:for="{{rsv_list2}}" wx:key="id"
         style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx;">
         <view class="detail">
-            <view class="which">预约设备：{{item['item-name']}}</view>
+            <view class="which">预约设备：{{item.name}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"
-                bindtap="showdetail" data-id="{{item.id}}" data-name="{{item['item-name']}}" data-value="3">
+                bindtap="showdetail" data-id="{{item.id}}" data-name="{{item.name}}" data-value="3">
                 详细信息
             </view>
         </view>
@@ -64,15 +64,14 @@
 </view>
 <!-- 管理设备 -->
 <view wx:if="{{activeTab==1}}">
-    <view class="small_title">
-        <view class="thetext" style="width:100%;justify-content:center;color:#999999" bindtap="addequip"
-            hover-class="haveselect">
+    <view class="small_title" hover-class="haveselect" bindtap="addequip">
+        <view class="thetext" style="font-size:large;width:100%;justify-content:center;color:#999999" >
             <view class="square" style='background-image:url(../../icon/add.png)' />
             <text decode="{{true}}">&nbsp;&nbsp;添加新的预约设备</text>
         </view>
         <view class="divline"></view>
     </view>
-    <van-row custom-class="row" wx:for="{{item_list}}" wx:for-item="equip">
+    <van-row custom-class="row" wx:for="{{item_list}}" wx:key="id" wx:for-item="equip">
         <van-col span="4" offset="1">
             <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>
         </van-col>
@@ -90,10 +89,10 @@
 <!-- 调整管理员 -->
 <view wx:if="{{activeTab==2}}">
     <view class="small_title">
-        <view class="thetext">管理员申请</view>
+        <view class="thetext">管理员申请：</view>
         <view class="divline"></view>
     </view>
-    <view class="total" style="flex-direction:row" wx:for="{{be_list}}">
+    <view class="total" style="flex-direction:row" wx:for="{{be_list}}" wx:key="id">
         <view class="detail" style="flex-direction:column;width:70%;margin-left:3%">
             <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
                 <view style="width:25%;text-align:center">姓名：</view>
@@ -118,10 +117,10 @@
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{be_list.length==0}}">
         ——暂无申请信息——</view>
     <view class="small_title">
-        <view class="thetext">管理员名单</view>
+        <view class="thetext">管理员名单：</view>
         <view class="divline"></view>
     </view>
-    <view class="total" style="flex-direction:row" wx:for="{{admin_list}}">
+    <view class="total" style="flex-direction:row" wx:for="{{admin_list}}" wx:key="name">
         <view class="detail" style="flex-direction:column;width:70%;margin-left:3%">
             <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
                 <view style="width:25%;text-align:center">姓名：</view>

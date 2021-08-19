@@ -10,6 +10,8 @@ Page({
     p2: 0,
     rsv_list1: [],
     rsv_list2: [],
+    pan1: false,
+    pan2: false,
     item_list: [],
     be_list: [],
     admin_list: [],
@@ -32,7 +34,7 @@ Page({
   },
   //封装信息读取函数
   waiting(page) { //获取待审批预约
-    let that=this
+    let that = this
     return new Promise(function (resolve, reject) {
       wx.showLoading({
         mask: true,
@@ -40,7 +42,7 @@ Page({
       })
       var wait_rsvs = [];
       wx.request({
-        url: app.globalData.url + '/reservation/?state=1&p='+page,
+        url: app.globalData.url + '/reservation/?state=1&p=' + page,
         header: {
           'content-type': 'application/json; charset=utf-8',
           'cookie': wx.getStorageSync('cookie')
@@ -50,14 +52,21 @@ Page({
           if (res.data.code == 0) {
             wait_rsvs = res.data.rsvs
             that.setData({
-              p1 : res.data.page
+              p1: res.data.page,
             })
-            console.log(wait_rsvs);
+            if (page > 1 && wait_rsvs == '') {
+              that.setData({
+                pan2: true
+              })
+            }
             //读取设备名称                        
             for (let i in wait_rsvs) {
               let item = wait_rsvs[i]
               util.the_name(item['item-id']).then(function (value) {
-                item.item_name = value
+                item.name = value
+                that.setData({
+                  rsv_list1: that.data.rsv_list1.concat(item)
+                })
               }).catch(function (res) {
                 reject(res)
               })
@@ -74,7 +83,7 @@ Page({
     })
   },
   going(page) { //获取进行中预约
-    let that=this
+    let that = this
     return new Promise(function (resolve, reject) {
       wx.showLoading({
         mask: true,
@@ -82,7 +91,7 @@ Page({
       })
       var go_rsvs = []
       wx.request({
-        url: app.globalData.url + '/reservation/?state=2&p='+page,
+        url: app.globalData.url + '/reservation/?state=2&p=' + page,
         header: {
           'content-type': 'application/json; charset=utf-8',
           'cookie': wx.getStorageSync('cookie')
@@ -92,14 +101,21 @@ Page({
           if (res.data.code == 0) {
             go_rsvs = res.data.rsvs
             that.setData({
-              p2 : res.data.page
+              p2: res.data.page,
             })
-            console.log(go_rsvs);
+            if (page > 1 && go_rsvs == '') {
+              that.setData({
+                pan2: true
+              })
+            }
             //读取设备名称                        
             for (let i in go_rsvs) {
               let item = go_rsvs[i]
               util.the_name(item['item-id']).then(function (value) {
                 item.name = value
+                that.setData({
+                  rsv_list2: that.data.rsv_list2.concat(item)
+                })
               }).catch(function (res) {
                 reject(res)
               })
@@ -122,29 +138,29 @@ Page({
       title: '加载中',
     })
     let that = this
-    that.waiting(1).then(function (res1) { //读取待审批的预约
-      that.going(1).then(function (res2) { //读取进行中的预约
-        that.setData({   
-          rsv_list1: res1,
-          rsv_list2: res2,
-        })
+    that.setData({
+      rsv_list1: [],
+      rsv_list2: []
+    })
+    that.waiting(1).then(function () { //读取待审批的预约
+      that.going(1).then(function () { //读取进行中的预约
         wx.hideLoading()
-      }).catch(function(res) {
-          console.log(res.data.code,res.data.errmsg)
-          wx.hideLoading();
-          wx.showToast({
-              title: '连接失败',
-              icon: 'error',
-              duration: 1500
-          });
-      })
-    }).catch(function (res) {
-      console.log(res.data.code,res.data.errmsg)
-      wx.hideLoading();
-      wx.showToast({
+      }).catch(function (res) {
+        console.log(res.data.code, res.data.errmsg)
+        wx.hideLoading();
+        wx.showToast({
           title: '连接失败',
           icon: 'error',
           duration: 1500
+        });
+      })
+    }).catch(function (res) {
+      console.log(res.data.code, res.data.errmsg)
+      wx.hideLoading();
+      wx.showToast({
+        title: '连接失败',
+        icon: 'error',
+        duration: 1500
       });
     })
   },
@@ -237,7 +253,7 @@ Page({
         wx.request({
           url: app.globalData.url + '/item?p=<page>/',
           data: {
-            p: this.data.page+1
+            p: this.data.page + 1
           },
           method: 'GET',
           success: (res) => {
@@ -302,28 +318,25 @@ Page({
     this.refresh(this.data.activeTab)
   },
   //加载更多信息
-  loadwait(){
+  loadwait() {
     wx.showLoading({
       mask: true,
       title: '加载中',
     })
-    let that=this
-    this.waiting(this.data.p1+1).then(function(res){
-      if(res=='')
-      {
+    let that = this
+    this.setData({
+      pan1: false
+    })
+    this.waiting(this.data.p1 + 1).then(function () {
+      if (that.data.pan1 == false) {
         wx.hideLoading()
         wx.showToast({
           title: '没有更多了',
           icon: 'none',
           duration: 1500
-        });
-      } else{
-        that.setData({
-          rsv_list1:that.data.rsv_list1.concat(res)
         })
-        wx.hideLoading()
       }
-    }).catch(function(res){
+    }).catch(function (res) {
       console.log(res)
       wx.hideLoading();
       wx.showToast({
@@ -333,28 +346,22 @@ Page({
       });
     })
   },
-  loadgo(){
+  loadgo() {
     wx.showLoading({
       mask: true,
       title: '加载中',
     })
-    let that=this
-    this.going(this.data.p2+1).then(function(res){
-      if(res=='')
-      {
+    let that = this
+    this.going(this.data.p2 + 1).then(function () {
+      if (that.data.pan1 == false) {
         wx.hideLoading()
         wx.showToast({
           title: '没有更多了',
           icon: 'none',
           duration: 1500
-        });
-      } else{
-        that.setData({
-          rsv_list2:that.data.rsv_list2.concat(res)
         })
-        wx.hideLoading()
       }
-    }).catch(function(res){
+    }).catch(function (res) {
       console.log(res.data.code, res.data.errmsg)
       wx.hideLoading();
       wx.showToast({
@@ -376,7 +383,7 @@ Page({
   //管理设备
   addequip(e) {
     wx.navigateTo({
-      url: '../equip/equip?id=0',
+      url: '../equip/equip?id=0&sum='+this.data.sum,
     })
   },
   modify(e) {

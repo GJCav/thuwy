@@ -5,13 +5,14 @@ const app = getApp()
 Page({
   data: {
     item_id: 0,
+    item_num: 0,
     name: '',
     available: true,
     brief_intro: '',
     md_intro: '',
     rsv_method: 0,
     thumbnail: '',
-    havepic:false,
+    uploadurl: null,
     methods: [{
       value: 1,
       checked: false,
@@ -52,25 +53,22 @@ Page({
     })
     console.log(this.data.rsv_method)
   },
-  choosepic:function(e){
+  choosepic: function (e) {
     wx.chooseImage({
       count: 1,
       sourceType: e.currentTarget.dataset.way,
-      success:(res)=> {
+      success: (res) => {
         this.setData({
-          thumbnail:res.tempFilePaths[0],
-          // havepic:true
+          thumbnail: res.tempFilePaths[0],
         });
       },
-      fail: (res)=>{
+      fail: (res) => {
+        console.log(res.data.code, res.data.errmsg)
         wx.showToast({
-            title: '读取失败',
-            icon: 'error'
-          })
-          // this.setData({
-          //   havepic:false
-          // });
-        },
+          title: '读取失败',
+          icon: 'error'
+        })
+      },
     })
   },
   onLoad: function (options) {
@@ -90,7 +88,6 @@ Page({
         method: 'GET',
         success: (res) => {
           let those = res.data
-          console.log(those)
           if (those.code == 0) {
             this.setData({
               name: those.item.name,
@@ -148,11 +145,95 @@ Page({
       wx.setNavigationBarTitle({
         title: '添加设备'
       })
+      //获取上传地址
+      wx.showLoading({
+        mask: true,
+        title: '加载中',
+      })
+      this.setData({
+        item_num: parseInt(options.sum) + 1
+      })
+      wx.request({
+        url: app.globalData.picurl + '/uploadurl/:Item' + this.data.item_num,
+        method: 'GET',
+        header: {
+          'content-type': 'text/plain',
+        },
+        success: (res) => {
+          if (res.statusCode == 200) {
+            this.setData({
+              uploadurl: res.data
+            })
+            wx.hideLoading()
+          } else {
+            console.log(res.errMsg)
+            wx.hideLoading()
+            wx.showToast({
+              mask: true,
+              title: '连接失败',
+              icon: 'error',
+              duration: 1500
+            })
+            setTimeout(function () {
+              wx.navigateBack({
+                delta: 1
+              })
+            }, 1500)
+          }
+        },
+        fail: (res) => {
+          console.log(res.errMsg)
+          wx.hideLoading()
+          wx.showToast({
+            mask: true,
+            title: '连接失败',
+            icon: 'error',
+            duration: 1500
+          })
+          setTimeout(function () {
+            wx.navigateBack({
+              delta: 1
+            })
+          }, 1500)
+        }
+      })
     }
   },
   onShow() {
     wx.enableAlertBeforeUnload({
       message: '您确定要离开此页面吗？已经填写的信息将会丢失',
+    })
+  },
+  //封装上传文件
+  upfile(){
+    wx.request({
+      url: this.data.picurl,
+      data: this.data.thumbnail,
+      method:'PUT',
+      success: (res) => {
+        if (res.statusCode == 200) {
+          wx.hideLoading()
+        } else {
+          console.log(res.errMsg)
+          wx.hideLoading()
+          wx.showToast({
+            mask: true,
+            title: '连接失败',
+            icon: 'error',
+            duration: 1500
+          })
+        }
+      },
+      fail: (res) => {
+        console.log(res.errMsg)
+        wx.hideLoading()
+        wx.showToast({
+          mask: true,
+          title: '连接失败',
+          icon: 'error',
+          duration: 1500
+        })
+      }
     })
   },
   addit() {
@@ -168,113 +249,111 @@ Page({
         title: '提交中',
         mask: true
       })
-      //上传图片
-      // wx.uploadFile({
-      //   filePath: this.data.thumbnail,
-      //   name: 'name',
-      //   url: 'url',
-      // })
-      wx.request({
-        header: {
-          'content-type': 'application/json; charset=utf-8',
-          'cookie': wx.getStorageSync('cookie')
-        },
-        url: app.globalData.url + '/item/',
-        method: "POST",
-        data: {
-          name: that.name,
-          'brief-intro': that.brief_intro,
-          'md-intro': that.md_intro,
-          thumbnail: that.thumbnail,
-          'rsv-method': that.rsv_method
-        },
-        success: (res) => {
-          if (res.data.code == 0) {
+      this.upfile().then(function(){
+        wx.request({
+          header: {
+            'content-type': 'application/json; charset=utf-8',
+            'cookie': wx.getStorageSync('cookie')
+          },
+          url: app.globalData.url + '/item/',
+          method: "POST",
+          data: {
+            name: that.name,
+            'brief-intro': that.brief_intro,
+            'md-intro': that.md_intro,
+            thumbnail: that.thumbnail,
+            'rsv-method': that.rsv_method
+          },
+          success: (res) => {
+            if (res.data.code == 0) {
+              wx.hideLoading();
+              wx.showToast({
+                mask: true,
+                title: '添加成功',
+                icon: 'success',
+                duration: 1500
+              });
+              setTimeout(function () {
+                wx.navigateBack({
+                  delta: 1
+                })
+              }, 1500)
+            } else {
+              console.log(res.data.code, res.data.errmsg)
+              wx.hideLoading()
+              wx.showToast({
+                title: '连接错误',
+                icon: 'error',
+                duration: 1500
+              })
+            }
+          },
+          fail: (res) => {
+            console.log(res.data.code, res.data.errmsg)
             wx.hideLoading();
             wx.showToast({
-              mask: true,
-              title: '添加成功',
-              icon: 'success',
-              duration: 1500
-            });
-            setTimeout(function () {
-              wx.navigateBack({
-                delta: 1
-              })
-            }, 1500)
-          } else {
-            console.log(res.data.code, res.data.errmsg)
-            wx.hideLoading()
-            wx.showToast({
-              title: '连接错误',
+              title: '连接失败',
               icon: 'error',
               duration: 1500
-            })
+            });
           }
-        },
-        fail: (res) => {
-          console.log(res.data.code, res.data.errmsg)
-          wx.hideLoading();
-          wx.showToast({
-            title: '连接失败',
-            icon: 'error',
-            duration: 1500
-          });
-        }
-      })
+        })
+      })  
     } else {
       wx.showLoading({
         title: '提交中',
         mask: true
       })
-      wx.request({
-        header: {
-          'content-type': 'application/json; charset=utf-8',
-          'cookie': wx.getStorageSync('cookie')
-        },
-        url: app.globalData.url + '/item/' + that.item_id,
-        method: "POST",
-        data: {
-          name: that.name,
-          'brief-intro': that.brief_intro,
-          'md-intro': that.md_intro,
-          thumbnail: that.thumbnail,
-          'rsv-method': that.rsv_method,
-          available: that.available
-        },
-        success: (res) => {
-          if (res.data.code == 0) {
+      this.upfile().then(function(){
+        wx.request({
+          header: {
+            'content-type': 'application/json; charset=utf-8',
+            'cookie': wx.getStorageSync('cookie')
+          },
+          url: app.globalData.url + '/item/' + that.item_id,
+          method: "POST",
+          data: {
+            name: that.name,
+            'brief-intro': that.brief_intro,
+            'md-intro': that.md_intro,
+            thumbnail: that.thumbnail,
+            'rsv-method': that.rsv_method,
+            available: that.available
+          },
+          success: (res) => {
+            if (res.data.code == 0) {
+              wx.hideLoading();
+              wx.showToast({
+                mask: true,
+                title: '修改成功',
+                icon: 'success',
+                duration: 1500
+              });
+              setTimeout(function () {
+                wx.navigateBack({
+                  delta: 1
+                })
+              }, 1500)
+            } else {
+              console.log(res.data.code, res.data.errmsg)
+              wx.hideLoading()
+              wx.showToast({
+                title: '连接错误',
+                icon: 'error',
+                duration: 1500
+              })
+            }
+          },
+          fail: (res) => {
+            console.log(res.data.code, res.data.errmsg)
             wx.hideLoading();
             wx.showToast({
-              mask: true,
-              title: '修改成功',
-              icon: 'success',
-              duration: 1500
-            });
-            setTimeout(function () {
-              wx.navigateBack({
-                delta: 1
-              })
-            }, 1500)
-          } else {
-            console.log(res.data.code, res.data.errmsg)
-            wx.hideLoading()
-            wx.showToast({
-              title: '连接错误',
+              title: '连接失败',
               icon: 'error',
               duration: 1500
-            })
+            });
           }
-        },
-        fail: (res) => {
-          console.log(res.data.code, res.data.errmsg)
-          wx.hideLoading();
-          wx.showToast({
-            title: '连接失败',
-            icon: 'error',
-            duration: 1500
-          });
-        }
+        })
       })
     }
   }

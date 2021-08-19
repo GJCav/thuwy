@@ -33,7 +33,7 @@
 </view>
 
 <view class="total" style="margin-top: 150rpx;color:#777777">
-  <view class="repeat" wx:for="{{select}}" wx:if="{{item.condition}}">
+  <view class="repeat" wx:for="{{select}}" wx:key="text" wx:if="{{item.condition}}" >
     <view class="select" bindtap="{{item.go}}" hover-class="haveselect">
       <view style="width:40%">{{item.text}}</view>
       <view style="width:50%">

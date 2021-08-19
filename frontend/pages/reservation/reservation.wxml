@@ -1,4 +1,13 @@
 <!--pages/reservation/reservation.wxml-->
+<wxs module="Time">
+    module.exports = {
+        fix:function(str){
+          var text=['8:00-12:00','13:00-17:00','18:00-23:00','周末全天']
+          var t=parseInt(str.slice(-1))-1
+          return str.slice(0,-1)+text[t]
+        }
+    }
+</wxs>
 <view class="beauty">预约详细信息</view>
 <view class="tips">——请仔细核查以下信息——</view>
 <view class="detail-whole">
@@ -25,11 +34,12 @@
   </view>
   <view class="detail-list">
     <view style="font-weight:bold"> 预约方式：</view>
-    <view>{{rsv_detail==1?'固定时间段预约':'自由时间段预约'}}</view>
+    <view>{{rsv_detail.method==1?'固定时间段预约':'自由时间段预约'}}</view>
   </view>
   <view class="detail-list" style="flex-direction:column">
     <view style="font-weight:bold"> 预约时间：</view>
-    <view style="margin-left: 5%" wx:for="{{rsv_detail.interval}}">{{item}}</view>
+    <view style="margin-left: 5%" wx:for="{{rsv_detail.interval}}" wx:key="*this" wx:if="{{rsv_detail.method==1}}">{{Time.fix(item)}}</view>
+    <view style="margin-left: 5%" wx:if="{{rsv_detail.method==2}}">{{rsv_detail.interval}}</view>
   </view>
   <view class="detail-list" style="flex-direction:column">
     <view style="font-weight:bold"> 预约理由：</view>
@@ -40,7 +50,7 @@
     <view  style="margin-left: 5%" wx:if="{{who==0}}">{{rsv_detail['exam-rst']}}</view>
   </view>   
   <textarea class="inputbox" wx:if="{{who==2}}" style="height:150rpx;margin-top:20rpx" placeholder="请填写审批回复" bindblur="inputreason" />
-  <view class="detail-list" style="flex-direction:column" wx:if="{{who==0&&rsv_detail.approver!=null}}">
+  <view class="detail-list" wx:if="{{who==0&&rsv_detail.approver!=null}}">
     <view style="font-weight:bold"> 审批人：</view>
     <view>{{rsv_detail.approver}}</view>
   </view>

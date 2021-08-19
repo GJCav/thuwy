@@ -5,11 +5,11 @@
   <view class="detail-list" style="margin-left:10%;font-weight:bold">申请预约设备：{{name}}</view>
   <view class="detail-list" style="margin-left:10%;font-weight:bold">申请使用时间：</view>
   <checkbox-group bindchange="checkboxChange">
-    <view wx:for="{{ calendar }}" wx:for-item="items" wx:for-index="indexs" data-index="{{ index }}"
-      class='listItem {{index==currentIndex? "current":""}}' wx:key='' data-date="{{ item.date}}">
+    <view wx:for="{{ calendar }}" wx:key="week" wx:for-item="items" wx:for-index="indexs" data-index="{{ index }}"
+      class='listItem {{index==currentIndex? "current":""}}' data-date="{{ item.date}}">
       <view class="datetitle">{{ items.week }}（{{ items.date }}）</view>
       <view wx:for="{{items.week!='星期六'&& items.week!='星期日' ? items1:items2}}" wx:if="{{items.week!='星期六'}}"
-        wx:key="{{item.value}}">
+        wx:key="value">
         <view class="option">
           <checkbox style="margin-left:20rpx;width:100%;height:100%;display:flex" value="{{indexs}}{{item.value}}"
             disabled="{{!disable[indexs][item.value-1]}}">

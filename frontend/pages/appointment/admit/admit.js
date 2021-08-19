@@ -225,7 +225,6 @@ Page({
                 delta: 1
               })
             }, 1500)
-            wx.hideLoading();
           } else {
             console.log(res.data.code, res.data.errmsg)
             wx.hideLoading();
@@ -245,9 +244,6 @@ Page({
         }
       })
     }
-    this.setData({
-      loading: false,
-    })
   },
   checkboxChange(e) {
     console.log('选中时间为：', e.detail.value)

@@ -108,7 +108,7 @@ Page({
                 pass: 1,
                 reason: this.data.reason
               },
-              success: function (res) {
+              success:  (res)=> {
                 if (res.data.code == 0) {
                   wx.hideLoading();
                   wx.showToast({
@@ -172,7 +172,7 @@ Page({
                 pass: 0,
                 reason: this.data.reason
               },
-              success: function (res) {
+              success: (res)=> {
                 if (res.data.code == 0) {
                   wx.hideLoading();
                   wx.showToast({
@@ -233,7 +233,7 @@ Page({
             },
             url: app.globalData.url + "/reservation/" + this.data.rsvid,
             method: "DELETE",
-            success: function (res) {
+            success: (res)=> {
               if (res.data.code == 0) {
                 wx.hideLoading();
                 wx.showToast({
@@ -277,8 +277,8 @@ Page({
     console.log("refuse:" + this.data.rsvid)
     wx.showModal({
       title: '提示',
-      content: '确认要拒绝本次预约?',
-      success: function (res) {
+      content: '确认预约设备已归还?',
+      success: (res)=> {
         if (res.confirm) {
           wx.showLoading({
             mask: true,

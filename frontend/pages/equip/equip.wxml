@@ -19,7 +19,7 @@
           <text class="textbox">预约方式：</text>
         </view>
         <checkbox-group bindchange="rsvmethod">
-          <label class="option" wx:for="{{methods}}">
+          <label class="option" wx:for="{{methods}}" wx:key="value">
               <checkbox style="margin-left:20rpx;width:100%;height:100%;display:flex" value="{{item.value}}" checked="{{item.checked}}" disabled="{{!item.can}}">
             <view class="{{item.can?'optiontext1':'optiontext2'}}">{{item.name}}</view>
             </checkbox>

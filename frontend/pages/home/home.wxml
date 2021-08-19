@@ -5,13 +5,10 @@
             if (y == 1)
                 return 0
             else if (y == 0) {
-                if (parseInt(x / 2) % 2 == 1)
-                    return 2
-                else
-                    return 1
+                return 2
             }
             else {
-                if (x % 2 == 1 || parseInt(x / 8) % 2 == 1)
+                if (parseInt(x / 8) % 2 == 1)
                     return 3
                 else {
                     if (parseInt(x / 16) % 2 == 1)
@@ -39,12 +36,12 @@
 </wxs>
 <van-tabs active="{{ activeTab }}" custom-class="tabbar" swipeable="{{false}}" animated="{{true}}"
     bind:change="switchTab" z-index="0">
-    <van-tab title="已审批"></van-tab>
+    <van-tab title="进行中"></van-tab>
     <van-tab title="审批中"></van-tab>
-    <van-tab title="历史记录"></van-tab>
+    <van-tab title="已驳回/已结束"></van-tab>
 </van-tabs>
 <!-- 显示记录 -->
-<view class="total" wx:for="{{(activeTab==0)?success:((activeTab==1)?ongoing:history)}}" wx:for-item="equip" style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx">
+<view class="total" wx:for="{{(activeTab==0)?success:((activeTab==1)?ongoing:history)}}" wx:for-item="equip" wx:key="id" style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx" wx:if="{{equip.name!=''}}">
     <view class="detail">
         <view class="which">设备名称：{{equip.name}}</view>
         <view class="pic{{Math.colcal(equip.state,activeTab)}}" hover-class="haspic{{Math.colcal(equip.state,activeTab)}}"
