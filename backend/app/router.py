@@ -523,6 +523,8 @@ def getRsvList():
 
         if LongTimeRsv.isChildRsv(rsv):
             rsv = LongTimeRsv.getFatherRsv(rsv)
+            if state != None and not (rsv.state & state): # 父节点state更新，但子节点state不会更新，所以要多检测一遍
+                continue
 
         if LongTimeRsv.isFatherRsv(rsv):
             choreJson = Json.loads(rsv.chore)
