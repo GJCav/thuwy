@@ -1,6 +1,7 @@
 **/__pycache__/
 **/__pycache__
 venv/
+.pytest_cache/
 
 # Windows
 [Dd]esktop.ini

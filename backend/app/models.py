@@ -192,7 +192,7 @@ class SubRsvDelegator:
                 return cls.getInterval(rsv)
 
         raise TypeError(f'Unknown method: {rsv.method}')
-            
+
 
 class LongTimeRsv(SubRsvDelegator):
     methodValue = 1
@@ -261,11 +261,11 @@ class LongTimeRsv(SubRsvDelegator):
                 st = timestamp.dateToTimestamp(dateStr)
                 if timestamp.getWDay(st) != 6:
                     return (None, -1)  # means dateStr is invalid as it should be a Saturday.
-                ed = timestamp.daysAfter(st, 2)
+                ed = timestamp.daysAfter(2, st)
             else:
                 st = None
                 ed = -1
-        except:
+        except Exception as e:
             pass # this means the format of dateStr is wrong..
 
         return (st, ed)

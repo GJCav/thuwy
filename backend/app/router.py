@@ -523,6 +523,8 @@ def getRsvList():
 
         if LongTimeRsv.isChildRsv(rsv):
             rsv = LongTimeRsv.getFatherRsv(rsv)
+            if state != None and not (rsv.state & state): # 父节点state更新，但子节点state不会更新，所以要多检测一遍
+                continue
 
         if LongTimeRsv.isFatherRsv(rsv):
             choreJson = Json.loads(rsv.chore)
@@ -736,6 +738,10 @@ def querymyrsv():
             sql = sql.filter(Reservation.ed <= edId)
         except:
             return ErrCode.CODE_ARG_INVALID
+
+    state = request.args.get('state', None, type=int)
+    if state != None:
+        sql = sql.filter(Reservation.state.op('&')(state))
     
     rsvJsonArr = Models.mergeAndBeautify(sql.all())
     adminNames = {} # openid --> name
@@ -799,7 +805,7 @@ def modifyRsv(rsvId):
     json = request.get_json()
     op = json.get('op')
     if op == None: return ErrCode.CODE_ARG_MISSING
-    if CheckArgs.isInt(op): return ErrCode.CODE_ARG_TYPE_ERR
+    if not CheckArgs.isInt(op): return ErrCode.CODE_ARG_TYPE_ERR
 
     if   op == 1: return examRsv(rsv, json)
     elif op == 2: return completeRsv(rsv)
@@ -822,14 +828,15 @@ def examRsv(rsv, json):
 
     pazz = json['pass']
     reason = json['reason']
-    rsv.reason = reason
+    rsv.examRst = reason
+    rsv.approver = session['openid']
 
     if pazz == 0:
         rsv.state = RsvState.COMPLETE_BY_REJECT
     elif pazz == 1:
         rsv.state = RsvState.STATE_START
     else:
-        return 
+        return ErrCode.CODE_ARG_INVALID
     
     try:
         db.session.commit()
