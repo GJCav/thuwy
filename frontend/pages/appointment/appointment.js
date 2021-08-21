@@ -1,5 +1,4 @@
 // appointment.js
-// 获取应用实例
 const app = getApp()
 
 Page({
@@ -8,10 +7,7 @@ Page({
     page: 0,
     items: [],
 
-    userInfo: {},
-    hasUserInfo: false,
-    canIUseGetUserProfile: false,
-    canIUseOpenData: false,
+    complete: false,
 
     servers: '',
     imgUrls: [
@@ -20,6 +16,7 @@ Page({
       'https://zos.alipayobjects.com/rmsportal/IJOtIlfsYdTyaDTRVrLI.png',
     ],
   },
+  //触底加载更多信息
   onReachBottom() {
     wx.showLoading({
       mask: true,
@@ -70,12 +67,8 @@ Page({
       });
     }
   },
+  //初始化
   onLoad() {
-    if (wx.getUserProfile) {
-      this.setData({
-        canIUseGetUserProfile: true
-      })
-    }
     wx.setNavigationBarTitle({
       title: '预约设备'
     })
@@ -85,6 +78,32 @@ Page({
       mask: true,
       title: '加载中',
     })
+    if (!this.data.complete) {
+      let that=this
+      app.getUserInfo().then(function () {
+        that.setData({
+          complete:true
+        })
+        that.getitem()
+      }).catch(function(res){
+        console.log(res.data.code,res.data.errmsg)
+        wx.hideLoading()
+        wx.showToast({
+          title: '读取信息失败',
+          icon: 'error',
+          duration: 1500
+        })
+      })
+    } else {
+      wx.showLoading({
+        mask: true,
+        title: '加载中',
+      })
+      this.getitem()
+    }
+  },
+  //展示物品信息
+  getitem() {
     this.setData({
       items: []
     })

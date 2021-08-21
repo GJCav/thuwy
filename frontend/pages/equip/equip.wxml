@@ -4,14 +4,12 @@
   <view class="tips" style="margin-bottom:50rpx">——请完整填写以下信息——</view>
   <form bindsubmit="addit">
     <view class="after-title">
-      <view class="tipbox">
-        <view class="labelbox">
-          <image src="../../icon/equip.png" class="icon"></image>
-          <text class="textbox">设备名称：</text>
-        </view>
-        <view>
-          <input value="{{name}}" class="inputbox" placeholder="请填写设备名称" bindblur="inputname" />
-        </view>
+      <view class="labelbox">
+        <image src="../../icon/equip.png" class="icon"></image>
+        <text class="textbox">设备名称：</text>
+      </view>
+      <view>
+        <input value="{{name}}" class="inputbox" placeholder="请填写设备名称" bindblur="inputname" />
       </view>
       <view class="tipbox">
         <view class="labelbox">
@@ -20,49 +18,46 @@
         </view>
         <checkbox-group bindchange="rsvmethod">
           <label class="option" wx:for="{{methods}}" wx:key="value">
-              <checkbox style="margin-left:20rpx;width:100%;height:100%;display:flex" value="{{item.value}}" checked="{{item.checked}}" disabled="{{!item.can}}">
-            <view class="{{item.can?'optiontext1':'optiontext2'}}">{{item.name}}</view>
+            <checkbox style="margin-left:20rpx;width:100%;height:100%;display:flex" value="{{item.value}}"
+              checked="{{item.checked}}" disabled="{{!item.can}}">
+              <view class="{{item.can?'optiontext1':'optiontext2'}}">{{item.name}}</view>
             </checkbox>
           </label>
         </checkbox-group>
       </view>
     </view>
-    <view class="tipbox">
-      <view class="labelbox">
-        <image src="../../icon/pic.png" class="icon"></image>
-        <text class="textbox">设备图片：</text>
-      </view>
-      <view class="picbox">
-        <image style="height:500rpx;width:500rpx" src="{{thumbnail}}" mode="widthFix" wx:if="{{havepic}}"></image>
-      </view>
-      <button class="normal" hover-class="normals" style="margin-top:30rpx" bindtap="choosepic" data-way="album">从相册中选择</button>
-      <button class="normal" hover-class="normals"  style="margin-top:30rpx" bindtap="choosepic" data-way="camera">使用相机拍照</button>
+    <view class="labelbox">
+      <image src="../../icon/pic.png" class="icon"></image>
+      <text class="textbox">设备图片：</text>
     </view>
-    <view class="tipbox">
-      <view class="labelbox">
-        <image src="../../icon/brief.png" class="icon"></image>
-        <text class="textbox">简要介绍：</text>
-      </view>
-      <view>
-        <textarea value="{{brief_intro}}" class="inputbox" style="height:120rpx" placeholder="请简述设备情况,不超过40个字" bindblur="inputintro" />
-      </view>
+    <view class="picbox">
+      <image style="height:500rpx;width:500rpx" src="{{thumbnail}}" mode="widthFix" wx:if="{{havepic}}"></image>
     </view>
-    <view class="tipbox">
-      <view class="labelbox">
-        <image src="../../icon/md.png" class="icon"></image>
-        <text class="textbox">详细介绍：</text>
-      </view>
-      <view>
-        <textarea value="{{md_intro}}" class="inputbox" style="height:200rpx" placeholder="仅支持markdown格式"
-          bindblur="inputmd" />
-      </view>
+    <button class="normal" hover-class="normals" style="margin-top:30rpx" bindtap="choosepic"
+      data-way="album">从相册中选择</button>
+    <button class="normal" hover-class="normals" style="margin-top:30rpx" bindtap="choosepic"
+      data-way="camera">使用相机拍照</button>
+    <view class="labelbox">
+      <image src="../../icon/brief.png" class="icon"></image>
+      <text class="textbox">简要介绍：</text>
     </view>
-    <view class="tipbox" >
-      <view class="labelbox">
-        <image src="../../icon/can.png" class="icon"></image>
-        <text class="textbox">能否使用：</text>
-        <switch style="margin-left:10%" checked="{{available}}" bindchange="inputcan"></switch>
-      </view>
+    <view>
+      <textarea value="{{brief_intro}}" class="inputbox" style="height:120rpx" placeholder="请简述设备情况,不超过40个字"
+        bindblur="inputintro" />
+    </view>
+    <view class="labelbox">
+      <image src="../../icon/md.png" class="icon"></image>
+      <text class="textbox">详细介绍：</text>
+      <button class="normal" hover-class="normals" style="width:37%" bindtap="showmd">预览</button>
+    </view>
+    <view>
+      <textarea value="{{md_intro}}" class="inputbox" style="height:200rpx" placeholder="仅支持markdown格式"
+        bindblur="inputmd" />
+    </view>
+    <view class="labelbox">
+      <image src="../../icon/can.png" class="icon"></image>
+      <text class="textbox">能否使用：</text>
+      <switch style="margin-left:10%" checked="{{available}}" bindchange="inputcan"></switch>
     </view>
     <view style="margin-bottom:100rpx">
       <button form-type="submit" type="primary" style="width:280rpx;margin-top:80rpx;">提交</button>

@@ -25,6 +25,7 @@ Page({
       name: '自由时间段预约(未支持)'
     }]
   },
+  //输入保存各种信息
   inputname: function (e) {
     this.setData({
       name: e.detail.value
@@ -52,6 +53,10 @@ Page({
       rsv_method: sum
     })
     console.log(this.data.rsv_method)
+  },
+  //预览详细介绍（md格式）
+  showmd(){
+    
   },
   choosepic: function (e) {
     wx.chooseImage({
@@ -236,6 +241,7 @@ Page({
       }
     })
   },
+  //提交信息
   addit() {
     let that = this.data
     if (that.mame == '' || that.rsv_method == 0 || that.brief_intro == '' || that.thumbnail == '') {

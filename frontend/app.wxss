@@ -15,7 +15,7 @@ page {
 }
 .normal{
   background-color:rgb(230, 230, 230);
-  color: rgb(0, 0, 0);
+  color: #444444;
 }
 .normals{
   background-color: lightgray;

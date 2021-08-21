@@ -42,9 +42,9 @@ Page({
   },
   onShow() {
     this.setData({
-      'select[0].condition':app.globalData.isadmin,
-      'select[1].condition':!app.globalData.userInfo,
-      'select[2].condition':!app.globalData.isadmin
+      'select[0].condition': app.globalData.isadmin,
+      'select[1].condition': !app.globalData.userInfo,
+      'select[2].condition': !app.globalData.isadmin
     })
     if (app.globalData.login) {
       if (app.globalData.userInfo) {
@@ -136,12 +136,21 @@ Page({
             })
           } else {
             console.log(res.data.code, res.data.errmsg);
-            wx.hideLoading();
-            wx.showToast({
-              title: '申请失败',
-              icon: 'error',
-              duration: 1500,
-            })
+            if (res.data.code == 102) {
+              wx.hideLoading();
+              wx.showToast({
+                title: '请勿重复申请',
+                icon: 'error',
+                duration: 1500,
+              })
+            } else {
+              wx.hideLoading();
+              wx.showToast({
+                title: '提交申请失败',
+                icon: 'error',
+                duration: 1500,
+              })
+            }
           }
         },
         fail: (res) => {
@@ -163,7 +172,7 @@ Page({
       });
     }
   },
-  advice(){
+  advice() {
     wx.showToast({
       title: '功能尚未开通',
       icon: 'error',

@@ -3,7 +3,7 @@ const app = getApp()
 
 Page({
   data: {
-    disable: [],//无法预约的时间段
+    disable: [], //无法预约的时间段
     name: '',
     id: 0,
     reason: '',
@@ -66,7 +66,7 @@ Page({
     function calendar(date, week) {
       var y = cur_year;
       var m = cur_month;
-      var d = date;  
+      var d = date;
       if (d > monthLength) {
         if (m == 12) {
           y = y + 1;
@@ -78,7 +78,7 @@ Page({
           d = d - monthLength;
         }
       }
-      this.date =String(y) + ((m < 10) ? '-0' : '-') + String(m) + ((d < 10) ? '-0' : '-') + String(d);
+      this.date = String(y) + ((m < 10) ? '-0' : '-') + String(m) + ((d < 10) ? '-0' : '-') + String(d);
       this.week = '星期' + week;
     }
     //当前月份的天数
@@ -112,12 +112,14 @@ Page({
           for (var i = 0; i < this.data.calendar.length; ++i) { //枚举接下来七天的日期
             var the_date = this.data.calendar[i];
             for (var j = 0; j < res.data.rsvs.length; ++j) { //枚举未来七天内的预约
-              var rsv_time = res.data.rsvs[j].interval;
-              for (var k = 0; k < rsv_time.length; ++k) { //枚举具体的预约时间段
-                if (rsv_time[k].slice(0, -2) == the_date.date) {
-                  tmp[i][rsv_time[k].slice(-1) - 1] = false
-                  if (the_date.week == '星期六')
-                    tmp[i + 1][rsv_time[k].slice(-1) - 1] = false;
+              if (parseInt(res.data.rsvs[j].state / 4) % 2 == 0) {//判断预约是否已经结束
+                var rsv_time = res.data.rsvs[j].interval;
+                for (var k = 0; k < rsv_time.length; ++k) { //枚举具体的预约时间段
+                  if (rsv_time[k].slice(0, -2) == the_date.date) {
+                    tmp[i][rsv_time[k].slice(-1) - 1] = false
+                    if (the_date.week == '星期六')
+                      tmp[i + 1][rsv_time[k].slice(-1) - 1] = false;
+                  }
                 }
               }
             }
