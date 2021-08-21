@@ -27,7 +27,7 @@ class ProductionConfig(Config):
     def set(app):
         app.secret_key = os.urandom(24)
         
-config = ProductionConfig
+config = DevelopmentConfig
 skipLoginAndBind = False
 skipAdmin = False
 

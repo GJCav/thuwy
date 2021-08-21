@@ -18,6 +18,10 @@ rsvIdPool      = Snowflake(MACHINE_ID)
 itemIdPool     = Snowflake(MACHINE_ID)
 adminReqIdPool = Snowflake(MACHINE_ID)
 
-from .router import router
-app.register_blueprint(router)
 
+from .auth import authRouter
+from .item import itemRouter
+from .reservation import rsvRouter
+app.register_blueprint(authRouter)
+app.register_blueprint(itemRouter)
+app.register_blueprint(rsvRouter)

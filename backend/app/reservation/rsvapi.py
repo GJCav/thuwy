@@ -1,0 +1,448 @@
+from flask import request, session
+import json as Json
+import time as Time
+
+from . import rsvRouter
+
+from app import db, rsvIdPool, MACHINE_ID
+from app import comerrs as ErrCode
+from app.models import *
+import app.models as Models
+import app.checkargs as CheckArgs
+import app.rsvstate as RsvState
+from app.auth import requireAdmin, requireBinding, requireLogin
+import app.timetools as timestamp
+import app.snowflake as Snowflake
+
+@rsvRouter.route('/reservation/')
+@requireLogin
+@requireBinding
+@requireAdmin
+def getRsvList():
+
+    qry = db.session.query(Reservation)
+
+    st = request.args.get('st')
+    ed = request.args.get('ed')
+    state = request.args.get('state', None, type=int)
+    method = request.args.get('method', None, type=int)
+    p  = request.args.get('p', 1, type=int)
+
+    if st:
+        if not CheckArgs.isDate(st): return ErrCode.CODE_ARG_FORMAT_ERR
+        st = timestamp.parseDate(st)
+        qry = qry.filter(Reservation.st >= st)
+    
+    if ed and CheckArgs.isDate(ed):
+        if not CheckArgs.isDate(ed): return ErrCode.CODE_ARG_FORMAT_ERR
+        ed = timestamp.parseDate(ed)
+        qry = qry.filter(Reservation.ed < ed)
+
+    if state != None:
+        qry = qry.filter(Reservation.state.op('&')(state))
+
+    if method != None:
+        qry = qry.filter(Reservation.method == method)
+
+    qryRst = qry.limit(20).offset(20*(p-1)).all()
+
+    arr = []
+    groupRsvSet = set()
+    for rsv in qryRst:
+        if rsv.id in groupRsvSet:
+            continue
+
+        if LongTimeRsv.isChildRsv(rsv):
+            rsv = LongTimeRsv.getFatherRsv(rsv)
+            if state != None and not (rsv.state & state): # 父节点state更新，但子节点state不会更新，所以要多检测一遍
+                continue
+
+        if LongTimeRsv.isFatherRsv(rsv):
+            choreJson = Json.loads(rsv.chore)
+            groupRsvSet |= set(choreJson['group-rsv']['sub-rsvs'])
+            groupRsvSet.add(rsv.id)
+
+        arr.append(rsv.toDict())
+
+    rtn = {
+        'page': p,
+        'rsvs': arr
+    }
+    rtn.update(ErrCode.CODE_SUCCESS)
+
+    return rtn
+
+@rsvRouter.route('/reservation/', methods=['POST'])
+@requireLogin
+@requireBinding
+def reserve():
+    reqJson:dict = request.get_json()
+    if not reqJson or \
+        not CheckArgs.hasAttrs(reqJson, ['item-id', 'method', 'reason', 'interval']):
+
+        return ErrCode.CODE_ARG_MISSING
+
+    if not CheckArgs.areStr(reqJson, ['reason']) \
+        or not CheckArgs.areInt(reqJson, ['item-id', 'method']):
+
+        return ErrCode.CODE_ARG_TYPE_ERR
+
+
+    itemId = reqJson['item-id']
+    reason = reqJson['reason']
+    method = reqJson['method']
+
+    supportedMethod = Item.querySupportedMethod(itemId)
+    if supportedMethod == None:
+        return ErrCode.Rsv.CODE_ITEM_NOT_FOUND
+    if not CheckArgs.isPowOf2(method):
+        return ErrCode.Rsv.CODE_DUPLICATE_METHOD
+    if not supportedMethod & method:
+        return ErrCode.Rsv.CODE_METHOD_NOT_SUPPORT
+
+    if method == LongTimeRsv.methodValue:
+        if not isinstance(reqJson['interval'], list):
+            return ErrCode.CODE_ARG_TYPE_ERR
+        if len(reqJson['interval']) == 0:
+            return ErrCode.CODE_ARG_MISSING
+        
+        interval: list = reqJson['interval']
+        rsvGroup = []
+        for itl in interval:
+            st, ed = LongTimeRsv.parseInterval(itl)
+            if ed == None: return ErrCode.CODE_ARG_FORMAT_ERR # date str fmt error
+            elif ed == -1: return ErrCode.CODE_ARG_INVALID # date is not saturday, time code invalid
+
+            if st > timestamp.aWeekAfter() or ed < timestamp.now():
+                return ErrCode.Rsv.CODE_TIME_OUT_OF_RANGE
+
+            new = Models._Dict()
+            new.id = rsvIdPool.next()
+            new.st = st
+            new.ed = ed
+            new.itemId = itemId
+            new.chore = {'group-rsv': {}} # remember to cast to str
+            rsvGroup.append(new)
+        
+        rsvGroup[0].chore['group-rsv']['sub-rsvs'] = []
+        for i in range(1, len(rsvGroup)):
+            rsvGroup[0].chore['group-rsv']['sub-rsvs'].append(rsvGroup[i].id)
+            rsvGroup[i].chore['group-rsv']['fth-rsv'] = rsvGroup[0].id
+        
+        for cur, e in enumerate(rsvGroup):
+            if Reservation.hasTimeConflict(e):
+                return ErrCode.Rsv.CODE_TIME_CONFLICT
+            
+            for i in range(cur):    # 避免内部出现时间冲突，防止有尝试传入 ['2021-5-16 1', '2021-5-16 1'] 这种导致bug
+                if e.st <= rsvGroup[i].st < e.ed or\
+                   e.st < rsvGroup[i].ed < e.ed or\
+                   rsvGroup[i].st <= e.st and e.ed <=rsvGroup[i].ed:
+                   return ErrCode.Rsv.CODE_TIME_CONFLICT
+            
+
+        rsvGroup = [Reservation(
+                id = e.id,
+                itemId = itemId,
+                guest = session['openid'],
+                reason = reason,
+                method = method,
+                st = e.st,
+                ed = e.ed,
+                state = RsvState.STATE_WAIT,
+                approver = None,
+                examRst = None,
+                chore = Json.dumps(e.chore)
+            ) for e in rsvGroup]
+        db.session.add_all(rsvGroup)
+        
+        """ 不如改成上面这句话
+        for e in rsvGroup:
+            e.chore = Json.dumps(e.chore)
+            # db.session.add(e) # 太TM神奇了，直接用这一行，sqlachemy传入的chore还是dict类型的，上面那句话没用，但下面这么干又可以
+            db.session.add(Reservation(
+                id = e.id,
+                itemId = e.itemId,
+                guest = e.guest,
+                reason = e.reason,
+                method = e.method,
+                st = e.st,
+                ed = e.ed,
+                state = e.state,
+                approver = e.approver,
+                examRst = e.examRst,
+                chore = e.chore
+            ))
+        """
+        
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print('Error: ' + str(e))
+            return ErrCode.CODE_DATABASE_ERROR
+
+        rtn = {}
+        rtn.update(ErrCode.CODE_SUCCESS)
+        rtn['rsv-id'] = rsvGroup[0].id
+        return rtn
+
+    elif method == FlexTimeRsv.methodValue:
+        if not isinstance(reqJson['interval'], str):
+            return ErrCode.CODE_ARG_TYPE_ERR
+
+        interval = reqJson['interval']
+
+        st, ed = FlexTimeRsv.parseInterval(interval)
+        if ed == None:
+            return ErrCode.CODE_ARG_FORMAT_ERR
+        elif ed == -1:
+            return ErrCode.CODE_ARG_INVALID
+        
+        if st > timestamp.aWeekAfter() or ed < timestamp.now():
+                return ErrCode.Rsv.CODE_TIME_OUT_OF_RANGE
+
+        r = Reservation()
+        r.id = rsvIdPool.next()
+        r.itemId = itemId
+        r.guest = session['openid']
+        r.reason = reason
+        r.method = method
+        r.state = RsvState.STATE_WAIT
+        r.chore = ''
+        r.st, r.ed = st, ed
+
+        if r.hasTimeConflict():
+            return ErrCode.Rsv.CODE_TIME_CONFLICT
+
+        db.session.add(r)
+
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print('Error: ' + str(e))
+            return ErrCode.CODE_DATABASE_ERROR
+
+        rtn = {}
+        rtn.update(ErrCode.CODE_SUCCESS)
+        rtn['rsv-id'] = r.id
+        return rtn
+        
+    else:
+        return ErrCode.CODE_ARG_INVALID
+
+
+@rsvRouter.route('/reservation/me')
+@requireLogin
+def querymyrsv():
+    openid = session['openid']
+
+    def makeSnowId(date, flow):
+        sfTime = Snowflake.convertTimestamp(Time.mktime(Time.strptime(date, '%Y-%m-%d')))
+        return Snowflake.makeId(sfTime, MACHINE_ID, flow)
+
+    sql = db.session.query(
+        Reservation.id,     # 0
+        Reservation.method, 
+        Reservation.state,
+        Reservation.st,     # 3
+        Reservation.ed,
+        Reservation.chore,   # 6
+        Reservation.itemId,
+        Reservation.reason, # 8
+        Reservation.approver,
+        Reservation.examRst # 10
+    ).filter(Reservation.guest == openid)
+
+    st = request.args.get('st', None)
+    if st and CheckArgs.isDate(st):
+        try:
+            stId = makeSnowId(st, 0)
+            sql = sql.filter(Reservation.id >= stId)
+        except:
+            return ErrCode.CODE_ARG_INVALID
+    
+    ed = request.args.get('ed', None)
+    if ed and CheckArgs.isDate(ed):
+        try:
+            edId = makeSnowId(ed, 0)
+            sql = sql.filter(Reservation.ed <= edId)
+        except:
+            return ErrCode.CODE_ARG_INVALID
+
+    state = request.args.get('state', None, type=int)
+    if state != None:
+        sql = sql.filter(Reservation.state.op('&')(state))
+    
+    rsvJsonArr = mergeAndBeautify(sql.all())
+    adminNames = {} # openid --> name
+    adminNames[None] = None
+    qryRst = db.session\
+        .query(Admin.openid, User.name)\
+        .join(User, User.openid == Admin.openid) \
+        .all()
+    for row in qryRst:
+        adminNames[row.openid] = row.name
+
+    def _pcs(e):
+        nonlocal adminNames
+        del e['st']
+        del e['ed']
+        del e['chore']
+        e['exam-rst'] = e.pop('examRst')
+        e['item-id'] = e.pop('itemId')
+        e['approver'] = adminNames[e['approver']]
+        return e
+
+    rst = {}
+    rst.update(ErrCode.CODE_SUCCESS)
+    rst['my-rsv'] = [_pcs(e) for e in rsvJsonArr]
+    return rst
+
+
+@rsvRouter.route('/reservation/<int:rsvId>', methods=['GET'])
+def getRsvInfo(rsvId):
+    CODE_RSV_NOT_FOUND = {'code': 101, 'errmsg': 'reservation not found.'}
+
+    if rsvId < 0 or rsvId > (1<<65)-1:
+        return ErrCode.CODE_ARG_INVALID
+
+    rsv = Reservation.fromRsvId(rsvId)
+    if not rsv:
+        return CODE_RSV_NOT_FOUND
+
+    if rsv.method == LongTimeRsv.methodValue: rsv = LongTimeRsv.getFatherRsv(rsv)
+    
+    if   rsv.method == LongTimeRsv.methodValue: rsvJson = LongTimeRsv.toDict(rsv)
+    elif rsv.method == FlexTimeRsv.methodValue: rsvJson = FlexTimeRsv.toDict(rsv)
+    else: return ErrCode.CODE_DATABASE_ERROR # 如果执行这个分支，说明存在外部添加 Rsv 的行为，或代码出Bug
+
+    rtn = {'rsv': rsvJson}
+    rtn.update(ErrCode.CODE_SUCCESS)
+    return rtn
+
+
+
+@rsvRouter.route('/reservation/<int:rsvId>', methods=['POST'])
+@requireLogin
+@requireBinding
+@requireAdmin
+def modifyRsv(rsvId):
+    rsv: Reservation = Reservation.query \
+        .filter(Reservation.id == rsvId) \
+        .one_or_none()
+    
+    if not rsv: return ErrCode.Rsv.CODE_RSV_NOT_FOUND
+    json = request.get_json()
+    op = json.get('op')
+    if op == None: return ErrCode.CODE_ARG_MISSING
+    if not CheckArgs.isInt(op): return ErrCode.CODE_ARG_TYPE_ERR
+
+    if   op == 1: return examRsv(rsv, json)
+    elif op == 2: return completeRsv(rsv)
+    else: return ErrCode.CODE_SERVER_BUGS
+    
+def examRsv(rsv, json):
+    if RsvState.isStart(rsv.state)   : return ErrCode.Rsv.CODE_RSV_START
+    if RsvState.isReject(rsv.state)  : return ErrCode.Rsv.CODE_RSV_REJECTED
+    if RsvState.isComplete(rsv.state): return ErrCode.Rsv.CODE_RSV_COMPLETED
+
+    if not CheckArgs.hasAttrs(json, ['pass', 'reason']):
+        return ErrCode.CODE_ARG_MISSING
+    if not CheckArgs.areInt(json, ['pass']):
+        return ErrCode.CODE_ARG_TYPE_ERR
+    if not CheckArgs.areStr(json, ['reason']):
+        return ErrCode.CODE_ARG_TYPE_ERR
+
+    if rsv.method == LongTimeRsv.getFatherRsv:
+        rsv = LongTimeRsv.getFatherRsv(rsv)
+
+    pazz = json['pass']
+    reason = json['reason']
+    rsv.examRst = reason
+    rsv.approver = session['openid']
+
+    if pazz == 0:
+        rsv.state = RsvState.COMPLETE_BY_REJECT
+    elif pazz == 1:
+        rsv.state = RsvState.STATE_START
+    else:
+        return ErrCode.CODE_ARG_INVALID
+    
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return ErrCode.CODE_DATABASE_ERROR
+
+    return ErrCode.CODE_SUCCESS
+
+def completeRsv(rsv):
+    if RsvState.isWait(rsv.state): return ErrCode.Rsv.CODE_RSV_WAITING
+    if RsvState.isComplete(rsv.state): return ErrCode.Rsv.CODE_RSV_COMPLETED
+    if not RsvState.isStart(rsv.state): return ErrCode.CODE_SERVER_BUGS
+
+    rsv.state = RsvState.STATE_COMPLETE
+    try:
+        db.session.commit()
+    except Exception as e:
+        print(e)
+        return ErrCode.CODE_DATABASE_ERROR
+
+    return ErrCode.CODE_SUCCESS
+
+@rsvRouter.route('/reservation/<int:rsvId>', methods=['DELETE'])
+@requireLogin
+@requireBinding
+def cancelRsv(rsvId):
+    
+    rsv: Reservation = Reservation.query \
+        .filter(Reservation.id == rsvId) \
+        .one_or_none()
+    
+    if not rsv                       : return ErrCode.Rsv.CODE_RSV_NOT_FOUND
+    if RsvState.isReject(rsv.state)  : return ErrCode.Rsv.CODE_RSV_REJECTED
+    if RsvState.isComplete(rsv.state): return ErrCode.Rsv.CODE_RSV_COMPLETED
+    
+    now = timestamp.now()
+    isBegan = (rsv.st <= now <= rsv.ed)
+
+    if not isBegan and rsv.method == LongTimeRsv.methodValue:
+        rsv = LongTimeRsv.getFatherRsv(rsv)
+        choreJson: dict = Json.loads(rsv.chore)
+        subRsvIdArr = choreJson['group-rsv'].get('sub-rsvs', [])
+        for subRsvId in subRsvIdArr:
+            st, ed = db.session.query(Reservation.st, Reservation.ed) \
+                .filter(Reservation.id == subRsvId) \
+                .one()
+            if st <= now <= ed:
+                isBegan = True
+                break
+    
+    if isBegan: return ErrCode.Rsv.CODE_RSV_START
+
+    # def toFthRsv(rsv: Reservation) -> Reservation:
+    #     choreJson: dict = Json.loads(rsv.chore)
+    #     if 'fth-rsv' not in choreJson['group-rsv']:
+    #         return rsv
+    #     else:
+    #         fthId = choreJson['group-rsv']['fth-rsv']
+    #         return Reservation.query.filter(Reservation.id == fthId).one()
+
+    rsv.state = RsvState.COMPLETE_BY_CANCEL
+
+    if rsv.method == LongTimeRsv.methodValue:
+        choreJson: dict = Json.loads(rsv.chore)
+        subRsvIdArr = choreJson['group-rsv']['sub-rsvs']
+        for subRsvId in subRsvIdArr:
+            db.session\
+                .query(Reservation)\
+                .filter(Reservation.id == subRsvId)\
+                .update({'state': RsvState.COMPLETE_BY_CANCEL})
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return ErrCode.CODE_DATABASE_ERROR
+    return ErrCode.CODE_SUCCESS
