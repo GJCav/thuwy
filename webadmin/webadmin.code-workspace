@@ -1,0 +1,28 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"vetur.format.defaultFormatterOptions": {
+			"js-beautify-html": {
+				// force-aligned | force-expand-multiline
+				//   "wrap_attributes": "force-aligned"
+			},
+			"prettyhtml": {
+				//   "printWidth": 100,
+				//   "singleQuote": false,
+				//   "wrapAttributes": false,
+				//   "sortAttributes": true
+			},
+			"prettier": {
+				"semi": true, // 是否自动加分号
+				"singleQuote": true // 是否格式化为单引号
+			}
+		}
+	}
+}
