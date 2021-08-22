@@ -97,6 +97,16 @@ def requireLogin(handler):
             return handler(*args, **kwargs)
     return inner
 
+def didilogin():
+    if skipLoginAndBind and not session.get('openid'):
+        return 'skipped'
+    if not session.get('openid'):
+        return 'no'
+    elif not User.fromOpenid(session.get('openid')):
+        return 'yes but database lost your record.'
+    else:
+        return 'yes'
+
 def requireBinding(handler):
     @functools.wraps(handler)
     def inner(*args, **kwargs):
@@ -112,6 +122,20 @@ def requireBinding(handler):
             return handler(*args, **kwargs)
     return inner
 
+def didibind():
+    if didilogin() == 'skipped':
+        return 'skipped'
+    if 'no' in didilogin():
+        return 'no and check your login state'
+    openid = session['openid']
+    schoolId = db.session.query(User.schoolId).filter(User.openid == openid).one_or_none()
+    if not schoolId:
+        return 'no and database lost your record'
+    if not schoolId[0]:
+        return 'no'
+    else:
+        return 'yes'
+
 def requireAdmin(handler):
     @functools.wraps(handler)
     def inner(*args, **kwargs):
@@ -125,6 +149,14 @@ def requireAdmin(handler):
         else:
             return ErrCode.CODE_NOT_ADMIN
     return inner
+
+def amiadmin():
+    if didilogin() != 'yes': return 'no and you did not login'
+    if didibind() != 'yes': return 'no and you did not bind'
+    openid = session['openid']
+    exist = db.session.query(Admin.openid).filter(Admin.openid == openid).one_or_none()
+    if exist: return 'yes'
+    else: return 'no'
 
 @authRouter.route('/bind/', methods=['POST'])
 @requireLogin
