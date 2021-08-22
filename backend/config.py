@@ -31,7 +31,8 @@ class ProductionConfig(Config):
         
 config = ProductionConfig
 skipLoginAndBind = False
-skipAdmin = True
+skipAdmin = False
+userSysName = 'system'  # 默认添加一个 system 管理员，处理定时任务
 
 WX_APP_ID = 'wx7bfe035eee90419b'
 WX_APP_SECRET = '51ed227eed49319fa6474bc79559dc2f'

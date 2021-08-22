@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
+from flask_apscheduler import APScheduler
 import config
 from config import MACHINE_ID
 from .snowflake import Snowflake
@@ -11,8 +12,14 @@ app.config.from_object(cfg)
 cfg.set(app)
 
 db = SQLAlchemy(app, use_native_unicode='utf8')
-from .models import Admin, User, Item, Reservation
+from . import models as Models
 db.create_all()
+Models.init_db()
+
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+from . import jobs
 
 rsvIdPool      = Snowflake(MACHINE_ID)
 itemIdPool     = Snowflake(MACHINE_ID)
