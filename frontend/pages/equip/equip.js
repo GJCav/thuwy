@@ -262,7 +262,7 @@ Page({
         icon: 'error',
         duration: 1500
       })
-    } else if (that.item_id == 0) {
+    } else if (that.item_id == 0) {//添加物品
       wx.showLoading({
         title: '提交中',
         mask: true
@@ -295,6 +295,9 @@ Page({
                 wx.navigateBack({
                   delta: 1
                 })
+                let pages = getCurrentPages();
+                let prevPage = pages[pages.length - 2];
+                prevPage.refresh()
               }, 1500)
             } else {
               console.log(res.data.code, res.data.errmsg)
@@ -325,7 +328,7 @@ Page({
           duration: 1500
         })
       })
-    } else {
+    } else {//修改物品
       wx.showLoading({
         title: '提交中',
         mask: true

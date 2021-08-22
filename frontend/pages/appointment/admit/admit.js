@@ -107,15 +107,16 @@ Page({
       x++;
     }
     var t = that.data.calendar[cur_date].week
-    var flag = that.data.calendar.slice(cur_date, cur_date + 7)
-    for (var i = 0; i < 7; ++i) {
+    var flag = that.data.calendar.slice(cur_date, cur_date + 8)
+    for (var i = 0; i < 8; ++i) {
       let item = flag[i]
       item.whole = item.date + '（' + item.week + '）'
     }
     that.setData({
-      flex_calendar: flag,
-      calendar: flag.slice((t == '星期六' ? 2 : (t == '星期日') ? 1 : 0), (t == '星期六' ? 2 : (t == '星期日') ? 1 : 0) + (t == '星期六' ? 5 : (t == '星期日') ? 6 : 7))
+      flex_calendar: flag.slice(0, 7),
+      calendar: flag.slice((t == '星期六' ? 2 : (t == '星期日') ? 1 : 0), (t == '星期六' ? 2 : (t == '星期日') ? 1 : 0) + (t == '星期六' ? 5 : 7))
     })
+    console.log(that.data.calendar)
     that.getitem().then(function () {
       that.getrsvs().then(function () {
         wx.hideLoading()
@@ -215,7 +216,7 @@ Page({
   //输入预约信息
   inputmethod(e) {
     this.setData({
-      choose_method: e.detail.value
+      choose_method: parseInt(e.detail.value)
     });
   },
   inputwhy: function (e) {
@@ -301,7 +302,7 @@ Page({
       data: {
         'item-id': this.data.id,
         reason: this.data.reason,
-        method: this.date.choose_method,
+        method: this.data.choose_method,
         interval: this.data.list
       },
       success: function (res) {
@@ -320,12 +321,21 @@ Page({
             })
           }, 1500)
         } else {
-          console.log(res.data.code, res.data.errmsg)
-          wx.hideLoading();
-          wx.showToast({
-            title: '提交失败',
-            icon: 'error'
-          })
+          if (res.data.code == 102) {
+            wx.hideLoading();
+            wx.showToast({
+              title: '超出可预约时间',
+              icon: 'error'
+            })
+          } else {
+            console.log(res.data.code, res.data.errmsg)
+            wx.hideLoading();
+            wx.showToast({
+              title: '提交失败',
+              icon: 'error'
+            })
+          }
+
         }
       },
       fail: function (res) {

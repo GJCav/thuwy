@@ -5,7 +5,9 @@
   <view class="detail-list" style="margin-left:10%;font-weight:bold">申请预约设备：{{name}}</view>
   <view class="detail-list" style="margin-left:10%;font-weight:bold">设备详细信息：</view>
   <view style="margin-left:10%;margin-right:10%;margin-top:20rpx;border:2px solid #dddddd;">
+  <view style="margin-left:2%;margin-right:2%">
     <wemark md="{{md_intro}}" link highlight type="wemark"></wemark>
+    </view>
   </view>
   <view class="detail-list" style="margin-left:10%;font-weight:bold">选择预约方式：</view>
   <radio-group class="detail-list" style="margin-left:15%" bindchange="inputmethod">

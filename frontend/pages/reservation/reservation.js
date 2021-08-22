@@ -31,6 +31,7 @@ Page({
           this.setData({
             rsv_detail: res.data.rsv,
           })
+          console.log(res.data.rsv)
           wx.hideLoading()
         } else {
           console.log(res.data.code, res.data.errmsg);
@@ -213,7 +214,6 @@ Page({
               }
             })
           }
-
         } else if (res.cancel) {
           console.log('用户点击取消')
         }
