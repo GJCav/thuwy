@@ -1,6 +1,3 @@
-from operator import and_
-
-from werkzeug.datastructures import is_immutable
 
 from app import db
 from sqlalchemy import or_, and_
@@ -12,6 +9,7 @@ import os
 
 from . import timetools as timestamp
 from app import snowflake as Snowflake
+from config import userSysName
 
 # db: SQLAlchemy
 # class Student(db.Model):
@@ -443,6 +441,23 @@ class AdminRequest(db.Model):
             # 'state': self.state,
             'reason': self.reason
         }
+
+def init_db():
+    with db.app.app_context():
+        userSys = User.fromOpenid(userSysName)
+        if not userSys:
+            userSys = User(userSysName)
+            userSys.name = userSysName
+            userSys.schoolId = userSysName
+            userSys.clazz = userSysName
+            db.session.add(userSys)
+        adminSys = Admin.fromId(userSysName)
+        if not adminSys:
+            adminSys = Admin()
+            adminSys.openid = userSysName
+            db.session.add(adminSys)
+        db.session.commit()
+    pass
 
 # 太TM神奇了，python的dict没有__dict__属性，不能动态添加属性，如：
 #   a = {}
