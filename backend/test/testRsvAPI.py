@@ -286,7 +286,7 @@ def _beforeSaturday():
     return T.getWDay(T.today()) < 6
 
 
-@pytest.mark.skipif(not _beforeSaturday(), reason='no chance to reserve weekend not')
+@pytest.mark.skipif(not _beforeSaturday(), reason='no chance to reserve weekend now')
 def testReserveWeekend():
     for i in range(7):
         if T.getWDay(T.daysAfter(i)) == 6:

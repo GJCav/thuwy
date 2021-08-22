@@ -1,7 +1,9 @@
 import os
+import datetime
 
 class Config():
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=3)
 
     def set(app):
         pass
@@ -29,7 +31,7 @@ class ProductionConfig(Config):
         
 config = ProductionConfig
 skipLoginAndBind = False
-skipAdmin = False
+skipAdmin = True
 
 WX_APP_ID = 'wx7bfe035eee90419b'
 WX_APP_SECRET = '51ed227eed49319fa6474bc79559dc2f'
