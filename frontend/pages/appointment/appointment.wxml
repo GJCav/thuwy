@@ -4,7 +4,7 @@
   next-margin="60px">
   <block wx:for="{{imgUrls}}" wx:key="*this">
     <swiper-item class="slide-wrapper">
-      <image src="{{item}}" class="slide-image" width="375" height="150" />
+      <image src="{{item}}" class="slide-image" />
     </swiper-item>
   </block>
 </swiper>

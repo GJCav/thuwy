@@ -12,7 +12,7 @@ Page({
     servers: '',
     imgUrls: [
       'https://zos.alipayobjects.com/rmsportal/AiyWuByWklrrUDlFignR.png',
-      'https://zos.alipayobjects.com/rmsportal/TekJlZRVCjLFexlOCuWn.png',
+      '../../image/蓝色宣传图.png',
       'https://zos.alipayobjects.com/rmsportal/IJOtIlfsYdTyaDTRVrLI.png',
     ],
   },

@@ -2,7 +2,7 @@
 <wxs module="Time">
     module.exports = {
         fix:function(str){
-          var text=['8:00-12:00','13:00-17:00','18:00-23:00','周末全天']
+          var text=['08:00-12:00','13:00-17:00','18:00-23:00','周末全天']
           var t=parseInt(str.slice(-1))-1
           return str.slice(0,-1)+text[t]
         }
