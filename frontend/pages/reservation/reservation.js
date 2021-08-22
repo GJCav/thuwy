@@ -108,7 +108,7 @@ Page({
                 pass: 1,
                 reason: this.data.reason
               },
-              success:  (res)=> {
+              success: (res) => {
                 if (res.data.code == 0) {
                   wx.hideLoading();
                   wx.showToast({
@@ -121,6 +121,9 @@ Page({
                     wx.navigateBack({
                       delta: 1
                     })
+                    let pages = getCurrentPages();
+                    let prevPage = pages[pages.length - 2];
+                    prevPage.refresh()
                   }, 1500)
                 } else {
                   console.log(res.data.code, res.data.errmsg);
@@ -153,7 +156,7 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确认要拒绝本次预约?',
-      success: (res)=> {
+      success: (res) => {
         if (res.confirm) {
           if (this.pan()) {
             wx.showLoading({
@@ -172,7 +175,7 @@ Page({
                 pass: 0,
                 reason: this.data.reason
               },
-              success: (res)=> {
+              success: (res) => {
                 if (res.data.code == 0) {
                   wx.hideLoading();
                   wx.showToast({
@@ -185,6 +188,9 @@ Page({
                     wx.navigateBack({
                       delta: 1
                     })
+                    let pages = getCurrentPages();
+                    let prevPage = pages[pages.length - 2];
+                    prevPage.refresh()
                   }, 1500)
                 } else {
                   console.log(res.data.code, res.data.errmsg);
@@ -233,7 +239,7 @@ Page({
             },
             url: app.globalData.url + "/reservation/" + this.data.rsvid,
             method: "DELETE",
-            success: (res)=> {
+            success: (res) => {
               if (res.data.code == 0) {
                 wx.hideLoading();
                 wx.showToast({
@@ -246,6 +252,9 @@ Page({
                   wx.navigateBack({
                     delta: 1
                   })
+                  let pages = getCurrentPages();
+                  let prevPage = pages[pages.length - 2];
+                  prevPage.refresh()
                 }, 1500)
               } else {
                 console.log(res.data.code, res.data.errmsg);
@@ -278,7 +287,7 @@ Page({
     wx.showModal({
       title: '提示',
       content: '确认预约设备已归还?',
-      success: (res)=> {
+      success: (res) => {
         if (res.confirm) {
           wx.showLoading({
             mask: true,
@@ -308,6 +317,9 @@ Page({
                   wx.navigateBack({
                     delta: 1
                   })
+                  let pages = getCurrentPages();
+                  let prevPage = pages[pages.length - 2];
+                  prevPage.refresh()
                 }, 1500)
               } else {
                 console.log(res.data.code, res.data.errmsg);

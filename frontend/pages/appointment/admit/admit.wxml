@@ -3,11 +3,26 @@
 <view class="tips" style="margin-bottom:50rpx">——请确认预约信息——</view>
 <form bindsubmit="appoint">
   <view class="detail-list" style="margin-left:10%;font-weight:bold">申请预约设备：{{name}}</view>
+  <view class="detail-list" style="margin-left:10%;font-weight:bold">设备详细信息：</view>
+  <view style="margin-left:10%;margin-right:10%;margin-top:20rpx;border:2px solid #dddddd;">
+    <wemark md="{{md_intro}}" link highlight type="wemark"></wemark>
+  </view>
+  <view class="detail-list" style="margin-left:10%;font-weight:bold">选择预约方式：</view>
+  <radio-group class="detail-list" style="margin-left:15%" bindchange="inputmethod">
+    <label>
+      <radio value="1" class="{{(rsv_method%2==0)?'optiontext2':'optiontext1'}}" disabled="{{rsv_method%2==0}}">固定预约
+      </radio>
+    </label>
+    <label style="margin-left:15%">
+      <radio value="2" class="{{(rsv_method/2<1)?'optiontext2':'optiontext1'}}" disabled="{{rsv_method/2<1}}">自由预约
+      </radio>
+    </label>
+  </radio-group>
   <view class="detail-list" style="margin-left:10%;font-weight:bold">申请使用时间：</view>
-  <checkbox-group bindchange="checkboxChange">
+  <checkbox-group bindchange="checkboxChange" wx:if="{{choose_method==1}}">
     <view wx:for="{{ calendar }}" wx:key="week" wx:for-item="items" wx:for-index="indexs" data-index="{{ index }}"
-      class='listItem {{index==currentIndex? "current":""}}' data-date="{{ item.date}}">
-      <view class="datetitle">{{ items.week }}（{{ items.date }}）</view>
+      class='listItem {{index==currentIndex? "current":""}}' data-date="{{item.date}}">
+      <view class="datetitle">{{items.whole}}</view>
       <view wx:for="{{items.week!='星期六'&& items.week!='星期日' ? items1:items2}}" wx:if="{{items.week!='星期六'}}"
         wx:key="value">
         <view class="option">
@@ -19,9 +34,30 @@
       </view>
     </view>
   </checkbox-group>
+  <view wx:if="{{choose_method==2}}">
+    <view class="datetitle">请选择预约日期：</view>
+    <picker value="{{date_index}}" range="{{flex_calendar}}" range-key="whole" bindchange="date_change">
+      <view class="option" style="display:flex;justify-content:center">
+        {{flex_calendar[date_index].whole}}
+      </view>
+    </picker>
+    <view class="datetitle">以下时间段已被预约：</view>
+
+    <view class="datetitle">请选择预约时间段：</view>
+    <picker mode="time" value="{{st_index}}" st="00:00" ed="23:59" bindchange="st_change">
+      <view class="option" style="display:flex;justify-content:center">
+        预约开始时间：{{st_index}}
+      </view>
+    </picker>
+    <picker mode="time" value="{{ed_index}}" st="00:00" ed="23:59" bindchange="ed_change">
+      <view class="option" style="display:flex;justify-content:center">
+        预约结束时间：{{ed_index}}
+      </view>
+    </picker>
+  </view>
   <view class="detail-list" style="margin-left:10%;font-weight:bold;margin-top:30rpx">申请预约理由：</view>
   <view style="margin-top:30rpx">
-    <textarea  class="inputbox" placeholder="请简述预约设备用途" bindblur="inputwhy" />
+    <textarea class="inputbox" placeholder="请简述预约设备用途" bindblur="inputwhy" />
   </view>
   <button form-type="submit" type="primary" style="margin-bottom:50rpx;margin-top:50rpx">提交预约</button>
 </form>

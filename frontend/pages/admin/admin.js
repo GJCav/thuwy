@@ -20,11 +20,10 @@ Page({
     wx.setNavigationBarTitle({
       title: '系统管理'
     })
+    this.refresh()
   },
-  onShow: function () {
-    this.refresh(this.data.activeTab)
-  },
-  refresh: function (t) {
+  refresh: function () {
+    var t=this.data.activeTab
     if (t == 0)
       this.refresh_rsv();
     else if (t == 1)
@@ -295,7 +294,7 @@ Page({
     }
   },
   onPullDownRefresh: function () {
-    this.refresh(this.data.activeTab);
+    this.refresh();
   },
   switchTab(e) {
     switch (e.detail.index) {
@@ -315,7 +314,7 @@ Page({
         });
         break;
     }
-    this.refresh(this.data.activeTab)
+    this.refresh()
   },
   //加载更多信息
   loadwait() {
@@ -383,7 +382,7 @@ Page({
   //管理设备
   addequip(e) {
     wx.navigateTo({
-      url: '../equip/equip?id=0&sum='+this.data.sum,
+      url: '../equip/equip?id=0'
     })
   },
   modify(e) {

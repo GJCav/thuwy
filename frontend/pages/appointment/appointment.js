@@ -72,8 +72,12 @@ Page({
     wx.setNavigationBarTitle({
       title: '预约设备'
     })
+    this.refresh();
   },
-  onShow() {
+  onPullDownRefresh() {
+    this.refresh();
+},
+  refresh() {
     wx.showLoading({
       mask: true,
       title: '加载中',
@@ -152,7 +156,7 @@ Page({
       });
     } else if (app.globalData.userInfo) {
       wx.navigateTo({
-        url: 'admit/admit?id=' + this.data.items[value].id + '&name=' + this.data.items[value].name
+        url: 'admit/admit?id=' + this.data.items[value].id
       })
     } else {
       wx.showToast({

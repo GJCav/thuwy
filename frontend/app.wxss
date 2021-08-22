@@ -94,8 +94,8 @@ page {
 /* 公用格式框 */
 .inputbox{
   width: 70%;
-  background-color: #fff;
-  border: 2px solid #ddd;
+  background-color: #ffffff;
+  border: 2px solid #dddddd;
   margin-left: 15%;
   margin-right: 15%;
   margin-bottom: 20rpx;

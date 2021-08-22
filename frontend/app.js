@@ -1,7 +1,7 @@
 // app.js
 App({
   getUserInfo() {
-    let that=this
+    let that = this
     return new Promise(function (resolve, reject) {
       wx.login({ // 登录
         timeout: 5000,
@@ -58,7 +58,7 @@ App({
     login: false,
     isadmin: false,
     userInfo: false,
-    url: "http://127.0.0.1:5000/",//http://api.weiyang.grw20.cn
+    url: "http://api.weiyang.grw20.cn", //本地测试地址：http://127.0.0.1:5000
     picurl: "http://static.weiyang.grw20.cn/api/"
   }
 })

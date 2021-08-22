@@ -4,15 +4,21 @@ const app = getApp()
 
 Page({
   data: {
+    item_num: 0, //物品编号
+    show:false,//md预览
+
     item_id: 0,
-    item_num: 0,
     name: '',
     available: true,
     brief_intro: '',
     md_intro: '',
     rsv_method: 0,
+
+    havepic: false,
     thumbnail: '',
     uploadurl: null,
+    finalurl: null,
+
     methods: [{
       value: 1,
       checked: false,
@@ -21,8 +27,8 @@ Page({
     }, {
       value: 2,
       checked: false,
-      can: false,
-      name: '自由时间段预约(未支持)'
+      can: true,
+      name: '自由时间段预约'
     }]
   },
   //输入保存各种信息
@@ -55,8 +61,10 @@ Page({
     console.log(this.data.rsv_method)
   },
   //预览详细介绍（md格式）
-  showmd(){
-    
+  showmd() {
+    this.setData({
+      show:true
+    })
   },
   choosepic: function (e) {
     wx.chooseImage({
@@ -65,18 +73,27 @@ Page({
       success: (res) => {
         this.setData({
           thumbnail: res.tempFilePaths[0],
+          havepic: true
         });
+        console.log(this.data.thumbnail)
       },
       fail: (res) => {
         console.log(res.data.code, res.data.errmsg)
+        this.setData({
+          havepic: false
+        });
         wx.showToast({
           title: '读取失败',
-          icon: 'error'
+          icon: 'error',
+          mask: true
         })
       },
     })
   },
   onLoad: function (options) {
+    this.setData({
+      item_id: options.id
+    })
     if (options.id != 0) {
       wx.setNavigationBarTitle({
         title: '修改设备'
@@ -84,9 +101,6 @@ Page({
       wx.showLoading({
         mask: true,
         title: '加载中',
-      })
-      this.setData({
-        item_id: options.id
       })
       wx.request({
         url: app.globalData.url + '/item/' + this.data.item_id,
@@ -150,43 +164,27 @@ Page({
       wx.setNavigationBarTitle({
         title: '添加设备'
       })
-      //获取上传地址
-      wx.showLoading({
-        mask: true,
-        title: '加载中',
-      })
-      this.setData({
-        item_num: parseInt(options.sum) + 1
-      })
-      wx.request({
-        url: app.globalData.picurl + '/uploadurl/:Item' + this.data.item_num,
-        method: 'GET',
-        header: {
-          'content-type': 'text/plain',
-        },
-        success: (res) => {
-          if (res.statusCode == 200) {
-            this.setData({
-              uploadurl: res.data
-            })
-            wx.hideLoading()
-          } else {
-            console.log(res.errMsg)
-            wx.hideLoading()
-            wx.showToast({
-              mask: true,
-              title: '连接失败',
-              icon: 'error',
-              duration: 1500
-            })
-            setTimeout(function () {
-              wx.navigateBack({
-                delta: 1
-              })
-            }, 1500)
-          }
-        },
-        fail: (res) => {
+    }
+    //获取上传地址
+    wx.showLoading({
+      mask: true,
+      title: '加载中',
+    })
+    wx.request({
+      url: app.globalData.picurl + '/uploadurl/:Item' + this.data.item_num,
+      method: 'GET',
+      header: {
+        'content-type': 'text/plain',
+      },
+      success: (res) => {
+        if (res.statusCode == 200) {
+          let that = res.data
+          this.setData({
+            uploadurl: that,
+            finalurl: that.slice(0, that.indexOf('?'))
+          })
+          wx.hideLoading()
+        } else {
           console.log(res.errMsg)
           wx.hideLoading()
           wx.showToast({
@@ -201,33 +199,6 @@ Page({
             })
           }, 1500)
         }
-      })
-    }
-  },
-  onShow() {
-    wx.enableAlertBeforeUnload({
-      message: '您确定要离开此页面吗？已经填写的信息将会丢失',
-    })
-  },
-  //封装上传文件
-  upfile(){
-    wx.request({
-      url: this.data.picurl,
-      data: this.data.thumbnail,
-      method:'PUT',
-      success: (res) => {
-        if (res.statusCode == 200) {
-          wx.hideLoading()
-        } else {
-          console.log(res.errMsg)
-          wx.hideLoading()
-          wx.showToast({
-            mask: true,
-            title: '连接失败',
-            icon: 'error',
-            duration: 1500
-          })
-        }
       },
       fail: (res) => {
         console.log(res.errMsg)
@@ -238,6 +209,47 @@ Page({
           icon: 'error',
           duration: 1500
         })
+        setTimeout(function () {
+          wx.navigateBack({
+            delta: 1
+          })
+        }, 1500)
+      }
+    })
+  },
+  onShow() {
+    wx.enableAlertBeforeUnload({
+      message: '您确定要离开此页面吗？已经填写的信息将会丢失',
+    })
+  },
+  //封装上传文件
+  upfile() {
+    let that = this
+    return new Promise(function (resolve, reject) {
+      if (that.data.havepic) {
+        // wx.uploadFile({
+        //   filePath: that.data.thumbnail,
+        //   name: that.data.name,
+        //   url: that.data.uploadurl,
+        // })
+        wx.request({
+          url: that.data.uploadurl,
+          data: that.data.thumbnail,
+          method: 'PUT',
+          success: (res) => {
+            if (res.statusCode == 200) {
+              console.log(res)
+              resolve()
+            } else {
+              reject(res)
+            }
+          },
+          fail: (res) => {
+            reject(res)
+          }
+        })
+      } else {
+        resolve()
       }
     })
   },
@@ -255,7 +267,7 @@ Page({
         title: '提交中',
         mask: true
       })
-      this.upfile().then(function(){
+      this.upfile().then(function () {
         wx.request({
           header: {
             'content-type': 'application/json; charset=utf-8',
@@ -267,7 +279,7 @@ Page({
             name: that.name,
             'brief-intro': that.brief_intro,
             'md-intro': that.md_intro,
-            thumbnail: that.thumbnail,
+            thumbnail: that.finalurl,
             'rsv-method': that.rsv_method
           },
           success: (res) => {
@@ -304,13 +316,22 @@ Page({
             });
           }
         })
-      })  
+      }).catch(function (res) {
+        console.log(res)
+        wx.hideLoading()
+        wx.showToast({
+          title: '图片上传失败',
+          icon: 'error',
+          duration: 1500
+        })
+      })
     } else {
       wx.showLoading({
         title: '提交中',
         mask: true
       })
-      this.upfile().then(function(){
+      this.upfile().then(function () {
+        console.log(that.finalurl)
         wx.request({
           header: {
             'content-type': 'application/json; charset=utf-8',
@@ -322,7 +343,7 @@ Page({
             name: that.name,
             'brief-intro': that.brief_intro,
             'md-intro': that.md_intro,
-            thumbnail: that.thumbnail,
+            thumbnail: that.finalurl,
             'rsv-method': that.rsv_method,
             available: that.available
           },
@@ -359,6 +380,14 @@ Page({
               duration: 1500
             });
           }
+        })
+      }).catch(function (res) {
+        console.log(res)
+        wx.hideLoading()
+        wx.showToast({
+          title: '图片上传失败',
+          icon: 'error',
+          duration: 1500
         })
       })
     }

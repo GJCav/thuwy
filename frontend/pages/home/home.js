@@ -19,14 +19,12 @@ Page({
         wx.setNavigationBarTitle({
             title: '我的信息'
         })
-    },
-    onShow() {
-        // this.thetime();
-        this.refresh(this.data.activeTab);
+         // this.thetime();
+        this.refresh();
     },
     onPullDownRefresh: function () {
         // this.thetime();
-        this.refresh(this.data.activeTab);
+        this.refresh();
     },
     //报错函数
     bug(res) {
@@ -178,7 +176,8 @@ Page({
         })
     },
     //刷新状态
-    refresh: function (t) {
+    refresh: function () {
+        var t=this.data.activeTab
         if (app.globalData.userInfo) {
             this.setData({
                 success: [],
@@ -243,7 +242,7 @@ Page({
                 });
                 break;
         }
-        this.refresh(this.data.activeTab)
+        this.refresh()
     },
     //展示细节
     showdetail(e) {
