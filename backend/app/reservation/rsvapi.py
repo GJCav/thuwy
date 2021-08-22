@@ -155,25 +155,6 @@ def reserve():
             ) for e in rsvGroup]
         db.session.add_all(rsvGroup)
         
-        """ 不如改成上面这句话
-        for e in rsvGroup:
-            e.chore = Json.dumps(e.chore)
-            # db.session.add(e) # 太TM神奇了，直接用这一行，sqlachemy传入的chore还是dict类型的，上面那句话没用，但下面这么干又可以
-            db.session.add(Reservation(
-                id = e.id,
-                itemId = e.itemId,
-                guest = e.guest,
-                reason = e.reason,
-                method = e.method,
-                st = e.st,
-                ed = e.ed,
-                state = e.state,
-                approver = e.approver,
-                examRst = e.examRst,
-                chore = e.chore
-            ))
-        """
-        
         try:
             db.session.commit()
         except Exception as e:
@@ -238,8 +219,7 @@ def querymyrsv():
     openid = session['openid']
 
     def makeSnowId(date, flow):
-        sfTime = Snowflake.convertTimestamp(Time.mktime(Time.strptime(date, '%Y-%m-%d')))
-        return Snowflake.makeId(sfTime, MACHINE_ID, flow)
+        return Snowflake.makeId(Time.mktime(Time.strptime(date, '%Y-%m-%d')), MACHINE_ID, flow)
 
     sql = db.session.query(
         Reservation.id,     # 0
@@ -342,7 +322,7 @@ def modifyRsv(rsvId):
     elif op == 2: return completeRsv(rsv)
     else: return ErrCode.CODE_SERVER_BUGS
     
-def examRsv(rsv, json):
+def examRsv(rsv: Reservation, json):
     if RsvState.isStart(rsv.state)   : return ErrCode.Rsv.CODE_RSV_START
     if RsvState.isReject(rsv.state)  : return ErrCode.Rsv.CODE_RSV_REJECTED
     if RsvState.isComplete(rsv.state): return ErrCode.Rsv.CODE_RSV_COMPLETED
@@ -354,8 +334,8 @@ def examRsv(rsv, json):
     if not CheckArgs.areStr(json, ['reason']):
         return ErrCode.CODE_ARG_TYPE_ERR
 
-    if rsv.method == LongTimeRsv.getFatherRsv:
-        rsv = LongTimeRsv.getFatherRsv(rsv)
+    # if rsv.method == LongTimeRsv.getFatherRsv:
+    #     rsv = LongTimeRsv.getFatherRsv(rsv)
 
     pazz = json['pass']
     reason = json['reason']
@@ -363,9 +343,9 @@ def examRsv(rsv, json):
     rsv.approver = session['openid']
 
     if pazz == 0:
-        rsv.state = RsvState.COMPLETE_BY_REJECT
+        rsv.changeState(RsvState.COMPLETE_BY_REJECT)    # 对于LongTimeRsv可以保证更新子预约的状态，方便筛选
     elif pazz == 1:
-        rsv.state = RsvState.STATE_START
+        rsv.changeState(RsvState.STATE_START)
     else:
         return ErrCode.CODE_ARG_INVALID
     
@@ -377,12 +357,12 @@ def examRsv(rsv, json):
 
     return ErrCode.CODE_SUCCESS
 
-def completeRsv(rsv):
+def completeRsv(rsv: Reservation):
     if RsvState.isWait(rsv.state): return ErrCode.Rsv.CODE_RSV_WAITING
     if RsvState.isComplete(rsv.state): return ErrCode.Rsv.CODE_RSV_COMPLETED
     if not RsvState.isStart(rsv.state): return ErrCode.CODE_SERVER_BUGS
 
-    rsv.state = RsvState.STATE_COMPLETE
+    rsv.changeState(RsvState.STATE_COMPLETE)
     try:
         db.session.commit()
     except Exception as e:
@@ -403,42 +383,9 @@ def cancelRsv(rsvId):
     if not rsv                       : return ErrCode.Rsv.CODE_RSV_NOT_FOUND
     if RsvState.isReject(rsv.state)  : return ErrCode.Rsv.CODE_RSV_REJECTED
     if RsvState.isComplete(rsv.state): return ErrCode.Rsv.CODE_RSV_COMPLETED
-    
-    now = timestamp.now()
-    isBegan = (rsv.st <= now <= rsv.ed)
+    if rsv.isBegan()                 : return ErrCode.Rsv.CODE_RSV_START
 
-    if not isBegan and rsv.method == LongTimeRsv.methodValue:
-        rsv = LongTimeRsv.getFatherRsv(rsv)
-        choreJson: dict = Json.loads(rsv.chore)
-        subRsvIdArr = choreJson['group-rsv'].get('sub-rsvs', [])
-        for subRsvId in subRsvIdArr:
-            st, ed = db.session.query(Reservation.st, Reservation.ed) \
-                .filter(Reservation.id == subRsvId) \
-                .one()
-            if st <= now <= ed:
-                isBegan = True
-                break
-    
-    if isBegan: return ErrCode.Rsv.CODE_RSV_START
-
-    # def toFthRsv(rsv: Reservation) -> Reservation:
-    #     choreJson: dict = Json.loads(rsv.chore)
-    #     if 'fth-rsv' not in choreJson['group-rsv']:
-    #         return rsv
-    #     else:
-    #         fthId = choreJson['group-rsv']['fth-rsv']
-    #         return Reservation.query.filter(Reservation.id == fthId).one()
-
-    rsv.state = RsvState.COMPLETE_BY_CANCEL
-
-    if rsv.method == LongTimeRsv.methodValue:
-        choreJson: dict = Json.loads(rsv.chore)
-        subRsvIdArr = choreJson['group-rsv']['sub-rsvs']
-        for subRsvId in subRsvIdArr:
-            db.session\
-                .query(Reservation)\
-                .filter(Reservation.id == subRsvId)\
-                .update({'state': RsvState.COMPLETE_BY_CANCEL})
+    rsv.changeState(RsvState.COMPLETE_BY_CANCEL)
 
     try:
         db.session.commit()

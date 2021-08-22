@@ -56,6 +56,7 @@ def login():
         openid = str(resJson['openid'])
         session['wx-skey'] = str(resJson["session_key"])
         session['openid'] = openid
+        session.permanent = True
     except RE.Timeout:
         return CODE_LOGIN_TIMEOUT
     except RE.ConnectionError as e:

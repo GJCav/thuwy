@@ -5,7 +5,7 @@ from . import itemRouter
 
 from app import db, itemIdPool
 from app import comerrs as ErrCode
-from app.models import Admin, AdminRequest, User, Item, Reservation
+from app.models import Admin, AdminRequest, User, Item, Reservation, mergeAndBeautify
 import app.checkargs as CheckArgs
 from app.auth import requireAdmin, requireBinding, requireLogin
 import app.timetools as timestamp
@@ -171,7 +171,7 @@ def itemRsvInfo(itemId):
     rst = {}
     rst.update(ErrCode.CODE_SUCCESS)
 
-    rsvArr = itemRouter.mergeAndBeautify(qryRst)
+    rsvArr = mergeAndBeautify(qryRst)
     def _process(e): # TODO: 想个好名字吧。。。
         del e['chore']
         del e['st']

@@ -1,5 +1,5 @@
 testCookieStr = \
-"""session=eyJvcGVuaWQiOiJvZHo0QjR4bFRnbEJaWGpHSVZoNjVhRnNpeUFZIiwid3gtc2tleSI6IktkMC96NzZSYXBTNG5YV0F3djlyOFE9PSJ9.YSDClA.g9pB5JYyygVjZIM6l_w494wD8oc; HttpOnly; Path=/"""
+"""session=eyJfcGVybWFuZW50Ijp0cnVlLCJvcGVuaWQiOiJvZHo0QjR4bFRnbEJaWGpHSVZoNjVhRnNpeUFZIiwid3gtc2tleSI6Imd1ZWZlK0tWRmduY0MxMDJjWkhnNkE9PSJ9.YSHiMA.fiHm3L3eH-6wXCoVdOt_UaaqP2g; Expires=Wed 25 Aug 2021 05:35:44 GMT; HttpOnly; Path=/"""
 
 cookieStr = \
 """session=eyJvcGVuaWQiOiJvZHo0QjR4bFRnbEJaWGpHSVZoNjVhRnNpeUFZIiwid3gtc2tleSI6IloxLy92SWpPSUF3SWxjT1lMUnk5OXc9PSJ9.YRjPPw.7vAzce2sYdzbDe1AfI_4NKX0mR4; HttpOnly; Path=/"""

@@ -1,11 +1,18 @@
 from operator import and_
+
+from werkzeug.datastructures import is_immutable
+
 from app import db
 from sqlalchemy import or_, and_
 from sqlalchemy.engine.row import Row
 import json as Json
 import re as Regex
+import base64
+import os
 
 from . import timetools as timestamp
+from app import snowflake as Snowflake
+from config import accessKeyTimeout
 
 # db: SQLAlchemy
 # class Student(db.Model):
@@ -161,38 +168,41 @@ class Reservation(db.Model):
             .query(Reservation)\
             .filter(Reservation.id == rsvId)\
             .one_or_none()
-
     
     # TODO: 考虑一下要不要修改 __getattr__ 把未知属性也代理下去
     def toDict(self):
         """
         根据 method 的值自动调用恰当的方法。
         """
-        return SubRsvDelegator.toDict(self)
+        return SubRsvDelegator.getDelegator(self).toDict(self)
 
     def getInterval(self):
         """
         delegate to SubRsvDelegator
         """
-        return SubRsvDelegator.getInterval(self)
+        return SubRsvDelegator.getDelegator(self).getInterval(self)
+
+    def changeState(self, newState):
+        """
+        不会检查这个状态转换是否合法。
+        """
+        if not isinstance(self, Reservation):
+            raise ValueError('this is not an instance of Reservation.')
+        return SubRsvDelegator.getDelegator(self).changeState(self, newState)
+
+    def isBegan(self, now = None):
+        if not now:
+            now = timestamp.now()
+        return SubRsvDelegator.getDelegator(self).isBegan(self, now)
 
 class SubRsvDelegator:
     methodValue = 0
 
-    def toDict(rsv: Reservation):
+    def getDelegator(rsv):
         for cls in SubRsvDelegator.__subclasses__():
             if rsv.method == cls.methodValue:
-                return cls.toDict(rsv)
-
+                return cls
         raise TypeError(f'Unknown method: {rsv.method}')
-
-    def getInterval(rsv: Reservation):
-        for cls in SubRsvDelegator.__subclasses__():
-            if rsv.method == cls.methodValue:
-                return cls.getInterval(rsv)
-
-        raise TypeError(f'Unknown method: {rsv.method}')
-
 
 class LongTimeRsv(SubRsvDelegator):
     methodValue = 1
@@ -340,6 +350,28 @@ class LongTimeRsv(SubRsvDelegator):
         chore = Json.loads(rsv.chore)
         return 'sub-rsvs' in chore['group-rsv']
 
+    def changeState(rsv: Reservation, newState):
+        if LongTimeRsv.isChildRsv(rsv): rsv = LongTimeRsv.getFatherRsv(rsv)
+        rsv.state = newState
+        choreJson = Json.loads(rsv.chore)
+        for rsvId in choreJson['group-rsv']['sub-rsvs']:
+            subRsv = Reservation.fromRsvId(rsvId)
+            subRsv.state = newState
+
+    def isBegan(rsv: Reservation, now):
+        began = (rsv.st <= now < rsv.ed)
+        if not began:
+            rsv = LongTimeRsv.getFatherRsv(rsv)
+            choreJson = Json.loads(rsv.chore)
+            for rsvId in choreJson['group-rsv']['sub-rsvs']:
+                st, ed = db.session.query(Reservation.st, Reservation.ed) \
+                    .filter(Reservation.id == rsvId) \
+                    .one()
+                if st <= now <= ed:
+                    isBegan = True
+                    break
+        return began
+
 class FlexTimeRsv(SubRsvDelegator):
     methodValue = 2
     methodMask  = 2
@@ -386,6 +418,12 @@ class FlexTimeRsv(SubRsvDelegator):
         }
         return rsvDict
 
+    def changeState(rsv: Reservation, newState):
+        rsv.state = newState
+
+    def isBegan(rsv: Reservation, now):
+        return (rsv.st <= now < rsv.ed)
+
 
 class AdminRequest(db.Model):
     __tablename__ = 'admin_req'
@@ -406,8 +444,6 @@ class AdminRequest(db.Model):
             # 'state': self.state,
             'reason': self.reason
         }
-
-
 
 # 太TM神奇了，python的dict没有__dict__属性，不能动态添加属性，如：
 #   a = {}
