@@ -51,6 +51,6 @@ def addstu():
     db.session.commit()
 
 if __name__ == '__main__':
-    app.run(debug=1, threaded=True)
+    app.run(debug=1, threaded=4)
     threading.Thread(target=addstu).start()
 

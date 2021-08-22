@@ -12,7 +12,6 @@ import os
 
 from . import timetools as timestamp
 from app import snowflake as Snowflake
-from config import accessKeyTimeout
 
 # db: SQLAlchemy
 # class Student(db.Model):

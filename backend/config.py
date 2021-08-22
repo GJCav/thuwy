@@ -29,10 +29,9 @@ class ProductionConfig(Config):
     def set(app):
         app.secret_key = os.urandom(24)
         
-config = DevelopmentConfig
+config = ProductionConfig
 skipLoginAndBind = False
 skipAdmin = True
-accessKeyTimeout = 2 # 网页登陆口令超时时间
 
 WX_APP_ID = 'wx7bfe035eee90419b'
 WX_APP_SECRET = '51ed227eed49319fa6474bc79559dc2f'
