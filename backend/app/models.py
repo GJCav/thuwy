@@ -216,7 +216,7 @@ class LongTimeRsv(SubRsvDelegator):
     afternoonEndHour   = 17
     afternoonCode      = 2
 
-    nightStartHour     = 17
+    nightStartHour     = 18
     nightEndHour       = 23
     nightCode          = 3
 
