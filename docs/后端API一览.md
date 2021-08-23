@@ -676,6 +676,7 @@ AdminReq属性：
 
 | 属性      | 类型   | 说明                           |
 | --------- | ------ | ------------------------------ |
+| id        | int    | 这个建议的ID                   |
 | proponent | string | 建议人                         |
 | title     | string | 建议标题                       |
 | content   | string | 建议主体，后端不关心其内容格式 |
@@ -744,10 +745,11 @@ AdminReq属性：
 
 **返回参数：** Json Object，
 
-| 属性   | 类型   | 说明     |
-| ------ | ------ | -------- |
-| code   | int    | 错误码   |
-| errmsg | string | 错误信息 |
+| 属性      | 类型   | 说明     |
+| --------- | ------ | -------- |
+| code      | int    | 错误码   |
+| errmsg    | string | 错误信息 |
+| advice-id | int    | 建议的id |
 
 
 

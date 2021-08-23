@@ -120,4 +120,7 @@ def adminAdvice():
         print(e)
         return ErrCode.CODE_DATABASE_ERROR
 
-    return ErrCode.CODE_SUCCESS
+    rtn = {}
+    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn['advice-id'] = advice.id
+    return rtn
