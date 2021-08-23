@@ -29,7 +29,7 @@ class ProductionConfig(Config):
     def set(app):
         app.secret_key = os.urandom(24)
         
-config = DevelopmentConfig
+config = ProductionConfig
 skipLoginAndBind = False
 skipAdmin = False
 userSysName = 'system'  # 默认添加一个 system 管理员，处理定时任务
