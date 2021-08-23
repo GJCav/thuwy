@@ -1,6 +1,10 @@
 
 from config4test import R, baseUrl
 import pytest
+import re as Regex
+
+import sys
+sys.path.append('..')
 
 adviceUrl = baseUrl + 'advice/'
 
@@ -11,7 +15,7 @@ def testAddAdvice():
     for i in range(adviceCount):
         reqJson = {
             'title': f'add advice {i}',
-            'content': f'tead add advice'
+            'content': f'test add advice'
         }
         res = R.post(adviceUrl, json=reqJson)
         assert res
@@ -40,7 +44,7 @@ def testGetAdviceList():
         curIdSet = set()
         for advice in adviceArr:
             advice: dict
-            assert advice.keys() == {'id', 'proponent', 'title', 'state', 'response'}
+            assert set(advice.keys()) == {'id', 'proponent', 'title', 'state', 'response'}
             curIdSet.add(advice['id'])
 
         idSet -= curIdSet
@@ -53,4 +57,44 @@ def testGetAdviceInfo():
         assert res
         json = res.json()
         assert json['code'] == 0, json
+        advice: dict = json['advice']
+
+        assert advice['id'] == id
+        assert advice['proponent']
+        assert Regex.match(r'add advice \d+', advice['title'])
+        assert advice['content'] == 'test add advice'
+        assert advice['state'] == 1, 'should be waiting state'
+        assert advice['response'] == None
+
+def testResponse():
+    for id in adviceIds:
+        res = R.get(adviceUrl+ f'{id}')
+        assert res
+        json = res.json()
+        assert json['code'] == 0, json
         
+        oldAdvice: dict = json['advice']
+
+        reqJson = {
+            'response': f'response {id}'
+        }
+        res = R.post(adviceUrl+f'{id}', json=reqJson)
+        assert res
+        json = res.json()
+        assert json['code'] == 0, json
+
+        res = R.get(adviceUrl + f'{id}')
+        assert res
+        json = res.json()
+        assert json['code'] == 0, json
+        advice: dict = json['advice']
+
+        assert oldAdvice.keys() == advice.keys()
+        assert oldAdvice['id'] == advice['id']
+        assert oldAdvice['title'] == advice['title']
+        assert oldAdvice['content'] == advice['content']
+        assert advice['state'] == 2
+        assert advice['response'] == f'response {id}'
+
+        
+

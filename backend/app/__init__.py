@@ -31,6 +31,8 @@ adviceIdPool   = Snowflake(MACHINE_ID)
 from .auth import authRouter
 from .item import itemRouter
 from .reservation import rsvRouter
+from .advice import adviceRouter
 app.register_blueprint(authRouter)
 app.register_blueprint(itemRouter)
 app.register_blueprint(rsvRouter)
+app.register_blueprint(adviceRouter)

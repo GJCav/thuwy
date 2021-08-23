@@ -42,6 +42,7 @@ def getAdviceList():
 
     rtn = {}
     rtn.update(ErrCode.CODE_SUCCESS)
+    rtn['page'] = page
     rtn['advice'] = []
     for advice in qryRst:
         rtn['advice'].append(advice.toDict())
@@ -60,7 +61,10 @@ def getAdviceInfo(adviceId):
     if not advice:
         return ErrCode.Advice.CODE_ADVICE_NOT_FOUND
 
-    return advice.toDict(True)
+    rtn = {}
+    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn['advice'] = advice.toDict(True)
+    return rtn
 
 @adviceRouter.route('/advice/<int:adviceId>', methods=['POST'])
 @requireLogin

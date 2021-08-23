@@ -464,10 +464,11 @@ class Advice(db.Model):
             'id': self.id,
             'proponent': User.queryName(self.proponent),
             'title': self.title,
-            'state': self.state
+            'state': self.state,
+            'response': self.response
         }
         if carryContent:
-            rst['response'] = self.response
+            rst['content'] = self.content
         return rst
 
 
