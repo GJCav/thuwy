@@ -57,7 +57,8 @@ def testPrepareItems():
 def _flexInterval(daysAfter: int, st, ed) -> str:
     st = T.clockAfter(T.daysAfter(daysAfter), *st)
     ed = T.clockAfter(T.daysAfter(daysAfter), *ed)
-    interval = f'{T.getDate(st)} {T.getHour(st)}:{T.getMins(st)}-{T.getHour(ed)}:{T.getMins(ed)}'
+    # interval = f'{T.getDate(st)} {T.getHour(st)}:{T.getMins(st)}-{T.getHour(ed)}:{T.getMins(ed)}'
+    interval = '{} {:0>2}:{:0>2}-{:0>2}:{:0>2}'.format(T.getDate(st), T.getHour(st), T.getMins(st), T.getHour(ed), T.getMins(ed))
     return interval
 
 def testRsvFlexTime():

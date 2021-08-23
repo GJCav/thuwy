@@ -55,6 +55,7 @@ def getRsvList():
         if LongTimeRsv.isChildRsv(rsv):
             rsv = LongTimeRsv.getFatherRsv(rsv)
             if state != None and not (rsv.state & state): # 父节点state更新，但子节点state不会更新，所以要多检测一遍
+                # 现在的情况是其他函数保证子预约state的更新是同步的，但还是保留把。
                 continue
 
         if LongTimeRsv.isFatherRsv(rsv):
@@ -254,24 +255,26 @@ def querymyrsv():
     if state != None:
         sql = sql.filter(Reservation.state.op('&')(state))
     
-    rsvJsonArr = mergeAndBeautify(sql.all())
-    adminNames = {} # openid --> name
-    adminNames[None] = None
-    qryRst = db.session\
-        .query(Admin.openid, User.name)\
-        .join(User, User.openid == Admin.openid) \
-        .all()
-    for row in qryRst:
-        adminNames[row.openid] = row.name
+    # rsvJsonArr = mergeAndBeautify(sql.all())
+
+    rsvJsonArr = []
+    groupRsvSet = set()
+    for rsv in sql.all():
+        if rsv.id in groupRsvSet:
+            continue
+
+        if LongTimeRsv.isChildRsv(rsv):
+            rsv = LongTimeRsv.getFatherRsv(rsv)
+
+        if LongTimeRsv.isFatherRsv(rsv):
+            choreJson = Json.loads(rsv.chore)
+            groupRsvSet |= set(choreJson['group-rsv']['sub-rsvs'])
+            groupRsvSet.add(rsv.id)
+
+        rsvJsonArr.append(rsv.toDict())
 
     def _pcs(e):
-        nonlocal adminNames
-        del e['st']
-        del e['ed']
-        del e['chore']
-        e['exam-rst'] = e.pop('examRst')
-        e['item-id'] = e.pop('itemId')
-        e['approver'] = adminNames[e['approver']]
+        del e['guest']
         return e
 
     rst = {}

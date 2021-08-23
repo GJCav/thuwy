@@ -10,6 +10,7 @@ import os
 from . import timetools as timestamp
 from app import snowflake as Snowflake
 from config import userSysName
+from . import rsvstate as RsvState
 
 # db: SQLAlchemy
 # class Student(db.Model):
@@ -146,17 +147,25 @@ class Reservation(db.Model):
         #     Reservation.st <= self.st < Reservation.ed,
         # )}
 
-        cdn = {or_(
+        timeCdn = {or_(
             and_(Reservation.st >= self.st, Reservation.st < self.ed),
             and_(Reservation.ed > self.st, Reservation.ed < self.ed),
             and_(Reservation.st <= self.st, Reservation.ed >= self.ed)
         )}
 
-        conflict = db.session\
-            .query(Reservation.st, Reservation.ed) \
+        stateCdn = {or_(
+            Reservation.state.op('&')(RsvState.STATE_WAIT),
+            Reservation.state.op('&')(RsvState.STATE_START)
+        )}
+
+        conflictRsv = db.session\
+            .query(Reservation.st, Reservation.ed, Reservation.id) \
+            .filter(*stateCdn)\
             .filter(Reservation.itemId == self.itemId)\
-            .filter(*cdn) \
-            .first() != None
+            .filter(*timeCdn) \
+            .first()
+
+        conflict = conflictRsv != None
 
         return conflict
 
@@ -295,6 +304,7 @@ class LongTimeRsv(SubRsvDelegator):
     def getInterval(rsv: Reservation):
         """
         rsv should be father reservation.
+        return an interval array containing itself and children.
         """
         if LongTimeRsv.isChildRsv(rsv):
             raise ValueError('this is not a father rsv')
@@ -338,6 +348,10 @@ class LongTimeRsv(SubRsvDelegator):
         return rsvDict
 
     def isChildRsv(rsv: Reservation):
+        """
+        return True only if rsv is a LongTimeRsv and is sub rsv.
+        raise no exception.
+        """
         if rsv.method != LongTimeRsv.methodValue: return False
         chore = Json.loads(rsv.chore)
         return 'fth-rsv' in chore['group-rsv']
@@ -534,7 +548,8 @@ def _getIntervalStr(self: Reservation):
 
 
 # TODO: 换个更恰当的名字
-def mergeAndBeautify(qryRst: list):
+# 20210823 有bug，而且非常丑陋，现在弃用
+# def mergeAndBeautify(qryRst: list):
     """
     qryRst中的rsv对象至少包含如下属性：
         * id
