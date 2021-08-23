@@ -51,7 +51,7 @@
       <button class="normal" hover-class="normals" style="width:37%" bindtap="showmd">预览</button>
     </view>
     <view>
-      <textarea value="{{md_intro}}" class="inputbox" style="height:200rpx" placeholder="仅支持markdown格式"
+      <textarea value="{{md_intro}}" class="inputbox" maxlength="-1" style="height:200rpx" placeholder="仅支持markdown格式"
         bindblur="inputmd" />
     </view>
     <view class="labelbox" wx:if="{{item_id!=0}}">
@@ -64,9 +64,3 @@
     </view>
   </form>
 </view>
-<!-- 预览md -->
-<page-container show="{{show}}" overlayStyle ="background-color: rgba(0, 0, 0, 0.7)">
-  <view style="margin-left:15%;margin-right:15%">
-    <wemark md="{{md_intro}}" link highlight= type="wemark"></wemark>
-  </view>
-</page-container>

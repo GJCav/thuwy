@@ -1,5 +1,3 @@
 {
-  "usingComponents": {
-    "wemark": "../../dist/wemark/wemark"
-  }
+  "usingComponents": {}
 }
