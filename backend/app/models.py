@@ -394,7 +394,8 @@ class FlexTimeRsv(SubRsvDelegator):
         dateStr = timestamp.getDate(st)
         H = timestamp.getHour
         M = timestamp.getMins
-        return f'{dateStr} {H(st)}:{M(st)}-{H(ed)}:{M(ed)}'
+        # return f'{dateStr} {H(st)}:{M(st)}-{H(ed)}:{M(ed)}'
+        return '{} {:0>2}:{:0>2}-{:0>2}:{:0>2}'.format(dateStr, H(st), M(st), H(ed), M(ed))
 
     def getInterval(rsv: Reservation):
         return f'{timestamp.getDate(rsv.st)} {timestamp.clock(rsv.st)}-{timestamp.clock(rsv.ed)}'
