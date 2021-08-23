@@ -25,6 +25,7 @@ rsvIdPool      = Snowflake(MACHINE_ID)
 itemIdPool     = Snowflake(MACHINE_ID)
 adminReqIdPool = Snowflake(MACHINE_ID)
 accessKeyPool  = Snowflake(MACHINE_ID)
+adviceIdPool   = Snowflake(MACHINE_ID)
 
 
 from .auth import authRouter

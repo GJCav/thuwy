@@ -7,6 +7,9 @@ def areStr(map: dict, attrs: list):
             return False
     return True
 
+def isStr(v):
+    return isinstance(v, str)
+
 def areInt(map: dict, attrs: list):
     for k in attrs:
         if not isinstance(map[k], int):
