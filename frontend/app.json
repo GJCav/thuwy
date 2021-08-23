@@ -7,7 +7,8 @@
     "pages/home/home",
     "pages/admin/admin",
     "pages/equip/equip",
-    "pages/reservation/reservation"
+    "pages/reservation/reservation",
+    "pages/info/info"
   ],
   "window":{
     "onReachBottomDistance":20,

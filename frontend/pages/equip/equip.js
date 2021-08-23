@@ -5,7 +5,6 @@ const app = getApp()
 Page({
   data: {
     item_num: 0, //物品编号
-    show:false,//md预览
 
     item_id: 0,
     name: '',
@@ -62,8 +61,8 @@ Page({
   },
   //预览详细介绍（md格式）
   showmd() {
-    this.setData({
-      show:true
+    wx.navigateTo({
+      url: '../info/info?title=详情预览',
     })
   },
   choosepic: function (e) {
