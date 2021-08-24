@@ -19,7 +19,7 @@ def itemlist():
         return ErrCode.CODE_ARG_TYPE_ERR
     
     page -= 1
-    if page >= (1<<65)-1 or page < 0:
+    if not CheckArgs.isUint64(page):
         return ErrCode.CODE_ARG_INVALID
     
     itemCount = db.session.query(Item.id).filter(Item.delete == 0).count()
@@ -84,6 +84,7 @@ def addItem():
         item.delete     = False
         item.rsvMethod  = int(reqJson['rsv-method'])
         item.briefIntro = reqJson['brief-intro']
+        item.attr       = reqJson.get('attr', 0)
 
         if not CheckArgs.isUrl(reqJson['thumbnail']): # TODO: 这里可以进一步限制
             return ErrCode.CODE_ARG_FORMAT_ERR
@@ -121,6 +122,7 @@ def modifyItem(itemId):
         if 'brief-intro' in itemJson: item.briefIntro = itemJson['brief-intro']
         if 'thumbnail' in itemJson: item.thumbnail    = itemJson['thumbnail']
         if 'md-intro' in itemJson: item.mdIntro       = itemJson['md-intro']
+        if 'attr' in itemJson: item.attr              = int(itemJson['attr'])
     except:
         return ErrCode.CODE_ARG_TYPE_ERR
     

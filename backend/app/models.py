@@ -85,6 +85,18 @@ class Item(db.Model):
     briefIntro    = db.Column('brief_intro', db.Text)
     thumbnail     = db.Column(db.Text)
     mdIntro       = db.Column('md_intro', db.Text)
+    attr          = db.Column(db.Integer)
+
+    class Attr:
+        ATTR_AUTO_ACCEPT = 0b1
+
+        def queryAttrById(id) -> int:
+            qryRst = db.session.query(Item.attr).filter(Item.id == id).one_or_none()
+            return qryRst[0] if qryRst else None
+
+        def isAutoAccept(attr) -> bool:
+            return (attr & Item.Attr.ATTR_AUTO_ACCEPT)
+
 
     def toDict(self):
         """
@@ -96,16 +108,18 @@ class Item(db.Model):
             'available': bool(self.available),
             'brief-intro': self.briefIntro,
             'thumbnail': self.thumbnail,
-            'rsv-method': self.rsvMethod
+            'rsv-method': self.rsvMethod,
+            'attr': self.attr
         }
 
+    # no use
     # no value check on dic
-    def fromDict(self, dic):
-        self.name = dic['name']
-        self.id = dic['id']
-        self.briefIntro = dic['brief-intro']
-        self.thumbnail = dic['thumbnail']
-        self.rsvMethod = dic['rsv-method']
+    # def fromDict(self, dic):
+    #     self.name       = dic['name']
+    #     self.id         = dic['id']
+    #     self.briefIntro = dic['brief-intro']
+    #     self.thumbnail  = dic['thumbnail']
+    #     self.rsvMethod  = dic['rsv-method']
 
     def querySupportedMethod(id):
         """

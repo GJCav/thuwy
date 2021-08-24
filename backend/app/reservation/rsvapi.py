@@ -163,10 +163,7 @@ def reserve():
             print('Error: ' + str(e))
             return ErrCode.CODE_DATABASE_ERROR
 
-        rtn = {}
-        rtn.update(ErrCode.CODE_SUCCESS)
-        rtn['rsv-id'] = rsvGroup[0].id
-        return rtn
+        finalRsv = rsvGroup[0]
 
     elif method == FlexTimeRsv.methodValue:
         if not isinstance(reqJson['interval'], str):
@@ -205,14 +202,27 @@ def reserve():
             print('Error: ' + str(e))
             return ErrCode.CODE_DATABASE_ERROR
 
-        rtn = {}
-        rtn.update(ErrCode.CODE_SUCCESS)
-        rtn['rsv-id'] = r.id
-        return rtn
+        finalRsv = r
         
     else:
         return ErrCode.CODE_ARG_INVALID
 
+    rtn = {}
+
+    if Item.Attr.isAutoAccept(Item.Attr.queryAttrById(finalRsv.id)):
+        finalRsv.examRst = f'auto accept by {userSysName}'
+        finalRsv.approver = userSysName
+        finalRsv.changeState(RsvState.STATE_START)
+        try:
+            db.session.commit()
+            rtn['auto-accept'] = 'success'
+        except Exception as e:
+            print(e)
+            rtn['auto-accept'] = 'fail'
+    
+    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn['rsv-id'] = finalRsv.id
+    return rtn
 
 @rsvRouter.route('/reservation/me')
 @requireLogin
