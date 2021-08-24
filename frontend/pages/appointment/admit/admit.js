@@ -183,14 +183,14 @@ Page({
                   url: app.globalData.url + '/item/' + that.data.id + '/reservation',
                   method: 'GET',
                   success: (res) => {
-                    if (res.data.code == 0) {//处理固定预约
+                    if (res.data.code == 0) {
                       var tmp = that.data.disable;
                       console.log(res.data.rsvs)
                       for (var i = 0; i < res.data.rsvs.length; ++i) 
                       {
                         let the_rsv = res.data.rsvs[i]; //枚举每一个预约i
                         if(parseInt(the_rsv.state/4)%2==1) {continue;}
-                        if (the_rsv.method == 1) 
+                        if (the_rsv.method == 1)//处理固定预约信息
                         {
                           //固定时间段处理
                           for (var j = 0; j < that.data.calendar.length; ++j) 
@@ -200,10 +200,11 @@ Page({
                             {
                               let the_time=the_rsv.interval[k] //枚举具体的预约时间段k
                               if (the_time.slice(0, -2) == the_date.date) 
-                              {
-                                tmp[j][the_time.slice(-1)-1] = false                                
+                              {                                                            
                                 if (the_date.week == '星期六')
-                                   tmp[j + 1][rsv_time.slice(-1)-1] = false;
+                                   tmp[j + 1][the_time.slice(-1)-1] = false;
+                                else
+                                  tmp[j][the_time.slice(-1)-1] = false    
                               }
                             }
                           }
@@ -224,19 +225,61 @@ Page({
                                 if (the_date.week == '星期六')
                                 {
                                   let the_occupys=that.data.occupy[j+1]
-                                  the_occupys=the_occupys.concat(that.data.cast[the_time.slice(-1)-1])  
+                                  var path='occupy['+(j+1)+']'
+                                  that.setData({
+                                    [path]:the_occupys.concat(that.data.cast[the_time.slice(-1)-1]) 
+                                  }) 
                                 }
                               }
                             }
                           }
-                        } else{//处理自由预约
-
-
+                        } else{//处理自由预约信息
+                          //固定时间段处理
+                          for (var j = 0; j < that.data.calendar.length; ++j) 
+                          {
+                            let the_date = that.data.calendar[j]; //枚举日期j
+                            let the_time=the_rsv.interval //具体的预约时间段
+                              console.log(the_time.slice(0, -12))                      
+                              if (the_time.slice(0, -12) == the_date.date) 
+                              { 
+                                if (the_date.week == '星期六')
+                                {
+                                  tmp[j + 1][3] = false;
+                                } else if(the_date.week == '星期日'){
+                                  tmp[j][3] = false;
+                                } else{
+                                  var st=the_time.slice(-11,-6)
+                                  var ed=the_time.slice(-5)
+                                  if(st<'12:00') tmp[j][0]=false;
+                                  if((st>='13:00'&&st<'17:00')||(ed>'13:00'&&ed<='17:00')||(st<'13:00'&&ed>'17:00')) tmp[j][1]=false;
+                                  if(ed>'18:00') tmp[j][2]=false;
+                                }                                                                                               
+                              }
+                          }
+                          //自由时间段处理
+                          for (var j = 0; j < that.data.flex_calendar.length; ++j) 
+                          {
+                            let the_date = that.data.flex_calendar[j]; //枚举日期j
+                              let the_time=the_rsv.interval //具体的预约时间段
+                              if (the_time.slice(0, -12) == the_date.date) 
+                              { 
+                                let the_occupy=that.data.occupy[j]
+                                var path='occupy['+j+']'
+                                that.setData({
+                                  [path]:the_occupy.concat(the_time.slice(-11)) 
+                                })                                                                              
+                              }                            
+                          }
                         }
                       }
                       that.setData({
                         disable: tmp
                       })
+                      for(var i=0;i<that.data.flex_calendar.length;++i)
+                      {
+                        let t=that.data.occupy[i]
+                        t.sort()
+                      }
                       console.log(that.data.occupy)
                         resolve()
                       } else {
@@ -329,13 +372,13 @@ Page({
                   list: this.data.flex_calendar[this.data.date_index].date + ' ' + this.data.st_index + '-' + this.data.ed_index,
                 })
               }
-         
-            console.log({
-              'item-id': this.data.id,
-                reason: this.data.reason,
-                method: this.data.choose_method,
-                interval: this.data.list
-            })
+            //测试备用
+            // console.log({
+            //   'item-id': this.data.id,
+            //     reason: this.data.reason,
+            //     method: this.data.choose_method,
+            //     interval: this.data.list
+            // })
             wx.request({
               header: {
                 'content-type': 'application/json; charset=utf-8',
@@ -365,11 +408,21 @@ Page({
                     })
                   }, 1500)
                 } else {
+                  if(res.data.code==101)
+                  {
+                    wx.hideLoading();
+                    wx.showToast({
+                      title: '预约时间冲突',
+                      icon: 'error',
+                      mask:true                    
+                    })
+                  }
                   if (res.data.code == 102) {
                     wx.hideLoading();
                     wx.showToast({
                       title: '超出可预约时间',
-                      icon: 'error'
+                      icon: 'error',
+                      mask:true
                     })
                   } else {
                     console.log(res.data.code, res.data.errmsg)
