@@ -209,7 +209,7 @@ def reserve():
 
     rtn = {}
 
-    if Item.Attr.isAutoAccept(Item.Attr.queryAttrById(finalRsv.id)):
+    if Item.Attr.isAutoAccept(Item.Attr.queryAttrById(finalRsv.itemId)):
         finalRsv.examRst = f'auto accept by {userSysName}'
         finalRsv.approver = userSysName
         finalRsv.changeState(RsvState.STATE_START)
