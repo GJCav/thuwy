@@ -1,6 +1,3 @@
-from operator import and_
-
-from werkzeug.datastructures import is_immutable
 
 from app import db
 from sqlalchemy import or_, and_
@@ -12,6 +9,8 @@ import os
 
 from . import timetools as timestamp
 from app import snowflake as Snowflake
+from config import userSysName
+from . import rsvstate as RsvState
 
 # db: SQLAlchemy
 # class Student(db.Model):
@@ -148,17 +147,25 @@ class Reservation(db.Model):
         #     Reservation.st <= self.st < Reservation.ed,
         # )}
 
-        cdn = {or_(
+        timeCdn = {or_(
             and_(Reservation.st >= self.st, Reservation.st < self.ed),
             and_(Reservation.ed > self.st, Reservation.ed < self.ed),
             and_(Reservation.st <= self.st, Reservation.ed >= self.ed)
         )}
 
-        conflict = db.session\
-            .query(Reservation.st, Reservation.ed) \
+        stateCdn = {or_(
+            Reservation.state.op('&')(RsvState.STATE_WAIT),
+            Reservation.state.op('&')(RsvState.STATE_START)
+        )}
+
+        conflictRsv = db.session\
+            .query(Reservation.st, Reservation.ed, Reservation.id) \
+            .filter(*stateCdn)\
             .filter(Reservation.itemId == self.itemId)\
-            .filter(*cdn) \
-            .first() != None
+            .filter(*timeCdn) \
+            .first()
+
+        conflict = conflictRsv != None
 
         return conflict
 
@@ -297,6 +304,7 @@ class LongTimeRsv(SubRsvDelegator):
     def getInterval(rsv: Reservation):
         """
         rsv should be father reservation.
+        return an interval array containing itself and children.
         """
         if LongTimeRsv.isChildRsv(rsv):
             raise ValueError('this is not a father rsv')
@@ -340,6 +348,10 @@ class LongTimeRsv(SubRsvDelegator):
         return rsvDict
 
     def isChildRsv(rsv: Reservation):
+        """
+        return True only if rsv is a LongTimeRsv and is sub rsv.
+        raise no exception.
+        """
         if rsv.method != LongTimeRsv.methodValue: return False
         chore = Json.loads(rsv.chore)
         return 'fth-rsv' in chore['group-rsv']
@@ -396,7 +408,8 @@ class FlexTimeRsv(SubRsvDelegator):
         dateStr = timestamp.getDate(st)
         H = timestamp.getHour
         M = timestamp.getMins
-        return f'{dateStr} {H(st)}:{M(st)}-{H(ed)}:{M(ed)}'
+        # return f'{dateStr} {H(st)}:{M(st)}-{H(ed)}:{M(ed)}'
+        return '{} {:0>2}:{:0>2}-{:0>2}:{:0>2}'.format(dateStr, H(st), M(st), H(ed), M(ed))
 
     def getInterval(rsv: Reservation):
         return f'{timestamp.getDate(rsv.st)} {timestamp.clock(rsv.st)}-{timestamp.clock(rsv.ed)}'
@@ -444,6 +457,52 @@ class AdminRequest(db.Model):
             'reason': self.reason
         }
 
+class Advice(db.Model):
+    STATE_WAIT = 1
+    STATE_END = 2
+
+    __tablename__ = 'advice'
+    id            = db.Column(db.Integer, primary_key = True)
+    proponent     = db.Column(db.Text)
+    title        = db.Column(db.Text)
+    content       = db.Column(db.Text)
+    state         = db.Column(db.Integer)
+    response      = db.Column(db.Text)
+
+    def queryById(id):
+        rst = db.session.query(Advice).filter(Advice.id == id).one_or_none()
+        return rst
+
+    def toDict(self, carryContent = False):
+        rst = {
+            'id': self.id,
+            'proponent': User.queryName(self.proponent),
+            'title': self.title,
+            'state': self.state,
+            'response': self.response
+        }
+        if carryContent:
+            rst['content'] = self.content
+        return rst
+
+
+def init_db():
+    with db.app.app_context():
+        userSys = User.fromOpenid(userSysName)
+        if not userSys:
+            userSys = User(userSysName)
+            userSys.name = userSysName
+            userSys.schoolId = userSysName
+            userSys.clazz = userSysName
+            db.session.add(userSys)
+        adminSys = Admin.fromId(userSysName)
+        if not adminSys:
+            adminSys = Admin()
+            adminSys.openid = userSysName
+            db.session.add(adminSys)
+        db.session.commit()
+    pass
+
 # 太TM神奇了，python的dict没有__dict__属性，不能动态添加属性，如：
 #   a = {}
 #   a.foo = 10 # 报错：AttributeError
@@ -489,7 +548,8 @@ def _getIntervalStr(self: Reservation):
 
 
 # TODO: 换个更恰当的名字
-def mergeAndBeautify(qryRst: list):
+# 20210823 有bug，而且非常丑陋，现在弃用
+# def mergeAndBeautify(qryRst: list):
     """
     qryRst中的rsv对象至少包含如下属性：
         * id

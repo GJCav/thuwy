@@ -1,11 +1,11 @@
 from flask import request
-
+import json as Json
 
 from . import itemRouter
 
 from app import db, itemIdPool
 from app import comerrs as ErrCode
-from app.models import Admin, AdminRequest, User, Item, Reservation, mergeAndBeautify
+from app.models import Admin, AdminRequest, LongTimeRsv, User, Item, Reservation
 import app.checkargs as CheckArgs
 from app.auth import requireAdmin, requireBinding, requireLogin
 import app.timetools as timestamp
@@ -155,28 +155,37 @@ def delItem(itemId):
 @itemRouter.route('/item/<int:itemId>/reservation')
 def itemRsvInfo(itemId):
     qryRst = \
-        db.session.query(
-            Reservation.id,     # 0
-            Reservation.method, 
-            Reservation.state,
-            Reservation.st,     # 3
-            Reservation.ed,
-            Reservation.chore   # 6, 记得最后返回时删除这个属性
-        ) \
+        db.session.query(Reservation) \
         .filter(Reservation.itemId == itemId) \
         .filter(Reservation.st >= timestamp.today()) \
         .filter(Reservation.ed <= timestamp.aWeekAfter()) \
-        .all()  
+        .all()
+
+    skipRsvIds = set()
+    arr = []
+    for rsv in qryRst:
+        if rsv.id in skipRsvIds:
+            continue
+
+        if LongTimeRsv.isChildRsv(rsv):
+            rsv = LongTimeRsv.getFatherRsv(rsv)
+            
+        if LongTimeRsv.isFatherRsv(rsv):
+            choreJson = Json.loads(rsv.chore)
+            skipRsvIds |= set(choreJson['group-rsv']['sub-rsvs'])
+            skipRsvIds.add(rsv.id)
+
+        arr.append(rsv.toDict())
 
     rst = {}
     rst.update(ErrCode.CODE_SUCCESS)
-
-    rsvArr = mergeAndBeautify(qryRst)
-    def _process(e): # TODO: 想个好名字吧。。。
-        del e['chore']
-        del e['st']
-        del e['ed']
+    def _process(e):
+        del e['item-id']
+        del e['guest']
+        del e['reason']
+        del e['approver']
+        del e['exam-rst']
         return e
 
-    rst['rsvs'] = [_process(e) for e in rsvArr] # 因为字段名和协议中属性名相同，所以不用多处理
+    rst['rsvs'] = [_process(e) for e in arr] # 因为字段名和协议中属性名相同，所以不用多处理
     return rst

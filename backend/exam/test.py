@@ -10,10 +10,16 @@ from pprint import pprint
 import sqlalchemy
 import threading
 import time
+from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.secret_key = os.urandom(24)
+
+scheduler = APScheduler()
+app.config['SCHEDULER_API_ENABLED'] = False
+scheduler.init_app(app)
+scheduler.start()       # 如果是多进程模型，要用文件锁避免同事创建多个scheduler
 
 db = SQLAlchemy(app)
 
@@ -38,19 +44,21 @@ def listStu():
         buf += str(stu) + '\r\n'
     return buf
 
+count = 0
+
+@scheduler.task('cron', minute='*')
 def addstu():
-    print('sleep')
-    time.sleep(5)
-    print('add stu out of request...')
-    for i in range(20):
-        a = Student()
-        a.id = i
-        a.city = f'city: {i}'
-        a.name = f'name: {i}'
-        db.session.add(a)
-    db.session.commit()
+    print('schedule task')
+    with app.app_context():
+        global count
+        s = Student()
+        s.id = count
+        s.name = f'name {count}'
+        s.city = f'city {count}'
+        count += 1
+        db.session.add(s)
+        db.session.commit()
 
 if __name__ == '__main__':
     app.run(debug=1, threaded=4)
-    threading.Thread(target=addstu).start()
 
