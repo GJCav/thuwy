@@ -330,7 +330,7 @@ def testReserveWeekend():
 
 def testGetMyRsv():
     testData = [
-        1, 4, 16
+        1, 2, 4, 16
     ]
 
     def valid(rsv, state = 2**65-1):
@@ -406,6 +406,50 @@ def testExamRsv():
     json = res.json()
     assert json['code'] == 0, json
     assert RsvState.isReject(json['rsv']['state']) and RsvState.isComplete(json['rsv']['state']), json['rsv']
+
+def testCompleteRsv():
+    res = R.get(url_rsv+'?state=2')
+    assert res
+    json = res.json()
+    assert json['code'] == 0, json
+    
+    for rsv in json['rsvs']:
+        rsvId = rsv['id']
+        res = R.post(url_rsv+f'{rsvId}', json={'op': 2})
+        assert res
+        json = res.json()
+        assert json['code'] == 0, json
+
+        res = R.get(url_rsv+f'{rsvId}')
+        assert res
+        json = res.json()
+        assert json['code'] == 0, json
+        assert json['rsv']['state'] & RsvState.STATE_COMPLETE, json['rsv']
+
+    
+    res = R.get(url_rsv+'?state=1')
+    assert res
+    json = res.json()
+    assert json['code'] == 0, json
+    for rsv in json['rsvs']:
+        rsvId = rsv['id']
+        res = R.post(url_rsv+f'{rsvId}', json={'op': 2})
+        assert res
+        json = res.json()
+        assert json['code'] == ErrCode.Rsv.CODE_RSV_WAITING['code'], json
+
+    res = R.get(url_rsv+'?state=4')
+    assert res
+    json = res.json()
+    assert json['code'] == 0, json
+    for rsv in json['rsvs']:
+        rsvId = rsv['id']
+        res = R.post(url_rsv+f'{rsvId}', json={'op': 2})
+        assert res
+        json = res.json()
+        assert json['code'] == ErrCode.Rsv.CODE_RSV_COMPLETED['code'], json
+
+
 
 def testCancel():
     itemId = addItem('test cancel', 3)
