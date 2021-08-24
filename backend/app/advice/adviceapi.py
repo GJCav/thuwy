@@ -17,7 +17,16 @@ def getAdviceList():
     st = request.args.get('st', None)
     ed = request.args.get('ed', None)
     state = request.args.get('state', None, int)
-    page = request.args.get('p', 1, int)
+    page = request.args.get('p', None)
+
+    try:
+        page = int(page)
+    except:
+        return ErrCode.CODE_ARG_TYPE_ERR
+    
+    if not CheckArgs.isUint64(page) or page <= 0:
+        return ErrCode.CODE_ARG_INVALID
+
 
     qry = db.session.query(Advice)
     
@@ -75,7 +84,7 @@ def responseAdvice(adviceId):
         return ErrCode.CODE_ARG_INVALID
 
     json = request.get_json()
-    if not json:
+    if json == None:
         return ErrCode.CODE_ARG_INVALID
     if 'response' not in json:
         return ErrCode.CODE_ARG_MISSING
