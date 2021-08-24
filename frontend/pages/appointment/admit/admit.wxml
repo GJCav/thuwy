@@ -2,11 +2,14 @@
 <view class="beauty">提交预约申请</view>
 <view class="tips" style="margin-bottom:50rpx">——请确认预约信息——</view>
 <form bindsubmit="appoint">
-  <view class="detail-list" style="margin-left:10%;font-weight:bold">申请预约设备：{{name}}</view>
+  <view class="detail-list" style="margin-left:10%">
+    <text style="font-weight:bold;white-space:nowrap">申请预约设备：</text>
+    <text style="font-weight:normal">{{name}}</text>
+  </view>
   <view class="detail-list" style="margin-left:10%;font-weight:bold">设备详细信息：</view>
   <view style="margin-left:10%;margin-right:10%;margin-top:20rpx;border:2px solid #dddddd;">
-  <view style="margin-left:2%;margin-right:2%">
-    <wemark md="{{md_intro}}" link highlight type="wemark"></wemark>
+    <view style="margin-left:2%;margin-right:2%">
+      <wemark md="{{md_intro}}" link highlight type="wemark"></wemark>
     </view>
   </view>
   <view class="detail-list" style="margin-left:10%;font-weight:bold">选择预约方式：</view>
@@ -43,8 +46,8 @@
         {{flex_calendar[date_index].whole}}
       </view>
     </picker>
-    <view class="datetitle">以下时间段已被预约：</view>
-
+    <view class="datetitle" wx:if="{{occupy[date_index].length!=0}}">以下时间段已被预约：</view>
+    <view style="margin-left:20%;margin-top:10rpx" wx:for="{{occupy[date_index]}}" wx:key="*this">{{item}}</view>
     <view class="datetitle">请选择预约时间段：</view>
     <picker mode="time" value="{{st_index}}" st="00:00" ed="23:59" bindchange="st_change">
       <view class="option" style="display:flex;justify-content:center">
@@ -59,7 +62,7 @@
   </view>
   <view class="detail-list" style="margin-left:10%;font-weight:bold;margin-top:30rpx">申请预约理由：</view>
   <view style="margin-top:30rpx">
-    <textarea class="inputbox" placeholder="请简述预约设备用途" bindblur="inputwhy" />
+    <textarea class="inputbox" style="width:80%;margin-left:10%;margin-right:10%" placeholder="请简述预约设备用途" bindblur="inputwhy" />
   </view>
   <button form-type="submit" type="primary" style="margin-bottom:50rpx;margin-top:50rpx">提交预约</button>
 </form>
