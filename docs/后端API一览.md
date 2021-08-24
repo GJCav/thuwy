@@ -300,7 +300,7 @@ AdminReq属性：
 
 **API:** `GET /item/<item-id>`
 
-**Des：** 获取物品详细信息，包括`md-intro`、`delete`属性
+**Des：** 获取物品详细信息，包括`md-intro`、`delete`、`attr`属性
 
 **Login?：** False
 
@@ -335,11 +335,11 @@ AdminReq属性：
 **请求参数：** Item，包含且只包含如下属性：
 
 * name
-
 * brief-intro
 * md-intro
 * thumbnail
 * rsv-method
+* attr，可选参数，默认为 0
 
 **返回参数：**
 
@@ -376,6 +376,7 @@ AdminReq属性：
   * md-intro
   * thumbnail
   * rsv-method
+  * attr
 
 **返回值：** Json Object，包含属性如下
 
@@ -843,6 +844,7 @@ Item对象是一个Json Object对象，包含如下属性：
 | md-intro    | string      | 详细介绍，只在`/item/mdintro`返回                 |
 | thumbnail   | url, string | 缩略图的url                                       |
 | rsv-method  | RsvMethod   | 支持的预约方式                                    |
+| attr        | int         | 特殊属性                                          |
 
 
 
