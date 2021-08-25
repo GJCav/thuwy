@@ -16,9 +16,9 @@ Page({
     })
     this.setData({
       who: options.who,
-      //who=0:用户端且已审批
-      //who=1:用户端且待审批
-      //who=2：管理员端
+        //who=0:用户端且已审批
+        //who=1:用户端且待审批
+        //who=2：管理员端
       rsvid: options.rsvid,
       rsv_equip: options.name
     })
