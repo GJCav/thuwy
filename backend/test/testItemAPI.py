@@ -1,3 +1,4 @@
+from attr import attr
 import pytest
 # import requests as R
 import os.path as Path
@@ -68,6 +69,7 @@ def testAddItem():
             assert item['brief-intro'] == f'bf-intro {idx}'
             assert item['thumbnail'] == f'http://server/thumb{idx}'
             assert item['rsv-method'] == idx % 2
+            assert item['attr'] == 0 # add check attr. GJCav, 20210824
 
 @pytest.mark.addItem
 def testAddDuItem():
@@ -156,10 +158,10 @@ def testAddItemWithBadArg():
 
 def _isItemObject(item: dict):
     # pprint(item.keys())
-    assert item.keys() == {'name', 'id', 'available', 'brief-intro', 'thumbnail', 'rsv-method'}
+    assert item.keys() == {'name', 'id', 'available', 'brief-intro', 'thumbnail', 'rsv-method', 'attr'}
     assert CheckArgs.areStr(item, ['name', 'brief-intro', 'thumbnail'])
     assert CheckArgs.isUrl(item['thumbnail'])
-    assert CheckArgs.areInt(item, ['id', 'rsv-method'])
+    assert CheckArgs.areInt(item, ['id', 'rsv-method', 'attr'])
     assert CheckArgs.areBool(item, ['available'])
 
 @pytest.mark.showItem
@@ -220,7 +222,8 @@ def testModifyItem():
         'brief-intro': f'b-i after modify p={page}, i={idx}',
         'md-intro': f'md-i after modify p={page}, i={idx}',
         'thumbnail': f'http://after modify p={page}, i={idx}',
-        'rsv-method': 10
+        'rsv-method': 10,
+        'attr': 2
     }
 
     for k in mdf:
@@ -250,7 +253,8 @@ def testGetItemFullInfo():
         'brief-intro': f'bf-intro, calculus is so fucking difficult.',
         'md-intro': f'so is linear algebra..',
         'thumbnail': f'http://server/ilovemath',
-        'rsv-method': 4
+        'rsv-method': 4,
+        'attr': 8
     }
 
     res = R.post(testItemUrl, json=json)
@@ -305,7 +309,7 @@ def testDelItem():
 
 
 # ------------ 给其他模块使用的函数 --------------
-def addItem(i, rsvMethod):
+def addItem(i, rsvMethod, attr = 0):
     global testItemUrl
     url = testItemUrl
     json = {
@@ -313,7 +317,8 @@ def addItem(i, rsvMethod):
         'brief-intro': f'bf-intro {i}',
         'md-intro': f'md {i}',
         'thumbnail': f'http://server/thumb{i}',
-        'rsv-method': rsvMethod
+        'rsv-method': rsvMethod,
+        'attr': attr
     }
 
     res = R.post(url, json=json)

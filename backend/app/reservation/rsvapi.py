@@ -163,10 +163,7 @@ def reserve():
             print('Error: ' + str(e))
             return ErrCode.CODE_DATABASE_ERROR
 
-        rtn = {}
-        rtn.update(ErrCode.CODE_SUCCESS)
-        rtn['rsv-id'] = rsvGroup[0].id
-        return rtn
+        finalRsv = rsvGroup[0]
 
     elif method == FlexTimeRsv.methodValue:
         if not isinstance(reqJson['interval'], str):
@@ -205,14 +202,27 @@ def reserve():
             print('Error: ' + str(e))
             return ErrCode.CODE_DATABASE_ERROR
 
-        rtn = {}
-        rtn.update(ErrCode.CODE_SUCCESS)
-        rtn['rsv-id'] = r.id
-        return rtn
+        finalRsv = r
         
     else:
         return ErrCode.CODE_ARG_INVALID
 
+    rtn = {}
+
+    if Item.Attr.isAutoAccept(Item.Attr.queryAttrById(finalRsv.itemId)):
+        finalRsv.examRst = f'auto accept by {userSysName}'
+        finalRsv.approver = userSysName
+        finalRsv.changeState(RsvState.STATE_START)
+        try:
+            db.session.commit()
+            rtn['auto-accept'] = 'success'
+        except Exception as e:
+            print(e)
+            rtn['auto-accept'] = 'fail'
+    
+    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn['rsv-id'] = finalRsv.id
+    return rtn
 
 @rsvRouter.route('/reservation/me')
 @requireLogin
@@ -222,18 +232,7 @@ def querymyrsv():
     def makeSnowId(date, flow):
         return Snowflake.makeId(Time.mktime(Time.strptime(date, '%Y-%m-%d')), MACHINE_ID, flow)
 
-    sql = db.session.query(
-        Reservation.id,     # 0
-        Reservation.method, 
-        Reservation.state,
-        Reservation.st,     # 3
-        Reservation.ed,
-        Reservation.chore,   # 6
-        Reservation.itemId,
-        Reservation.reason, # 8
-        Reservation.approver,
-        Reservation.examRst # 10
-    ).filter(Reservation.guest == openid)
+    sql = db.session.query(Reservation).filter(Reservation.guest == openid)
 
     st = request.args.get('st', None)
     if st and CheckArgs.isDate(st):

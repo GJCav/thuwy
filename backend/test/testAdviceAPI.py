@@ -5,11 +5,13 @@ import re as Regex
 
 import sys
 sys.path.append('..')
+import app.comerrs as ErrCode
 
 adviceUrl = baseUrl + 'advice/'
 
 adviceIds = []
 
+@pytest.mark.funcTest
 def testAddAdvice():
     adviceCount = 10
     for i in range(adviceCount):
@@ -24,6 +26,7 @@ def testAddAdvice():
 
         adviceIds.append(json['advice-id'])
 
+@pytest.mark.funcTest
 def testGetAdviceList():
     page = 0
     idSet = set(adviceIds)
@@ -51,6 +54,7 @@ def testGetAdviceList():
 
     assert len(idSet) == 0, f'建议列表没有完整显示添加的advice，未找到：{idSet}'
 
+@pytest.mark.funcTest
 def testGetAdviceInfo():
     for id in adviceIds:
         res = R.get(adviceUrl + f'{id}')
@@ -66,6 +70,7 @@ def testGetAdviceInfo():
         assert advice['state'] == 1, 'should be waiting state'
         assert advice['response'] == None
 
+@pytest.mark.funcTest
 def testResponse():
     for id in adviceIds:
         res = R.get(adviceUrl+ f'{id}')
@@ -96,5 +101,83 @@ def testResponse():
         assert advice['state'] == 2
         assert advice['response'] == f'response {id}'
 
-        
+@pytest.mark.robustTest
+def testAddAdviceRobustly():
+    baseReqJson = {
+        'title': f'test add advice robustly',
+        'content': f'test add advice'
+    }
+
+    for k in baseReqJson.keys():
+        reqJson = {}
+        reqJson.update(baseReqJson)
+        del reqJson[k]
+
+        res = R.post(adviceUrl, json=reqJson)
+        assert res
+        json = res.json()
+        assert json['code'] == ErrCode.CODE_ARG_MISSING['code'], json
+
+    for k in baseReqJson.keys():
+        reqjson = {}
+        reqJson.update(baseReqJson)
+        reqJson[k] = 10
+
+        res = R.post(adviceUrl, json=reqJson)
+        assert res
+        json = res.json()
+        assert json['code'] == ErrCode.CODE_ARG_TYPE_ERR['code'], json
+
+@pytest.mark.robustTest
+def testGetAdviceListRobustly():
+    pageData = [
+        # page, http code, json code, response page
+        (-1, 200, ErrCode.CODE_ARG_INVALID['code'], 0),
+        (0, 200, ErrCode.CODE_ARG_INVALID['code'], 0),
+        (2**128, 200, ErrCode.CODE_ARG_INVALID['code'], 0),
+        ('a', 200, ErrCode.CODE_ARG_TYPE_ERR['code'], 1),
+        (100, 200, 0, 100)
+    ]
+    
+
+    for page, httpCode, jsonCode, resPage in pageData:
+        res = R.get(adviceUrl + f'?p={page}')
+        assert res.status_code == httpCode
+        if httpCode != 200: continue
+        json = res.json()
+        assert json['code'] == jsonCode, page
+        if jsonCode != 0: continue
+        assert json['page'] == resPage
+
+
+@pytest.mark.robustTest
+def testGetAdviceInfoRobustly():
+    res = R.get(adviceUrl+'0')
+    assert res
+    json = res.json()
+    assert json['code'] == ErrCode.Advice.CODE_ADVICE_NOT_FOUND['code']
+
+
+@pytest.mark.robustTest
+def testResponseRobustly():
+    res = R.post(adviceUrl + '0', json={'response': ''})
+    assert res
+    json = res.json()
+    assert json['code'] == ErrCode.Advice.CODE_ADVICE_NOT_FOUND['code']
+
+    res = R.post(adviceUrl, json={'title': 'test res robustly', 'content': 'none'})
+    assert res
+    json = res.json()
+    assert json['code'] == 0
+    adviceId = json['advice-id']
+
+    res = R.post(adviceUrl+f'{adviceId}', json={})
+    assert res
+    json = res.json()
+    assert json['code'] == ErrCode.CODE_ARG_MISSING['code']
+
+    res = R.post(adviceUrl+f'{adviceId}', json={'response': 54})
+    assert res
+    json = res.json()
+    assert json['code'] == ErrCode.CODE_ARG_TYPE_ERR['code']
 

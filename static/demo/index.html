@@ -7,9 +7,20 @@
 </head>
 
 <body>
-    <input id="file" type="file" />
-    <button id="upload">上传</button>
-    <div>上传结果：<a target="_blank" id="log" href="#">请先上传</a></div>
+    <div>
+        <h3>PUT上传</h3>
+        <input id="file" type="file" />
+        <button id="upload">上传</button>
+        <div>上传结果：<a target="_blank" id="log" href="#">请先上传</a></div>
+    </div>
+    <hr />
+    <div>
+        <form action="/upload" enctype="multipart/form-data" method="POST">
+            <h3>POST上传</h3>
+            <input type="file" name="file" />
+            <button type="submit">上传</button>
+        </form>
+    </div>
     <script>
         function Logger(text) {
             document.getElementById('log').innerText = text;
@@ -24,7 +35,7 @@
                 let res = await fetch(`uploadurl/${file.name}`, {
                     method: 'GET'
                 });
-                var url = await res.text();
+                var url = (await res.json()).data;
             } catch (e) {
                 Logger('错误');
                 throw (e);
