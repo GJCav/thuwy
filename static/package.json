@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "minio": "^7.0.18"
+    "minio": "^7.0.18",
+    "multer": "^1.4.3"
   }
 }
