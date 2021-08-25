@@ -13,7 +13,7 @@ Page({
     imgUrls: [
       'https://zos.alipayobjects.com/rmsportal/AiyWuByWklrrUDlFignR.png',
       '../../image/蓝色宣传图.png',
-      'https://zos.alipayobjects.com/rmsportal/IJOtIlfsYdTyaDTRVrLI.png',
+      '../../image/橙色宣传图.png',
     ],
   },
   //触底加载更多信息
