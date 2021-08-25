@@ -88,7 +88,7 @@ class Item(db.Model):
     attr          = db.Column(db.Integer)
 
     class Attr:
-        ATTR_AUTO_ACCEPT = 0b1
+        ATTR_AUTO_ACCEPT = 0b1 # 自动通过，自动完成
 
         def queryAttrById(id) -> int:
             qryRst = db.session.query(Item.attr).filter(Item.id == id).one_or_none()
@@ -201,6 +201,9 @@ class Reservation(db.Model):
         delegate to SubRsvDelegator
         """
         return SubRsvDelegator.getDelegator(self).getInterval(self)
+
+    def getEndTime(self):
+        return SubRsvDelegator.getDelegator(self).getEndTime(self)
 
     def changeState(self, newState):
         """
@@ -397,6 +400,15 @@ class LongTimeRsv(SubRsvDelegator):
                     break
         return began
 
+    def getEndTime(rsv: Reservation):
+        rsv = LongTimeRsv.getFatherRsv(rsv)
+        ed = rsv.ed
+        choreJson = Json.loads(rsv.chore)
+        for rsvId in choreJson['group-rsv']['sub-rsvs']:
+            subRsvEd = db.session.query(Reservation.ed).filter(Reservation.id == rsvId).one()[0]
+            ed = max(ed, subRsvEd)
+        return ed
+
 class FlexTimeRsv(SubRsvDelegator):
     methodValue = 2
     methodMask  = 2
@@ -446,6 +458,9 @@ class FlexTimeRsv(SubRsvDelegator):
 
     def changeState(rsv: Reservation, newState):
         rsv.state = newState
+
+    def getEndTime(rsv: Reservation):
+        return rsv.ed
 
     def isBegan(rsv: Reservation, now):
         return (rsv.st <= now < rsv.ed)
