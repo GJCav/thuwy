@@ -286,7 +286,7 @@ Page({
     console.log("refuse:" + this.data.rsvid)
     wx.showModal({
       title: '提示',
-      content: '确认预约设备已归还?',
+      content: '确认预约物品已归还?',
       success: (res) => {
         if (res.confirm) {
           wx.showLoading({

@@ -12,7 +12,7 @@ Page({
     rsv_method: 0,
 
     havepic: false,
-    thumbnail: '',
+    thumbnail: null,
     uploadurl: null,
     finalurl: null,
 
@@ -199,6 +199,9 @@ Page({
   upfile() {
     let that = this
     return new Promise(function (resolve, reject) {
+      that.setData({
+        finalurl:that.data.thumbnail
+      })
       if (that.data.havepic) {
         wx.uploadFile({
           url: app.globalData.picurl + '/upload/:' + that.data.name,

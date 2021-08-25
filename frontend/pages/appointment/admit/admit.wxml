@@ -3,10 +3,10 @@
 <view class="tips" style="margin-bottom:50rpx">——请确认预约信息——</view>
 <form bindsubmit="appoint">
   <view class="detail-list" style="margin-left:10%">
-    <text style="font-weight:bold;white-space:nowrap">申请预约设备：</text>
+    <text style="font-weight:bold;white-space:nowrap">预约物品名称：</text>
     <text style="font-weight:normal">{{name}}</text>
   </view>
-  <view class="detail-list" style="margin-left:10%;font-weight:bold">设备详细信息：</view>
+  <view class="detail-list" style="margin-left:10%;font-weight:bold">物品详细信息：</view>
   <view style="margin-left:10%;margin-right:10%;margin-top:20rpx;border:2px solid #dddddd">
     <view style="margin-left:2%;margin-right:2%">
       <wemark md="{{md_intro}}" link highlight type="wemark"></wemark>

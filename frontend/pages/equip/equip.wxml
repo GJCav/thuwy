@@ -1,12 +1,12 @@
 <!--pages/equip/equip.wxml-->
 <view>
-  <view class="beauty">{{item_id==0?'添加预约设备':'修改预约设备'}}</view>
+  <view class="beauty">{{item_id==0?'添加预约物品':'修改预约物品'}}</view>
   <view class="tips" style="margin-bottom:50rpx">——请完整填写以下信息——</view>
   <form bindsubmit="addit">
     <view class="after-title">
       <view class="labelbox">
         <image src="../../icon/equip.png" class="icon"></image>
-        <text class="textbox">设备名称：</text>
+        <text class="textbox">物品名称：</text>
       </view>
       <view>
         <input value="{{name}}" class="inputbox" placeholder="请填写设备名称" bindblur="inputname" />
@@ -28,7 +28,7 @@
     </view>
     <view class="labelbox">
       <image src="../../icon/pic.png" class="icon"></image>
-      <text class="textbox">设备图片：</text>
+      <text class="textbox">物品图片：</text>
     </view>
     <view class="picbox">
       <image style="height:500rpx;width:500rpx" src="{{thumbnail}}" mode="widthFix" wx:if="{{havepic||item_id!=0}}"></image>

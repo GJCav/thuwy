@@ -29,7 +29,7 @@
     </view> -->
   </view>
   <view class="detail-list">
-    <view style="font-weight:bold;white-space:nowrap"> 设备名称：</view>
+    <view style="font-weight:bold;white-space:nowrap"> 物品名称：</view>
     <view>{{rsv_equip}}</view>
   </view>
   <view class="detail-list">

@@ -2,7 +2,7 @@
 <van-tabs active="{{ activeTab }}" custom-class="tabbar" swipeable="{{false}}" animated="{{true}}"
     bind:change="switchTab" z-index="0">
     <van-tab title="审批预约"></van-tab>
-    <van-tab title="管理设备"></van-tab>
+    <van-tab title="管理物品"></van-tab>
     <van-tab title="调整管理员"></van-tab>
 </van-tabs>
 <!-- 审批预约 -->
@@ -14,7 +14,7 @@
     <view class="total" wx:for="{{rsv_list1}}" wx:key="id"
         style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx">
         <view class="detail">
-            <view class="which">预约设备：{{item.name}}</view>
+            <view class="which">预约物品：{{item.name}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"
                 bindtap="showdetail" data-id="{{item.id}}" data-name="{{item.name}}" data-value="2">
                 详细信息
@@ -41,7 +41,7 @@
     <view class="total" wx:for="{{rsv_list2}}" wx:key="id"
         style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx;">
         <view class="detail">
-            <view class="which">预约设备：{{item.name}}</view>
+            <view class="which">预约物品：{{item.name}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"
                 bindtap="showdetail" data-id="{{item.id}}" data-name="{{item.name}}" data-value="3">
                 详细信息
@@ -67,7 +67,7 @@
     <view class="small_title" hover-class="haveselect" bindtap="addequip">
         <view class="thetext" style="font-size:large;width:100%;justify-content:center;color:#999999" >
             <view class="square" style='background-image:url(../../icon/add.png)' />
-            <text decode="{{true}}">&nbsp;&nbsp;添加新的预约设备</text>
+            <text decode="{{true}}">&nbsp;&nbsp;添加新的预约物品</text>
         </view>
         <view class="divline"></view>
     </view>

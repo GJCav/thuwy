@@ -8,7 +8,7 @@
     </swiper-item>
   </block>
 </swiper>
-<!-- 预约设备 -->
+<!-- 预约物品 -->
 <van-row custom-class="row" wx:for="{{items}}" wx:for-item="equip" wx:for-index="number" wx:key="id" wx:if="{{equip.available}}">
   <van-col span="4" offset="1">
     <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>

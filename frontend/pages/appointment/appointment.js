@@ -70,7 +70,7 @@ Page({
   //初始化
   onLoad() {
     wx.setNavigationBarTitle({
-      title: '预约设备'
+      title: '预约物品'
     })
     this.refresh();
   },
