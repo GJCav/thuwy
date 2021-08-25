@@ -31,7 +31,7 @@
       <text class="textbox">设备图片：</text>
     </view>
     <view class="picbox">
-      <image style="height:500rpx;width:500rpx" src="{{thumbnail}}" mode="widthFix" wx:if="{{havepic}}"></image>
+      <image style="height:500rpx;width:500rpx" src="{{thumbnail}}" mode="widthFix" wx:if="{{havepic||item_id!=0}}"></image>
     </view>
     <button class="normal" hover-class="normals" style="margin-top:30rpx" bindtap="choosepic"
       data-way="album">从相册中选择</button>

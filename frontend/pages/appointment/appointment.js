@@ -74,23 +74,26 @@ Page({
     })
     this.refresh();
   },
+  onTabItemTap() {
+    this.refresh();
+  },
   onPullDownRefresh() {
     this.refresh();
-},
+  },
   refresh() {
     wx.showLoading({
       mask: true,
       title: '加载中',
     })
     if (!this.data.complete) {
-      let that=this
+      let that = this
       app.getUserInfo().then(function () {
         that.setData({
-          complete:true
+          complete: true
         })
         that.getitem()
-      }).catch(function(res){
-        console.log(res.data.code,res.data.errmsg)
+      }).catch(function (res) {
+        console.log(res.data.code, res.data.errmsg)
         wx.hideLoading()
         wx.showToast({
           title: '读取信息失败',

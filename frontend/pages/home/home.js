@@ -19,7 +19,11 @@ Page({
         wx.setNavigationBarTitle({
             title: '我的信息'
         })
-         // this.thetime();
+        // this.thetime();
+        this.refresh();
+    },
+    onTabItemTap() {
+        // this.thetime();
         this.refresh();
     },
     onPullDownRefresh: function () {
@@ -57,7 +61,7 @@ Page({
                 if (res.data.code == 0) {
                     rsvs = res.data['my-rsv']
                     //读取设备名称       
-                    for (var i =rsvs.length-1; i >=0; --i) {
+                    for (var i = rsvs.length - 1; i >= 0; --i) {
                         let item = rsvs[i]
                         util.the_name(item['item-id']).then(function (value) {
                             item.name = value
@@ -103,7 +107,7 @@ Page({
                 if (res.data.code == 0) {
                     rsvs = res.data['my-rsv']
                     //读取设备名称
-                    for (var i =rsvs.length-1; i >=0; --i) {
+                    for (var i = rsvs.length - 1; i >= 0; --i) {
                         let item = rsvs[i]
                         util.the_name(item['item-id']).then(function (value) {
                             item.name = value
@@ -149,7 +153,7 @@ Page({
                 if (res.data.code == 0) {
                     rsvs = res.data['my-rsv']
                     //读取设备名称
-                    for (var i =rsvs.length-1; i >=0; --i) {
+                    for (var i = rsvs.length - 1; i >= 0; --i) {
                         let item = rsvs[i]
                         util.the_name(item['item-id']).then(function (value) {
                             item.name = value
@@ -177,7 +181,7 @@ Page({
     },
     //刷新状态
     refresh: function () {
-        var t=this.data.activeTab
+        var t = this.data.activeTab
         if (app.globalData.userInfo) {
             this.setData({
                 success: [],

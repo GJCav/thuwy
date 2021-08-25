@@ -440,7 +440,6 @@ Page({
         var op=change_time(begin)
         var st=change_time(tmp_time.slice(0,5))
         var ed=change_time(tmp_time.slice(6))
-        console.log(time,op,st,ed)
         if(time>=op&&time<st){ //点到可预约的时间段
           wx.navigateTo({
             url: 'time/time?st='+begin+'&ed='+tmp_time.slice(0,5),
