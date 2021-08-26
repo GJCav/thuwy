@@ -5,8 +5,7 @@ Page({
     data: {
         //记录显示
         ddl: null,
-        st: ["受理中", "已审批", "已取消", "已结束", "已违约"],
-        colst: ["待审批", "未通过", "已通过", "未审批"],
+        colst: ["受理中", "未通过", "已通过", "已取消","已违约"],
         success: [],
         ongoing: [],
         history: [],
@@ -19,8 +18,6 @@ Page({
         wx.setNavigationBarTitle({
             title: '我的信息'
         })
-        // this.thetime();
-        this.refresh();
     },
     onTabItemTap() {
         // this.thetime();

@@ -12,9 +12,9 @@
         <view class="divline"></view>
     </view>
     <view class="total" wx:for="{{rsv_list1}}" wx:key="id"
-        style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx">
+        style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
         <view class="detail">
-            <view class="which">预约物品：{{item.name}}</view>
+            <view class="which">{{item.name}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"
                 bindtap="showdetail" data-id="{{item.id}}" data-name="{{item.name}}" data-value="2">
                 详细信息
@@ -22,12 +22,12 @@
         </view>
         <view class="divline"></view>
         <view class="detail">
-            <view style="width:50%">预约编号：</view>
-            <view style="width:50%;text-align:right">{{item.id}}</view>
+            <view style="width:35%">预约编号：</view>
+            <view style="width:65%;text-align:right">{{item.id}}</view>
         </view>
         <view class="detail">
-            <view style="width:50%">预约申请人：</view>
-            <view style="width:50%;text-align:right">{{item.guest}}</view>
+            <view style="width:45%">预约申请人：</view>
+            <view style="width:55%;text-align:right">{{item.guest}}</view>
         </view>
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{rsv_list1.length==0}}">
@@ -39,9 +39,9 @@
         <view class="divline"></view>
     </view>
     <view class="total" wx:for="{{rsv_list2}}" wx:key="id"
-        style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat; background-size:250rpx 250rpx;">
+        style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
         <view class="detail">
-            <view class="which">预约物品：{{item.name}}</view>
+            <view class="which">{{item.name}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"
                 bindtap="showdetail" data-id="{{item.id}}" data-name="{{item.name}}" data-value="3">
                 详细信息
@@ -49,12 +49,12 @@
         </view>
         <view class="divline"></view>
         <view class="detail">
-            <view style="width:50%">预约编号：</view>
-            <view style="width:50%;text-align:right">{{item.id}}</view>
+            <view style="width:35%">预约编号：</view>
+            <view style="width:65%;text-align:right">{{item.id}}</view>
         </view>
         <view class="detail">
-            <view style="width:50%">预约申请人：</view>
-            <view style="width:50%;text-align:right">{{item.guest}}</view>
+            <view style="width:45%">预约申请人：</view>
+            <view style="width:55%;text-align:right">{{item.guest}}</view>
         </view>
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{rsv_list2.length==0}}">

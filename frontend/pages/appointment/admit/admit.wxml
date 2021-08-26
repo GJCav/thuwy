@@ -7,10 +7,14 @@
     <text style="font-weight:normal">{{name}}</text>
   </view>
   <view class="detail-list" style="margin-left:10%;font-weight:bold">物品详细信息：</view>
-  <view style="margin-left:10%;margin-right:10%;margin-top:20rpx;border:2px solid #dddddd">
+  <view style="width:80%;margin-left:10%;margin-right:10%;margin-top:20rpx;border:2px solid #dddddd">
     <view style="margin-left:2%;margin-right:2%">
       <wemark md="{{md_intro}}" link highlight type="wemark"></wemark>
     </view>
+  </view>
+  <view class="detail-list" style="margin-left:10%;font-weight:bold" wx:if="{{attr!=0}}">物品特殊属性：</view>
+  <view wx:for="{{item_feature}}" style="margin-left:10%;margin-top:10rpx;font-size:large;display:flex;flex-direction:row" wx:key="title" wx:if="{{(attr>>index)%2==1}}">
+    <text style="font-weight:900" decode="{{true}}">&nbsp;·&nbsp;&nbsp;</text>{{item.title}}
   </view>
   <view class="detail-list" style="margin-left:10%;font-weight:bold">选择预约方式：</view>
   <radio-group class="detail-list" style="margin-left:15%" bindchange="inputmethod">
@@ -49,11 +53,13 @@
     <view class="datetitle" style="margin-bottom:10rpx">请选择预约时间：</view>
     <!-- 测试备用 -->
     <!-- <view style="margin-left:20%;margin-top:10rpx" wx:for="{{occupy[date_index]}}" wx:key="*this">{{item}}</view> -->
-    <canvas bind:tap="touch" type="2d" style="width:70%;height:1480px;margin-left:15%;display: block;" id='canvas'></canvas>
+    <canvas bind:tap="touch" type="2d" style="width:70%;height:1480px;margin-left:15%;display: block;"
+      id='canvas'></canvas>
   </view>
   <view class="detail-list" style="margin-left:10%;font-weight:bold;margin-top:30rpx">申请预约理由：</view>
   <view style="margin-top:30rpx">
-    <textarea class="inputbox" style="width:80%;margin-left:10%;margin-right:10%" placeholder="请简述预约设备用途" bindblur="inputwhy" />
+    <textarea class="inputbox" style="width:80%;margin-left:10%;margin-right:10%" placeholder="请简述预约设备用途"
+      bindblur="inputwhy" />
   </view>
   <button form-type="submit" type="primary" style="margin-bottom:50rpx;margin-top:50rpx">提交预约</button>
 </form>

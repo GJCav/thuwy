@@ -5,15 +5,17 @@ Page({
   data: {
     disable: [], //无法预约的时间段
     occupy: [[],[],[],[],[],[],[]], //每一天被占用的时间段
-    cast: ['08:00-12:00', '13:00-17:00', '18:00-23:00', '08:00-23:00'],
+    cast: ['08:00-12:00', '13:00-17:00', '18:00-23:00', '08:00-24:00'],
 
     //物品信息相关
     name: '',
     id: 0,
+    attr:0,
     reason: '',
     md_intro: '',
     rsv_method: 3,
     choose_method: 0,
+    item_feature:[],
 
     //时间选择相关
     final_ed:'',
@@ -67,6 +69,7 @@ Page({
         [true, true, true, true],
         [true, true, true, true]
       ],
+      item_feature:app.globalData.item_feature
     })
     wx.setNavigationBarTitle({
       title: '提交申请'
@@ -172,6 +175,7 @@ Page({
               name: those.item.name,
               md_intro: those.item['md-intro'],
               rsv_method: those.item['rsv-method'],
+              attr:those.item.attr
             })
             resolve()
           } else {
@@ -240,7 +244,6 @@ Page({
                 for (var j = 0; j < that.data.calendar.length; ++j) {
                   let the_date = that.data.calendar[j]; //枚举日期j
                   let the_time = the_rsv.interval //具体的预约时间段
-                  console.log(the_time.slice(0, -12))
                   if (the_time.slice(0, -12) == the_date.date) {
                     if (the_date.week == '星期六') {
                       tmp[j + 1][3] = false;

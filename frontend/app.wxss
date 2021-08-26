@@ -8,6 +8,15 @@ page {
 }
 
 /* 按钮 */
+.ok {
+  background-color: rgb(7, 193, 96);
+  color: white;
+}
+
+.oks {
+  background-color: rgb(6, 173, 86);
+}
+
 .warn {
   background-color: rgb(255, 50, 50);
   color: white;
@@ -139,6 +148,7 @@ page {
 
 /* checkbox公用格式 */
 .option {
+  width: 70%;
   height: 80rpx;
   display: flex;
   margin-top: 10rpx;

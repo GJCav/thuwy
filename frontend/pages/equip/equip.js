@@ -10,6 +10,11 @@ Page({
     brief_intro: '',
     md_intro: '',
     rsv_method: 0,
+    attr:0,
+
+    //显示特殊属性
+    show: false,
+    item_feature:[],
 
     havepic: false,
     thumbnail: null,
@@ -57,6 +62,24 @@ Page({
     })
     console.log(this.data.rsv_method)
   },
+  //展示特殊属性
+  show_feature(){
+    this.setData({
+      show:true
+    })
+  },
+  //添加特殊属性
+  add_feature(e){
+    this.setData({
+      attr:this.data.attr+(1<<e.currentTarget.dataset['id']),
+      show:false
+    })
+  },
+  del_feature(e){
+    this.setData({
+      attr:this.data.attr-(1<<e.currentTarget.dataset['id']),
+    })
+  },
   //预览详细介绍（md格式）
   showmd() {
     wx.navigateTo({
@@ -89,7 +112,8 @@ Page({
   },
   onLoad: function (options) {
     this.setData({
-      item_id: options.id
+      item_id: options.id,
+      item_feature:app.globalData.item_feature
     })
     if (options.id != 0) {
       wx.setNavigationBarTitle({
@@ -111,7 +135,8 @@ Page({
               md_intro: those.item['md-intro'],
               rsv_method: those.item['rsv-method'],
               thumbnail: those.item.thumbnail,
-              available: those.item.available
+              available: those.item.available,
+              attr:those.item.attr,
             })
             let that = this.data
             if (that.rsv_method % 2 == 1) {
@@ -256,7 +281,8 @@ Page({
               'brief-intro': that.data.brief_intro,
               'md-intro': that.data.md_intro,
               thumbnail: that.data.finalurl,
-              'rsv-method': that.data.rsv_method
+              'rsv-method': that.data.rsv_method,
+              attr:that.data.attr
             },
             success: (res) => {
               if (res.data.code == 0) {
@@ -334,7 +360,8 @@ Page({
               'md-intro': that.data.md_intro,
               thumbnail: that.data.finalurl,
               'rsv-method': that.data.rsv_method,
-              available: that.data.available
+              available: that.data.available,
+              attr:that.data.attr
             },
             success: (res) => {
               if (res.data.code == 0) {

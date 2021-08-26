@@ -2,9 +2,28 @@
 page {
   background-color: #ffffff
 }
+
 /* 选择图片 */
-.picbox{
+.picbox {
   display: flex;
   align-items: center;
   flex-direction: column;
+}
+.square{
+  width: 24px;
+  height: 24px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+.star {
+  width: 70%;
+  height: 100rpx;
+  margin-top: 10rpx;
+  margin-left:15%;
+  margin-right:15%;
+  color: #999999;
+  border: 1px dashed #dddddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
