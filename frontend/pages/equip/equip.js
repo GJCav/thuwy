@@ -144,7 +144,7 @@ Page({
                 'methods[0].checked': true
               })
             }
-            if (parseInt(that.rsv_method / 2) % 2 == 1) {
+            if ((that.rsv_method >>1) % 2 == 1) {
               this.setData({
                 'methods[1].checked': true
               })

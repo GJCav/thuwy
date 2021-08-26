@@ -12,7 +12,7 @@ Page({
         activeTab: 0,
     },
     num: function (x, t) {
-        return parseInt(x / Math.pow(2, t)) % 2
+        return (x >>t) % 2
     },
     onLoad() {
         wx.setNavigationBarTitle({

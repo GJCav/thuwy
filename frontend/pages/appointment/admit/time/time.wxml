@@ -10,4 +10,4 @@
         预约结束时间：{{ed_index}}
     </view>
 </picker>
-<button type="primary" style="margin-bottom:80rpx" bindtap="sure" wx:if="{{have_ed}}">确定时间</button>
+<button class="ok" hover-class="oks" style="margin-bottom:80rpx" bindtap="sure" wx:if="{{have_ed}}">确定时间</button>

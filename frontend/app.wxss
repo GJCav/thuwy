@@ -116,6 +116,12 @@ page {
 .server-description {
   color: #999999;
   font-size: smaller;
+  display: -webkit-box;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 /* 公用格式框 */

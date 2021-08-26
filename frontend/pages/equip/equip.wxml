@@ -74,7 +74,7 @@
       <switch style="margin-left:10%" checked="{{available}}" bindchange="inputcan"></switch>
     </view>
     <view style="margin-bottom:100rpx">
-      <button form-type="submit" type="primary" style="width:280rpx;margin-top:80rpx;">提交</button>
+      <button form-type="submit" class="ok" hover-class="oks" style="width:280rpx;margin-top:80rpx;">提交</button>
     </view>
   </form>
 </view>

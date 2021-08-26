@@ -18,7 +18,7 @@
     <view class='server-description'>{{equip['brief-intro']}}</view>
   </van-col>
   <van-col span="5" offset="2">
-    <button data-value="{{number}}" type="primary" style="margin-top:30%" bindtap="chooseMe" size="mini">预约</button>
+    <button data-value="{{number}}" class="ok" hover-class="oks" style="margin-top:30%" bindtap="chooseMe" size="mini">预约</button>
   </van-col>
 </van-row>
 <!-- 测试专用 -->

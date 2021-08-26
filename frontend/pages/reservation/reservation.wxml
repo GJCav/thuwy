@@ -75,10 +75,10 @@
   </view>
 </view>
 <view class="buttonbox" style="margin-top:60rpx">
-  <button type="primary" style="width:40%;margin-bottom:60rpx" bindtap="admit" wx:if="{{who==2}}">批准预约</button>
+  <button class="ok" hover-class="oks" style="width:40%;margin-bottom:60rpx" bindtap="admit" wx:if="{{who==2}}">批准预约</button>
   <button class="warn" hover-class="warns" style="width:40%;margin-bottom:60rpx" bindtap="noway"
     wx:if="{{who==2}}">拒绝预约</button>
   <button class="warn" hover-class="warns" style="width:40%;margin-bottom:60rpx" bindtap="delete"
     wx:if="{{who==1}}">取消预约</button>
-  <button type="primary" style="width:40%;margin-bottom:60rpx" bindtap="over" wx:if="{{who==3}}">完成预约</button>
+  <button class="ok" hover-class="oks" style="width:40%;margin-bottom:60rpx" bindtap="over" wx:if="{{who==3}}">完成预约</button>
 </view>

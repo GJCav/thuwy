@@ -8,11 +8,11 @@
                 return 2
             }
             else {
-                if (parseInt(x / 8) % 2 == 1)
+                if ((x >>3) % 2 == 1)
                     return 3
-                else if (parseInt(x / 16) % 2 == 1)
+                else if ((x >>4) % 2 == 1)
                     return 1
-                else if (parseInt(x / 32) % 2 == 1)
+                else if (parseInt(x >> 5) % 2 == 1)
                     return 4
                 else
                     return 2
@@ -64,11 +64,11 @@
         </view>
         <view style="width:65%;text-align:right" wx:if="{{equip.method==2}}">{{Time.fix(equip.interval,false)}}</view>
     </view>
-    <!-- <view class="detail">
+    <view class="detail">
         <view style="width:35%">预约理由：</view>
-        <view style="width:65%;text-align:right;overflow: hidden;text-overflow:ellipsis;white-space:nowrap">
+        <view style="width:65%;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
             {{equip.reason}}</view>
-    </view> -->
+    </view>
 </view>
 <view style="font-weight:lighter;color:#999999;margin-top:50%;text-align: center"
     wx:if="{{success.length==0&&activeTab==0||ongoing.length==0&&activeTab==1||history.length==0&&activeTab==2}}">
