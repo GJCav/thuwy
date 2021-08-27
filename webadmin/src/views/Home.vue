@@ -4,6 +4,7 @@
       <v-img :src="require('@/assets/wy_blue.png')" max-width="384px" />
     </v-row>
     <h1>微未央（管理端）</h1>
+    <br />
     <v-card color="blue lighten-5" class="rounded-xl" elevation="12">
       <v-list-item two-line>
         <v-list-item-content>

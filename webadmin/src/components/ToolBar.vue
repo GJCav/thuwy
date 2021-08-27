@@ -48,7 +48,7 @@
         <span>登录</span>
       </v-tooltip>
     </v-app-bar>
-    <login-dialog v-model="dialog"></login-dialog>
+    <login-dialog v-if="dialog" v-model="dialog"></login-dialog>
   </div>
 </template>
 
