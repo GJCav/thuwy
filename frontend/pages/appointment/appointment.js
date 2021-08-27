@@ -11,7 +11,7 @@ Page({
 
     servers: '',
     imgUrls: [
-      'https://zos.alipayobjects.com/rmsportal/AiyWuByWklrrUDlFignR.png',
+      '/image/green.png',
       '/image/blue.png',
       '/image/orange.png',
     ],
