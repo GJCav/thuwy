@@ -12,8 +12,8 @@ Page({
     servers: '',
     imgUrls: [
       'https://zos.alipayobjects.com/rmsportal/AiyWuByWklrrUDlFignR.png',
-      '../../image/蓝色宣传图.png',
-      '../../image/橙色宣传图.png',
+      '/image/blue.png',
+      '/image/orange.png',
     ],
   },
   //触底加载更多信息
@@ -93,7 +93,7 @@ Page({
         })
         that.getitem()
       }).catch(function (res) {
-        console.log(res.data.code, res.data.errmsg)
+        console.log(res)
         wx.hideLoading()
         wx.showToast({
           title: '读取信息失败',
@@ -129,7 +129,7 @@ Page({
           })
           wx.hideLoading();
         } else {
-          console.log(res.data.code, res.data.errmsg)
+          console.log(res)
           wx.hideLoading();
           wx.showToast({
             title: '连接错误',
@@ -139,7 +139,7 @@ Page({
         }
       },
       fail: (res) => {
-        console.log(res.data.code, res.data.errmsg)
+        console.log(res)
         wx.hideLoading();
         wx.showToast({
           title: '连接失败',

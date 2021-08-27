@@ -6,13 +6,16 @@ App({
       wx.login({ // 登录
         timeout: 5000,
         success: res => { // 发送 res.code 到后台换取 openId, sessionKey, unionId
+          console.log(1)
           wx.request({
+            timeout: 5000,
             url: that.globalData.url + '/login/',
             method: 'POST',
             data: {
               code: res.code
             },
             success: res => {
+              console.log(2)
               if (res.data.code == 0) {
                 that.globalData.login = true;
                 that.globalData.userInfo = res.data.bound;
@@ -22,6 +25,7 @@ App({
                 })
                 if (that.globalData.userInfo) {
                   wx.request({
+                    timeout: 5000,
                     url: that.globalData.url + '/profile/',
                     method: 'GET',
                     header: {
@@ -29,6 +33,7 @@ App({
                       'cookie': wx.getStorageSync('cookie')
                     },
                     success: (res) => {
+                      console.log(3)
                       if (res.data.code == 0) {
                         that.globalData.isadmin = res.data.admin ? true : false
                         resolve()
@@ -45,6 +50,9 @@ App({
               } else {
                 reject(res)
               }
+            },
+            fail:res=>{
+              reject(res)
             }
           })
         },

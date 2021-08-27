@@ -4,7 +4,7 @@
   <view class="tips" style="margin-bottom:50rpx">——请完整填写以下信息——</view>
   <form bindsubmit="addit">
     <view class="labelbox">
-      <image src="../../icon/equip.png" class="icon"></image>
+      <image src="/icon/equip.png" class="icon"></image>
       <text class="textbox">物品名称：</text>
     </view>
     <view>
@@ -12,7 +12,7 @@
     </view>
     <view class="tipbox">
       <view class="labelbox">
-        <image src="../../icon/method.png" class="icon"></image>
+        <image src="/icon/method.png" class="icon"></image>
         <text class="textbox">预约方式：</text>
       </view>
       <checkbox-group bindchange="rsvmethod">
@@ -37,7 +37,7 @@
     <button class="normal" hover-class="normals" style="margin-top:30rpx" bindtap="choosepic"
       data-way="camera">使用相机拍照</button>
     <view class="labelbox">
-      <image src="../../icon/star.png" class="icon"></image>
+      <image src="/icon/star.png" class="icon"></image>
       <text class="textbox">特殊属性：</text>
     </view>
       <view class="option" style="height:100rpx;justify-content:center" wx:for="{{item_feature}}" wx:key="title" wx:if="{{(attr>>index)%2==1}}"
@@ -48,11 +48,11 @@
         </view>
     </view>
     <view class="star" bindtap="show_feature">
-      <view class="square" style='background-image:url(../../icon/add.png)' />
+      <view class="square" style='background-image:url(/icon/add.png)' />
       <text decode="{{true}}">&nbsp;&nbsp;添加新属性</text>
     </view>
     <view class="labelbox">
-      <image src="../../icon/brief.png" class="icon"></image>
+      <image src="/icon/brief.png" class="icon"></image>
       <text class="textbox">简要介绍：</text>
     </view>
     <view>
@@ -60,7 +60,7 @@
         bindblur="inputintro" />
     </view>
     <view class="labelbox">
-      <image src="../../icon/md.png" class="icon"></image>
+      <image src="/icon/md.png" class="icon"></image>
       <text class="textbox">详细介绍：</text>
       <button class="normal" hover-class="normals" style="width:37%" bindtap="showmd">预览</button>
     </view>
@@ -69,7 +69,7 @@
         bindblur="inputmd" />
     </view>
     <view class="labelbox" wx:if="{{item_id!=0}}">
-      <image src="../../icon/can.png" class="icon"></image>
+      <image src="/icon/can.png" class="icon"></image>
       <text class="textbox">能否使用：</text>
       <switch style="margin-left:10%" checked="{{available}}" bindchange="inputcan"></switch>
     </view>
