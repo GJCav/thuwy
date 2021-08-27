@@ -11,7 +11,7 @@
       <v-card-text v-else>正在拉取二维码……</v-card-text>
       <v-card-actions>
         <v-btn @click="establishWS" outlined rounded color="primary">
-          <v-icon>mdi-refresh</v-icon>重试
+          <v-icon>mdi-refresh</v-icon>刷新
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -81,7 +81,7 @@ export default {
   },
   computed: {
     qrSrc() {
-      return `${this.config.WSAddr}/qr/${this.requestId}`;
+      return `${this.config.ServerAddr}/qr/${this.requestId}`;
     },
   },
   async mounted() {
