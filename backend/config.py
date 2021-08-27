@@ -7,7 +7,6 @@ class Config():
 
     def set(app):
         pass
-        pass
 
 class DevelopmentConfig(Config):
     DEBUG = True
