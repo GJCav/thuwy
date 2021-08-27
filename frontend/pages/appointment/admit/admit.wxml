@@ -64,3 +64,7 @@
 </form>
 <!-- 用于解决奇怪的bug -->
 <view style="height:30rpx"></view>
+<!-- 用户须知 -->
+<modal title='未央书院物品预约须知' cancel-text='关闭' confirm-text='确定' hidden="{{hidden}}" bindconfirm="read_confirm" bindcancel="read_cancel">
+  <wemark md="{{read_text}}" link highlight type="wemark"></wemark>
+</modal>

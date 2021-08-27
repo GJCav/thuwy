@@ -3,6 +3,10 @@ const app = getApp()
 
 Page({
   data: {
+    hidden: true,
+    read: false,
+    read_text:'+ 借阅物品应按时取用，及时归还\n\n+ 物品损坏需要按相应价格进行赔偿\n\n+ 不得将所借物品转借他人',
+
     disable: [], //无法预约的时间段
     occupy: [
       [],
@@ -304,7 +308,7 @@ Page({
               if (sq[i].slice(0, 5) <= cur_time) {
                 if (sq[i].slice(6) > cur_time) {
                   cur_obj = ['08:00-' + sq[i].slice(6)]
-                  ++i
+                    ++i
                   break
                 }
               } else {
@@ -356,7 +360,6 @@ Page({
   },
   //画图形化预约界面
   drawpic() {
-
     // 通过 SelectorQuery 获取 Canvas 节点
     wx.createSelectorQuery()
       .select('#canvas')
@@ -479,7 +482,7 @@ Page({
           } else if (time >= st && time < ed) {
             wx.hideLoading()
             wx.showToast({
-              title: '时间段已被预约',
+              title: '时间段无法预约',
               icon: 'error',
               duration: 1500
             });
@@ -524,6 +527,18 @@ Page({
       ctx.fillText(ed, 2 * x, 40 + (height / 60) * z)
     }
   },
+  //预约须知相关
+  read_confirm(){
+    this.setData({
+      read:true,
+      hidden:true
+    })
+  },
+  read_cancel(){
+    this.setData({
+      hidden:true
+    })
+  },
   //提交预约
   appoint: function () {
     this.setData({
@@ -549,6 +564,10 @@ Page({
       wx.showToast({
         title: '未填写预约理由',
         icon: 'error'
+      })
+    } else if (!this.data.read) {
+      this.setData({
+        hidden: false
       })
     } else {
       wx.showLoading({
