@@ -42,10 +42,12 @@
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn @click="dialog = true" icon v-bind="attrs" v-on="on">
-            <v-icon>mdi-login</v-icon>
+            <v-icon v-if="user === null">mdi-account</v-icon>
+            <v-icon v-else>mdi-login</v-icon>
           </v-btn>
         </template>
-        <span>登录</span>
+        <span v-if="user === null">登录</span>
+        <span v-else>切换用户</span>
       </v-tooltip>
     </v-app-bar>
     <login-dialog v-if="dialog" v-model="dialog"></login-dialog>
@@ -67,11 +69,11 @@ export default {
           title: '主页',
           to: '/',
         },
-        {
-          icon: 'mdi-account',
-          title: '用户管理',
-          to: '/user',
-        },
+        // {
+        //   icon: 'mdi-account',
+        //   title: '用户管理',
+        //   to: '/user',
+        // },
         {
           icon: 'mdi-file',
           title: '物品管理',
@@ -84,6 +86,11 @@ export default {
         },
       ],
     };
+  },
+  computed: {
+    user() {
+      return this.$store.state.user;
+    },
   },
   components: {
     LoginDialog,

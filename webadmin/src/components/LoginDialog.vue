@@ -1,17 +1,27 @@
 <template>
   <v-dialog
     max-width="512px"
-    @click:outside="$emit('input', false)"
     @input="$emit('input', false)"
     :value="show"
+    persistent
   >
-    <v-card :loading="credential === ''">
+    <v-card :loading="loginState !== 'success' && loginState !== 'fail'">
       <v-card-title>请扫码登录</v-card-title>
       <v-img v-if="requestId !== ''" max-width="512px" :src="qrSrc"></v-img>
       <v-card-text v-else>正在拉取二维码……</v-card-text>
+      <v-card-text v-if="loginState === 'success'" class="text-center"
+        >登录成功！</v-card-text
+      >
+      <v-card-text v-if="loginState === 'fail'" class="text-center"
+        >登录失败，请刷新重试</v-card-text
+      >
       <v-card-actions>
+        <v-spacer></v-spacer>
         <v-btn @click="establishWS" outlined rounded color="primary">
           <v-icon>mdi-refresh</v-icon>刷新
+        </v-btn>
+        <v-btn @click="$emit('input', false)" outlined rounded color="red">
+          <v-icon>mdi-close</v-icon>关闭
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -19,7 +29,7 @@
 </template>
 
 <script>
-import { getUserProfile, Login } from '@/api/user';
+import { Login } from '@/api/user';
 
 export default {
   props: {
@@ -35,6 +45,7 @@ export default {
       requestId: '',
       credential: '',
       config: this.$store.state.config,
+      loginState: 'unlogged',
     };
   },
   methods: {
@@ -53,30 +64,29 @@ export default {
 
       this.ws.on('requestId', (requestId) => {
         this.requestId = requestId;
-        // setTimeout(() => {
-        //   fetch(`${this.config.WSAddr}/weblogin`, {
-        //     method: 'POST',
-        //     headers: {
-        //       Accept: 'application/json',
-        //       'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({
-        //       requestId: requestId,
-        //       credential: `Credential is ${requestId}`,
-        //     }),
-        //   });
-        // }, 1000);
         console.log('RequestId: %s', requestId);
+        this.loginState = 'logging';
       });
 
       this.ws.on('credential', async (credential) => {
         console.log('Credential: %s', credential);
         this.credential = credential;
 
-        await Login(credential);
-        let user = await getUserProfile();
-        console.log(user);
+        this.doLogin();
       });
+    },
+    async doLogin() {
+      try {
+        await Login(this.credential);
+        await this.$store.dispatch('refreshProfile');
+        this.loginState = 'success';
+        setTimeout(() => {
+          this.$emit('input', false);
+        }, 2000);
+      } catch (e) {
+        this.loginState = 'fail';
+        throw e;
+      }
     },
   },
   computed: {

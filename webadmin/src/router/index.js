@@ -20,10 +20,24 @@ const routes = [
         component: () => import('@/views/ItemManage.vue')
       },
       {
-        path: '/user',
-        name: 'UserManage',
-        component: () => import('@/views/UserManage.vue')
+        path: '/item/:id(\\d+)',
+        name: 'ItemInfo',
+        component: () => import('@/views/ItemInfo.vue')
       },
+      {
+        path: '/item/:id/edit',
+        name: 'ItemEdit',
+        component: () => import('@/views/ItemEdit.vue')
+      },
+      {
+        path: '/item/new',
+        name: 'ItemCreate'
+      },
+      // {
+      //   path: '/user',
+      //   name: 'UserManage',
+      //   component: () => import('@/views/UserManage.vue')
+      // },
       {
         path: '/reservation',
         name: 'RsvManage',

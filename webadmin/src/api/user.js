@@ -1,11 +1,10 @@
 import request from './request';
-import store from '@/store';
 
 export async function getUserProfile() {
-  var ret = await request.get('/profile/');
-  let data = ret.data;
-  if (ret.code !== 0) {
-    throw (ret.errmsg);
+  var { data } = await request.get('/profile/');
+  console.log(data);
+  if (data.code !== 0) {
+    throw (data.errmsg);
   }
   let result = {
     name: data.name,
@@ -13,7 +12,6 @@ export async function getUserProfile() {
     id: data['school-id'],
     admin: data.admin
   };
-  store.commit('setUser', result);
   return result;
 }
 

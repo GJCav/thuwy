@@ -11,5 +11,8 @@ export default {
   data: () => ({
     //
   }),
+  created() {
+    this.$store.dispatch('refreshProfile');
+  },
 };
 </script>
