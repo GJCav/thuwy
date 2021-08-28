@@ -121,7 +121,7 @@ def testRsvFlexTime():
         assert json['code'] == 0, (json, reqJson)
 
         rsv = json['rsv']
-        assert CheckArgs.hasAttrs(rsv, ['id', 'item-id', 'guest', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), str(rsv)
+        assert CheckArgs.hasAttrs(rsv, ['id', 'item', 'item-id', 'guest', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), str(rsv)
         assert rsv['id'] == rsvId, str(rsv)
         assert rsv['item-id'] == itemId, str(rsv)
         assert rsv['reason'] == reqJson['reason'], rsv
@@ -334,7 +334,7 @@ def testGetMyRsv():
     ]
 
     def valid(rsv, state = 2**65-1):
-        assert CheckArgs.hasAttrs(rsv, ['id', 'item-id', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), rsv
+        assert CheckArgs.hasAttrs(rsv, ['id', 'item', 'item-id', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), rsv
         assert 'guest' not in rsv, rsv
         assert CheckArgs.areInt(rsv, ['id', 'item-id', 'method']), rsv
         assert CheckArgs.areStr(rsv, ['reason'])
