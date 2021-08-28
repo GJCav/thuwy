@@ -855,6 +855,7 @@ Rsv对象是一个Json Object，包含如下属性：
 | 属性     | 类型      | 说明                             |
 | -------- | --------- | -------------------------------- |
 | id       | RsvId     | 这个预约的编号                   |
+| item     | string    | 预约物品的名字                   |
 | item-id  | int64     | 物品ID                           |
 | guest    | string    | 预约人的名字                     |
 | reason   | string    | 预约理由                         |
