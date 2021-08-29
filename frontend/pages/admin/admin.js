@@ -1,6 +1,5 @@
 // pages/admin/admin.js
 const app = getApp()
-const util = require('../../utils/util.js')
 Page({
   data: {
     activeTab: 0,
@@ -23,7 +22,7 @@ Page({
     this.refresh()
   },
   refresh: function () {
-    var t=this.data.activeTab
+    var t = this.data.activeTab
     if (t == 0)
       this.refresh_rsv();
     else if (t == 1)
@@ -58,19 +57,10 @@ Page({
                 pan2: true
               })
             }
-            //读取设备名称                        
-            for (let i in wait_rsvs) {
-              let item = wait_rsvs[i]
-              util.the_name(item['item-id']).then(function (value) {
-                item.name = value
-                that.setData({
-                  rsv_list1: that.data.rsv_list1.concat(item)
-                })
-              }).catch(function (res) {
-                reject(res)
-              })
-            }
-            resolve(wait_rsvs)
+            that.setData({
+              rsv_list1: that.data.rsv_list1.concat(wait_rsvs)
+            })
+            resolve()
           } else {
             reject(res)
           }
@@ -107,19 +97,10 @@ Page({
                 pan2: true
               })
             }
-            //读取设备名称                        
-            for (let i in go_rsvs) {
-              let item = go_rsvs[i]
-              util.the_name(item['item-id']).then(function (value) {
-                item.name = value
-                that.setData({
-                  rsv_list2: that.data.rsv_list2.concat(item)
-                })
-              }).catch(function (res) {
-                reject(res)
-              })
-            }
-            resolve(go_rsvs)
+            that.setData({
+              rsv_list2: that.data.rsv_list2.concat(go_rsvs)
+            })
+            resolve()
           } else {
             reject(res)
           }

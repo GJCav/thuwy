@@ -25,7 +25,7 @@
       </checkbox-group>
     </view>
     <view class="labelbox">
-      <image src="../../icon/pic.png" class="icon"></image>
+      <image src="/icon/pic.png" class="icon"></image>
       <text class="textbox">物品图片：</text>
     </view>
     <view class="picbox">
