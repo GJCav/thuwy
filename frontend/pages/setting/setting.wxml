@@ -40,6 +40,6 @@
         <view style="margin-left:90%" class="arrow"></view>
       </view>
     </view>
-    <view class="divline" wx:if="{{index!=3 && item.condition}}"></view>
+    <view class="divline" wx:if="{{index!=4 && item.condition}}"></view>
   </view>
 </view>

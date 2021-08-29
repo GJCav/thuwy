@@ -70,7 +70,8 @@ App({
       title: '自动通过审批',
       text: '在没有预约提交成功的情况下，系统会自动完成审批。适用于29号楼会议室等不需要管理员特别审批的物品。'
     }],
-    url: "https://weiyang.grw20.cn", //本地测试地址：http://127.0.0.1:5000
-    picurl: "https://static.weiyang.grw20.cn/api/"
+    url: 'https://weiyang.grw20.cn', //本地测试地址：http://127.0.0.1:5000
+    picurl: 'https://static.weiyang.grw20.cn/api/',
+    webBackendUrl: 'http://static.weiyang.grw20.cn/api'
   }
 })

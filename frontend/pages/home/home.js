@@ -5,14 +5,14 @@ Page({
     data: {
         //记录显示
         ddl: null,
-        colst: ["受理中", "未通过", "已通过", "已取消","已违约"],
+        colst: ["受理中", "未通过", "已通过", "已取消", "已违约"],
         success: [],
         ongoing: [],
         history: [],
         activeTab: 0,
     },
     num: function (x, t) {
-        return (x >>t) % 2
+        return (x >> t) % 2
     },
     onLoad() {
         wx.setNavigationBarTitle({
@@ -43,11 +43,8 @@ Page({
             mask: true,
             title: '加载中',
         })
-        var rsvs = [];
-        var flag = false;
-        var msg = null;
         wx.request({
-            url: app.globalData.url + '/reservation/me?state=1',
+            url: app.globalData.url + '/reservation/me/?state=1',
             method: 'GET',
             header: {
                 'content-type': 'application/json; charset=utf-8',
@@ -56,25 +53,10 @@ Page({
             success: (res) => {
                 let that = this
                 if (res.data.code == 0) {
-                    rsvs = res.data['my-rsv']
-                    //读取设备名称       
-                    for (var i = rsvs.length - 1; i >= 0; --i) {
-                        let item = rsvs[i]
-                        util.the_name(item['item-id']).then(function (value) {
-                            item.name = value
-                            that.setData({
-                                ongoing: that.data.ongoing.concat(item)
-                            })
-                        }).catch(function (res) {
-                            flag = true
-                            msg = res
-                        })
-                    }
-                    if (flag) {
-                        this.bug(msg)
-                    } else {
-                        wx.hideLoading()
-                    }
+                    that.setData({
+                        ongoing: that.data.ongoing.concat(res.data['my-rsv'])
+                    })
+                    wx.hideLoading()
                 } else {
                     this.bug(res);
                 }
@@ -89,11 +71,8 @@ Page({
             mask: true,
             title: '加载中',
         })
-        var rsvs = [];
-        var flag = false;
-        var msg = null;
         wx.request({
-            url: app.globalData.url + '/reservation/me?state=2',
+            url: app.globalData.url + '/reservation/me/?state=2',
             method: 'GET',
             header: {
                 'content-type': 'application/json; charset=utf-8',
@@ -102,25 +81,10 @@ Page({
             success: (res) => {
                 let that = this
                 if (res.data.code == 0) {
-                    rsvs = res.data['my-rsv']
-                    //读取设备名称
-                    for (var i = rsvs.length - 1; i >= 0; --i) {
-                        let item = rsvs[i]
-                        util.the_name(item['item-id']).then(function (value) {
-                            item.name = value
-                            that.setData({
-                                success: that.data.success.concat(item)
-                            })
-                        }).catch(function (res) {
-                            flag = true
-                            msg = res
-                        })
-                    }
-                    if (flag) {
-                        this.bug(msg)
-                    } else {
-                        wx.hideLoading()
-                    }
+                    that.setData({
+                        success: that.data.success.concat(res.data['my-rsv'])
+                    })
+                    wx.hideLoading()
                 } else {
                     this.bug(res);
                 }
@@ -135,11 +99,8 @@ Page({
             mask: true,
             title: '加载中',
         })
-        var rsvs = [];
-        var flag = false;
-        var msg = null;
         wx.request({
-            url: app.globalData.url + '/reservation/me?state=4',
+            url: app.globalData.url + '/reservation/me/?state=4',
             method: 'GET',
             header: {
                 'content-type': 'application/json; charset=utf-8',
@@ -148,25 +109,10 @@ Page({
             success: (res) => {
                 let that = this
                 if (res.data.code == 0) {
-                    rsvs = res.data['my-rsv']
-                    //读取设备名称
-                    for (var i = rsvs.length - 1; i >= 0; --i) {
-                        let item = rsvs[i]
-                        util.the_name(item['item-id']).then(function (value) {
-                            item.name = value
-                            that.setData({
-                                history: that.data.history.concat(item)
-                            })
-                        }).catch(function (res) {
-                            flag = true
-                            msg = res
-                        })
-                    }
-                    if (flag) {
-                        this.bug(msg)
-                    } else {
-                        wx.hideLoading()
-                    }
+                    that.setData({
+                        history: that.data.success.concat(res.data['my-rsv'])
+                    })
+                    wx.hideLoading()
                 } else {
                     this.bug(res);
                 }
@@ -248,9 +194,8 @@ Page({
     //展示细节
     showdetail(e) {
         var rsvid = e.currentTarget.dataset['id'];
-        var name = e.currentTarget.dataset['name']
         wx.navigateTo({
-            url: '../reservation/reservation?rsvid=' + rsvid + '&who=' + (this.data.activeTab % 2) + '&name=' + name,
+            url: '../reservation/reservation?rsvid=' + rsvid + '&who=' + (this.data.activeTab % 2),
         })
     },
 });
