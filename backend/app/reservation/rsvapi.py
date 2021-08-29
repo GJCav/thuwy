@@ -1,6 +1,7 @@
 from flask import request, session
 import json as Json
 import time as Time
+from sqlalchemy import desc
 
 from . import rsvRouter
 
@@ -20,7 +21,7 @@ import app.snowflake as Snowflake
 @requireAdmin
 def getRsvList():
 
-    qry = db.session.query(Reservation)
+    qry = db.session.query(Reservation).order_by(desc(Reservation.id))
 
     st = request.args.get('st')
     ed = request.args.get('ed')
@@ -232,7 +233,9 @@ def querymyrsv():
     def makeSnowId(date, flow):
         return Snowflake.makeId(Time.mktime(Time.strptime(date, '%Y-%m-%d')), MACHINE_ID, flow)
 
-    sql = db.session.query(Reservation).filter(Reservation.guest == openid)
+    sql = db.session.query(Reservation)\
+        .filter(Reservation.guest == openid)\
+        .order_by(desc(Reservation.id))
 
     st = request.args.get('st', None)
     if st and CheckArgs.isDate(st):
