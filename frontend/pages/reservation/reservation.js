@@ -5,7 +5,6 @@ Page({
     who: 0,
     rsvid: 0,
     rsv_guest: null,
-    rsv_equip: '未知设备',
     rsv_detail: {},
     reason: '',
   },
@@ -20,7 +19,6 @@ Page({
         //who=1:用户端且待审批
         //who=2：管理员端
       rsvid: options.rsvid,
-      rsv_equip: options.name
     })
     //获取预约详细信息
     wx.request({

@@ -38,7 +38,7 @@
   </view>
   <view class="detail-list">
     <view style="font-weight:bold;white-space:nowrap"> 物品名称：</view>
-    <view>{{rsv_equip}}</view>
+    <view>{{rsv_detail.item}}</view>
   </view>
   <view class="detail-list">
     <view style="font-weight:bold"> 预约方式：</view>

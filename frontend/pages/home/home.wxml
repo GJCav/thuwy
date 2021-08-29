@@ -42,13 +42,12 @@
 <!-- 显示记录 -->
 <view class="total" wx:for="{{(activeTab==0)?success:((activeTab==1)?ongoing:history)}}" wx:for-item="equip" wx:key="id"
     style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom"
-    wx:if="{{equip.name!=''}}">
+    wx:if="{{equip.item!=''}}">
     <view class="detail">
-        <view class="which">{{equip.name}}</view>
+        <view class="which">{{equip.item}}</view>
         <view class="pic{{Math.colcal(equip.state,activeTab)}}"
             hover-class="haspic{{Math.colcal(equip.state,activeTab)}}"
-            style="text-align:center; width:30%; border-radius:20rpx" bindtap="showdetail" data-id="{{equip.id}}"
-            data-name="{{equip.name}}">
+            style="text-align:center; width:30%; border-radius:20rpx" bindtap="showdetail" data-id="{{equip.id}}">
             <text decode="{{true}}">{{colst[Math.colcal(equip.state,activeTab)]}}&nbsp;&nbsp;></text>
         </view>
     </view>

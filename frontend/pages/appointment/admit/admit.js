@@ -202,7 +202,7 @@ Page({
     let that = this
     return new Promise(function (resolve, reject) {
       wx.request({
-        url: app.globalData.url + '/item/' + that.data.id + '/reservation',
+        url: app.globalData.url + '/item/' + that.data.id + '/reservation/',
         method: 'GET',
         success: (res) => {
           //当前时间获取
@@ -605,7 +605,7 @@ Page({
           'content-type': 'application/json; charset=utf-8',
           'cookie': wx.getStorageSync('cookie')
         },
-        url: app.globalData.url + '/reservation',
+        url: app.globalData.url + '/reservation/',
         method: 'POST',
         data: {
           'item-id': this.data.id,

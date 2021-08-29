@@ -24,7 +24,7 @@ Page({
     })
     if (this.data.page * 20 < this.data.sum) {
       wx.request({
-        url: app.globalData.url + '/item?p=<page>/',
+        url: app.globalData.url + '/item/?p=<page>/',
         data: {
           p: this.data.page + 1
         },
@@ -115,7 +115,7 @@ Page({
       items: []
     })
     wx.request({
-      url: app.globalData.url + '/item?p=<page>/',
+      url: app.globalData.url + '/item/?p=<page>',
       data: {
         p: 1
       },
