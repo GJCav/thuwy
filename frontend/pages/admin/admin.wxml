@@ -12,7 +12,7 @@
         <view class="divline"></view>
     </view>
     <view class="total" wx:for="{{rsv_list1}}" wx:key="id"
-        style="background-image:url(/icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
+        style="background-image:url(icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
         <view class="detail">
             <view class="which">{{item.item}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"
@@ -39,7 +39,7 @@
         <view class="divline"></view>
     </view>
     <view class="total" wx:for="{{rsv_list2}}" wx:key="id"
-        style="background-image:url(/icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
+        style="background-image:url(icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
         <view class="detail">
             <view class="which">{{item.item}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"
@@ -66,7 +66,7 @@
 <view wx:if="{{activeTab==1}}">
     <view class="small_title" hover-class="haveselect" bindtap="addequip">
         <view class="thetext" style="font-size:large;width:100%;justify-content:center;color:#999999" >
-            <view class="square" style='background-image:url(/icon/add.png)' />
+            <view class="square" style='background-image:url(icon/add.png)' />
             <text decode="{{true}}">&nbsp;&nbsp;添加新的预约物品</text>
         </view>
         <view class="divline"></view>

@@ -65,9 +65,6 @@ Page({
       mask: true,
       title: '加载中',
     })
-    wx.enableAlertBeforeUnload({
-      message: '您确定要离开此页面吗？已经填写的信息将会丢失',
-    })
     this.setData({
       id: parseInt(options.id),
       disable: [
@@ -145,7 +142,7 @@ Page({
       that.getrsvs().then(function () {
         wx.hideLoading()
       }).catch(function (res) {
-        console.log(res.data.code, res.data.errmsg)
+        console.log(res)
         wx.showToast({
           title: '信息读取失败',
           icon: 'error',
@@ -533,6 +530,7 @@ Page({
       read: true,
       hidden: true
     })
+    this.appoint()
   },
   read_cancel() {
     this.setData({
@@ -645,7 +643,7 @@ Page({
                 mask: true
               })
             } else {
-              console.log(res.data.code, res.data.errmsg)
+              console.log(res)
               wx.hideLoading();
               wx.showToast({
                 title: '提交失败',
@@ -656,7 +654,7 @@ Page({
           }
         },
         fail: function (res) {
-          console.log(res.data.code, res.data.errmsg)
+          console.log(res)
           wx.hideLoading();
           wx.showToast({
             title: '网络异常',

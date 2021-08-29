@@ -15,9 +15,6 @@ Page({
     })
   },
   onShow(){
-    wx.enableAlertBeforeUnload({
-      message: '您确定要离开此页面吗？已经填写的信息将会丢失',
-    })
   },
   inputname: function (e) {
     this.setData({
@@ -80,7 +77,7 @@ Page({
               })
             }, 1500)
           } else {
-            console.log(res.data.code, res.data.errmsg)
+            console.log(res)
             wx.hideLoading()
             wx.showToast({
               title: '连接错误',
@@ -90,7 +87,7 @@ Page({
           }
         },
         fail: (res) => {
-          console.log(res.data.code, res.data.errmsg)
+          console.log(res)
           wx.hideLoading();
           wx.showToast({
             title: '连接失败',

@@ -38,7 +38,7 @@ Page({
             })
             wx.hideLoading();
           } else {
-            console.log(res.data.code, res.data.errmsg)
+            console.log(res)
             wx.hideLoading();
             wx.showToast({
               title: '连接错误',
@@ -48,7 +48,7 @@ Page({
           }
         },
         fail: (res) => {
-          console.log(res.data.code, res.data.errmsg)
+          console.log(res)
           wx.hideLoading();
           wx.showToast({
             title: '连接失败',

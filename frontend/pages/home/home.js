@@ -29,7 +29,7 @@ Page({
     },
     //报错函数
     bug(res) {
-        console.log(res.data.code, res.data.errmsg)
+        console.log(res)
         wx.hideLoading();
         wx.showToast({
             title: '连接失败',

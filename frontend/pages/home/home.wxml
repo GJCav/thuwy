@@ -41,7 +41,7 @@
 </van-tabs>
 <!-- 显示记录 -->
 <view class="total" wx:for="{{(activeTab==0)?success:((activeTab==1)?ongoing:history)}}" wx:for-item="equip" wx:key="id"
-    style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom"
+    style="background-image:url(icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom"
     wx:if="{{equip.item!=''}}">
     <view class="detail">
         <view class="which">{{equip.item}}</view>

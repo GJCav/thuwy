@@ -32,7 +32,7 @@ Page({
           console.log(res.data.rsv)
           wx.hideLoading()
         } else {
-          console.log(res.data.code, res.data.errmsg);
+          console.log(res);
           wx.hideLoading();
           wx.showToast({
             mask: true,
@@ -48,7 +48,7 @@ Page({
         }
       },
       fail: (res) => {
-        console.log(res.data.code, res.data.errmsg)
+        console.log(res)
         wx.hideLoading();
         wx.showToast({
           mask: true,
@@ -125,7 +125,7 @@ Page({
                     prevPage.refresh()
                   }, 1500)
                 } else {
-                  console.log(res.data.code, res.data.errmsg);
+                  console.log(res);
                   wx.hideLoading();
                   wx.showToast({
                     title: '审阅失败',
@@ -135,7 +135,7 @@ Page({
                 }
               },
               fail: (res) => {
-                console.log(res.data.code, res.data.errmsg);
+                console.log(res);
                 wx.hideLoading();
                 wx.showToast({
                   title: '连接失败',
@@ -192,7 +192,7 @@ Page({
                     prevPage.refresh()
                   }, 1500)
                 } else {
-                  console.log(res.data.code, res.data.errmsg);
+                  console.log(res);
                   wx.hideLoading();
                   wx.showToast({
                     title: '审阅失败',
@@ -202,7 +202,7 @@ Page({
                 }
               },
               fail: (res) => {
-                console.log(res.data.code, res.data.errmsg);
+                console.log(res);
                 wx.hideLoading();
                 wx.showToast({
                   title: '连接失败',
@@ -255,7 +255,7 @@ Page({
                   prevPage.refresh()
                 }, 1500)
               } else {
-                console.log(res.data.code, res.data.errmsg);
+                console.log(res);
                 wx.hideLoading();
                 wx.showToasting({
                   title: '取消失败',
@@ -265,7 +265,7 @@ Page({
               }
             },
             fail: (res) => {
-              console.log(res.data.code, res.data.errmsg);
+              console.log(res);
               wx.hideLoading();
               wx.showToast({
                 title: '连接失败',
@@ -320,7 +320,7 @@ Page({
                   prevPage.refresh()
                 }, 1500)
               } else {
-                console.log(res.data.code, res.data.errmsg);
+                console.log(res);
                 wx.hideLoading();
                 wx.showToasting({
                   title: '提交失败',
@@ -330,7 +330,7 @@ Page({
               }
             },
             fail: (res) => {
-              console.log(res.data.code, res.data.errmsg);
+              console.log(res);
               wx.hideLoading();
               wx.showToast({
                 title: '连接失败',

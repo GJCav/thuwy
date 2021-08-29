@@ -126,7 +126,7 @@ Page({
       that.going(1).then(function () { //读取进行中的预约
         wx.hideLoading()
       }).catch(function (res) {
-        console.log(res.data.code, res.data.errmsg)
+        console.log(res)
         wx.hideLoading();
         wx.showToast({
           title: '连接失败',
@@ -135,7 +135,7 @@ Page({
         });
       })
     }).catch(function (res) {
-      console.log(res.data.code, res.data.errmsg)
+      console.log(res)
       wx.hideLoading();
       wx.showToast({
         title: '连接失败',
@@ -164,7 +164,7 @@ Page({
           })
           wx.hideLoading();
         } else {
-          console.log(res.data.code, res.data.errmsg)
+          console.log(res)
           wx.hideLoading();
           wx.showToast({
             title: '连接错误',
@@ -174,7 +174,7 @@ Page({
         }
       },
       fail: (res) => {
-        console.log(res.data.code, res.data.errmsg)
+        console.log(res)
         wx.hideLoading();
         wx.showToast({
           title: '连接失败',
@@ -203,7 +203,7 @@ Page({
           });
           wx.hideLoading()
         } else {
-          console.log(res.data.code, res.data.errmsg)
+          console.log(res)
           wx.hideLoading()
           wx.showToast({
             title: '连接错误',
@@ -213,7 +213,7 @@ Page({
         }
       },
       fail: (res) => {
-        console.log(res.data.code, res.data.errmsg)
+        console.log(res)
         wx.hideLoading()
         wx.showToast({
           title: '连接失败',
@@ -245,7 +245,7 @@ Page({
               })
               wx.hideLoading();
             } else {
-              console.log(res.data.code, res.data.errmsg)
+              console.log(res)
               wx.hideLoading();
               wx.showToast({
                 title: '连接错误',
@@ -255,7 +255,7 @@ Page({
             }
           },
           fail: (res) => {
-            console.log(res.data.code, res.data.errmsg)
+            console.log(res)
             wx.hideLoading();
             wx.showToast({
               title: '连接失败',
@@ -342,7 +342,7 @@ Page({
         })
       }
     }).catch(function (res) {
-      console.log(res.data.code, res.data.errmsg)
+      console.log(res)
       wx.hideLoading();
       wx.showToast({
         title: '连接失败',
@@ -400,7 +400,7 @@ Page({
                 });
                 this.refresh_equip();
               } else {
-                console.log(res.data.code, res.data.errmsg)
+                console.log(res)
                 wx.hideLoading()
                 wx.showToast({
                   title: '连接错误',
@@ -410,7 +410,7 @@ Page({
               }
             },
             fail: (res) => {
-              console.log(res.data.code, res.data.errmsg)
+              console.log(res)
               wx.hideLoading();
               wx.showToast({
                 title: '连接失败',
@@ -452,7 +452,7 @@ Page({
           })
           this.refresh_admin();
         } else {
-          console.log(res.data.code, res.data.errmsg)
+          console.log(res)
           wx.hideLoading();
           wx.showToast({
             title: '连接错误',
@@ -462,7 +462,7 @@ Page({
         }
       },
       fail: (res) => {
-        console.log(res.data.code, res.data.errmsg)
+        console.log(res)
         wx.hideLoading();
         wx.showToast({
           title: '连接失败',

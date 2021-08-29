@@ -139,7 +139,7 @@ Page({
               duration: 1500,
             })
           } else {
-            console.log(res.data.code, res.data.errmsg);
+            console.log(res);
             if (res.data.code == 102) {
               wx.hideLoading();
               wx.showToast({
@@ -158,7 +158,7 @@ Page({
           }
         },
         fail: (res) => {
-          console.log(res.data.code, res.data.errmsg);
+          console.log(res);
           wx.hideLoading();
           wx.showToast({
             title: '连接失败',

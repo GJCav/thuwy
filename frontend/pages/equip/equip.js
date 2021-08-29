@@ -89,7 +89,7 @@ Page({
   choosepic: function (e) {
     wx.chooseImage({
       count: 1,
-      sourceType: e.currentTarget.dataset.way,
+      sourceType: [e.currentTarget.dataset.way],
       success: (res) => {
         this.setData({
           thumbnail: res.tempFilePaths[0],
@@ -98,7 +98,7 @@ Page({
         console.log(this.data.thumbnail)
       },
       fail: (res) => {
-        console.log(res.data.code, res.data.errmsg)
+        console.log(res)
         this.setData({
           havepic: false
         });
@@ -151,7 +151,7 @@ Page({
             }
             wx.hideLoading()
           } else {
-            console.log(res.data.code, res.data.errmsg)
+            console.log(res)
             wx.hideLoading()
             wx.showToast({
               mask: true,
@@ -167,7 +167,7 @@ Page({
           }
         },
         fail: (res) => {
-          console.log(res.data.code, res.data.errmsg)
+          console.log(res)
           wx.hideLoading()
           wx.showToast({
             mask: true,
@@ -189,9 +189,6 @@ Page({
     }
   },
   onShow() {
-    wx.enableAlertBeforeUnload({
-      message: '您确定要离开此页面吗？已经填写的信息将会丢失',
-    })
   },
   //封装获取上传地址
   getuploadurl() {
@@ -302,7 +299,7 @@ Page({
                   prevPage.refresh()
                 }, 1500)
               } else {
-                console.log(res.data.code, res.data.errmsg)
+                console.log(res)
                 wx.hideLoading()
                 wx.showToast({
                   title: '连接错误',
@@ -312,7 +309,7 @@ Page({
               }
             },
             fail: (res) => {
-              console.log(res.data.code, res.data.errmsg)
+              console.log(res)
               wx.hideLoading();
               wx.showToast({
                 title: '连接失败',
@@ -381,7 +378,7 @@ Page({
                   prevPage.refresh()
                 }, 1500)
               } else {
-                console.log(res.data.code, res.data.errmsg)
+                console.log(res)
                 wx.hideLoading()
                 wx.showToast({
                   title: '连接错误',
@@ -391,7 +388,7 @@ Page({
               }
             },
             fail: (res) => {
-              console.log(res.data.code, res.data.errmsg)
+              console.log(res)
               wx.hideLoading();
               wx.showToast({
                 title: '连接失败',
