@@ -48,6 +48,13 @@
         </div>
         <br />
 
+        <div class="text-h5">特殊属性</div>
+        <div class="subtitle-1" v-if="item['attr'] === 0">无</div>
+        <ul class="subtitle-1">
+          <li v-if="(item['attr'] & 0x1) > 0">自动通过审批</li>
+        </ul>
+        <br />
+
         <div class="text-h5">预约方式</div>
         <v-radio-group v-model="rsvMethod" row>
           <v-radio
@@ -97,9 +104,18 @@ export default {
     async confirmDelete(confirm) {
       if (confirm) {
         this.deleting = true;
-        await deleteItem(this.id);
+        try {
+          await deleteItem(this.id);
+        } catch (e) {
+          this.deleting = false;
+          throw e;
+        }
         setTimeout(() => {
           this.deleting = false;
+          this.$store.dispatch('showMessage', {
+            message: '删除成功',
+            timeout: 2000,
+          });
           this.$router.push('/item');
         }, 1000);
       }

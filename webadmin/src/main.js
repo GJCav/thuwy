@@ -6,6 +6,12 @@ import vuetify from './plugins/vuetify';
 
 Vue.config.productionTip = false;
 
+const prevHandler = Vue.config.errorHandler;
+Vue.config.errorHandler = (err, vm, info) => {
+  store.dispatch('showMessage', { message: err });
+  prevHandler(err, vm, info);
+};
+
 new Vue({
   router,
   store,

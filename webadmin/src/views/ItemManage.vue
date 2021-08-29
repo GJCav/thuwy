@@ -1,7 +1,7 @@
 <template>
   <v-col lg="6" offset-lg="3" cols="12" offset="0">
     <h1>物品管理</h1>
-    <v-btn to="/item/0/edit" color="success" dark>新增物品</v-btn>
+    <v-btn to="/item/0/edit" color="success" dark><v-icon>mdi-plus</v-icon>新增物品</v-btn>
     <v-card v-for="item in itemList" :key="item.id" style="margin-top: 20px">
       <div class="d-flex flex-no-wrap justify-space-between">
         <div>
@@ -77,9 +77,18 @@ export default {
     async confirmDelete(confirm) {
       if (confirm) {
         this.deleting = true;
-        await deleteItem(this.itemToDelete);
+        try {
+          await deleteItem(this.itemToDelete);
+        } catch (e) {
+          this.deleting = false;
+          throw e;
+        }
         setTimeout(() => {
           this.deleting = false;
+          this.$store.dispatch('showMessage', {
+            message: '删除成功',
+            timeout: 2000,
+          });
           this.loadItemList();
         }, 1000);
       }

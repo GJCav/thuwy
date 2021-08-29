@@ -8,8 +8,8 @@
 
     <v-col lg="6" cols="12" offset="0" v-if="item !== null"
       ><h1 class="text-h3 text-center">
-        <template v-if="createMode"> 新增物品 </template>
-        <template v-else> 物品编辑</template>
+        <template v-if="createMode">新增物品</template>
+        <template v-else>物品编辑</template>
       </h1>
       <v-divider></v-divider>
       <v-row>
@@ -20,6 +20,7 @@
           ></v-switch>
           <br />
 
+          <div class="text-h5">预约方式</div>
           <v-row>
             <v-checkbox
               @change="
@@ -38,6 +39,16 @@
               "
               :input-value="(item['rsv-method'] & 0x2) !== 0"
               label="灵活预约"
+            ></v-checkbox>
+          </v-row>
+          <br />
+
+          <div class="text-h5">特殊属性</div>
+          <v-row>
+            <v-checkbox
+              @change="$event ? (item['attr'] |= 0x1) : (item['attr'] &= ~0x1)"
+              :input-value="(item['attr'] & 0x1) !== 0"
+              label="自动通过审批"
             ></v-checkbox>
           </v-row>
           <br />
@@ -154,6 +165,7 @@ export default {
         'md-intro': '',
         thumbnail: '',
         'rsv-method': '',
+        attr: 0,
         id: 0,
       };
     } else {
@@ -182,8 +194,12 @@ export default {
         throw e;
       }
       setTimeout(() => {
-        this.$router.push(`/item/${itemId}`);
         this.submitting = false;
+        this.$store.dispatch('showMessage', {
+          message: '提交成功',
+          timeout: 2000,
+        });
+        this.$router.push(`/item/${itemId}`);
       }, 1000);
     },
     async doUpload(e) {
@@ -202,9 +218,18 @@ export default {
     async confirmDelete(confirm) {
       if (confirm) {
         this.deleting = true;
-        await deleteItem(this.id);
+        try {
+          await deleteItem(this.id);
+        } catch (e) {
+          this.deleting = false;
+          throw e;
+        }
         setTimeout(() => {
           this.deleting = false;
+          this.$store.dispatch('showMessage', {
+            message: '删除',
+            timeout: 2000,
+          });
           this.$router.push('/item');
         }, 1000);
       }

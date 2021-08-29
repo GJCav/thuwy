@@ -80,6 +80,10 @@ export default {
         await Login(this.credential);
         await this.$store.dispatch('refreshProfile');
         this.loginState = 'success';
+        this.$store.dispatch('showMessage', {
+          message: '登录成功',
+          timeout: 2000,
+        });
         setTimeout(() => {
           this.$emit('input', false);
         }, 2000);
