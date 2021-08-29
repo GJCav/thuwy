@@ -13,7 +13,12 @@
           <v-btn :to="`/item/${this.id}/edit`" color="success" outlined
             ><v-icon dense color="success">mdi-pencil</v-icon>编辑</v-btn
           >
-          <v-btn color="error" outlined
+          <v-btn
+            color="error"
+            outlined
+            @click="dialog = true"
+            :loading="deleting"
+            :disabled="deleting"
             ><v-icon dense color="error">mdi-trash-can-outline</v-icon
             >删除</v-btn
           >
@@ -59,12 +64,19 @@
       </article>
       <br />
     </v-col>
+    <confirm-box
+      v-model="dialog"
+      title="确认删除"
+      text="该操作不可逆！"
+      @confirm="confirmDelete"
+    ></confirm-box>
   </v-row>
 </template>
 
 <script>
-import { getItem } from '@/api/item';
+import { getItem, deleteItem } from '@/api/item';
 import marked from 'marked';
+import ConfirmBox from '@/components/ConfirmBox.vue';
 
 export default {
   name: 'ItemInfo',
@@ -73,11 +85,25 @@ export default {
       id: Number(this.$route.params.id),
       item: null,
       rsvMethod: 0,
+      dialog: false,
+      deleting: false,
     };
   },
   async mounted() {
     this.item = await getItem(this.id);
     console.log(this.item);
+  },
+  methods: {
+    async confirmDelete(confirm) {
+      if (confirm) {
+        this.deleting = true;
+        await deleteItem(this.id);
+        setTimeout(() => {
+          this.deleting = false;
+          this.$router.push('/item');
+        }, 1000);
+      }
+    },
   },
   computed: {
     renderedHtml() {
@@ -86,6 +112,9 @@ export default {
       }
       return '';
     },
+  },
+  components: {
+    ConfirmBox,
   },
 };
 </script>

@@ -7,10 +7,13 @@
     </v-col>
 
     <v-col lg="6" cols="12" offset="0" v-if="item !== null"
-      ><h1 class="text-h3 text-center">物品编辑</h1>
+      ><h1 class="text-h3 text-center">
+        <template v-if="createMode"> 新增物品 </template>
+        <template v-else> 物品编辑</template>
+      </h1>
       <v-divider></v-divider>
       <v-row>
-        <v-col cols="6">
+        <v-col cols="7">
           <v-switch
             v-model="item.available"
             :label="`${item.available ? '' : '不'}可预约`"
@@ -77,7 +80,7 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="6">
+        <v-col cols="7">
           <v-textarea
             outlined
             label="详细信息（支持MarkDown）"
@@ -86,7 +89,7 @@
           ></v-textarea>
           <br />
         </v-col>
-        <v-col cols="6" v-html="renderedHtml"></v-col>
+        <v-col cols="5" v-html="renderedHtml"></v-col>
       </v-row>
       <v-row class="justify-center">
         <v-btn-toggle>
@@ -101,18 +104,32 @@
             :disabled="submitting"
             >提交</v-btn
           >
-          <v-btn color="error" outlined :disabled="submitting">删除</v-btn>
+          <v-btn
+            color="error"
+            outlined
+            :disabled="deleting || submitting"
+            @click="dialog = true"
+            :loading="deleting"
+            >删除</v-btn
+          >
         </v-btn-toggle>
       </v-row>
       <br />
     </v-col>
+    <confirm-box
+      v-model="dialog"
+      title="确认删除"
+      text="该操作不可逆！"
+      @confirm="confirmDelete"
+    ></confirm-box>
   </v-row>
 </template>
 
 <script>
-import { getItem, postItem } from '@/api/item';
+import { getItem, postItem, deleteItem } from '@/api/item';
 import { upload } from '@/api/file';
 import marked from 'marked';
+import ConfirmBox from '@/components/ConfirmBox.vue';
 
 export default {
   name: 'ItemEdit',
@@ -122,10 +139,26 @@ export default {
       item: null,
       uploading: false,
       submitting: false,
+      createMode: false,
+      dialog: false,
+      deleting: false,
     };
   },
   async mounted() {
-    this.item = await getItem(this.id);
+    if (this.id === 0) {
+      this.createMode = true;
+      this.item = {
+        name: '',
+        available: true,
+        'brief-intro': '',
+        'md-intro': '',
+        thumbnail: '',
+        'rsv-method': '',
+        id: 0,
+      };
+    } else {
+      this.item = await getItem(this.id);
+    }
     console.log(this.item);
   },
   computed: {
@@ -143,14 +176,14 @@ export default {
     async doPostItem() {
       this.submitting = true;
       try {
-        await postItem(this.item);
+        var itemId = await postItem(this.item);
       } catch (e) {
         this.submitting = false;
         throw e;
       }
       setTimeout(() => {
-        this.$router.push(`/item/${this.item.id}`);
-        this.submitting=false;
+        this.$router.push(`/item/${itemId}`);
+        this.submitting = false;
       }, 1000);
     },
     async doUpload(e) {
@@ -166,6 +199,19 @@ export default {
       e.target.value = '';
       this.uploading = false;
     },
+    async confirmDelete(confirm) {
+      if (confirm) {
+        this.deleting = true;
+        await deleteItem(this.id);
+        setTimeout(() => {
+          this.deleting = false;
+          this.$router.push('/item');
+        }, 1000);
+      }
+    },
+  },
+  components: {
+    ConfirmBox,
   },
 };
 </script>

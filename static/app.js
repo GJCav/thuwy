@@ -31,7 +31,7 @@ const upload = multer({ storage: storage });
 const client = new Client({
     endPoint: config.endPoint,
     port: config.endPointPort,
-    useSSL: false,
+    useSSL: true,
     accessKey: config.accessKey,
     secretKey: config.secretKey
 });
@@ -98,7 +98,7 @@ app.post(['/upload/:name', '/upload'], upload.single('file'), async (req, res) =
     res.status(200).json({
         code: 0,
         msg: 'OK',
-        data: `http://${config.endPoint}/${config.targetBucket}/${filename}`
+        data: `https://${config.endPoint}/${config.targetBucket}/${filename}`
     });
 });
 
