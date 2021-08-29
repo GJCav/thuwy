@@ -22,7 +22,7 @@ Page({
     })
     //获取预约详细信息
     wx.request({
-      url: app.globalData.url + '/reservation/' + this.data.rsvid,
+      url: app.globalData.url + '/reservation/' + this.data.rsvid+'/',
       method: 'GET',
       success: (res) => {
         if (res.data.code == 0) {
@@ -100,7 +100,7 @@ Page({
                 'content-type': 'application/json; charset=utf-8',
                 'cookie': wx.getStorageSync('cookie')
               },
-              url: app.globalData.url + "/reservation/" + this.data.rsvid,
+              url: app.globalData.url + "/reservation/" + this.data.rsvid+'/',
               method: "POST",
               data: {
                 op: 1,
@@ -167,7 +167,7 @@ Page({
                 'content-type': 'application/json; charset=utf-8',
                 'cookie': wx.getStorageSync('cookie')
               },
-              url: app.globalData.url + "/reservation/" + this.data.rsvid,
+              url: app.globalData.url + "/reservation/" + this.data.rsvid+'/',
               method: "POST",
               data: {
                 op: 1,
@@ -235,7 +235,7 @@ Page({
               'content-type': 'application/json; charset=utf-8',
               'cookie': wx.getStorageSync('cookie')
             },
-            url: app.globalData.url + "/reservation/" + this.data.rsvid,
+            url: app.globalData.url + "/reservation/" + this.data.rsvid+'/',
             method: "DELETE",
             success: (res) => {
               if (res.data.code == 0) {
@@ -297,7 +297,7 @@ Page({
               'content-type': 'application/json; charset=utf-8',
               'cookie': wx.getStorageSync('cookie')
             },
-            url: app.globalData.url + "/reservation/" + this.data.rsvid,
+            url: app.globalData.url + "/reservation/" + this.data.rsvid+"/",
             method: "POST",
             data: {
               op: 2,

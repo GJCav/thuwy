@@ -5,7 +5,7 @@ Page({
   data: {
     hidden: true,
     read: false,
-    read_text:'+ 借阅物品应按时取用，及时归还\n\n+ 物品损坏需要按相应价格进行赔偿\n\n+ 不得将所借物品转借他人',
+    read_text: '+ 借阅物品应按时取用，及时归还\n\n+ 物品损坏需要按相应价格进行赔偿\n\n+ 不得将所借物品转借他人',
 
     disable: [], //无法预约的时间段
     occupy: [
@@ -158,7 +158,7 @@ Page({
         }, 1500)
       })
     }).catch(function (res) {
-      console.log(res.data.code, res.data.errmsg)
+      console.log(res)
       wx.showToast({
         title: '信息读取失败',
         icon: 'error',
@@ -176,7 +176,7 @@ Page({
     let that = this
     return new Promise(function (resolve, reject) {
       wx.request({
-        url: app.globalData.url + '/item/' + that.data.id,
+        url: app.globalData.url + '/item/' + that.data.id + '/',
         method: 'GET',
         success: (res) => {
           let those = res.data
@@ -528,15 +528,15 @@ Page({
     }
   },
   //预约须知相关
-  read_confirm(){
+  read_confirm() {
     this.setData({
-      read:true,
-      hidden:true
+      read: true,
+      hidden: true
     })
   },
-  read_cancel(){
+  read_cancel() {
     this.setData({
-      hidden:true
+      hidden: true
     })
   },
   //提交预约

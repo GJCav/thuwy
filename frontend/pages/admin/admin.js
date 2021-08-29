@@ -231,7 +231,7 @@ Page({
       })
       if (this.data.page * 20 < this.data.sum) {
         wx.request({
-          url: app.globalData.url + '/item/?p=<page>/',
+          url: app.globalData.url + '/item/?p=<page>',
           data: {
             p: this.data.page + 1
           },
@@ -384,7 +384,7 @@ Page({
             title: '提交中',
           })
           wx.request({
-            url: app.globalData.url + '/item/' + value,
+            url: app.globalData.url + '/item/' + value+'/',
             header: {
               'content-type': 'application/json; charset=utf-8',
               'cookie': wx.getStorageSync('cookie')
@@ -432,7 +432,7 @@ Page({
       title: '提交中',
     })
     wx.request({
-      url: app.globalData.url + '/admin/request/' + id,
+      url: app.globalData.url + '/admin/request/' + id+'/',
       method: 'POST',
       header: {
         'content-type': 'application/json; charset=utf-8',

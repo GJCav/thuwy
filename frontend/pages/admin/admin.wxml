@@ -12,9 +12,9 @@
         <view class="divline"></view>
     </view>
     <view class="total" wx:for="{{rsv_list1}}" wx:key="id"
-        style="background-image:url(../../../../icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
+        style="background-image:url(/icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
         <view class="detail">
-            <view class="which">{{item.name}}</view>
+            <view class="which">{{item.item}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"
                 bindtap="showdetail" data-id="{{item.id}}" data-name="{{item.name}}" data-value="2">
                 详细信息
@@ -41,7 +41,7 @@
     <view class="total" wx:for="{{rsv_list2}}" wx:key="id"
         style="background-image:url(/icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
         <view class="detail">
-            <view class="which">{{item.name}}</view>
+            <view class="which">{{item.item}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"
                 bindtap="showdetail" data-id="{{item.id}}" data-name="{{item.name}}" data-value="3">
                 详细信息
@@ -76,7 +76,7 @@
             <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>
         </van-col>
         <van-col span="9" offset="3">
-            <view class='server-name'>{{equip.item}}</view>
+            <view class='server-name'>{{equip.name}}</view>
             <view class='server-description'>{{equip['brief-intro']}}</view>
         </van-col>
         <van-col span="5" offset="2">

@@ -124,7 +124,7 @@ Page({
         title: '加载中',
       })
       wx.request({
-        url: app.globalData.url + '/item/' + this.data.item_id,
+        url: app.globalData.url + '/item/' + this.data.item_id+'/',
         method: 'GET',
         success: (res) => {
           let those = res.data
@@ -352,7 +352,7 @@ Page({
               'content-type': 'application/json; charset=utf-8',
               'cookie': wx.getStorageSync('cookie')
             },
-            url: app.globalData.url + '/item/' + that.data.item_id,
+            url: app.globalData.url + '/item/' + that.data.item_id+'/',
             method: "POST",
             data: {
               name: that.data.name,
