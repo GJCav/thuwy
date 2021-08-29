@@ -1,12 +1,14 @@
 # API 约定
 
+[toc]
+
 ## 鉴权
 
 ### 登陆
 
 **Des:** 第一次登陆
 
-**API:** `POST /login`
+**API:** `POST /login/`
 
 **请求参数：** Json Object
 
@@ -103,7 +105,7 @@ wx.request({
 
 **Des:**  设置用户的学号、姓名、班级
 
-**API:** `POST /bind`
+**API:** `POST /bind/`
 
 **Login?:** True
 
@@ -155,7 +157,7 @@ wx.request({
 
 ### 获取他人档案
 
-**API**: `GET /profile/<open-id>`
+**API**: `GET /profile/<open-id>/`
 
 **Des：** 获取其他用户信息
 
@@ -227,7 +229,7 @@ AdminReq属性：
 
 **Des:** 决定某用户是否通过管理员审核。
 
-**API:** `POST /admin/request/<requst-id>` 
+**API:** `POST /admin/request/<requst-id>/` 
 
 **Login?:** True, 需要绑定，需要为管理员
 
@@ -249,7 +251,7 @@ AdminReq属性：
 
 ### 删除管理员
 
-**API:** `DELETE /admin/<open-id>`
+**API:** `DELETE /admin/<open-id>/`
 
 **Login:** 登陆绑定，且有管理员权限
 
@@ -296,9 +298,9 @@ AdminReq属性：
 
 ### 物品详细信息
 
-**API:** `GET /item/<item-id>`
+**API:** `GET /item/<item-id>/`
 
-**Des：** 获取物品详细信息，包括`md-intro`、`delete`属性
+**Des：** 获取物品详细信息，包括`md-intro`、`delete`、`attr`属性
 
 **Login?：** False
 
@@ -333,11 +335,11 @@ AdminReq属性：
 **请求参数：** Item，包含且只包含如下属性：
 
 * name
-
 * brief-intro
 * md-intro
 * thumbnail
 * rsv-method
+* attr，可选参数，默认为 0
 
 **返回参数：**
 
@@ -357,7 +359,7 @@ AdminReq属性：
 
 ### 修改物品
 
-**API:** `POST /item/<item-id>`
+**API:** `POST /item/<item-id>/`
 
 **Des：** 修改物品信息
 
@@ -374,6 +376,7 @@ AdminReq属性：
   * md-intro
   * thumbnail
   * rsv-method
+  * attr
 
 **返回值：** Json Object，包含属性如下
 
@@ -392,7 +395,7 @@ AdminReq属性：
 
 ### 删除物品
 
-**API:**  `DELETE /item/<item-id>`
+**API:**  `DELETE /item/<item-id>/`
 
 **Des：** 删除物品
 
@@ -415,7 +418,7 @@ AdminReq属性：
 
 ### 查询物品预约信息
 
-**API:**  `GET /item/<item-id>/reservation`
+**API:**  `GET /item/<item-id>/reservation/`
 
 **Des：** 查询某个物品未来7天的预约信息
 
@@ -490,7 +493,7 @@ AdminReq属性：
 
 **Des:** 查询“我的”所有预约
 
-**API:** `GET /reservation/me?st=<start-time>&ed=<end-time>&state=<state>`
+**API:** `GET /reservation/me?st=<start-time>&ed=<end-time>&state=<state>/`
 
 **Login?**: True
 
@@ -518,7 +521,7 @@ AdminReq属性：
 
 ### 预约详细信息
 
-**API**: `GET /reservation/<rsv-id>`
+**API**: `GET /reservation/<rsv-id>/`
 
 **Des：** 获取某个预约的详细信息
 
@@ -548,7 +551,7 @@ AdminReq属性：
 
 **Des:** 取消一个预约
 
-**API:** `DELETE /reservation/<rsv-id>`
+**API:** `DELETE /reservation/<rsv-id>/`
 
 **Login?:** True，且要求绑定
 
@@ -580,7 +583,7 @@ AdminReq属性：
 
 ### 管理员查看预约
 
-**API:** `GET /reservation/?st=<start-time>&<ed-time>&state=<state>&method=<method>&p=<page>`
+**API:** `GET /reservation/?st=<start-time>&<ed-time>&state=<state>&method=<method>&p=<page>/`
 
 **Des：** 查询预约时间介于`st`和`ed`间的预约
 
@@ -625,7 +628,7 @@ AdminReq属性：
 
 **Des：** 供管理员审核、结束一个预约
 
-**API：** `POST /reservation/<rsv-id>`
+**API：** `POST /reservation/<rsv-id>/`
 
 **Login?:** True，且绑定，且为管理员
 
@@ -663,6 +666,138 @@ AdminReq属性：
 | 203  | rsv completed         | 预约已经完成     |
 | 204  | rsv rejected          | 预约被审核拒绝   |
 | 205  | rsv is waiting        | 预约还在等待审核 |
+
+
+
+## 建议
+
+### Advice 对象
+
+包含如下属性：
+
+| 属性      | 类型   | 说明                           |
+| --------- | ------ | ------------------------------ |
+| id        | int    | 这个建议的ID                   |
+| proponent | string | 建议人                         |
+| title     | string | 建议标题                       |
+| content   | string | 建议主体，后端不关心其内容格式 |
+| state     | int    | 建议状态                       |
+| response  | string | 建议答复                       |
+
+**state** 说明：
+
+| 值   | 说明     |
+| ---- | -------- |
+| 1    | 等待回复 |
+| 2    | 已回复   |
+
+
+
+
+
+### 错误码说明
+
+| code | errmsg           | 说明                  |
+| ---- | ---------------- | --------------------- |
+| 101  | advice not found | 找不到提供的advice-id |
+
+
+
+
+
+### 获取建议列表
+
+**API:** `GET /advice/?state=<state>&st=<st>&ed=<ed>&p=<page>`
+
+**Login:** True, 且绑定，且为管理员
+
+**请求参数：**
+
+| 参数  | 类型 | 必选 | 说明                                                    |
+| ----- | ---- | ---- | ------------------------------------------------------- |
+| state | int  | 否   | 根据state筛选，默认不筛选                               |
+| st    | int  | 否   |                                                         |
+| ed    | int  | 否   | 根据建议提交时间筛选，默认不筛选                        |
+| p     | int  | 否   | 指明页数，默认1。条目可能过多，进行分页，每页20条记录。 |
+
+**返回值：** Json Object，属性如下：
+
+| 属性   | 类型       | 说明                              |
+| ------ | ---------- | --------------------------------- |
+| code   | int        | 错误码                            |
+| errmsg | string     | 错误信息                          |
+| page   | int        | 指明当前页数                      |
+| advice | Json Array | 包含Advice对象，不包含content属性 |
+
+
+
+### 用户提交建议
+
+**API:** `POST /advice/`
+
+**Login:** True，且绑定。
+
+**请求参数：** Json Object, 属性如下：
+
+| 属性    | 类型   | 说明     |
+| ------- | ------ | -------- |
+| title   | string | 建议标题 |
+| content | string | 建议主体 |
+
+**返回参数：** Json Object，
+
+| 属性      | 类型   | 说明     |
+| --------- | ------ | -------- |
+| code      | int    | 错误码   |
+| errmsg    | string | 错误信息 |
+| advice-id | int    | 建议的id |
+
+
+
+### 获取建议详细信息
+
+**API:** `GET /advice/<advice-id>`
+
+**Login:** True，且绑定，且为管理员
+
+**Args：** advice-id
+
+**返回值：**
+
+| 属性   | 类型   | 说明             |
+| ------ | ------ | ---------------- |
+| code   | int    | 错误码           |
+| errmsg | string | 错误信息         |
+| advice | Advice | 完整的Advice对象 |
+
+
+
+### 回复建议
+
+**API：** `POST /advice/<advice-id>`
+
+**Login:** True，且绑定，且为管理员
+
+**Args:** advice-id
+
+**请求参数：** Json Object，
+
+| 属性     | 类型   | 说明 |
+| -------- | ------ | ---- |
+| response | string | 答复 |
+
+推荐的回复方法：
+
+* 如果是添加功能啥的，直接回复一个到github issue的链接，方便我们开发者管理。
+
+**返回值：**
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
+
+
 
 
 
@@ -709,6 +844,7 @@ Item对象是一个Json Object对象，包含如下属性：
 | md-intro    | string      | 详细介绍，只在`/item/mdintro`返回                 |
 | thumbnail   | url, string | 缩略图的url                                       |
 | rsv-method  | RsvMethod   | 支持的预约方式                                    |
+| attr        | int         | 特殊属性                                          |
 
 
 
@@ -719,6 +855,7 @@ Rsv对象是一个Json Object，包含如下属性：
 | 属性     | 类型      | 说明                             |
 | -------- | --------- | -------------------------------- |
 | id       | RsvId     | 这个预约的编号                   |
+| item     | string    | 预约物品的名字                   |
 | item-id  | int64     | 物品ID                           |
 | guest    | string    | 预约人的名字                     |
 | reason   | string    | 预约理由                         |

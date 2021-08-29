@@ -1,5 +1,7 @@
 /* pages/reservation/reservation.wxss */
-
+page {
+  background-color: #ffffff
+}
 /* 多个按钮显示框 */
 .buttonbox{
   width: 100%;

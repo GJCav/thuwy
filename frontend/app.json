@@ -1,12 +1,15 @@
 {
   "pages":[
     "pages/appointment/appointment",
+    "pages/appointment/admit/admit",
+    "pages/appointment/admit/time/time",
     "pages/bind/bind",
     "pages/setting/setting",
     "pages/home/home",
     "pages/admin/admin",
     "pages/equip/equip",
-    "pages/reservation/reservation"
+    "pages/reservation/reservation",
+    "pages/info/info"
   ],
   "window":{
     "onReachBottomDistance":20,
@@ -38,7 +41,8 @@
     ]
   },
   "networkTimeout": {
-    "request": 10000
+    "request": 10000,
+    "uploadFile": 10000
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"

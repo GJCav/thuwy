@@ -1,90 +1,77 @@
 // app.js
 App({
-  onLaunch() {
-    // 登录
-    wx.showLoading({
-      mask: true,
-      title: '加载中',
-    })
-    wx.login({
-      timeout: 5000,
-      success: res => {
-        // 发送 res.code 到后台换取 openId, sessionKey, unionId
-        wx.request({
-          url: this.globalData.url + '/login/',
-          method: 'POST',
-          data: {
-            code: res.code
-          },
-          success: res => {
-            if (res.data.code == 0) {
-              this.globalData.login = true;
-              this.globalData.userInfo = res.data.bound;
-              //将得到的openid存储到缓存里面方便后面调用
-              wx.setStorage({
-                key: "cookie",
-                data: res.cookies[0]
-              })
-              if (this.globalData.userInfo) {
-                wx.request({
-                  url: this.globalData.url + '/profile/',
-                  method: 'GET',
-                  header: {
-                    'content-type': 'application/json; charset=utf-8',
-                    'cookie': wx.getStorageSync('cookie')
-                  },
-                  success: (res) => {
-                    if (res.data.code == 0) {
-                      this.globalData.isadmin = res.data.admin ? true : false
-                      wx.hideLoading();
-                    } else {
-                      console.log(res.data.code, res.data.errmsg);
-                      wx.hideLoading();
-                      wx.showToast({
-                        title: '信息读取失败',
-                        icon: 'error',
-                        duration: 1500,
-                      })
-                    }
-                  },
-                  fail: (res) => {
-                    console.log(res.data.code, res.data.errmsg);
-                    wx.hideLoading()
-                    wx.showToast({
-                      title: '信息读取失败',
-                      icon: 'error',
-                      duration: 1500
-                    });
-                  }
+  getUserInfo() {
+    let that = this
+    return new Promise(function (resolve, reject) {
+      wx.login({ // 登录
+        timeout: 5000,
+        success: res => { // 发送 res.code 到后台换取 openId, sessionKey, unionId
+          console.log(1)
+          wx.request({
+            timeout: 5000,
+            url: that.globalData.url + '/login/',
+            method: 'POST',
+            data: {
+              code: res.code
+            },
+            success: res => {
+              console.log(2)
+              if (res.data.code == 0) {
+                that.globalData.login = true;
+                that.globalData.userInfo = res.data.bound;
+                wx.setStorage({ //将得到的openid存储到缓存里面方便后面调用
+                  key: "cookie",
+                  data: res.cookies[0]
                 })
+                if (that.globalData.userInfo) {
+                  wx.request({
+                    timeout: 5000,
+                    url: that.globalData.url + '/profile/',
+                    method: 'GET',
+                    header: {
+                      'content-type': 'application/json; charset=utf-8',
+                      'cookie': wx.getStorageSync('cookie')
+                    },
+                    success: (res) => {
+                      console.log(3)
+                      if (res.data.code == 0) {
+                        that.globalData.isadmin = res.data.admin ? true : false
+                        resolve()
+                      } else {
+                        reject(res)
+                      }
+                    },
+                    fail: (res) => {
+                      reject(res)
+                    }
+                  })
+                }
+                resolve()
+              } else {
+                reject(res)
               }
-            } else {
-              console.log(res.data.code, res.data.errmsg);
-              wx.hideLoading()
-              wx.showToast({
-                title: '登录失败',
-                icon: 'error',
-                duration: 1500
-              });
+            },
+            fail:res=>{
+              reject(res)
             }
-          }
-        })
-      },
-      fail: res => {
-        console.log(res.data.code, res.data.errmsg);
-        wx.hideLoading()
-        wx.showToast({
-          title: '登录失败',
-          icon: 'error',
-          duration: 1500
-        });
-      }
-    });
+          })
+        },
+        fail: res => {
+          reject(res)
+        }
+      });
+    })
   },
   globalData: {
     login: false,
     isadmin: false,
     userInfo: false,
-    url: "http://api.weiyang.grw20.cn"
+    item_feature: [{
+      title: '自动通过审批',
+      text: '在没有预约提交成功的情况下，系统会自动完成审批。适用于29号楼会议室等不需要管理员特别审批的物品。'
+    }],
+    url: 'https://weiyang.grw20.cn', //本地测试地址：http://127.0.0.1:5000
+    picurl: 'https://static.weiyang.grw20.cn/api/',
+    webBackendUrl: 'http://static.weiyang.grw20.cn/api'
   }
 })

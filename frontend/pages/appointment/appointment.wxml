@@ -4,12 +4,12 @@
   next-margin="60px">
   <block wx:for="{{imgUrls}}" wx:key="*this">
     <swiper-item class="slide-wrapper">
-      <image src="{{item}}" class="slide-image" width="375" height="150" />
+      <image src="{{item}}" class="slide-image" />
     </swiper-item>
   </block>
 </swiper>
-<!-- 预约设备 -->
-<van-row custom-class="row" wx:for="{{items}}" wx:for-item="equip" wx:for-index="number" wx:if="{{equip.available}}">
+<!-- 预约物品 -->
+<van-row custom-class="row" wx:for="{{items}}" wx:for-item="equip" wx:for-index="number" wx:key="id" wx:if="{{equip.available}}">
   <van-col span="4" offset="1">
     <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>
   </van-col>
@@ -18,11 +18,11 @@
     <view class='server-description'>{{equip['brief-intro']}}</view>
   </van-col>
   <van-col span="5" offset="2">
-    <button data-value="{{number}}" type="primary" style="margin-top:30%" bindtap="chooseMe" size="mini">预约</button>
+    <button data-value="{{number}}" class="ok" hover-class="oks" style="margin-top:30%" bindtap="chooseMe" size="mini">预约</button>
   </van-col>
 </van-row>
 <!-- 测试专用 -->
-<view style="margin-top:50rpx">
+<view style="margin-top:50rpx" wx:if="{{false}}">
 <button style="margin-left:10%" bindtap="great" type="primary" size="mini">绑定</button>
 <button style="margin-left:10%" bindtap="better" type="primary" size="mini">登录</button>
 <button style="margin-left:10%" bindtap="evolve" type="primary" size="mini">管理员</button>

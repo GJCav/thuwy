@@ -4,6 +4,7 @@
     // vscode之python配置之官方文档，请访问: https://code.visualstudio.com/docs/python/debugging
     "version": "0.2.0",
     "configurations": [
+    
         {
             "name": "Flask: exam",
             "type": "python",
@@ -12,7 +13,9 @@
             "env": {
                 "FLASK_APP": "${file}",
                 "FLASK_ENV": "development",
-                "FLASK_DEBUG": "1"
+                "FLASK_DEBUG": "1",
+                "SQLALCHEMY_TRACK_MODIFICATIONS": "0",
+                "THREADED": "4"
             },
             "args": [
                 "run",

@@ -31,3 +31,6 @@ class Rsv:
       'code': Item.CODE_ITEM_NOT_FOUND['code']+100,
       'errmsg': Item.CODE_ITEM_NOT_FOUND['errmsg']
    }
+
+class Advice:
+   CODE_ADVICE_NOT_FOUND = {'code': 101, 'errmsg': 'advice not found'}

@@ -1,5 +1,4 @@
 // appointment.js
-// 获取应用实例
 const app = getApp()
 
 Page({
@@ -8,19 +7,16 @@ Page({
     page: 0,
     items: [],
 
-    userInfo: {},
-    hasUserInfo: false,
-    canIUseGetUserProfile: false,
-    canIUseOpenData: false,
+    complete: false,
 
     servers: '',
-    loading: true,
     imgUrls: [
-      'https://zos.alipayobjects.com/rmsportal/AiyWuByWklrrUDlFignR.png',
-      'https://zos.alipayobjects.com/rmsportal/TekJlZRVCjLFexlOCuWn.png',
-      'https://zos.alipayobjects.com/rmsportal/IJOtIlfsYdTyaDTRVrLI.png',
+      '/image/green.png',
+      '/image/blue.png',
+      '/image/orange.png',
     ],
   },
+  //触底加载更多信息
   onReachBottom() {
     wx.showLoading({
       mask: true,
@@ -28,7 +24,7 @@ Page({
     })
     if (this.data.page * 20 < this.data.sum) {
       wx.request({
-        url: app.globalData.url + '/item?p=<page>/',
+        url: app.globalData.url + '/item/?p=<page>/',
         data: {
           p: this.data.page + 1
         },
@@ -71,26 +67,55 @@ Page({
       });
     }
   },
+  //初始化
   onLoad() {
-    if (wx.getUserProfile) {
-      this.setData({
-        canIUseGetUserProfile: true
-      })
-    }
     wx.setNavigationBarTitle({
-      title: '预约设备'
+      title: '预约物品'
     })
+    this.refresh();
   },
-  onShow() {
+  onTabItemTap() {
+    this.refresh();
+  },
+  onPullDownRefresh() {
+    this.refresh();
+  },
+  refresh() {
     wx.showLoading({
       mask: true,
       title: '加载中',
     })
+    if (!this.data.complete) {
+      let that = this
+      app.getUserInfo().then(function () {
+        that.setData({
+          complete: true
+        })
+        that.getitem()
+      }).catch(function (res) {
+        console.log(res)
+        wx.hideLoading()
+        wx.showToast({
+          title: '读取信息失败',
+          icon: 'error',
+          duration: 1500
+        })
+      })
+    } else {
+      wx.showLoading({
+        mask: true,
+        title: '加载中',
+      })
+      this.getitem()
+    }
+  },
+  //展示物品信息
+  getitem() {
     this.setData({
       items: []
     })
     wx.request({
-      url: app.globalData.url + '/item?p=<page>/',
+      url: app.globalData.url + '/item/?p=<page>',
       data: {
         p: 1
       },
@@ -104,7 +129,7 @@ Page({
           })
           wx.hideLoading();
         } else {
-          console.log(res.data.code, res.data.errmsg)
+          console.log(res)
           wx.hideLoading();
           wx.showToast({
             title: '连接错误',
@@ -114,7 +139,7 @@ Page({
         }
       },
       fail: (res) => {
-        console.log(res.data.code, res.data.errmsg)
+        console.log(res)
         wx.hideLoading();
         wx.showToast({
           title: '连接失败',
@@ -134,7 +159,7 @@ Page({
       });
     } else if (app.globalData.userInfo) {
       wx.navigateTo({
-        url: 'admit/admit?id=' + this.data.items[value].id + '&name=' + this.data.items[value].name
+        url: 'admit/admit?id=' + this.data.items[value].id
       })
     } else {
       wx.showToast({

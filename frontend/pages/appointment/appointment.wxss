@@ -8,13 +8,3 @@
 .slide-wrapper {
   text-align: center;
 }
-/* 物品信息显示 */
-.server-name {
-  color: black;
-  font-size: larger;
-  font-weight: bold;
-}
-.server-description {
-  color: #999999;
-  font-size: smaller;
-}

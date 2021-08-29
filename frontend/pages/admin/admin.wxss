@@ -9,7 +9,7 @@
 }
 .small_title{
   width: 100%;
-  height: 80rpx;
+  height: 90rpx;
   display: flex;
   margin-bottom: 20rpx;
   align-items: center;
@@ -18,6 +18,9 @@
 }
 /* 小标题文字 */
 .thetext{
+  font-size: larger;
+  margin-top: 10rpx;
+  margin-bottom: 10rpx;
   width: 90%;
   height: 75rpx;
   display: flex;

@@ -1,11 +1,16 @@
-from operator import and_
+
 from app import db
 from sqlalchemy import or_, and_
 from sqlalchemy.engine.row import Row
 import json as Json
 import re as Regex
+import base64
+import os
 
 from . import timetools as timestamp
+from app import snowflake as Snowflake
+from config import userSysName
+from . import rsvstate as RsvState
 
 # db: SQLAlchemy
 # class Student(db.Model):
@@ -80,6 +85,21 @@ class Item(db.Model):
     briefIntro    = db.Column('brief_intro', db.Text)
     thumbnail     = db.Column(db.Text)
     mdIntro       = db.Column('md_intro', db.Text)
+    attr          = db.Column(db.Integer)
+
+    class Attr:
+        ATTR_AUTO_ACCEPT = 0b1 # 自动通过，自动完成
+
+        def queryAttrById(id) -> int:
+            qryRst = db.session.query(Item.attr).filter(Item.id == id).one_or_none()
+            return qryRst[0] if qryRst else None
+
+        def isAutoAccept(attr) -> bool:
+            return (attr & Item.Attr.ATTR_AUTO_ACCEPT)
+
+    def queryItemName(itemId):
+        qryRst = db.session.query(Item.name).filter(Item.id == itemId).one_or_none()
+        return qryRst[0] if qryRst else None
 
     def toDict(self):
         """
@@ -91,16 +111,18 @@ class Item(db.Model):
             'available': bool(self.available),
             'brief-intro': self.briefIntro,
             'thumbnail': self.thumbnail,
-            'rsv-method': self.rsvMethod
+            'rsv-method': self.rsvMethod,
+            'attr': self.attr
         }
 
+    # no use
     # no value check on dic
-    def fromDict(self, dic):
-        self.name = dic['name']
-        self.id = dic['id']
-        self.briefIntro = dic['brief-intro']
-        self.thumbnail = dic['thumbnail']
-        self.rsvMethod = dic['rsv-method']
+    # def fromDict(self, dic):
+    #     self.name       = dic['name']
+    #     self.id         = dic['id']
+    #     self.briefIntro = dic['brief-intro']
+    #     self.thumbnail  = dic['thumbnail']
+    #     self.rsvMethod  = dic['rsv-method']
 
     def querySupportedMethod(id):
         """
@@ -142,17 +164,25 @@ class Reservation(db.Model):
         #     Reservation.st <= self.st < Reservation.ed,
         # )}
 
-        cdn = {or_(
+        timeCdn = {or_(
             and_(Reservation.st >= self.st, Reservation.st < self.ed),
             and_(Reservation.ed > self.st, Reservation.ed < self.ed),
             and_(Reservation.st <= self.st, Reservation.ed >= self.ed)
         )}
 
-        conflict = db.session\
-            .query(Reservation.st, Reservation.ed) \
+        stateCdn = {or_(
+            Reservation.state.op('&')(RsvState.STATE_WAIT),
+            Reservation.state.op('&')(RsvState.STATE_START)
+        )}
+
+        conflictRsv = db.session\
+            .query(Reservation.st, Reservation.ed, Reservation.id) \
+            .filter(*stateCdn)\
             .filter(Reservation.itemId == self.itemId)\
-            .filter(*cdn) \
-            .first() != None
+            .filter(*timeCdn) \
+            .first()
+
+        conflict = conflictRsv != None
 
         return conflict
 
@@ -161,38 +191,44 @@ class Reservation(db.Model):
             .query(Reservation)\
             .filter(Reservation.id == rsvId)\
             .one_or_none()
-
     
     # TODO: 考虑一下要不要修改 __getattr__ 把未知属性也代理下去
     def toDict(self):
         """
         根据 method 的值自动调用恰当的方法。
         """
-        return SubRsvDelegator.toDict(self)
+        return SubRsvDelegator.getDelegator(self).toDict(self)
 
     def getInterval(self):
         """
         delegate to SubRsvDelegator
         """
-        return SubRsvDelegator.getInterval(self)
+        return SubRsvDelegator.getDelegator(self).getInterval(self)
+
+    def getEndTime(self):
+        return SubRsvDelegator.getDelegator(self).getEndTime(self)
+
+    def changeState(self, newState):
+        """
+        不会检查这个状态转换是否合法。
+        """
+        if not isinstance(self, Reservation):
+            raise ValueError('this is not an instance of Reservation.')
+        return SubRsvDelegator.getDelegator(self).changeState(self, newState)
+
+    def isBegan(self, now = None):
+        if not now:
+            now = timestamp.now()
+        return SubRsvDelegator.getDelegator(self).isBegan(self, now)
 
 class SubRsvDelegator:
     methodValue = 0
 
-    def toDict(rsv: Reservation):
+    def getDelegator(rsv):
         for cls in SubRsvDelegator.__subclasses__():
             if rsv.method == cls.methodValue:
-                return cls.toDict(rsv)
-
+                return cls
         raise TypeError(f'Unknown method: {rsv.method}')
-
-    def getInterval(rsv: Reservation):
-        for cls in SubRsvDelegator.__subclasses__():
-            if rsv.method == cls.methodValue:
-                return cls.getInterval(rsv)
-
-        raise TypeError(f'Unknown method: {rsv.method}')
-
 
 class LongTimeRsv(SubRsvDelegator):
     methodValue = 1
@@ -206,7 +242,7 @@ class LongTimeRsv(SubRsvDelegator):
     afternoonEndHour   = 17
     afternoonCode      = 2
 
-    nightStartHour     = 17
+    nightStartHour     = 18
     nightEndHour       = 23
     nightCode          = 3
 
@@ -288,6 +324,7 @@ class LongTimeRsv(SubRsvDelegator):
     def getInterval(rsv: Reservation):
         """
         rsv should be father reservation.
+        return an interval array containing itself and children.
         """
         if LongTimeRsv.isChildRsv(rsv):
             raise ValueError('this is not a father rsv')
@@ -319,6 +356,7 @@ class LongTimeRsv(SubRsvDelegator):
 
         rsvDict = {
             'id': rsv.id,
+            'item': Item.queryItemName(rsv.itemId),
             'item-id': rsv.itemId,
             'guest': User.queryName(rsv.guest),
             'reason': rsv.reason,
@@ -331,6 +369,10 @@ class LongTimeRsv(SubRsvDelegator):
         return rsvDict
 
     def isChildRsv(rsv: Reservation):
+        """
+        return True only if rsv is a LongTimeRsv and is sub rsv.
+        raise no exception.
+        """
         if rsv.method != LongTimeRsv.methodValue: return False
         chore = Json.loads(rsv.chore)
         return 'fth-rsv' in chore['group-rsv']
@@ -339,6 +381,37 @@ class LongTimeRsv(SubRsvDelegator):
         if rsv.method != LongTimeRsv.methodValue: return False
         chore = Json.loads(rsv.chore)
         return 'sub-rsvs' in chore['group-rsv']
+
+    def changeState(rsv: Reservation, newState):
+        if LongTimeRsv.isChildRsv(rsv): rsv = LongTimeRsv.getFatherRsv(rsv)
+        rsv.state = newState
+        choreJson = Json.loads(rsv.chore)
+        for rsvId in choreJson['group-rsv']['sub-rsvs']:
+            subRsv = Reservation.fromRsvId(rsvId)
+            subRsv.state = newState
+
+    def isBegan(rsv: Reservation, now):
+        began = (rsv.st <= now < rsv.ed)
+        if not began:
+            rsv = LongTimeRsv.getFatherRsv(rsv)
+            choreJson = Json.loads(rsv.chore)
+            for rsvId in choreJson['group-rsv']['sub-rsvs']:
+                st, ed = db.session.query(Reservation.st, Reservation.ed) \
+                    .filter(Reservation.id == rsvId) \
+                    .one()
+                if st <= now <= ed:
+                    isBegan = True
+                    break
+        return began
+
+    def getEndTime(rsv: Reservation):
+        rsv = LongTimeRsv.getFatherRsv(rsv)
+        ed = rsv.ed
+        choreJson = Json.loads(rsv.chore)
+        for rsvId in choreJson['group-rsv']['sub-rsvs']:
+            subRsvEd = db.session.query(Reservation.ed).filter(Reservation.id == rsvId).one()[0]
+            ed = max(ed, subRsvEd)
+        return ed
 
 class FlexTimeRsv(SubRsvDelegator):
     methodValue = 2
@@ -365,7 +438,8 @@ class FlexTimeRsv(SubRsvDelegator):
         dateStr = timestamp.getDate(st)
         H = timestamp.getHour
         M = timestamp.getMins
-        return f'{dateStr} {H(st)}:{M(st)}-{H(ed)}:{M(ed)}'
+        # return f'{dateStr} {H(st)}:{M(st)}-{H(ed)}:{M(ed)}'
+        return '{} {:0>2}:{:0>2}-{:0>2}:{:0>2}'.format(dateStr, H(st), M(st), H(ed), M(ed))
 
     def getInterval(rsv: Reservation):
         return f'{timestamp.getDate(rsv.st)} {timestamp.clock(rsv.st)}-{timestamp.clock(rsv.ed)}'
@@ -375,6 +449,7 @@ class FlexTimeRsv(SubRsvDelegator):
             raise ValueError(f'this is not a flexiable time reservation. id: {rsv.id}')
         rsvDict = {
             'id': rsv.id,
+            'item': Item.queryItemName(rsv.itemId),
             'item-id': rsv.itemId,
             'guest': User.queryName(rsv.guest),
             'reason': rsv.reason,
@@ -385,6 +460,15 @@ class FlexTimeRsv(SubRsvDelegator):
             'exam-rst': rsv.examRst
         }
         return rsvDict
+
+    def changeState(rsv: Reservation, newState):
+        rsv.state = newState
+
+    def getEndTime(rsv: Reservation):
+        return rsv.ed
+
+    def isBegan(rsv: Reservation, now):
+        return (rsv.st <= now < rsv.ed)
 
 
 class AdminRequest(db.Model):
@@ -407,7 +491,51 @@ class AdminRequest(db.Model):
             'reason': self.reason
         }
 
+class Advice(db.Model):
+    STATE_WAIT = 1
+    STATE_END = 2
 
+    __tablename__ = 'advice'
+    id            = db.Column(db.Integer, primary_key = True)
+    proponent     = db.Column(db.Text)
+    title        = db.Column(db.Text)
+    content       = db.Column(db.Text)
+    state         = db.Column(db.Integer)
+    response      = db.Column(db.Text)
+
+    def queryById(id):
+        rst = db.session.query(Advice).filter(Advice.id == id).one_or_none()
+        return rst
+
+    def toDict(self, carryContent = False):
+        rst = {
+            'id': self.id,
+            'proponent': User.queryName(self.proponent),
+            'title': self.title,
+            'state': self.state,
+            'response': self.response
+        }
+        if carryContent:
+            rst['content'] = self.content
+        return rst
+
+
+def init_db():
+    with db.app.app_context():
+        userSys = User.fromOpenid(userSysName)
+        if not userSys:
+            userSys = User(userSysName)
+            userSys.name = userSysName
+            userSys.schoolId = userSysName
+            userSys.clazz = userSysName
+            db.session.add(userSys)
+        adminSys = Admin.fromId(userSysName)
+        if not adminSys:
+            adminSys = Admin()
+            adminSys.openid = userSysName
+            db.session.add(adminSys)
+        db.session.commit()
+    pass
 
 # 太TM神奇了，python的dict没有__dict__属性，不能动态添加属性，如：
 #   a = {}
@@ -454,7 +582,8 @@ def _getIntervalStr(self: Reservation):
 
 
 # TODO: 换个更恰当的名字
-def mergeAndBeautify(qryRst: list):
+# 20210823 有bug，而且非常丑陋，现在弃用
+# def mergeAndBeautify(qryRst: list):
     """
     qryRst中的rsv对象至少包含如下属性：
         * id

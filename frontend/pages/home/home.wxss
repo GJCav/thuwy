@@ -17,6 +17,10 @@
   color: lightgray;
   border: 2px solid lightgray;
 }
+.pic4{
+  color:gold;
+  border: 2px solid gold;
+}
 .haspic0 {
   color: #ffffff;
   background-color: lightskyblue;
@@ -32,4 +36,8 @@
 .haspic3 {
   color: #ffffff;
   background-color: lightgray;
+}
+.haspic4{
+  color: #ffffff;
+  background-color: gold;
 }
