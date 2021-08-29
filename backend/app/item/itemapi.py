@@ -38,7 +38,7 @@ def itemlist():
     return rst
 
 
-@itemRouter.route('/item/<int:itemId>', methods=['GET'])
+@itemRouter.route('/item/<int:itemId>/', methods=['GET'])
 def itemInfo(itemId):
 
     if not CheckArgs.isUint64(itemId):
@@ -105,7 +105,7 @@ def addItem():
     return rtn
 
 
-@itemRouter.route('/item/<int:itemId>', methods=['POST'])
+@itemRouter.route('/item/<int:itemId>/', methods=['POST'])
 @requireLogin
 @requireBinding
 @requireAdmin
@@ -135,7 +135,7 @@ def modifyItem(itemId):
     return ErrCode.CODE_SUCCESS
 
 
-@itemRouter.route('/item/<int:itemId>', methods=['DELETE'])
+@itemRouter.route('/item/<int:itemId>/', methods=['DELETE'])
 @requireLogin
 @requireBinding
 @requireAdmin
@@ -154,7 +154,7 @@ def delItem(itemId):
     return ErrCode.CODE_SUCCESS
 
 
-@itemRouter.route('/item/<int:itemId>/reservation')
+@itemRouter.route('/item/<int:itemId>/reservation/')
 def itemRsvInfo(itemId):
     qryRst = \
         db.session.query(Reservation) \

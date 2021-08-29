@@ -57,7 +57,7 @@ def getAdviceList():
         rtn['advice'].append(advice.toDict())
     return rtn
 
-@adviceRouter.route('/advice/<int:adviceId>')
+@adviceRouter.route('/advice/<int:adviceId>/')
 @requireLogin
 @requireBinding
 @requireAdmin
@@ -75,7 +75,7 @@ def getAdviceInfo(adviceId):
     rtn['advice'] = advice.toDict(True)
     return rtn
 
-@adviceRouter.route('/advice/<int:adviceId>', methods=['POST'])
+@adviceRouter.route('/advice/<int:adviceId>/', methods=['POST'])
 @requireLogin
 @requireBinding
 @requireAdmin
