@@ -1,6 +1,16 @@
 <template>
   <v-col lg="6" offset-lg="3" cols="12" offset="0">
-    <h1>预约审批</h1>
+    <h1>
+      预约审批
+      <v-btn
+        @click="loadRsvList"
+        :disabled="loading"
+        :loading="loading"
+        icon
+        large
+        ><v-icon>mdi-refresh</v-icon></v-btn
+      >
+    </h1>
     <v-tabs v-model="tab" background-color="transparent" grow>
       <v-tab v-for="tabItem in tabs" :key="tabItem">
         {{ tabItem }}
@@ -11,68 +21,12 @@
         <v-col>
           <!--待审批-->
           <template v-for="rsv in rsvList">
-            <v-card
-              :key="rsv.id"
+            <rsv-item
               v-if="(rsv.state & 0x1) > 0"
-              style="margin-top: 20px"
-            >
-              <div class="d-flex flex-no-wrap justify-space-between">
-                <div>
-                  <v-card-title class="text-h5"
-                    >{{ rsv.item
-                    }}<v-chip class="ma-1" color="purple" dark ripple>
-                      审批中
-                    </v-chip></v-card-title
-                  >
-                  <v-card-subtitle class="subtitle-1">
-                    <div><b>预约人</b>：{{ rsv.guest }}</div>
-                    <div><b>事由</b>：{{ rsv.reason }}</div>
-                    <div>
-                      <b>预约方式</b>：{{
-                        rsv.method === 1 ? '时间段预约' : '自由时段预约'
-                      }}
-                    </div>
-                    <div>
-                      <b>预约时段</b>：
-                      <ul v-if="rsv.method === 1">
-                        <li v-for="itvl in rsv.interval" :key="itvl">
-                          {{ Itvl2Time(itvl) }}
-                        </li>
-                      </ul>
-                      <ul v-else>
-                        <li>{{ rsv.interval }}</li>
-                      </ul>
-                    </div>
-                    <div><b>编号</b>：{{ rsv.id }}</div>
-                  </v-card-subtitle>
-                  <v-card-actions>
-                    <v-btn
-                      @click="auditSubmit(rsv.id, true)"
-                      outlined
-                      rounded
-                      small
-                      color="success"
-                    >
-                      <v-icon small>mdi-check</v-icon>
-                      通过
-                    </v-btn>
-                    <v-btn
-                      @click="auditSubmit(rsv.id, false)"
-                      color="error"
-                      outlined
-                      rounded
-                      small
-                    >
-                      <v-icon small>mdi-close</v-icon>
-                      拒绝
-                    </v-btn>
-                  </v-card-actions>
-                </div>
-                <v-avatar class="ma-3" size="125" tile>
-                  <v-img :src="rsv.thumbnail"></v-img>
-                </v-avatar>
-              </div>
-            </v-card>
+              :rsv="rsv"
+              :key="rsv.id"
+              @auditSubmit="auditSubmit($event)"
+            ></rsv-item>
           </template>
         </v-col>
       </v-tab-item>
@@ -80,70 +34,12 @@
         <v-col>
           <!--进行中-->
           <template v-for="rsv in rsvList">
-            <v-card
-              :key="rsv.id"
+            <rsv-item
               v-if="(rsv.state & 0x2) > 0"
-              style="margin-top: 20px"
-            >
-              <div class="d-flex flex-no-wrap justify-space-between">
-                <div>
-                  <v-card-title class="text-h5"
-                    >{{ rsv.item
-                    }}<v-chip class="ma-1" color="success" dark ripple>
-                      通过
-                    </v-chip>
-                    <v-chip class="ma-1" color="primary" dark ripple>
-                      进行中
-                    </v-chip>
-                  </v-card-title>
-                  <v-card-subtitle class="subtitle-1">
-                    <div><b>预约人</b>：{{ rsv.guest }}</div>
-                    <div><b>事由</b>：{{ rsv.reason }}</div>
-                    <div>
-                      <b>预约方式</b>：{{
-                        rsv.method === 1 ? '时间段预约' : '自由时段预约'
-                      }}
-                    </div>
-                    <div>
-                      <b>预约时段</b>：
-                      <ul v-if="rsv.method === 1">
-                        <li v-for="itvl in rsv.interval" :key="itvl">
-                          {{ Itvl2Time(itvl) }}
-                        </li>
-                      </ul>
-                      <ul v-else>
-                        <li>{{ rsv.interval }}</li>
-                      </ul>
-                    </div>
-                    <div><b>编号</b>：{{ rsv.id }}</div>
-                  </v-card-subtitle>
-                  <template v-if="(rsv.state & 0x8) === 0">
-                    <v-divider></v-divider>
-                    <v-card-subtitle>
-                      <div><b>审批人</b>：{{ rsv.approver }}</div>
-                      <div>
-                        <b>审批理由</b>：{{ rsv['exam-rst'] }}
-                      </div></v-card-subtitle
-                    >
-                  </template>
-                  <v-card-actions>
-                    <v-btn
-                      @click="reserveFinish(rsv.id)"
-                      outlined
-                      rounded
-                      small
-                      color="success"
-                    >
-                      <v-icon small>mdi-pencil</v-icon>
-                      完成预约
-                    </v-btn>
-                  </v-card-actions>
-                </div>
-                <v-avatar class="ma-3" size="125" tile>
-                  <v-img :src="rsv.thumbnail"></v-img>
-                </v-avatar>
-              </div>
-            </v-card>
+              :rsv="rsv"
+              :key="rsv.id"
+              @reserveFinish="reserveFinish($event)"
+            ></rsv-item>
           </template>
         </v-col>
       </v-tab-item>
@@ -151,70 +47,11 @@
         <v-col>
           <!--已结束-->
           <template v-for="rsv in rsvList">
-            <v-card
-              :key="rsv.id"
+            <rsv-item
               v-if="(rsv.state & 0x4) > 0"
-              style="margin-top: 20px"
-            >
-              <div class="d-flex flex-no-wrap justify-space-between">
-                <div>
-                  <v-card-title class="text-h5"
-                    >{{ rsv.item }}
-                    <template v-if="(rsv.state & 0x8) > 0">
-                      <v-chip class="ma-1" color="grey" dark ripple>
-                        用户取消
-                      </v-chip>
-                    </template>
-                    <template v-else-if="(rsv.state & 0x10) > 0">
-                      <v-chip class="ma-1" color="error" dark ripple>
-                        已拒绝
-                      </v-chip>
-                    </template>
-                    <template v-else>
-                      <v-chip class="ma-1" color="success" dark ripple>
-                        通过
-                      </v-chip>
-                      <v-chip class="ma-1" color="warning" dark ripple>
-                        已完成
-                      </v-chip>
-                    </template>
-                  </v-card-title>
-                  <v-card-subtitle class="subtitle-1">
-                    <div><b>预约人</b>：{{ rsv.guest }}</div>
-                    <div><b>事由</b>：{{ rsv.reason }}</div>
-                    <div>
-                      <b>预约方式</b>：{{
-                        rsv.method === 1 ? '时间段预约' : '自由时段预约'
-                      }}
-                    </div>
-                    <div>
-                      <b>预约时段</b>：
-                      <ul v-if="rsv.method === 1">
-                        <li v-for="itvl in rsv.interval" :key="itvl">
-                          {{ Itvl2Time(itvl) }}
-                        </li>
-                      </ul>
-                      <ul v-else>
-                        <li>{{ rsv.interval }}</li>
-                      </ul>
-                    </div>
-                    <div><b>预约编号</b>：{{ rsv.id }}</div>
-                  </v-card-subtitle>
-                  <template v-if="(rsv.state & 0x8) === 0">
-                    <v-divider></v-divider>
-                    <v-card-subtitle>
-                      <div><b>审批人</b>：{{ rsv.approver }}</div>
-                      <div>
-                        <b>审批理由</b>：{{ rsv['exam-rst'] }}
-                      </div></v-card-subtitle
-                    >
-                  </template>
-                </div>
-                <v-avatar class="ma-3" size="125" tile>
-                  <v-img :src="rsv.thumbnail"></v-img>
-                </v-avatar>
-              </div>
-            </v-card>
+              :rsv="rsv"
+              :key="rsv.id"
+            ></rsv-item>
           </template>
         </v-col>
       </v-tab-item>
@@ -243,6 +80,7 @@
 import { getRsvList, submitAudit, finishRsv } from '@/api/rsv';
 import { getItem } from '@/api/item';
 import ConfirmBox from '@/components/ConfirmBox.vue';
+import RsvItem from '@/components/RsvItem.vue';
 
 export default {
   data() {
@@ -256,6 +94,7 @@ export default {
       idToSubmit: undefined,
       typeToSubmit: undefined,
       dialog: false,
+      loading: false,
     };
   },
   async mounted() {
@@ -263,13 +102,24 @@ export default {
   },
   methods: {
     async loadRsvList() {
-      this.rsvList = await getRsvList();
+      this.loading = true;
+      try {
+        this.rsvList = await getRsvList();
+      } catch (e) {
+        this.loading = false;
+        throw e;
+      }
       let promises = [];
       let newRsvList = [];
       for (let i = 0; i < this.rsvList.length; i++) {
         promises.push(
           (async () => {
-            let item = await getItem(this.rsvList[i]['item-id']);
+            try {
+              var item = await getItem(this.rsvList[i]['item-id']);
+            } catch (e) {
+              this.loading = false;
+              throw e;
+            }
             newRsvList.push({
               ...this.rsvList[i],
               // name: item.name,
@@ -281,25 +131,9 @@ export default {
       await Promise.all(promises);
       this.rsvList = newRsvList;
       console.log(this.rsvList);
+      this.loading = false;
     },
-    Itvl2Time(itvl, method = 1) {
-      if (method === 1) {
-        let t = itvl.split(' ');
-        const [year, month, day] = t[0].split('-');
-        if (t[1] === '4') {
-          return `${year}-${month}-${day} 周末整体`;
-        } else {
-          const mapper = [
-            '',
-            '早上8:00-12:00',
-            '下午13:00-17:00',
-            '晚上18:00-23:00',
-          ];
-          return `${year}-${month}-${day} ${mapper[Number(t[1])]}`;
-        }
-      }
-    },
-    auditSubmit(id, type) {
+    auditSubmit({ id, type }) {
       this.idToSubmit = id;
       this.typeToSubmit = type;
       this.msgboxText = '请填写理由';
@@ -314,22 +148,31 @@ export default {
           this.typeToSubmit,
           this.reasonToSubmit
         );
+        this.$store.dispatch('showMessage', {
+          message: '审批成功',
+          timeout: 2000,
+        });
         return this.loadRsvList();
       }
     },
-    reserveFinish(id) {
+    reserveFinish({ id }) {
       this.idToSubmit = id;
       this.dialog = true;
     },
     async confirmFinish(confirm) {
       if (confirm) {
         await finishRsv(this.idToSubmit);
+        this.$store.dispatch('showMessage', {
+          message: '操作成功',
+          timeout: 2000,
+        });
         return this.loadRsvList();
       }
     },
   },
   components: {
     ConfirmBox,
+    RsvItem,
   },
   name: 'RsvManage',
 };

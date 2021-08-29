@@ -18,7 +18,7 @@ export async function getItemList() {
 }
 
 export async function getItem(id) {
-  var { data } = await request.get(`/item/${id}`);
+  var { data } = await request.get(`/item/${id}/`);
   if (data.code !== 0) {
     throw data.errmsg;
   }
@@ -26,14 +26,15 @@ export async function getItem(id) {
 }
 
 export async function postItem(item) {
-  let url = item.id === 0 ? '/item/' : `/item/${item.id}`;
+  let url = item.id === 0 ? '/item/' : `/item/${item.id}/`;
   var { data } = await request.post(url, {
     name: item.name,
     available: item.available,
     'brief-intro': item['brief-intro'],
     'md-intro': item['md-intro'],
     thumbnail: item.thumbnail,
-    'rsv-method': item['rsv-method']
+    'rsv-method': item['rsv-method'],
+    attr: item.attr
   });
   if (data.code !== 0) {
     throw data.errmsg;
@@ -42,7 +43,7 @@ export async function postItem(item) {
 }
 
 export async function deleteItem(id) {
-  var { data } = await request.delete(`/item/${id}`);
+  var { data } = await request.delete(`/item/${id}/`);
   if (data.code !== 0) {
     throw data.msg;
   }
