@@ -8,7 +8,7 @@
 
 **Des:** 第一次登陆
 
-**API:** `POST /login`
+**API:** `POST /login/`
 
 **请求参数：** Json Object
 
@@ -105,7 +105,7 @@ wx.request({
 
 **Des:**  设置用户的学号、姓名、班级
 
-**API:** `POST /bind`
+**API:** `POST /bind/`
 
 **Login?:** True
 
@@ -157,7 +157,7 @@ wx.request({
 
 ### 获取他人档案
 
-**API**: `GET /profile/<open-id>`
+**API**: `GET /profile/<open-id>/`
 
 **Des：** 获取其他用户信息
 
@@ -229,7 +229,7 @@ AdminReq属性：
 
 **Des:** 决定某用户是否通过管理员审核。
 
-**API:** `POST /admin/request/<requst-id>` 
+**API:** `POST /admin/request/<requst-id>/` 
 
 **Login?:** True, 需要绑定，需要为管理员
 
@@ -251,7 +251,7 @@ AdminReq属性：
 
 ### 删除管理员
 
-**API:** `DELETE /admin/<open-id>`
+**API:** `DELETE /admin/<open-id>/`
 
 **Login:** 登陆绑定，且有管理员权限
 
@@ -298,7 +298,7 @@ AdminReq属性：
 
 ### 物品详细信息
 
-**API:** `GET /item/<item-id>`
+**API:** `GET /item/<item-id>/`
 
 **Des：** 获取物品详细信息，包括`md-intro`、`delete`、`attr`属性
 
@@ -359,7 +359,7 @@ AdminReq属性：
 
 ### 修改物品
 
-**API:** `POST /item/<item-id>`
+**API:** `POST /item/<item-id>/`
 
 **Des：** 修改物品信息
 
@@ -395,7 +395,7 @@ AdminReq属性：
 
 ### 删除物品
 
-**API:**  `DELETE /item/<item-id>`
+**API:**  `DELETE /item/<item-id>/`
 
 **Des：** 删除物品
 
@@ -418,7 +418,7 @@ AdminReq属性：
 
 ### 查询物品预约信息
 
-**API:**  `GET /item/<item-id>/reservation`
+**API:**  `GET /item/<item-id>/reservation/`
 
 **Des：** 查询某个物品未来7天的预约信息
 
@@ -493,7 +493,7 @@ AdminReq属性：
 
 **Des:** 查询“我的”所有预约
 
-**API:** `GET /reservation/me?st=<start-time>&ed=<end-time>&state=<state>`
+**API:** `GET /reservation/me?st=<start-time>&ed=<end-time>&state=<state>/`
 
 **Login?**: True
 
@@ -521,7 +521,7 @@ AdminReq属性：
 
 ### 预约详细信息
 
-**API**: `GET /reservation/<rsv-id>`
+**API**: `GET /reservation/<rsv-id>/`
 
 **Des：** 获取某个预约的详细信息
 
@@ -551,7 +551,7 @@ AdminReq属性：
 
 **Des:** 取消一个预约
 
-**API:** `DELETE /reservation/<rsv-id>`
+**API:** `DELETE /reservation/<rsv-id>/`
 
 **Login?:** True，且要求绑定
 
@@ -583,7 +583,7 @@ AdminReq属性：
 
 ### 管理员查看预约
 
-**API:** `GET /reservation/?st=<start-time>&<ed-time>&state=<state>&method=<method>&p=<page>`
+**API:** `GET /reservation/?st=<start-time>&<ed-time>&state=<state>&method=<method>&p=<page>/`
 
 **Des：** 查询预约时间介于`st`和`ed`间的预约
 
@@ -628,7 +628,7 @@ AdminReq属性：
 
 **Des：** 供管理员审核、结束一个预约
 
-**API：** `POST /reservation/<rsv-id>`
+**API：** `POST /reservation/<rsv-id>/`
 
 **Login?:** True，且绑定，且为管理员
 
@@ -855,6 +855,7 @@ Rsv对象是一个Json Object，包含如下属性：
 | 属性     | 类型      | 说明                             |
 | -------- | --------- | -------------------------------- |
 | id       | RsvId     | 这个预约的编号                   |
+| item     | string    | 预约物品的名字                   |
 | item-id  | int64     | 物品ID                           |
 | guest    | string    | 预约人的名字                     |
 | reason   | string    | 预约理由                         |

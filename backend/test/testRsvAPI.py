@@ -121,7 +121,7 @@ def testRsvFlexTime():
         assert json['code'] == 0, (json, reqJson)
 
         rsv = json['rsv']
-        assert CheckArgs.hasAttrs(rsv, ['id', 'item-id', 'guest', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), str(rsv)
+        assert CheckArgs.hasAttrs(rsv, ['id', 'item', 'item-id', 'guest', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), str(rsv)
         assert rsv['id'] == rsvId, str(rsv)
         assert rsv['item-id'] == itemId, str(rsv)
         assert rsv['reason'] == reqJson['reason'], rsv
@@ -334,7 +334,7 @@ def testGetMyRsv():
     ]
 
     def valid(rsv, state = 2**65-1):
-        assert CheckArgs.hasAttrs(rsv, ['id', 'item-id', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), rsv
+        assert CheckArgs.hasAttrs(rsv, ['id', 'item', 'item-id', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), rsv
         assert 'guest' not in rsv, rsv
         assert CheckArgs.areInt(rsv, ['id', 'item-id', 'method']), rsv
         assert CheckArgs.areStr(rsv, ['reason'])
@@ -364,7 +364,7 @@ def testExamRsv():
     assert res.json()['code'] == 0, 'error at long time rsv'
     rsvId = res.json()['rsv-id']
 
-    res = R.post(url_rsv + str(rsvId), json={
+    res = R.post(url_rsv + str(rsvId) +'/', json={
         'op': 1,
         'pass': 1,
         'reason': 'test pass'
@@ -373,7 +373,7 @@ def testExamRsv():
     json = res.json()
     assert json['code'] == 0, json
 
-    res = R.get(url_rsv+str(rsvId))
+    res = R.get(url_rsv+str(rsvId)+'/')
     assert res, 'recheck exam result'
     json = res.json()
     assert json['code'] == 0, json
@@ -392,7 +392,7 @@ def testExamRsv():
     assert res.json()['code'] == 0, json
     rsvId = res.json()['rsv-id']
 
-    res = R.post(url_rsv + str(rsvId), json={
+    res = R.post(url_rsv + str(rsvId) + '/', json={
         'op': 1,
         'pass': 0,
         'reason': 'test reject'
@@ -401,39 +401,39 @@ def testExamRsv():
     json = res.json()
     assert json['code'] == 0, json
 
-    res = R.get(url_rsv+str(rsvId))
+    res = R.get(url_rsv+str(rsvId) + '/')
     assert res, 'recheck exam result'
     json = res.json()
     assert json['code'] == 0, json
     assert RsvState.isReject(json['rsv']['state']) and RsvState.isComplete(json['rsv']['state']), json['rsv']
 
 def testCompleteRsv():
-    res = R.get(url_rsv+'?state=2')
+    res = R.get(url_rsv+'/?state=2')
     assert res
     json = res.json()
     assert json['code'] == 0, json
     
     for rsv in json['rsvs']:
         rsvId = rsv['id']
-        res = R.post(url_rsv+f'{rsvId}', json={'op': 2})
+        res = R.post(url_rsv+f'{rsvId}/', json={'op': 2})
         assert res
         json = res.json()
         assert json['code'] == 0, json
 
-        res = R.get(url_rsv+f'{rsvId}')
+        res = R.get(url_rsv+f'{rsvId}/')
         assert res
         json = res.json()
         assert json['code'] == 0, json
         assert json['rsv']['state'] & RsvState.STATE_COMPLETE, json['rsv']
 
     
-    res = R.get(url_rsv+'?state=1')
+    res = R.get(url_rsv+'/?state=1')
     assert res
     json = res.json()
     assert json['code'] == 0, json
     for rsv in json['rsvs']:
         rsvId = rsv['id']
-        res = R.post(url_rsv+f'{rsvId}', json={'op': 2})
+        res = R.post(url_rsv+f'{rsvId}/', json={'op': 2})
         assert res
         json = res.json()
         assert json['code'] == ErrCode.Rsv.CODE_RSV_WAITING['code'], json
@@ -444,7 +444,7 @@ def testCompleteRsv():
     assert json['code'] == 0, json
     for rsv in json['rsvs']:
         rsvId = rsv['id']
-        res = R.post(url_rsv+f'{rsvId}', json={'op': 2})
+        res = R.post(url_rsv+f'{rsvId}/', json={'op': 2})
         assert res
         json = res.json()
         assert json['code'] == ErrCode.Rsv.CODE_RSV_COMPLETED['code'], json
@@ -474,18 +474,18 @@ def testCancel():
 
     rsvId = json['rsv-id']
 
-    res = R.delete(url_rsv+f'{rsvId}')
+    res = R.delete(url_rsv+f'{rsvId}/')
     assert res
     json = res.json()
     assert json['code'] == 0, json
 
-    res = R.get(url_rsv+f'{rsvId}')
+    res = R.get(url_rsv+f'{rsvId}/')
     assert res
     json = res.json()
     assert json['code'] == 0, json
     assert json['rsv']['state'] == RsvState.COMPLETE_BY_CANCEL, json
 
-    res = R.delete(url_rsv+f'{rsvId}')
+    res = R.delete(url_rsv+f'{rsvId}/')
     assert res
     json = res.json()
     assert json['code'] == 203, json

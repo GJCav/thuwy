@@ -214,7 +214,7 @@ def getMyProfile():
     rtn.update(ErrCode.CODE_SUCCESS)
     return rtn
 
-@authRouter.route('/profile/<openId>', methods=['GET'])
+@authRouter.route('/profile/<openId>/', methods=['GET'])
 @requireLogin
 @requireBinding
 @requireAdmin
@@ -278,7 +278,7 @@ def adminReqList():
     return rtn
 
 
-@authRouter.route('/admin/request/<int:reqId>', methods=['POST'])
+@authRouter.route('/admin/request/<int:reqId>/', methods=['POST'])
 @requireLogin
 @requireBinding
 @requireAdmin
@@ -310,7 +310,7 @@ def examAdminReq(reqId):
     return ErrCode.CODE_SUCCESS
 
 
-@authRouter.route('/admin/<openid>', methods=['DELETE'])
+@authRouter.route('/admin/<openid>/', methods=['DELETE'])
 @requireLogin
 @requireBinding
 @requireAdmin
