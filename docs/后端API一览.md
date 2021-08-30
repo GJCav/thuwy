@@ -927,13 +927,90 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 
 
+## Carousel
+
+### Carousel 对象
+
+包含如下属性：
+
+| 属性    | 类型             | 可修改性 | 说明                             |
+| ------- | ---------------- | -------- | -------------------------------- |
+| id      | int64            | 否       | 唯一标识符                       |
+| owner   | string           | 否       | 发布这个carousel的用户           |
+| st      | int64, timestamp |          | 推送开始时间                     |
+| ed      | int64, timestamp |          | 推送结束时间                     |
+| content | string           |          | 储存的相关数据，后端不关心其内容 |
+|         |                  |          | (可以存个字符串形式的json)       |
+
+
+
+### 获取Carousel列表
+
+**API:** `GET /carousel/`
+
+**Login:** False
+
+**返回值:** Json Object，包含如下内容
+
+| 属性      | 类型       | 说明               |
+| --------- | ---------- | ------------------ |
+| code      | int        | 错误码             |
+| errmsg    | string     | 错误信息           |
+| carousels | Json Array | Carousel对象的列表 |
+
+注：只会返回当前处于推送时间段内（也即 st <= currentTime < ed）的Carousel。
+
+
+
+### 添加Carousel
+
+**API:** `POST /carousel/`
+
+**Login:** True, 且登录，且为管理员
+
+**请求参数：** Carousel 对象，除了`id`属性。
+
+**返回值：** Json Object
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
+
+
+
+### 修改Carousel
+
+**API:** `POST /carousel/<carousel-id>/`
+
+**Login:** True,且登录，且为管理员
+
+**请求参数:** Json Object，包含 Carousel 排除 `id` 外的部分属性，覆盖设置服务器中对应Carousel对应属性的值。
+
+**返回值:** Json Object
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
+
+
+
+### 获取全部Carousel对象
+
+**API:** `GET /carousel/history/`
+
 
 
 ## 错误码
 
 > GJM: 我是傻逼，一开始应该设计成没有重合的错误码的 QAQ
 
-错误码保留\[-$\infin$, 100\]，作为公共错误码；\[101, +inf) 为某个API特定错误码。
+错误码保留\[$\infin$, 100\]，作为公共错误码；\[101, +inf) 为某个API特定错误码。
+
+
+
+
 
 公共错误码对应一览：
 
