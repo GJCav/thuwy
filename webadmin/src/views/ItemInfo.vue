@@ -98,7 +98,6 @@ export default {
   },
   async mounted() {
     this.item = await getItem(this.id);
-    console.log(this.item);
   },
   methods: {
     async confirmDelete(confirm) {
