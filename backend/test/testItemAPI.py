@@ -210,7 +210,7 @@ def testModifyItem():
     totPage = math.ceil(json['item-count'] / 20)
     page = randint(1, totPage)
 
-    res = R.get(url+f'?p={page}')
+    res = R.get(url+f'/?p={page}')
     json: dict = res.json()
     idx = randint(0, len(json['items'])-1)
     oldItem = json['items'][idx]
@@ -230,13 +230,13 @@ def testModifyItem():
         if k == 'md-intro': continue
 
         reqJson = {k:mdf[k]}
-        res = R.post(url+f'{itemId}', json=reqJson)
+        res = R.post(url+f'{itemId}/', json=reqJson)
         assert res.status_code == 200
         json: dict = res.json()
         assert json.keys() == {'code', 'errmsg'}
         assert json['code'] == 0
 
-        res = R.get(url+f'?p={page}')
+        res = R.get(url+f'/?p={page}')
         assert res.status_code == 200
         json: dict = res.json()
 
@@ -281,18 +281,18 @@ def testDelItem():
     global testItemUrl
     url = testItemUrl
 
-    res = R.delete(url+'0')
+    res = R.delete(url+'0/')
     assert res
     assert res.json()['code'] == 101, '删除一个不存在的id'
 
-    res = R.delete(url+'-1')
+    res = R.delete(url+'-1/')
     assert res.status_code == 404, 'flask 不允许负数的url变量'
 
-    res = R.delete(url+f'{2**128}')
+    res = R.delete(url+f'{2**128}/')
     assert res
     assert res.json()['code'] == ErrCode.CODE_ARG_INVALID['code'], '测试一个过大id'
 
-    res = R.delete(url+'12233')
+    res = R.delete(url+'12233/')
     assert res
     assert res.json()['code'] == ErrCode.Item.CODE_ITEM_NOT_FOUND['code'], '测试不存在的id'
 
@@ -300,7 +300,7 @@ def testDelItem():
     while json['items']:
         for item in json['items']:
             itemId = item['id']
-            res = R.delete(url+f'{itemId}')
+            res = R.delete(url+f'{itemId}/')
             assert res
             assert res.json()['code'] == 0, f'删除物品: {item["name"]}, {item["id"]}'
         json = R.get(url).json()

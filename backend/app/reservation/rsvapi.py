@@ -1,6 +1,7 @@
 from flask import request, session
 import json as Json
 import time as Time
+from sqlalchemy import desc
 
 from . import rsvRouter
 
@@ -20,7 +21,7 @@ import app.snowflake as Snowflake
 @requireAdmin
 def getRsvList():
 
-    qry = db.session.query(Reservation)
+    qry = db.session.query(Reservation).order_by(desc(Reservation.id))
 
     st = request.args.get('st')
     ed = request.args.get('ed')
@@ -224,7 +225,7 @@ def reserve():
     rtn['rsv-id'] = finalRsv.id
     return rtn
 
-@rsvRouter.route('/reservation/me')
+@rsvRouter.route('/reservation/me/')
 @requireLogin
 def querymyrsv():
     openid = session['openid']
@@ -232,7 +233,9 @@ def querymyrsv():
     def makeSnowId(date, flow):
         return Snowflake.makeId(Time.mktime(Time.strptime(date, '%Y-%m-%d')), MACHINE_ID, flow)
 
-    sql = db.session.query(Reservation).filter(Reservation.guest == openid)
+    sql = db.session.query(Reservation)\
+        .filter(Reservation.guest == openid)\
+        .order_by(desc(Reservation.id))
 
     st = request.args.get('st', None)
     if st and CheckArgs.isDate(st):
@@ -282,7 +285,7 @@ def querymyrsv():
     return rst
 
 
-@rsvRouter.route('/reservation/<int:rsvId>', methods=['GET'])
+@rsvRouter.route('/reservation/<int:rsvId>/', methods=['GET'])
 def getRsvInfo(rsvId):
     CODE_RSV_NOT_FOUND = {'code': 101, 'errmsg': 'reservation not found.'}
 
@@ -305,7 +308,7 @@ def getRsvInfo(rsvId):
 
 
 
-@rsvRouter.route('/reservation/<int:rsvId>', methods=['POST'])
+@rsvRouter.route('/reservation/<int:rsvId>/', methods=['POST'])
 @requireLogin
 @requireBinding
 @requireAdmin
@@ -373,7 +376,7 @@ def completeRsv(rsv: Reservation):
 
     return ErrCode.CODE_SUCCESS
 
-@rsvRouter.route('/reservation/<int:rsvId>', methods=['DELETE'])
+@rsvRouter.route('/reservation/<int:rsvId>/', methods=['DELETE'])
 @requireLogin
 @requireBinding
 def cancelRsv(rsvId):

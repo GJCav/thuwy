@@ -97,6 +97,9 @@ class Item(db.Model):
         def isAutoAccept(attr) -> bool:
             return (attr & Item.Attr.ATTR_AUTO_ACCEPT)
 
+    def queryItemName(itemId):
+        qryRst = db.session.query(Item.name).filter(Item.id == itemId).one_or_none()
+        return qryRst[0] if qryRst else None
 
     def toDict(self):
         """
@@ -353,6 +356,7 @@ class LongTimeRsv(SubRsvDelegator):
 
         rsvDict = {
             'id': rsv.id,
+            'item': Item.queryItemName(rsv.itemId),
             'item-id': rsv.itemId,
             'guest': User.queryName(rsv.guest),
             'reason': rsv.reason,
@@ -445,6 +449,7 @@ class FlexTimeRsv(SubRsvDelegator):
             raise ValueError(f'this is not a flexiable time reservation. id: {rsv.id}')
         rsvDict = {
             'id': rsv.id,
+            'item': Item.queryItemName(rsv.itemId),
             'item-id': rsv.itemId,
             'guest': User.queryName(rsv.guest),
             'reason': rsv.reason,

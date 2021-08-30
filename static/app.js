@@ -1,7 +1,20 @@
 const express = require('express');
+const http = require('http');
 const { Client } = require('minio');
 const config = require('./config');
 const multer = require('multer');
+const cors = require('cors');
+
+const app = express();
+const server = http.createServer(app);
+const WebLoginSetup = require('./WebLogin');
+
+app.use(cors({
+    credentials: true,
+    origin: config.frontendOrigin
+}));
+
+WebLoginSetup(server, app);
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -18,12 +31,10 @@ const upload = multer({ storage: storage });
 const client = new Client({
     endPoint: config.endPoint,
     port: config.endPointPort,
-    useSSL: false,
+    useSSL: true,
     accessKey: config.accessKey,
     secretKey: config.secretKey
 });
-
-const app = express();
 
 function PresignedPutObject(bucket, filename) {
     return new Promise((resolve, reject) => {
@@ -87,12 +98,12 @@ app.post(['/upload/:name', '/upload'], upload.single('file'), async (req, res) =
     res.status(200).json({
         code: 0,
         msg: 'OK',
-        data: `http://${config.endPoint}/${config.targetBucket}/${filename}`
+        data: `https://${config.endPoint}/${config.targetBucket}/${filename}`
     });
 });
 
 app.get('/', express.static(__dirname + '/demo'));
 
-app.listen(config.listenPort, () => {
+server.listen(config.listenPort, () => {
     console.log('wy-rsv static server is listening at %d', config.listenPort);
 });

@@ -83,7 +83,7 @@ def testResponse():
         reqJson = {
             'response': f'response {id}'
         }
-        res = R.post(adviceUrl+f'{id}', json=reqJson)
+        res = R.post(adviceUrl+f'{id}/', json=reqJson)
         assert res
         json = res.json()
         assert json['code'] == 0, json
@@ -160,7 +160,7 @@ def testGetAdviceInfoRobustly():
 
 @pytest.mark.robustTest
 def testResponseRobustly():
-    res = R.post(adviceUrl + '0', json={'response': ''})
+    res = R.post(adviceUrl + '0/', json={'response': ''})
     assert res
     json = res.json()
     assert json['code'] == ErrCode.Advice.CODE_ADVICE_NOT_FOUND['code']
@@ -171,12 +171,12 @@ def testResponseRobustly():
     assert json['code'] == 0
     adviceId = json['advice-id']
 
-    res = R.post(adviceUrl+f'{adviceId}', json={})
+    res = R.post(adviceUrl+f'{adviceId}/', json={})
     assert res
     json = res.json()
     assert json['code'] == ErrCode.CODE_ARG_MISSING['code']
 
-    res = R.post(adviceUrl+f'{adviceId}', json={'response': 54})
+    res = R.post(adviceUrl+f'{adviceId}/', json={'response': 54})
     assert res
     json = res.json()
     assert json['code'] == ErrCode.CODE_ARG_TYPE_ERR['code']
