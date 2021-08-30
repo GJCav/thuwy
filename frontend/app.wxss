@@ -2,24 +2,39 @@
 page {
   background-color: #f3f3f3
 }
+
 .row {
   margin-top: 20rpx;
 }
+
 /* 按钮 */
+.ok {
+  background-color: rgb(7, 193, 96);
+  color: white;
+}
+
+.oks {
+  background-color: rgb(6, 173, 86);
+}
+
 .warn {
   background-color: rgb(255, 50, 50);
   color: white;
 }
-.warns{
+
+.warns {
   background-color: rgba(210, 50, 50);
 }
-.normal{
-  background-color:rgb(230, 230, 230);
-  color: rgb(0, 0, 0);
+
+.normal {
+  background-color: rgb(230, 230, 230);
+  color: #444444;
 }
-.normals{
+
+.normals {
   background-color: lightgray;
 }
+
 /* 头像 */
 .avatar {
   width: 70px;
@@ -30,9 +45,12 @@ page {
   border: 3px solid #660874;
   overflow: hidden
 }
-.icon{
-  width: 80rpx; height: 80rpx;
+
+.icon {
+  width: 80rpx;
+  height: 80rpx;
 }
+
 /* 预约显示框 */
 .total {
   box-shadow: 1rpx 1rpx 1rpx 1rpx #dddddd;
@@ -46,6 +64,7 @@ page {
   border-radius: 20rpx;
   border: 1px solid #dddddd;
 }
+
 /* 下级菜单箭头 */
 .arrow {
   width: 10px;
@@ -55,18 +74,20 @@ page {
   border-right: 2px solid #999;
   transform: rotate(45deg);
 }
+
 /* 提交表单大标题 */
-.beauty{
-  color:#0087a9;
+.beauty {
+  color: #0087a9;
   width: 70%;
   height: 100rpx;
   display: flex;
-  align-items:flex-end;
-  justify-content:center;
-  margin:20rpx 15% 0 15%;
+  align-items: flex-end;
+  justify-content: center;
+  margin: 20rpx 15% 0 15%;
   font-weight: bolder;
-  font-size:x-large;
+  font-size: x-large;
 }
+
 /* 提交表单提示 */
 .tips {
   color: #999;
@@ -74,6 +95,7 @@ page {
   align-items: center;
   justify-content: center;
 }
+
 /* 分割线 */
 .divline {
   background: #e0e3da;
@@ -81,16 +103,38 @@ page {
   display: flex;
   height: 3rpx;
 }
+
+/* 物品信息显示公用格式 */
+.server-name {
+  color: black;
+  font-size: larger;
+  font-weight: bold;
+  word-break: keep-all;
+  word-wrap: break-word;
+}
+
+.server-description {
+  color: #999999;
+  font-size: smaller;
+  display: -webkit-box;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
 /* 公用格式框 */
-.inputbox{
+.inputbox {
   width: 70%;
-  background-color: #fff;
-  border: 2px solid #ddd;
+  background-color: #ffffff;
+  border: 2px solid #dddddd;
   margin-left: 15%;
   margin-right: 15%;
   margin-bottom: 20rpx;
 }
-.labelbox{
+
+.labelbox {
   width: 70%;
   margin: 120rpx;
   margin-top: 50rpx;
@@ -98,15 +142,19 @@ page {
   display: flex;
   align-items: center;
 }
-.textbox{
+
+.textbox {
   margin-left: 20rpx;
   font-size: larger;
 }
-.place-holder{
+
+.place-holder {
   font-style: italic;
 }
+
 /* checkbox公用格式 */
-.option{
+.option {
+  width: 70%;
   height: 80rpx;
   display: flex;
   margin-top: 10rpx;
@@ -116,12 +164,15 @@ page {
   flex-direction: row;
   align-items: center;
 }
+
 .optiontext1 {
   color: #333333;
 }
+
 .optiontext2 {
   color: #aaaaaa;
 }
+
 /* 预约显示公用格式 */
 .detail {
   width: 90%;
@@ -131,6 +182,7 @@ page {
   align-items: center;
   justify-content: left;
 }
+
 .which {
   color: #000000;
   font-size: larger;
@@ -138,6 +190,7 @@ page {
   margin-top: 20rpx;
   margin-bottom: 20rpx;
 }
+
 /* 预约细节公用格式 */
 .detail-whole {
   margin-top: 20rpx;
@@ -147,12 +200,14 @@ page {
   flex-direction: column;
   justify-content: center;
 }
+
 .detail-list {
   font-size: large;
   margin-top: 20rpx;
   width: 80%;
   display: flex;
 }
+
 checkbox .wx-checkbox-input {
   width: 50rpx;
   height: 50rpx;

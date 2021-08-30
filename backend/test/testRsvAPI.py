@@ -57,7 +57,8 @@ def testPrepareItems():
 def _flexInterval(daysAfter: int, st, ed) -> str:
     st = T.clockAfter(T.daysAfter(daysAfter), *st)
     ed = T.clockAfter(T.daysAfter(daysAfter), *ed)
-    interval = f'{T.getDate(st)} {T.getHour(st)}:{T.getMins(st)}-{T.getHour(ed)}:{T.getMins(ed)}'
+    # interval = f'{T.getDate(st)} {T.getHour(st)}:{T.getMins(st)}-{T.getHour(ed)}:{T.getMins(ed)}'
+    interval = '{} {:0>2}:{:0>2}-{:0>2}:{:0>2}'.format(T.getDate(st), T.getHour(st), T.getMins(st), T.getHour(ed), T.getMins(ed))
     return interval
 
 def testRsvFlexTime():
@@ -120,7 +121,7 @@ def testRsvFlexTime():
         assert json['code'] == 0, (json, reqJson)
 
         rsv = json['rsv']
-        assert CheckArgs.hasAttrs(rsv, ['id', 'item-id', 'guest', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), str(rsv)
+        assert CheckArgs.hasAttrs(rsv, ['id', 'item', 'item-id', 'guest', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), str(rsv)
         assert rsv['id'] == rsvId, str(rsv)
         assert rsv['item-id'] == itemId, str(rsv)
         assert rsv['reason'] == reqJson['reason'], rsv
@@ -285,8 +286,7 @@ def testRsvLongTime():
 def _beforeSaturday():
     return T.getWDay(T.today()) < 6
 
-
-@pytest.mark.skipif(not _beforeSaturday(), reason='no chance to reserve weekend not')
+@pytest.mark.skipif(not _beforeSaturday(), reason='no chance to reserve weekend now')
 def testReserveWeekend():
     for i in range(7):
         if T.getWDay(T.daysAfter(i)) == 6:
@@ -328,6 +328,28 @@ def testReserveWeekend():
         rsv = json['rsv']
         assert rsv['interval'] == interval, f"test: {data}, recheck"
 
+def testGetMyRsv():
+    testData = [
+        1, 2, 4, 16
+    ]
+
+    def valid(rsv, state = 2**65-1):
+        assert CheckArgs.hasAttrs(rsv, ['id', 'item', 'item-id', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), rsv
+        assert 'guest' not in rsv, rsv
+        assert CheckArgs.areInt(rsv, ['id', 'item-id', 'method']), rsv
+        assert CheckArgs.areStr(rsv, ['reason'])
+        assert rsv['state'] & state, rsv['state']
+    
+    for state in testData:
+        res = R.get(url_rsv+f'me?state={state}')
+        assert res
+        json = res.json()
+        assert json['code'] == 0, json
+        for rsv in json['my-rsv']:
+            valid(rsv, state)
+
+    
+
 
 def testExamRsv():
     itemId = addItem('test exam rsv, pass', 3)
@@ -342,7 +364,7 @@ def testExamRsv():
     assert res.json()['code'] == 0, 'error at long time rsv'
     rsvId = res.json()['rsv-id']
 
-    res = R.post(url_rsv + str(rsvId), json={
+    res = R.post(url_rsv + str(rsvId) +'/', json={
         'op': 1,
         'pass': 1,
         'reason': 'test pass'
@@ -351,7 +373,7 @@ def testExamRsv():
     json = res.json()
     assert json['code'] == 0, json
 
-    res = R.get(url_rsv+str(rsvId))
+    res = R.get(url_rsv+str(rsvId)+'/')
     assert res, 'recheck exam result'
     json = res.json()
     assert json['code'] == 0, json
@@ -370,7 +392,7 @@ def testExamRsv():
     assert res.json()['code'] == 0, json
     rsvId = res.json()['rsv-id']
 
-    res = R.post(url_rsv + str(rsvId), json={
+    res = R.post(url_rsv + str(rsvId) + '/', json={
         'op': 1,
         'pass': 0,
         'reason': 'test reject'
@@ -379,12 +401,53 @@ def testExamRsv():
     json = res.json()
     assert json['code'] == 0, json
 
-    res = R.get(url_rsv+str(rsvId))
+    res = R.get(url_rsv+str(rsvId) + '/')
     assert res, 'recheck exam result'
     json = res.json()
     assert json['code'] == 0, json
     assert RsvState.isReject(json['rsv']['state']) and RsvState.isComplete(json['rsv']['state']), json['rsv']
 
+def testCompleteRsv():
+    res = R.get(url_rsv+'/?state=2')
+    assert res
+    json = res.json()
+    assert json['code'] == 0, json
+    
+    for rsv in json['rsvs']:
+        rsvId = rsv['id']
+        res = R.post(url_rsv+f'{rsvId}/', json={'op': 2})
+        assert res
+        json = res.json()
+        assert json['code'] == 0, json
+
+        res = R.get(url_rsv+f'{rsvId}/')
+        assert res
+        json = res.json()
+        assert json['code'] == 0, json
+        assert json['rsv']['state'] & RsvState.STATE_COMPLETE, json['rsv']
+
+    
+    res = R.get(url_rsv+'/?state=1')
+    assert res
+    json = res.json()
+    assert json['code'] == 0, json
+    for rsv in json['rsvs']:
+        rsvId = rsv['id']
+        res = R.post(url_rsv+f'{rsvId}/', json={'op': 2})
+        assert res
+        json = res.json()
+        assert json['code'] == ErrCode.Rsv.CODE_RSV_WAITING['code'], json
+
+    res = R.get(url_rsv+'?state=4')
+    assert res
+    json = res.json()
+    assert json['code'] == 0, json
+    for rsv in json['rsvs']:
+        rsvId = rsv['id']
+        res = R.post(url_rsv+f'{rsvId}/', json={'op': 2})
+        assert res
+        json = res.json()
+        assert json['code'] == ErrCode.Rsv.CODE_RSV_COMPLETED['code'], json
 
 
 
@@ -411,18 +474,18 @@ def testCancel():
 
     rsvId = json['rsv-id']
 
-    res = R.delete(url_rsv+f'{rsvId}')
+    res = R.delete(url_rsv+f'{rsvId}/')
     assert res
     json = res.json()
     assert json['code'] == 0, json
 
-    res = R.get(url_rsv+f'{rsvId}')
+    res = R.get(url_rsv+f'{rsvId}/')
     assert res
     json = res.json()
     assert json['code'] == 0, json
     assert json['rsv']['state'] == RsvState.COMPLETE_BY_CANCEL, json
 
-    res = R.delete(url_rsv+f'{rsvId}')
+    res = R.delete(url_rsv+f'{rsvId}/')
     assert res
     json = res.json()
     assert json['code'] == 203, json

@@ -1,9 +1,26 @@
 <!--pages/reservation/reservation.wxml-->
+<wxs module="Time">
+  module.exports = {
+    fix: function (str, k) {
+      var tmp = ''
+      if (k) {
+        var text = [' 08:00-12:00', ' 13:00-17:00', ' 18:00-23:00', '起周末两天']
+        tmp = text[parseInt(str.slice(-1)) - 1]
+      }
+      else tmp = ' ' + str.slice(-11)
+      return str.slice(0, 4) + '年' + parseInt(str.slice(5, 7)) + '月' + parseInt(str.slice(8, 10)) + '日' + tmp
+    }
+  }
+</wxs>
 <view class="beauty">预约详细信息</view>
 <view class="tips">——请仔细核查以下信息——</view>
 <view class="detail-whole">
+  <view class="detail-list">
+    <view style="font-weight:bold;white-space:nowrap"> 预约编号：</view>
+    <view>{{rsv_detail.id}}</view>
+  </view>
   <view class="detail-list" wx:if="{{who==2}}">
-    <view style="font-weight:bold">预约申请人：</view>
+    <view style="font-weight:bold;white-space:nowrap">预约申请人：</view>
     <view>{{rsv_detail.guest}}</view>
     <!-- 由于后端API的限制，暂时无法实现详细信息的显示 -->
     <!-- <view class="detail-list">
@@ -20,35 +37,48 @@
     </view> -->
   </view>
   <view class="detail-list">
-    <view style="font-weight:bold"> 设备名称：</view>
-    <view>{{rsv_equip}}</view>
+    <view style="font-weight:bold;white-space:nowrap"> 物品名称：</view>
+    <view>{{rsv_detail.item}}</view>
   </view>
   <view class="detail-list">
     <view style="font-weight:bold"> 预约方式：</view>
-    <view>{{rsv_detail==1?'固定时间段预约':'自由时间段预约'}}</view>
+    <view>{{rsv_detail.method==1?'固定时间段预约':'自由时间段预约'}}</view>
   </view>
   <view class="detail-list" style="flex-direction:column">
     <view style="font-weight:bold"> 预约时间：</view>
-    <view>{{rsv_detail.interval}}</view>
+    <view style="margin-top:15rpx">
+      <view wx:for="{{rsv_detail.interval}}" style="display:flex;flex-direction:row" wx:key="*this" wx:if="{{rsv_detail.method==1}}">
+        <text style="font-weight:900" decode="{{true}}">·&nbsp;</text>{{Time.fix(item,true)}}
+      </view>
+      <view style="display:flex;flex-direction:row" wx:if="{{rsv_detail.method==2}}">
+        <text style="font-weight:900" decode="{{true}}">·&nbsp;</text>{{Time.fix(rsv_detail.interval,false)}}
+      </view>
+    </view>
   </view>
   <view class="detail-list" style="flex-direction:column">
     <view style="font-weight:bold"> 预约理由：</view>
-    <view>{{rsv_detail.reason}}</view>
+    <view style="margin-top:15rpx; border:2px solid #dddddd"><text
+        decode="{{true}}">&nbsp;&nbsp;&nbsp;&nbsp;{{rsv_detail.reason}}</text></view>
   </view>
-  <view class="detail-list" style="flex-direction:column" wx:if="{{who!=1}}">
+  <view class="detail-list" style="flex-direction:column" wx:if="{{who==0&&rsv_detail['exam-rst']!=null||who==2}}">
     <view style="font-weight:bold"> 审批回复：</view>
-    <view wx:if="{{who==0}}">{{rsv_detail['exam-rst']}}</view>
-  </view>   
-  <textarea class="inputbox" wx:if="{{who==2}}" style="height:150rpx;margin-top:20rpx" placeholder="请填写审批回复" bindblur="inputreason" />
-  <view class="detail-list" style="flex-direction:column" wx:if="{{who==0}}">
-    <view style="font-weight:bold"> 审批人：{{rsv_detail.approver}}</view>
+    <view style="margin-top:15rpx; border:2px solid #dddddd" wx:if="{{who==0}}">
+      <text decode="{{true}}">&nbsp;&nbsp;&nbsp;&nbsp;{{rsv_detail['exam-rst']}}</text>
+    </view>
+  </view>
+  <textarea class="inputbox" wx:if="{{who==2}}"
+    style="height:210rpx;margin-top:20rpx;width:80%;margin-left:10%;margin-right:10%" placeholder="请填写审批回复"
+    bindblur="inputreason" />
+  <view class="detail-list" wx:if="{{who==0&&rsv_detail.approver!=null}}">
+    <view style="font-weight:bold;white-space:nowrap"> 审批人：</view>
+    <view>{{rsv_detail.approver}}</view>
   </view>
 </view>
 <view class="buttonbox" style="margin-top:60rpx">
-  <button type="primary" style="width:40%;margin-bottom:60rpx" bindtap="admit" wx:if="{{who==2}}">批准预约</button>
+  <button class="ok" hover-class="oks" style="width:40%;margin-bottom:60rpx" bindtap="admit" wx:if="{{who==2}}">批准预约</button>
   <button class="warn" hover-class="warns" style="width:40%;margin-bottom:60rpx" bindtap="noway"
     wx:if="{{who==2}}">拒绝预约</button>
   <button class="warn" hover-class="warns" style="width:40%;margin-bottom:60rpx" bindtap="delete"
     wx:if="{{who==1}}">取消预约</button>
-  <button type="primary" style="width:40%;margin-bottom:60rpx" bindtap="over" wx:if="{{who==3}}">结束预约</button>
+  <button class="ok" hover-class="oks" style="width:40%;margin-bottom:60rpx" bindtap="over" wx:if="{{who==3}}">完成预约</button>
 </view>

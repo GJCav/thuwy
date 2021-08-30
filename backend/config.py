@@ -1,7 +1,11 @@
 import os
+import datetime
 
 class Config():
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=3)
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = 'None'
 
     def set(app):
         pass
@@ -30,6 +34,7 @@ class ProductionConfig(Config):
 config = ProductionConfig
 skipLoginAndBind = False
 skipAdmin = False
+userSysName = 'system'  # 默认添加一个 system 管理员，处理定时任务
 
 WX_APP_ID = 'wx7bfe035eee90419b'
 WX_APP_SECRET = '51ed227eed49319fa6474bc79559dc2f'

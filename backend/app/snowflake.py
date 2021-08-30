@@ -42,11 +42,12 @@ def getMachineId(id):
 def getTime(id):
     return (id>>13) / 1000 + _base
 
-def convertTimestamp(pyTimestamp):
-    """
-    convert python timestamp to snowflake time
-    """
-    return int(pyTimestamp * 1000 - _base)
 
-def makeId(sfTimestamp = 0, machine = 0, flow = 0):
-    return (sfTimestamp<<13) | (machine << 8) | flow
+def makeId(timestamp = 0, machine = 0, flow = 0):
+    """
+    using unix style timestamp, not python timestamp
+    """
+
+    timestamp -= _base
+    return (timestamp<<13) | (machine << 8) | flow
+

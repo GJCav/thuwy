@@ -21,6 +21,10 @@ Page({
       text: "反馈问题和建议",
       go: "advice",
       condition: true
+    }, {
+      text: "登录网页端",
+      go: "scanQR",
+      condition: true
     }],
     num1: 0,
     num2: 0,
@@ -42,9 +46,9 @@ Page({
   },
   onShow() {
     this.setData({
-      'select[0].condition':app.globalData.isadmin,
-      'select[1].condition':!app.globalData.userInfo,
-      'select[2].condition':!app.globalData.isadmin
+      'select[0].condition': app.globalData.isadmin,
+      'select[1].condition': !app.globalData.userInfo,
+      'select[2].condition': !app.globalData.isadmin
     })
     if (app.globalData.login) {
       if (app.globalData.userInfo) {
@@ -136,12 +140,21 @@ Page({
             })
           } else {
             console.log(res.data.code, res.data.errmsg);
-            wx.hideLoading();
-            wx.showToast({
-              title: '申请失败',
-              icon: 'error',
-              duration: 1500,
-            })
+            if (res.data.code == 102) {
+              wx.hideLoading();
+              wx.showToast({
+                title: '请勿重复申请',
+                icon: 'error',
+                duration: 1500,
+              })
+            } else {
+              wx.hideLoading();
+              wx.showToast({
+                title: '提交申请失败',
+                icon: 'error',
+                duration: 1500,
+              })
+            }
           }
         },
         fail: (res) => {
@@ -163,11 +176,60 @@ Page({
       });
     }
   },
-  advice(){
+  advice() {
     wx.showToast({
       title: '功能尚未开通',
       icon: 'error',
       duration: 1500
     });
+  },
+  async scanQR() {
+    wx.scanCode({
+      onlyFromCamera: true,
+      scanType: ['qrCode'],
+      success: res => {
+        wx.login().then(loginRes => {
+          wx.showModal({
+            title: '登录网页端',
+            content: '是否确认登陆？',
+            success(modelRes) {
+              if (modelRes.confirm) {
+                wx.request({
+                  url: `${app.globalData.webBackendUrl}/weblogin`,
+                  method: 'POST',
+                  dataType: 'json',
+                  data: {
+                    requestId: res.result,
+                    credential: loginRes.code
+                  },
+                  success: ({ data }) => {
+                    if (data.code === 0) {
+                      wx.showToast({
+                        title: '登录成功',
+                        icon: 'success',
+                        duration: 1500
+                      });
+                    } else {
+                      wx.showToast({
+                        title: data.msg,
+                        icon: 'error',
+                        duration: 1500
+                      });
+                    }
+                  },
+                  fail: () => {
+                    wx.showToast({
+                      title: '拉取信息失败',
+                      icon: 'error',
+                      duration: 1500
+                    });
+                  }
+                });
+              }
+            }
+          });
+        });
+      }
+    });
   }
-})
+});

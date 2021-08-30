@@ -1,0 +1,13 @@
+<!--pages/appointment/admit/time/time.wxml-->
+<view class="timetitle" style="margin-top:50rpx">请选择预约时间段：</view>
+<picker style="margin-top:50rpx" mode="time" value="{{st}}" start="{{st}}" end="{{ed}}" bindchange="st_change">
+    <view class="option" style="display:flex;justify-content:center">
+        预约开始时间：{{st_index}}
+    </view>
+</picker>
+<picker style="margin-top:50rpx;margin-bottom:80rpx" mode="time" value="{{st_index}}" start="{{st_index}}" end="{{ed}}" bindchange="ed_change" wx:if="{{have_st}}">
+    <view class="option" style="display:flex;justify-content:center">
+        预约结束时间：{{ed_index}}
+    </view>
+</picker>
+<button class="ok" hover-class="oks" style="margin-bottom:80rpx" bindtap="sure" wx:if="{{have_ed}}">确定时间</button>
