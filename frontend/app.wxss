@@ -111,6 +111,12 @@ page {
   font-weight: bold;
   word-break: keep-all;
   word-wrap: break-word;
+  display: -webkit-box;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .server-description {
@@ -189,6 +195,12 @@ page {
   width: 70%;
   margin-top: 20rpx;
   margin-bottom: 20rpx;
+  display: -webkit-box;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 /* 预约细节公用格式 */

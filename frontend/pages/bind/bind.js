@@ -14,8 +14,6 @@ Page({
       title: '绑定信息'
     })
   },
-  onShow(){
-  },
   inputname: function (e) {
     this.setData({
       name: e.detail.value

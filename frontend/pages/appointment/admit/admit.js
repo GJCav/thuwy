@@ -30,6 +30,7 @@ Page({
     item_feature: [],
 
     //时间选择相关
+    selected:false,
     final_ed: '',
     final_st: '',
     date_index: 0,
@@ -335,7 +336,7 @@ Page({
     if (e.detail.value == 2) this.drawpic();
   },
   //输入预约原因
-  inputwhy: function (e) {
+  inputwhy(e) {
     this.setData({
       reason: e.detail.value
     });
@@ -424,7 +425,7 @@ Page({
     ctx.fillText('时间', width / 8 * 3, 20)
     ctx.fillText('预约情况', width / 4 * 3, 20)
     //画竖排文字
-    ctx.font = '28px SimSun, Songti SC' //文字样式
+    ctx.font = '20px SimSun, Songti SC' //文字样式
     ctx.textAlign = 'center' //文字横线
     ctx.textBaseline = 'middle' //文字竖向
     ctx.fillText('上', width / 8, 5 * h / 3 + 40)

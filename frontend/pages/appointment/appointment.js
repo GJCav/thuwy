@@ -10,10 +10,18 @@ Page({
     complete: false,
 
     servers: '',
-    imgUrls: [
-      '/image/green.png',
-      '/image/blue.png',
-      '/image/orange.png',
+    imgUrls: [{
+        pic: '/image/green.png',
+        url: '../advice/advice?id=0'
+      },
+      {
+        pic: '/image/blue.png',
+        url: '../advice/advice?id=0'
+      },
+      {
+        pic: '/image/orange.png',
+        url: '../advice/advice?id=0'
+      }
     ],
   },
   //触底加载更多信息
@@ -66,6 +74,14 @@ Page({
         duration: 1500
       });
     }
+  },
+  //轮播图链接
+  goforurl(e) {
+    var i = e.currentTarget.dataset['value']
+    console.log(i)
+    wx.navigateTo({
+      url: this.data.imgUrls[i].url,
+    })
   },
   //初始化
   onLoad() {

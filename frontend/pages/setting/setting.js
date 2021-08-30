@@ -177,11 +177,9 @@ Page({
     }
   },
   advice() {
-    wx.showToast({
-      title: '功能尚未开通',
-      icon: 'error',
-      duration: 1500
-    });
+    wx.navigateTo({
+      url: '../advice/advice?id=0',
+    })
   },
   async scanQR() {
     wx.scanCode({

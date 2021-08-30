@@ -18,7 +18,7 @@
 }
 /* 小标题文字 */
 .thetext{
-  font-size: larger;
+  font-size: large;
   margin-top: 10rpx;
   margin-bottom: 10rpx;
   width: 90%;

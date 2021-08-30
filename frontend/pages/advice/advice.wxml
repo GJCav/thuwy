@@ -1,0 +1,40 @@
+<!--pages/advice/advice.wxml-->
+<view class="beauty">建议反馈{{id==0?'':'详情'}}</view>
+<view class="tips" wx:if="{{id==0}}">——请完整填写以下内容——</view>
+<view class="tips" wx:if="{{id!=0}}">——技术问题可向开发人员反馈——</view>
+<form bindsubmit="addadvice">
+  <view class="after-title">
+    <view class="tipbox">
+      <view class="labelbox">
+        <image src="/icon/title.png" class="icon"></image>
+        <text class="textbox">主题：</text>
+      </view>
+      <view class="advice" wx:if="{{id!=0}}">{{advice_detail.title}}</view>
+      <view wx:if="{{id==0}}">
+        <input type="text" class="inputbox" placeholder="请简述建议主题" bindblur="inputitle" />
+      </view>
+    </view>
+    <view class="tipbox">
+      <view class="labelbox">
+        <image src="/icon/text.png" class="icon"></image>
+        <text class="textbox">正文：</text>
+      </view>
+      <view class="advice" wx:if="{{id!=0}}">{{advice_detail.content}}</view>
+      <view wx:if="{{id==0}}">
+        <textarea class="inputbox" style="width:70%;margin-left:15%;margin-right:15%" placeholder="请详细描述建议内容"
+          bindblur="inputext" />
+      </view>
+    </view>
+    <view class="tipbox" wx:if="{{id!=0}}">
+      <view class="labelbox">
+        <image src="/icon/answer.png" class="icon"></image>
+        <text class="textbox">回复：</text>
+      </view>
+      <view class="advice" wx:if="{{advice_detail.response!=null}}">{{advice_detail.response}}</view>
+      <textarea class="inputbox" style="width:70%;margin-left:15%;margin-right:15%" placeholder="请给出相关批复"
+          bindblur="inputanswer" wx:if="{{advice_detail.response==null}}" />
+    </view>
+  </view>
+  <button class="ok" hover-class="oks" form-type="submit" style="margin-top:80rpx;margin-bottom:50rpx" 
+  wx:if="{{advice_detail.response==null}}">{{id==0?'提交反馈':'提交答复'}}</button>
+</form>

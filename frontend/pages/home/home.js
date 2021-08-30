@@ -1,6 +1,7 @@
 // pages/home/home.js
 const app = getApp()
-const util = require('../../utils/util.js')
+ //备用
+// const util = require('../../utils/util.js')
 Page({
     data: {
         //记录显示

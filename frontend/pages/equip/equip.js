@@ -1,7 +1,6 @@
 // pages/equip/equip.js
 // 获取应用实例
 const app = getApp()
-
 Page({
   data: {
     item_id: 0,
@@ -10,11 +9,11 @@ Page({
     brief_intro: '',
     md_intro: '',
     rsv_method: 0,
-    attr:0,
+    attr: 0,
 
     //显示特殊属性
     show: false,
-    item_feature:[],
+    item_feature: [],
 
     havepic: false,
     thumbnail: null,
@@ -63,21 +62,21 @@ Page({
     console.log(this.data.rsv_method)
   },
   //展示特殊属性
-  show_feature(){
+  show_feature() {
     this.setData({
-      show:true
+      show: true
     })
   },
   //添加特殊属性
-  add_feature(e){
+  add_feature(e) {
     this.setData({
-      attr:this.data.attr+(1<<e.currentTarget.dataset['id']),
-      show:false
+      attr: this.data.attr + (1 << e.currentTarget.dataset['id']),
+      show: false
     })
   },
-  del_feature(e){
+  del_feature(e) {
     this.setData({
-      attr:this.data.attr-(1<<e.currentTarget.dataset['id']),
+      attr: this.data.attr - (1 << e.currentTarget.dataset['id']),
     })
   },
   //预览详细介绍（md格式）
@@ -113,7 +112,7 @@ Page({
   onLoad: function (options) {
     this.setData({
       item_id: options.id,
-      item_feature:app.globalData.item_feature
+      item_feature: app.globalData.item_feature
     })
     if (options.id != 0) {
       wx.setNavigationBarTitle({
@@ -124,7 +123,7 @@ Page({
         title: '加载中',
       })
       wx.request({
-        url: app.globalData.url + '/item/' + this.data.item_id+'/',
+        url: app.globalData.url + '/item/' + this.data.item_id + '/',
         method: 'GET',
         success: (res) => {
           let those = res.data
@@ -136,7 +135,7 @@ Page({
               rsv_method: those.item['rsv-method'],
               thumbnail: those.item.thumbnail,
               available: those.item.available,
-              attr:those.item.attr,
+              attr: those.item.attr,
             })
             let that = this.data
             if (that.rsv_method % 2 == 1) {
@@ -144,7 +143,7 @@ Page({
                 'methods[0].checked': true
               })
             }
-            if ((that.rsv_method >>1) % 2 == 1) {
+            if ((that.rsv_method >> 1) % 2 == 1) {
               this.setData({
                 'methods[1].checked': true
               })
@@ -188,50 +187,51 @@ Page({
       })
     }
   },
-  onShow() {
-  },
+  onShow() {},
   //封装获取上传地址
   getuploadurl() {
     let that = this
     return new Promise(function (resolve, reject) {
-      wx.request({
-        url: app.globalData.picurl + '/uploadurl/:' + that.data.name,
-        method: 'GET',
-        header: {
-          'content-type': 'text/plain',
-        },
-        success: (res) => {
-          console.log(res)
-          if (res.statusCode == 200 & res.data.code == 0) {
-            that.setData({
-              uploadurl: res.data.data,
-            })
-            resolve()
-          } else {
+      if (that.data.havepic) {
+        console.log(app.globalData.picurl + '/uploadurl/' + that.data.name + '.jpg')
+        wx.request({
+          url: app.globalData.picurl + '/uploadurl/' + that.data.name + '.jpg',
+          method: 'GET',
+          header: {
+            'content-type': 'text/plain',
+          },
+          success: (res) => {
+            console.log(res)
+            if (res.statusCode == 200 & res.data.code == 0) {
+              that.setData({
+                uploadurl: res.data.data,
+              })
+              resolve()
+            } else {
+              reject(res)
+            }
+          },
+          fail: (res) => {
             reject(res)
           }
-        },
-        fail: (res) => {
-          reject(res)
-        }
-      })
+        })
+      } else{
+        resolve()
+      }
     })
   },
   //封装上传文件
   upfile() {
     let that = this
     return new Promise(function (resolve, reject) {
-      that.setData({
-        finalurl:that.data.thumbnail
-      })
       if (that.data.havepic) {
         wx.uploadFile({
-          url: app.globalData.picurl + '/upload/:' + that.data.name,
+          url: app.globalData.picurl + '/upload/' + that.data.name + '.jpg',
           filePath: that.data.thumbnail,
           name: 'file', // 这里固定为"file"
           success: (res) => {
-            var obj=JSON.parse(res.data) 
-            if (obj.code == 0){
+            var obj = JSON.parse(res.data)
+            if (obj.code == 0) {
               that.setData({
                 finalurl: obj.data
               })
@@ -279,7 +279,7 @@ Page({
               'md-intro': that.data.md_intro,
               thumbnail: that.data.finalurl,
               'rsv-method': that.data.rsv_method,
-              attr:that.data.attr
+              attr: that.data.attr
             },
             success: (res) => {
               if (res.data.code == 0) {
@@ -344,22 +344,23 @@ Page({
       that.getuploadurl().then(function () {
         that.upfile().then(function () {
           console.log(that.data.finalurl)
+          var final_data = {
+            name: that.data.name,
+            'brief-intro': that.data.brief_intro,
+            'md-intro': that.data.md_intro,
+            'rsv-method': that.data.rsv_method,
+            available: that.data.available,
+            attr: that.data.attr
+          }
+          if (that.data.havepic) final_data.thumbnail = that.data.finalurl
           wx.request({
             header: {
               'content-type': 'application/json; charset=utf-8',
               'cookie': wx.getStorageSync('cookie')
             },
-            url: app.globalData.url + '/item/' + that.data.item_id+'/',
+            url: app.globalData.url + '/item/' + that.data.item_id + '/',
             method: "POST",
-            data: {
-              name: that.data.name,
-              'brief-intro': that.data.brief_intro,
-              'md-intro': that.data.md_intro,
-              thumbnail: that.data.finalurl,
-              'rsv-method': that.data.rsv_method,
-              available: that.data.available,
-              attr:that.data.attr
-            },
+            data: final_data,
             success: (res) => {
               if (res.data.code == 0) {
                 wx.hideLoading();

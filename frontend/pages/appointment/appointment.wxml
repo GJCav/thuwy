@@ -4,7 +4,7 @@
   next-margin="60px">
   <block wx:for="{{imgUrls}}" wx:key="*this">
     <swiper-item class="slide-wrapper">
-      <image src="{{item}}" class="slide-image" />
+      <image src="{{item.pic}}" class="slide-image" data-value="{{index}}" bindtap="goforurl"/>
     </swiper-item>
   </block>
 </swiper>

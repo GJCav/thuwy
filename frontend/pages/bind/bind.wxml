@@ -1,37 +1,36 @@
 <!--pages/bind/bind.wxml-->
+<view class="beauty">绑定信息</view>
+<view class="tips">——请如实填写以下信息——</view>
+<view class="after-title">
+  <view class="tipbox">
+    <view class="labelbox">
+      <image src="/icon/id.png" class="icon"></image>
+      <text class="textbox">学号：</text>
+    </view>
+    <view>
+      <input type="number" class="inputbox" placeholder-class="place-holder" placeholder="请输入学号" bindblur="inputid" />
+    </view>
+  </view>
+  <view class="tipbox">
+    <view class="labelbox">
+      <image src="/icon/name.png" class="icon"></image>
+      <text class="textbox">姓名：</text>
+    </view>
+    <view>
+      <input type="text" class="inputbox" placeholder-class="place-holder" placeholder="请输入真实姓名" bindblur="inputname" />
+    </view>
+  </view>
+  <view class="tipbox">
+    <view class="labelbox">
+      <image src="/icon/clz.png" class="icon"></image>
+      <text class="textbox">班级：</text>
+    </view>
+    <view>
+      <input type="text" class="inputbox" placeholder-class="place-holder" placeholder="请输入班级，以“未央-”开头"
+        bindblur="inputclz" />
+    </view>
+  </view>
+</view>
 <view>
-  <view class="beauty">绑定信息</view>
-  <view class="tips">——请如实填写以下信息——</view>
-  <view class="after-title">
-    <view class="tipbox">
-      <view class="labelbox">
-        <image src="/icon/id.png" class="icon"></image>
-        <text class="textbox">学号：</text>
-      </view>
-      <view>
-        <input type="number" class="inputbox" placeholder-class="place-holder" placeholder="请输入学号" bindblur="inputid"/>
-      </view>
-    </view>
-    <view class="tipbox">
-      <view class="labelbox">
-        <image src="/icon/name.png" class="icon"></image>
-        <text class="textbox">姓名：</text>
-      </view>
-      <view>
-        <input type="text" class="inputbox" placeholder-class="place-holder" placeholder="请输入真实姓名" bindblur="inputname"/>
-      </view>
-    </view>
-    <view class="tipbox">
-      <view class="labelbox">
-        <image src="/icon/clz.png" class="icon"></image>
-        <text class="textbox">班级：</text>
-      </view>
-      <view>
-        <input type="text" class="inputbox" placeholder-class="place-holder" placeholder="请输入班级，以“未央-”开头" bindblur="inputclz"/>
-      </view>
-    </view>
-  </view>
-  <view>
-      <button class="ok" hover-class="oks" bindtap="addUser" style="width: 300rpx; height: 80rpx; top:60rpx">提交</button>
-  </view>
+  <button class="ok" hover-class="oks" bindtap="addUser" style="width: 300rpx; height: 80rpx; top:60rpx">提交</button>
 </view>
