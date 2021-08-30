@@ -20,6 +20,19 @@ def areInt(map: dict, attrs: list):
 def isInt(a):
     return isinstance(a, int)
 
+def areUint64(map: dict, attrs: list):
+    for k in attrs:
+        if not isinstance(map[k], int):
+            return False
+        if map[k] < 0 or map[k] > (1<<65)-1:
+            return False
+    return True
+
+def isUint64(a):
+    if not isInt(a): return False
+    if a < 0 or a > (1<<65)-1: return False
+    return True
+
 def areBool(map: dict, attrs: list):
     for k in attrs:
         if not isinstance(map[k], bool):
@@ -44,10 +57,7 @@ def isSchoolId(s: str):
 def isClazz(s: str):
     return Regex.match(r'^未央-.+\d\d$', s)
 
-def isUint64(a):
-    if not isInt(a): return False
-    if a < 0 or a > (1<<65)-1: return False
-    return True
+
 
 def isPowOf2(a):
     while a & 1 == 0:
