@@ -12,7 +12,7 @@ def _todayStart():
     return today
 
 def now() -> int:
-    return (time.time() * 1000)
+    return int(time.time() * 1000)
 
 def today() -> int:
     return int(_todayStart().timestamp() * 1000)
@@ -53,12 +53,12 @@ def dateToTimestamp(dateStr) -> int:
 def getDate(stamp) -> str:
     return time.strftime('%Y-%m-%d', time.localtime(stamp/1000))
 
-def getHour(stamp):
+def getHour(stamp) -> int:
     return time.localtime(stamp / 1000).tm_hour
 
-def getMins(stamp):
+def getMins(stamp) -> int:
     return time.localtime(stamp / 1000).tm_min
 
 # 1 - 7
-def getWDay(stamp):
+def getWDay(stamp) -> int:
     return time.localtime(stamp / 1000).tm_wday + 1
