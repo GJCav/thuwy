@@ -34,3 +34,7 @@ class Rsv:
 
 class Advice:
    CODE_ADVICE_NOT_FOUND = {'code': 101, 'errmsg': 'advice not found'}
+
+
+class Carousel:
+   CODE_MSG_NOT_FOUND = {'code': 101, 'errmsg': 'carousel msg not found'}
