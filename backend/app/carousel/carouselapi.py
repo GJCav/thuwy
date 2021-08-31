@@ -17,7 +17,7 @@ def getCarouselList():
 
     rtn = {}
     rtn.update(ErrCode.CODE_SUCCESS)
-    rtn['msg'] = arr
+    rtn['carousels'] = arr
 
     return rtn
 
@@ -72,7 +72,7 @@ def getCarouselInfo(carouselId):
 
     rtn = {}
     rtn.update(ErrCode.CODE_SUCCESS)
-    rtn['msg'] = msg.toDict(True)
+    rtn['carousel'] = msg.toDict(True)
 
     return rtn
 
@@ -175,6 +175,6 @@ def getHistory():
 
     rtn = {}
     rtn.update(ErrCode.CODE_SUCCESS)
-    rtn['msg'] = arr
+    rtn['carousels'] = arr
     
     return rtn
