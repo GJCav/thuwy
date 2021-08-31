@@ -12,9 +12,6 @@ Page({
         wx.setNavigationBarTitle({
             title: '选择时间'
         })
-        wx.enableAlertBeforeUnload({
-            message: '您确定要离开此页面吗？已经填写的信息将会丢失',
-        })
         this.setData({
             st: options.st,
             ed: options.ed

@@ -2,7 +2,6 @@
   "pages":[
     "pages/appointment/appointment",
     "pages/appointment/admit/admit",
-    "pages/appointment/admit/time/time",
     "pages/bind/bind",
     "pages/setting/setting",
     "pages/home/home",

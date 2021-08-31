@@ -3,7 +3,8 @@ const app = getApp()
 
 Page({
   data: {
-    hidden: true,
+    hidden1: true,
+    hidden2: true,
     read: false,
     read_text: '+ 借阅物品应按时取用，及时归还\n\n+ 物品损坏需要按相应价格进行赔偿\n\n+ 不得将所借物品转借他人',
 
@@ -30,15 +31,18 @@ Page({
     item_feature: [],
 
     //时间选择相关
-    selected:false,
-    final_ed: '',
+    selected: false,
+    select_st: '',
+    select_ed: '',
     final_st: '',
+    final_ed: '',
     date_index: 0,
 
     //画图相关
     ctx: null,
     whole_width: 0, //整体宽度
-    each_height: 90, //单格高度
+    now_height: 0,
+    each_height: 81, //单格高度
 
     list: [], //已选择的预约时间
     calendar: [], //固定预约日期表
@@ -167,6 +171,11 @@ Page({
           delta: 1
         })
       }, 1500)
+    })
+  },
+  onPageScroll: function (e) {
+    this.setData({
+      now_height: e.scrollTop
     })
   },
   //封装接口
@@ -386,7 +395,6 @@ Page({
     })
     //初始属性定义
     ctx.lineWidth = 2 //线宽
-    ctx.lineCap = 'round' //线形
     ctx.strokeStyle = '#dddddd' //描边样式
     ctx.textAlign = 'center' //文字横线
     ctx.textBaseline = 'middle' //文字竖向
@@ -414,7 +422,7 @@ Page({
       var t = 0
       if (i != 5 && i != 10) t = width / 4
       ctx.moveTo(t, i * h + 40)
-      ctx.lineTo(width, i * h + 40)
+      ctx.lineTo(width / 2, i * h + 40)
       ctx.stroke()
     }
     ctx.moveTo(0, height)
@@ -439,69 +447,138 @@ Page({
     var begin = '08:00'
     for (var i = 0; i < tmp_data.length; ++i) {
       let tmp_time = tmp_data[i]
-      if (tmp_time.slice(0, 5) > begin) this.drawRect(2, begin, tmp_time.slice(0, 5), false)
-      this.drawRect(1, tmp_time.slice(0, 5), tmp_time.slice(6), true)
+      if (tmp_time.slice(0, 5) > begin) this.drawRect(2, this.change_time(begin), this.change_time(tmp_time.slice(0, 5)), false)
+      this.drawRect(1, this.change_time(tmp_time.slice(0, 5)), this.change_time(tmp_time.slice(6)), true)
       begin = tmp_time.slice(6)
     }
-    if (begin < '24:00') this.drawRect(2, begin, '24:00', false)
+    if (begin < '24:00') this.drawRect(2, this.change_time(begin), this.change_time('24:00'), false)
   },
-  //用户点击监控函数
-  touch(e) {
-    wx.showLoading({
-      title: '加载中',
-      mask: true
-    })
+  //时间转换二部曲
+  change_time(t) { //时间转位置
+    return ((parseInt(t.slice(0, 2)) - 8) * 60 + parseInt(t.slice(3))) * (this.data.each_height / 60)
+  },
+  change_position(x) { //位置转时间
+    var tmp = parseInt(x * 60 / this.data.each_height)
+    var h = parseInt(tmp / 60) + 8
+    var m = tmp % 60
+    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m
+  },
+  //用户点击监控三部曲
+  touch_start(e) {
     let that = this
-    let width = this.data.whole_width
-    //获取canvas位置
-    wx.createSelectorQuery().select('#canvas').boundingClientRect(function (rect) {
-      var touch_x = e.touches[0].clientX - rect.left;
-      var touch_y = e.touches[0].clientY - rect.top;
-      console.log(touch_x, touch_y)
-
-      function change_time(t) {
-        return ((parseInt(t.slice(0, 2)) - 8) * 60 + parseInt(t.slice(3)))
-      }
-      if (touch_x > width / 2 && touch_y > 40) {
-        let tmp_data = that.data.occupy[that.data.date_index]
-        var begin = '08:00'
-        var time = (touch_y - 40) / (that.data.each_height / 60)
-        for (var i = 0; i < tmp_data.length; ++i) {
-          let tmp_time = tmp_data[i]
-          var op = change_time(begin)
-          var st = change_time(tmp_time.slice(0, 5))
-          var ed = change_time(tmp_time.slice(6))
-          if (time >= op && time < st) { //点到可预约的时间段
-            wx.navigateTo({
-              url: 'time/time?st=' + begin + '&ed=' + tmp_time.slice(0, 5),
-            })
-            wx.hideLoading()
-            return;
-          } else if (time >= st && time < ed) {
-            wx.hideLoading()
-            wx.showToast({
-              title: '时间段无法预约',
-              icon: 'error',
-              duration: 1500
-            });
-            return;
+    wx.createSelectorQuery().select('#cover').boundingClientRect(function (rect) {
+      let tmp_data = that.data.occupy[that.data.date_index]
+      var op = '08:00'
+      var touch_y = that.change_position(e.changedTouches[0].pageY - rect.top - that.data.now_height)
+      console.log(e.changedTouches[0].pageY - rect.top - that.data.now_height)
+      for (var i = 0; i < tmp_data.length; ++i) {
+        var st = tmp_data[i].slice(0, 5)
+        var ed = tmp_data[i].slice(6)
+        if (touch_y >= op && touch_y < st) { //点到可预约的时间段
+          if (that.data.select_st != '') {
+            let ctx = that.data.ctx
+            let width = that.data.whole_width
+            var select_st = that.change_time(that.data.select_st)
+            var select_ed = that.change_time(that.data.select_ed)
+            ctx.clearRect(width / 2, select_st + 40, width / 2, select_ed - select_st)
+            that.drawRect(2, select_st, select_ed, false)
           }
-          begin = tmp_time.slice(6)
-        }
-        if (begin < '24:00') {
-          wx.navigateTo({
-            url: 'time/time?st=' + begin + '&ed=23:59',
+          that.setData({
+            selected: true,
+            select_st: op,
+            select_ed: st,
+            final_st: touch_y,
+            final_ed: touch_y
           })
+          return;
+        } else if (touch_y >= st && touch_y < ed) {
+          wx.showToast({
+            title: '时间段无法预约',
+            icon: 'error',
+            duration: 1500
+          });
+          return;
         }
+        op = ed
       }
-      wx.hideLoading()
+      if (op < '24:00') {
+        if (that.data.select_st != '') {
+          let ctx = that.data.ctx
+          let width = that.data.whole_width
+          var select_st = that.change_time(that.data.select_st)
+          var select_ed = that.change_time(that.data.select_ed)
+          ctx.clearRect(width / 2, select_st + 40, width / 2, select_ed - select_st)
+          that.drawRect(2, select_st, select_ed, false)
+        }
+        that.setData({
+          selected: true,
+          select_st: op,
+          select_ed: '24:00',
+          final_st: touch_y,
+          final_ed: touch_y
+        })
+      }
     }).exec()
   },
+  touch_move(e) {
+    if (this.data.selected) {
+      let that = this
+      wx.createSelectorQuery().select('#cover').boundingClientRect(function (rect) {
+        let ctx = that.data.ctx
+        let width = that.data.whole_width
+        var touch_y = that.change_position(e.changedTouches[0].pageY - rect.top - that.data.now_height)
+        var select_st = that.change_time(that.data.select_st)
+        var select_ed = that.change_time(that.data.select_ed)
+        var final_st = that.change_time(that.data.final_st)
+        if (touch_y > that.data.final_st) {
+          if (touch_y >= that.data.select_ed) touch_y = that.data.select_ed
+          ctx.clearRect(width / 2, select_st + 40, width / 2, select_ed - select_st)
+          that.drawRect(2, select_st, select_ed, false)
+          that.drawRect(0, final_st, that.change_time(touch_y), (that.change_time(touch_y) - final_st >= that.data.each_height / 6) ? true : false)
+          that.setData({
+            final_ed: touch_y
+          })
+        } else {
+          that.setData({
+            final_ed: that.data.final_st
+          })
+          ctx.clearRect(width / 2, select_st + 40, width / 2, select_ed - select_st)
+          that.drawRect(2, select_st, select_ed, false)
+        }
+      }).exec()
+    }
+  },
+  touch_end(e) {
+    if (this.data.selected && this.data.final_st != this.data.final_ed) {
+      wx.showLoading({
+        title: '加载中',
+      })
+      let that = this
+      setTimeout(function () {
+        that.setData({
+          selected: false,
+          hidden2: false
+        })
+        wx.hideLoading()
+      }, 300)
+    }
+  },
+  //横线绘制函数,可能没用了吧
+  // drawLine(position) {
+  //   let ctx = this.data.ctx
+  //   let width = this.data.whole_width
+  //   ctx.beginPath()
+  //   ctx.lineWidth = 3 //线宽
+  //   ctx.strokeStyle = 'RGBA(0,0,255)' //描边样式
+  //   ctx.fillStyle = 'RGBA(0,0,0)' //填充样式
+  //   ctx.moveTo(width / 2, 40 + position)
+  //   ctx.lineTo(width, 40 + position)
+  //   ctx.stroke()
+  // },
   //矩形绘制函数
-  drawRect: function (state, st, ed, pan) {
+  drawRect(state, st, ed, pan) {
     let ctx = this.data.ctx
     let width = this.data.whole_width
-    let height = this.data.each_height
     //填充样式
     if (state == 1)
       ctx.fillStyle = 'RGBA(255,0,0,0.5)'
@@ -511,31 +588,63 @@ Page({
       ctx.fillStyle = 'RGBA(0,0,255,0.5)'
     //绘制矩形
     var x = parseInt(width / 2)
-    var y = (parseInt(st.slice(0, 2)) - 8) * 60 + parseInt(st.slice(3))
-    var z = (parseInt(ed.slice(0, 2)) - 8) * 60 + parseInt(ed.slice(3))
-    ctx.fillRect(x, 40 + (height / 60) * y, x, (height / 60) * (z - y))
+    ctx.fillRect(x, 40 + st, x, ed - st)
     if (pan) {
       ctx.fillStyle = 'RGBA(255,255,255)' //填充样式
-      ctx.font = '16px SimSun, Songti SC' //文字样式
+      ctx.font = '14px SimSun, Songti SC' //文字样式
       ctx.textAlign = 'left' //文字横线
       ctx.textBaseline = 'top' //文字竖向
-      ctx.fillText(st, x, 40 + (height / 60) * y)
+      ctx.fillText(this.change_position(st), x, 40 + st)
       ctx.textAlign = 'right' //文字横线
       ctx.textBaseline = 'bottom' //文字竖向
-      ctx.fillText(ed, 2 * x, 40 + (height / 60) * z)
+      ctx.fillText(this.change_position(ed), 2 * x, 40 + ed)
+    }
+  },
+  //最终选定时间
+  st_change(e) {
+    this.setData({
+      final_st: e.detail.value,
+    })
+  },
+  ed_change(e) {
+    this.setData({
+      final_ed: e.detail.value,
+    })
+  },
+  time_confirm() {
+    var final_st = this.change_time(this.data.final_st)
+    var final_ed = this.change_time(this.data.final_ed)
+    if (final_ed - final_st >= this.data.each_height / 6) {
+      let ctx = this.data.ctx
+      let width = this.data.whole_width
+      var select_st = this.change_time(this.data.select_st)
+      var select_ed = this.change_time(this.data.select_ed)
+      ctx.clearRect(width / 2, select_st + 40, width / 2, select_ed - select_st)
+      this.drawRect(2, select_st, select_ed, false)
+      this.drawRect(0, final_st, final_ed, true)
+      this.setData({
+        hidden2: true,
+      })
+    } else {
+      wx.showToast({
+        title: '至少预约10分钟',
+        icon:'error',
+        duration:1000,
+        mask:true
+      })
     }
   },
   //预约须知相关
   read_confirm() {
     this.setData({
       read: true,
-      hidden: true
+      hidden1: true
     })
     this.appoint()
   },
   read_cancel() {
     this.setData({
-      hidden: true
+      hidden1: true
     })
   },
   //提交预约
@@ -566,7 +675,7 @@ Page({
       })
     } else if (!this.data.read) {
       this.setData({
-        hidden: false
+        hidden1: false
       })
     } else {
       wx.showLoading({
@@ -651,7 +760,6 @@ Page({
                 icon: 'error'
               })
             }
-
           }
         },
         fail: function (res) {
