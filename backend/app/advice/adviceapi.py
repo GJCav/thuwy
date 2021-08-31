@@ -75,10 +75,56 @@ def getAdviceInfo(adviceId):
     rtn['advice'] = advice.toDict(True)
     return rtn
 
+@adviceRouter.route('/advice/me/')
+@requireLogin
+@requireBinding
+def getMyAdviceList():
+    st = request.args.get('st', None)
+    ed = request.args.get('ed', None)
+    state = request.args.get('state', None, int)
+    page = request.args.get('p', None)
+
+    try:
+        page = int(page)
+    except:
+        return ErrCode.CODE_ARG_TYPE_ERR
+    
+    if not CheckArgs.isUint64(page) or page <= 0:
+        return ErrCode.CODE_ARG_INVALID
+
+
+    qry = db.session.query(Advice).filter(Advice.proponent == session['openid'])
+    
+    if st != None:
+        try:
+            st = timestamp.parseDate(st)
+        except Exception as e:
+            return ErrCode.CODE_ARG_FORMAT_ERR
+        qry = qry.filter(Advice.id >= snowflake.makeId(st, 0, 0))
+    
+    if ed != None:
+        try:
+            ed = timestamp.parseDate(ed)
+        except Exception as e:
+            return ErrCode.CODE_ARG_FORMAT_ERR
+        qry = qry.filter(Advice.id < snowflake.makeId(ed, 0, 0))
+    
+    if state != None:
+        qry = qry.filter(Advice.state == state)
+
+    qryRst = qry.limit(20).offset(20*(page-1)).all()
+
+    rtn = {}
+    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn['page'] = page
+    rtn['advice'] = []
+    for advice in qryRst:
+        rtn['advice'].append(advice.toDict())
+    return rtn
+
 @adviceRouter.route('/advice/<int:adviceId>/', methods=['POST'])
 @requireLogin
 @requireBinding
-@requireAdmin
 def responseAdvice(adviceId):
     if not CheckArgs.isUint64(adviceId):
         return ErrCode.CODE_ARG_INVALID

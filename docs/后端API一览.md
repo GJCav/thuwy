@@ -621,7 +621,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **Des:** 查询“我的”所有预约
 
-**API:** `GET /reservation/me?st=<start-time>&ed=<end-time>&state=<state>/`
+**API:** `GET /reservation/me/?st=<start-time>&ed=<end-time>&state=<state>/`
 
 **Login?**: True
 
@@ -833,7 +833,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 
 
-### 获取建议列表
+### 管理员获取建议列表
 
 **API:** `GET /advice/?state=<state>&st=<st>&ed=<ed>&p=<page>`
 
@@ -882,11 +882,37 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 
 
+### 用户获取建议列表
+
+**API：** `GET /advice/me/?state=<state>&st=<st>&ed=<ed>&p=<page>`
+
+**Args：**
+
+| 参数  | 类型 | 必选 | 说明                                                    |
+| ----- | ---- | ---- | ------------------------------------------------------- |
+| state | int  | 否   | 根据state筛选，默认不筛选                               |
+| st    | int  | 否   |                                                         |
+| ed    | int  | 否   | 根据建议提交时间筛选，默认不筛选                        |
+| p     | int  | 否   | 指明页数，默认1。条目可能过多，进行分页，每页20条记录。 |
+
+**返回值：** Json Object，属性如下：
+
+| 属性   | 类型       | 说明                              |
+| ------ | ---------- | --------------------------------- |
+| code   | int        | 错误码                            |
+| errmsg | string     | 错误信息                          |
+| page   | int        | 指明当前页数                      |
+| advice | Json Array | 包含Advice对象，不包含content属性 |
+
+
+
+
+
 ### 获取建议详细信息
 
 **API:** `GET /advice/<advice-id>`
 
-**Login:** True，且绑定，且为管理员
+**Login:** True，且绑定
 
 **Args：** advice-id
 
@@ -924,6 +950,10 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 | ------ | ------ | -------- |
 | code   | int    | 错误码   |
 | errmsg | string | 错误信息 |
+
+
+
+
 
 
 
