@@ -25,7 +25,7 @@ def getCarouselList():
 @requireLogin
 @requireBinding
 @requireAdmin
-def addCarouselList():
+def addCarousel():
     json = request.get_json()
 
     if json == None: return ErrCode.CODE_ARG_INVALID
@@ -82,7 +82,6 @@ def getCarouselInfo(carouselId):
 @requireAdmin
 def modifyCarouselMsg(carouselId):
     msg = CarouselMsg.queryById(carouselId)
-    
     if msg == None: 
         return ErrCode.Carousel.CODE_MSG_NOT_FOUND
 

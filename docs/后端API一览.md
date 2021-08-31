@@ -970,7 +970,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **Login:** True, 且登录，且为管理员
 
-**请求参数：** Carousel 对象，不包含`id`、`hide`、`last-version`属性。
+**请求参数：** Carousel 对象，不包含`owner`、`id`、`hide`、`last-version`属性。
 
 **返回值** ：Json Object
 
@@ -1013,6 +1013,8 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 | code     | int      | 错误码                                             |
 | errmsg   | string   | 错误信息                                           |
 | carousel | Carousel | 这个carousel的全部信息，包括`hide`和`last-version` |
+
+注：此时`Carousel`额外包含`owner-id`属性，为发布者的openid
 
 
 
