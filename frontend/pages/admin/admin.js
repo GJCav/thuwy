@@ -330,6 +330,11 @@ Page({
     })
   },
   //管理设备
+  preview(e) { //展示放大后图片
+    wx.previewImage({
+      urls: [e.currentTarget.dataset['url']],
+    })
+  },
   addequip(e) {
     wx.navigateTo({
       url: '../equip/equip?id=0'

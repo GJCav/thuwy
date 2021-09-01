@@ -39,8 +39,6 @@ page {
 .avatar {
   width: 70px;
   height: 70px;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
   border-radius: 50%;
   border: 3px solid #660874;
   overflow: hidden

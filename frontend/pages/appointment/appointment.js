@@ -125,7 +125,7 @@ Page({
       this.getitem()
     }
   },
-  //展示物品信息
+  //读取物品信息
   getitem() {
     this.setData({
       items: []
@@ -165,6 +165,7 @@ Page({
       }
     });
   },
+  //展示物品信息
   chooseMe(e) {
     let value = e.currentTarget.dataset.value
     if (app.globalData.login == false) {
@@ -189,6 +190,12 @@ Page({
         })
       }, 1000)
     }
+  },
+  //展示放大后图片
+  preview(e) {
+    wx.previewImage({
+      urls: [e.currentTarget.dataset['url']],
+    })
   },
   //测试专用
   great() {

@@ -75,7 +75,7 @@
     </view>
     <van-row custom-class="row" wx:for="{{item_list}}" wx:key="id" wx:for-item="equip">
         <van-col span="4" offset="1">
-            <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>
+            <image class="avatar" mode="aspectFill" bindtap="preview" data-url="{{equip.thumbnail}}" src="{{equip.thumbnail}}"></image>
         </van-col>
         <van-col span="9" offset="3">
             <view class='server-name'>{{equip.name}}</view>
