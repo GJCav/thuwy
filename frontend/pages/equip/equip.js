@@ -67,6 +67,12 @@ Page({
       show: true
     })
   },
+  //展示放大后图片
+  preview(e){
+    wx.previewImage({
+      urls: [e.currentTarget.dataset['url']],
+    })
+  },
   //添加特殊属性
   add_feature(e) {
     this.setData({

@@ -1,10 +1,9 @@
 <!--pages/admin/admin.wxml-->
-<van-tabs active="{{ activeTab }}" custom-class="tabbar" swipeable="{{true}}" animated="{{true}}"
+<van-tabs active="{{ activeTab }}" custom-class="tabbar" swipeable="true" animated="true"
     bind:change="switchTab" z-index="0">
-    <van-tab title="审批预约"></van-tab>
-    <van-tab title="管理物品"></van-tab>
-    <van-tab title="意见反馈"></van-tab>
-    <van-tab title="调整管理员"></van-tab>
+    <van-tab title="预约审批"></van-tab>
+    <van-tab title="物品管理"></van-tab>
+    <van-tab title="更多功能"></van-tab>
 </van-tabs>
 <!-- 审批预约 -->
 <view wx:if="{{activeTab==0}}">
@@ -33,7 +32,7 @@
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{rsv_list1.length==0}}">
         ——暂无待审批预约——</view>
-    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" bindtap="loadwait"
+    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" bindtap="load_wait"
         wx:if="{{rsv_list1.length!=0}}">
         点击加载更多</view>
     <view class="small_title">
@@ -61,7 +60,7 @@
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{rsv_list2.length==0}}">
         ——暂无进行中预约——</view>
-    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" bindtap="loadgo"
+    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" bindtap="load_go"
         wx:if="{{rsv_list2.length!=0}}">
         点击加载更多</view>
 </view>
@@ -76,7 +75,7 @@
     </view>
     <van-row custom-class="row" wx:for="{{item_list}}" wx:key="id" wx:for-item="equip">
         <van-col span="4" offset="1">
-            <view class="avatar" style='background-image:url({{equip.thumbnail}})'></view>
+            <image class="avatar" mode="aspectFill" bindtap="preview" data-url="{{equip.thumbnail}}" src="{{equip.thumbnail}}"></image>
         </van-col>
         <van-col span="9" offset="3">
             <view class='server-name'>{{equip.name}}</view>
@@ -89,112 +88,15 @@
         </van-col>
     </van-row>
 </view>
-<!-- 意见反馈 -->
+<!-- 其他功能 -->
 <view wx:if="{{activeTab==2}}">
-    <view class="small_title">
-        <view class="thetext">待审阅建议：</view>
-        <view class="divline"></view>
-    </view>
-    <view class="total" wx:for="{{advice_list}}" wx:key="id"
-        style="background-image:url(icon/adv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
-        <view class="detail">
-            <view class="which">{{item.title}}</view>
-            <button class="ok" hover-class="oks" bindtap="showadvice" data-id="{{item.id}}" size='mini'
-                style='margin-top:20rpx;margin-bottom:20rpx'>审阅</button>
-        </view>
-        <view class="divline"></view>
-        <view class="detail">
-            <view style="width:35%">建议编号：</view>
-            <view style="width:65%;text-align:right">{{item.id}}</view>
-        </view>
-        <view class="detail">
-            <view style="width:45%">建议提交人：</view>
-            <view style="width:55%;text-align:right">{{item.proponent}}</view>
-        </view>
-    </view>
-    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" bindtap="loadadvice"
-        wx:if="{{advice_list.length!=0}}">点击加载更多</view>
-    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align:center"
-        wx:if="{{advice_list.length==0}}">——暂无建议信息——</view>
-    <view class="small_title">
-        <view class="thetext">已审阅建议：</view>
-        <view class="divline"></view>
-    </view>
-    <view class="total" wx:for="{{checked_list}}" wx:key="id"
-        style="background-image:url(icon/adv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
-        <view class="detail">
-            <view class="which">{{item.title}}</view>
-            <button class="ok" hover-class="oks" bindtap="showadvice" data-id="{{item.id}}" size='mini'
-                style='margin-top:20rpx;margin-bottom:20rpx'>查看</button>
-        </view>
-        <view class="divline"></view>
-        <view class="detail">
-            <view style="width:35%">建议编号：</view>
-            <view style="width:65%;text-align:right">{{item.id}}</view>
-        </view>
-        <view class="detail">
-            <view style="width:45%">建议提交人：</view>
-            <view style="width:55%;text-align:right">{{item.proponent}}</view>
-        </view>
-    </view>
-    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" bindtap="loadchecked"
-        wx:if="{{checked_list.length!=0}}">点击加载更多</view>
-    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align:center"
-        wx:if="{{checked_list.length==0}}">——暂无建议信息——</view>
-</view>
-<!-- 调整管理员 -->
-<view wx:if="{{activeTab==3}}">
-    <view class="small_title">
-        <view class="thetext">管理员申请：</view>
-        <view class="divline"></view>
-    </view>
-    <view class="total" style="flex-direction:row" wx:for="{{be_list}}" wx:key="id">
-        <view class="detail" style="flex-direction:column;width:70%;margin-left:3%">
-            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
-                <view style="width:25%;text-align:center">姓名：</view>
-                <view style="width:75%;text-align:right">{{item.requestor.name}}</view>
-            </view>
-            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
-                <view style="width:25%;text-align:center">班级：</view>
-                <view style="width:75%;text-align:right">{{item.requestor.clazz}}</view>
-            </view>
-            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%;margin-bottom:3%">
-                <view style="width:25%;text-align:center">学号：</view>
-                <view style="width:75%;text-align:right">{{item.requestor['school-id']}}</view>
+    <block wx:for="{{line}}" wx:for-index="i" wx:key="*this">
+        <view class="else_list">
+            <view class="else_item" hover-class="else_item_select" wx:for="{{3}}" wx:for-index="j" bindtap="link_start"
+                data-value="{{else[3*i+j].go_url}}" wx:key="*this">
+                <image class="else_img" src="{{else[3*i+j].pic_url}}"></image>
+                <text style="height:70rpx">{{else[3*i+j].name}}</text>
             </view>
         </view>
-        <view style="width:30%;display:flex;flex-direction:column;align-items:center">
-            <button type="primary" size="mini" style="margin-bottom:5%" bindtap="approve"
-                data-value="{{item.id}}">同意</button>
-            <button class="warn" hover-class="warns" size="mini" style="margin-top:5%" bindtap="refuse"
-                data-value="{{item.id}}">拒绝</button>
-        </view>
-    </view>
-    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{be_list.length==0}}">
-        ——暂无申请信息——</view>
-    <view class="small_title">
-        <view class="thetext">管理员名单：</view>
-        <view class="divline"></view>
-    </view>
-    <view class="total" style="flex-direction:row" wx:for="{{admin_list}}" wx:key="name">
-        <view class="detail" style="flex-direction:column;width:70%;margin-left:3%">
-            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
-                <view style="width:25%;text-align:center">姓名：</view>
-                <view style="width:75%;text-align:right">{{item.requestor.name}}</view>
-            </view>
-            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
-                <view style="width:25%;text-align:center">班级：</view>
-                <view style="width:75%;text-align:right">{{item.requestor.clazz}}</view>
-            </view>
-            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%;margin-bottom:3%">
-                <view style="width:25%;text-align:center">学号：</view>
-                <view style="width:75%;text-align:right">{{item.requestor['school-id']}}</view>
-            </view>
-        </view>
-        <view style="width:30%;display:flex;flex-direction:column;align-items:center">
-            <button class="warn" hover-class="warns" size="mini" bindtap="fired"><text>解除\n权限</text></button>
-        </view>
-    </view>
-    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align: center" wx:if="{{admin_list.length==0}}">
-        ——暂无管理员信息——</view>
+    </block>
 </view>
