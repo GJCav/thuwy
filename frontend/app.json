@@ -9,7 +9,10 @@
     "pages/equip/equip",
     "pages/reservation/reservation",
     "pages/info/info",
-    "pages/advice/advice"
+    "pages/advice/advice",
+    "pages/advice/admit/admit",
+    "pages/administrator/administrator",
+    "pages/carousel/carousel"
   ],
   "window":{
     "onReachBottomDistance":20,

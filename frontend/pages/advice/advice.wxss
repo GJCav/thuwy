@@ -1,11 +1,4 @@
 /* pages/advice/advice.wxss */
-page {
-    background-color: #ffffff
+.haveselect{
+    background-color: #dddddd;
   }
-.advice{
-  width: 70%;
-  margin-left: 15%;
-  margin-right: 15%;
-  font-size: large;
-  color: #666666;
-}

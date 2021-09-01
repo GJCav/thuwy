@@ -1,40 +1,58 @@
 <!--pages/advice/advice.wxml-->
-<view class="beauty">建议反馈{{id==0?'':'详情'}}</view>
-<view class="tips" wx:if="{{id==0}}">——请完整填写以下内容——</view>
-<view class="tips" wx:if="{{id!=0}}">——技术问题可向开发人员反馈——</view>
-<form bindsubmit="addadvice">
-  <view class="after-title">
-    <view class="tipbox">
-      <view class="labelbox">
-        <image src="/icon/title.png" class="icon"></image>
-        <text class="textbox">主题：</text>
-      </view>
-      <view class="advice" wx:if="{{id!=0}}">{{advice_detail.title}}</view>
-      <view wx:if="{{id==0}}">
-        <input type="text" class="inputbox" placeholder="请简述建议主题" bindblur="inputitle" />
-      </view>
+<van-tabs active="{{ activeTab }}" custom-class="tabbar" swipeable="true" animated="true" bind:change="switchTab"
+    z-index="0">
+    <van-tab title="待审阅建议"></van-tab>
+    <van-tab title="已审阅建议"></van-tab>
+</van-tabs>
+<!-- 意见反馈 -->
+<view wx:if="{{activeTab==0}}">
+    <view class="small_title" hover-class="haveselect" bindtap="addadvice" wx:if="{{!admin}}">
+        <view class="thetext" style="font-size:large;width:100%;justify-content:center;color:#999999">
+            <view class="square" style='background-image:url(icon/add.png)' />
+            <text decode="{{true}}">&nbsp;&nbsp;反馈新的建议</text>
+        </view>
+        <view class="divline"></view>
     </view>
-    <view class="tipbox">
-      <view class="labelbox">
-        <image src="/icon/text.png" class="icon"></image>
-        <text class="textbox">正文：</text>
-      </view>
-      <view class="advice" wx:if="{{id!=0}}">{{advice_detail.content}}</view>
-      <view wx:if="{{id==0}}">
-        <textarea class="inputbox" style="width:70%;margin-left:15%;margin-right:15%" placeholder="请详细描述建议内容"
-          bindblur="inputext" />
-      </view>
+    <view class="total" wx:for="{{advice_list}}" wx:key="id"
+        style="background-image:url(icon/adv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
+        <view class="detail">
+            <view class="which">{{item.title}}</view>
+            <button class="ok" hover-class="oks" bindtap="showadvice" data-id="{{item.id}}" size='mini'
+                style='margin-top:20rpx;margin-bottom:20rpx'>查看</button>
+        </view>
+        <view class="divline"></view>
+        <view class="detail">
+            <view style="width:35%">建议编号：</view>
+            <view style="width:65%;text-align:right">{{item.id}}</view>
+        </view>
+        <view class="detail">
+            <view style="width:45%">建议提交人：</view>
+            <view style="width:55%;text-align:right">{{item.proponent}}</view>
+        </view>
     </view>
-    <view class="tipbox" wx:if="{{id!=0}}">
-      <view class="labelbox">
-        <image src="/icon/answer.png" class="icon"></image>
-        <text class="textbox">回复：</text>
-      </view>
-      <view class="advice" wx:if="{{advice_detail.response!=null}}">{{advice_detail.response}}</view>
-      <textarea class="inputbox" style="width:70%;margin-left:15%;margin-right:15%" placeholder="请给出相关批复"
-          bindblur="inputanswer" wx:if="{{advice_detail.response==null}}" />
+    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align:center;margin-top:50%"
+        wx:if="{{advice_list.length==0}}">
+        ——暂无建议信息——</view>
+</view>
+<view wx:if="{{activeTab==1}}">
+    <view class="total" wx:for="{{checked_list}}" wx:key="id"
+        style="background-image:url(icon/adv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
+        <view class="detail">
+            <view class="which">{{item.title}}</view>
+            <button class="ok" hover-class="oks" bindtap="showadvice" data-id="{{item.id}}" size='mini'
+                style='margin-top:20rpx;margin-bottom:20rpx'>查看</button>
+        </view>
+        <view class="divline"></view>
+        <view class="detail">
+            <view style="width:35%">建议编号：</view>
+            <view style="width:65%;text-align:right">{{item.id}}</view>
+        </view>
+        <view class="detail">
+            <view style="width:45%">建议提交人：</view>
+            <view style="width:55%;text-align:right">{{item.proponent}}</view>
+        </view>
     </view>
-  </view>
-  <button class="ok" hover-class="oks" form-type="submit" style="margin-top:80rpx;margin-bottom:50rpx" 
-  wx:if="{{advice_detail.response==null}}">{{id==0?'提交反馈':'提交答复'}}</button>
-</form>
+    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align:center;margin-top:50%"
+        wx:if="{{checked_list.length==0}}">
+        ——暂无建议信息——</view>
+</view>

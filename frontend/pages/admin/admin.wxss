@@ -1,31 +1,4 @@
 /* pages/admin/admin.wxss */
-
-/* 特殊图标 */
-.square{
-  width: 24px;
-  height: 24px;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-}
-.small_title{
-  width: 100%;
-  height: 90rpx;
-  display: flex;
-  margin-bottom: 20rpx;
-  align-items: center;
-  flex-direction: column;
-  font-size: large;
-}
-/* 小标题文字 */
-.thetext{
-  font-size: large;
-  margin-top: 10rpx;
-  margin-bottom: 10rpx;
-  width: 90%;
-  height: 75rpx;
-  display: flex;
-  align-items: center;
-}
 .haveselect{
   background-color: #dddddd;
 }
@@ -37,4 +10,27 @@
 .haspic {
   color: #ffffff;
   background-color: #660874;
+}
+/* 其他功能 */
+.else_list {
+  width:90%;
+  margin-left: 5%;
+  margin-top: 50rpx;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.else_item{
+  width:32%;
+  color: #999999;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.else_item_select{
+  background-color: #dddddd;
+}
+.else_img{
+  width: 200rpx;
+  height: 200rpx;
 }

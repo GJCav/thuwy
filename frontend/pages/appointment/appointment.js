@@ -12,15 +12,15 @@ Page({
     servers: '',
     imgUrls: [{
         pic: '/image/green.png',
-        url: '../advice/advice?id=0'
+        url: '../advice/advice?admin=0'
       },
       {
         pic: '/image/blue.png',
-        url: '../advice/advice?id=0'
+        url: '../advice/advice?admin=0'
       },
       {
         pic: '/image/orange.png',
-        url: '../advice/advice?id=0'
+        url: '../advice/advice?admin=0'
       }
     ],
   },

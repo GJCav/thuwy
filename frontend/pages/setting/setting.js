@@ -178,7 +178,7 @@ Page({
   },
   advice() {
     wx.navigateTo({
-      url: '../advice/advice?id=0',
+      url: '../advice/advice?admin=0',
     })
   },
   async scanQR() {

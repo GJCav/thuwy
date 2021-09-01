@@ -75,16 +75,16 @@
   bindcancel="read_cancel">
   <wemark md="{{read_text}}" link highlight type="wemark"></wemark>
 </modal>
-<modal title='精确时间选择器' no-cancel='true' confirm-text='确定' hidden="{{hidden2}}" bindconfirm="time_confirm">
+<modal title='确认时间' no-cancel='true' confirm-text='确定' hidden="{{hidden2}}" bindconfirm="time_confirm">
   <picker style="margin-top:50rpx" mode="time" value="{{final_st}}" start="{{select_st}}" end="{{final_ed}}" bindchange="st_change">
     <view class="option" style="display:flex;justify-content:center">
-      预约开始时间：{{final_st}}
+      开始：{{final_st}}
     </view>
   </picker>
   <picker style="margin-top:50rpx;margin-bottom:80rpx" mode="time" value="{{final_ed}}" start="{{final_st}}"
     end="{{select_ed}}" bindchange="ed_change">
     <view class="option" style="display:flex;justify-content:center">
-      预约结束时间：{{final_ed}}
+      结束：{{final_ed}}
     </view>
   </picker>
 </modal>
