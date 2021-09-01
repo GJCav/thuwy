@@ -103,7 +103,31 @@ page {
   display: flex;
   height: 3rpx;
 }
-
+/* 添加新的物品、建议 */
+.square{
+  width: 24px;
+  height: 24px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+.small_title{
+  width: 100%;
+  height: 90rpx;
+  display: flex;
+  margin-bottom: 20rpx;
+  align-items: center;
+  flex-direction: column;
+  font-size: large;
+}
+.thetext{
+  font-size: large;
+  margin-top: 10rpx;
+  margin-bottom: 10rpx;
+  width: 90%;
+  height: 75rpx;
+  display: flex;
+  align-items: center;
+}
 /* 物品信息显示公用格式 */
 .server-name {
   color: black;

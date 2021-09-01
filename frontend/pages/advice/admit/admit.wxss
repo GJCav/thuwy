@@ -1,0 +1,11 @@
+/* pages/advice/admit/admit.wxss */
+page {
+    background-color: #ffffff
+  }
+.advice{
+  width: 70%;
+  margin-left: 15%;
+  margin-right: 15%;
+  font-size: large;
+  color: #666666;
+}

@@ -1,0 +1,56 @@
+<!--pages/administrator/administrator.wxml-->
+<van-tabs active="{{ activeTab }}" custom-class="tabbar" swipeable="true" animated="true" bind:change="switchTab"
+    z-index="0">
+    <van-tab title="管理员申请"></van-tab>
+    <van-tab title="管理员名单"></van-tab>
+</van-tabs>
+<!-- 调整管理员 -->
+<view wx:if="{{activeTab==0}}">
+    <view class="total" style="flex-direction:row" wx:for="{{be_list}}" wx:key="id">
+        <view class="detail" style="flex-direction:column;width:70%;margin-left:3%">
+            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
+                <view style="width:25%;text-align:center">姓名：</view>
+                <view style="width:75%;text-align:right">{{item.requestor.name}}</view>
+            </view>
+            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
+                <view style="width:25%;text-align:center">班级：</view>
+                <view style="width:75%;text-align:right">{{item.requestor.clazz}}</view>
+            </view>
+            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%;margin-bottom:3%">
+                <view style="width:25%;text-align:center">学号：</view>
+                <view style="width:75%;text-align:right">{{item.requestor['school-id']}}</view>
+            </view>
+        </view>
+        <view style="width:30%;display:flex;flex-direction:column;align-items:center">
+            <button type="primary" size="mini" style="margin-bottom:5%" bindtap="approve"
+                data-value="{{item.id}}">同意</button>
+            <button class="warn" hover-class="warns" size="mini" style="margin-top:5%" bindtap="refuse"
+                data-value="{{item.id}}">拒绝</button>
+        </view>
+    </view>
+    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align:center;margin-top:50%" wx:if="{{be_list.length==0}}">
+        ——暂无申请信息——</view>
+</view>
+<view wx:if="{{activeTab==1}}">
+    <view class="total" style="flex-direction:row" wx:for="{{admin_list}}" wx:key="name">
+        <view class="detail" style="flex-direction:column;width:70%;margin-left:3%">
+            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
+                <view style="width:25%;text-align:center">姓名：</view>
+                <view style="width:75%;text-align:right">{{item.requestor.name}}</view>
+            </view>
+            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
+                <view style="width:25%;text-align:center">班级：</view>
+                <view style="width:75%;text-align:right">{{item.requestor.clazz}}</view>
+            </view>
+            <view style="width:100%;flex-direction:row;display:flex;margin-top:3%;margin-bottom:3%">
+                <view style="width:25%;text-align:center">学号：</view>
+                <view style="width:75%;text-align:right">{{item.requestor['school-id']}}</view>
+            </view>
+        </view>
+        <view style="width:30%;display:flex;flex-direction:column;align-items:center">
+            <button class="warn" hover-class="warns" size="mini" bindtap="fired"><text>解除\n权限</text></button>
+        </view>
+    </view>
+    <view style="font-weight:lighter;color:#999999;height:100rpx;text-align:center;margin-top:50%" wx:if="{{admin_list.length==0}}">
+        ——暂无管理员信息——</view>
+</view>

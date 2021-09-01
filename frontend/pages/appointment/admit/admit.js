@@ -18,7 +18,7 @@ Page({
       [],
       []
     ], //每一天被占用的时间段
-    cast: ['08:00-12:00', '13:00-17:00', '18:00-23:00', '08:00-24:00'],
+    cast: ['08:00-12:00', '13:00-17:00', '18:00-23:00', '08:00-23:59'],
 
     //物品信息相关
     name: '',
@@ -451,7 +451,7 @@ Page({
       this.drawRect(1, this.change_time(tmp_time.slice(0, 5)), this.change_time(tmp_time.slice(6)), true)
       begin = tmp_time.slice(6)
     }
-    if (begin < '24:00') this.drawRect(2, this.change_time(begin), this.change_time('24:00'), false)
+    if (begin < '24:00') this.drawRect(2, this.change_time(begin), this.change_time('23:59'), false)
   },
   //时间转换二部曲
   change_time(t) { //时间转位置
@@ -513,7 +513,7 @@ Page({
         that.setData({
           selected: true,
           select_st: op,
-          select_ed: '24:00',
+          select_ed: '23:59',
           final_st: touch_y,
           final_ed: touch_y
         })
@@ -552,6 +552,7 @@ Page({
     if (this.data.selected && this.data.final_st != this.data.final_ed) {
       wx.showLoading({
         title: '加载中',
+        mask:true
       })
       let that = this
       setTimeout(function () {
@@ -563,7 +564,7 @@ Page({
       }, 300)
     }
   },
-  //横线绘制函数,可能没用了吧
+  //横线绘制函数,暂时废弃
   // drawLine(position) {
   //   let ctx = this.data.ctx
   //   let width = this.data.whole_width
@@ -579,6 +580,7 @@ Page({
   drawRect(state, st, ed, pan) {
     let ctx = this.data.ctx
     let width = this.data.whole_width
+    if(st=='23:59') st='24：00'
     //填充样式
     if (state == 1)
       ctx.fillStyle = 'RGBA(255,0,0,0.5)'
@@ -603,12 +605,12 @@ Page({
   //最终选定时间
   st_change(e) {
     this.setData({
-      final_st: e.detail.value,
+      final_st: (e.detail.value>=this.data.select_st?e.detail.value:this.data.select_st),
     })
   },
   ed_change(e) {
     this.setData({
-      final_ed: e.detail.value,
+      final_ed: (e.detail.value<=this.data.select_ed?e.detail.value:this.data.select_ed),
     })
   },
   time_confirm() {
