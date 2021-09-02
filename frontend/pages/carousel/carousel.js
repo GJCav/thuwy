@@ -1,18 +1,23 @@
 // pages/carousel/carousel.js
 Page({
-
-    /**
-     * 页面的初始数据
-     */
     data: {
 
     },
-
-    /**
-     * 生命周期函数--监听页面加载
-     */
     onLoad: function (options) {
-
+        wx.setNavigationBarTitle({
+            title: '宣传栏调整'
+          })
+        wx.showToast({
+            mask: true,
+            title: '该功能暂未开通',
+            icon: 'error',
+            duration: 1500
+          })
+          setTimeout(function () {
+            wx.navigateBack({
+              delta: 1
+            })
+          }, 1500)
     },
 
     /**

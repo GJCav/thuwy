@@ -9,26 +9,32 @@ page {
 
 /* 按钮 */
 .ok {
-  background-color: rgb(7, 193, 96);
   color: white;
+  text-align: center;
+  border-radius: 10px;
+  background: linear-gradient(rgb(7, 193, 96),rgb(7, 193, 96), rgb(8, 165, 84));
 }
 
 .oks {
-  background-color: rgb(6, 173, 86);
+  background: rgb(8, 165, 84);
 }
 
 .warn {
-  background-color: rgb(255, 50, 50);
   color: white;
+  text-align: center;
+  border-radius: 10px;
+  background: linear-gradient(rgb(255, 50, 50),rgb(255, 50, 50), rgba(210, 50, 50));
 }
 
 .warns {
-  background-color: rgba(210, 50, 50);
+  background: rgba(210, 50, 50);
 }
 
 .normal {
-  background-color: rgb(230, 230, 230);
   color: #444444;
+  text-align: center;
+  border-radius: 10px;
+  background: linear-gradient(rgb(230, 230, 230),rgb(230, 230, 230), lightgray);
 }
 
 .normals {
@@ -72,7 +78,13 @@ page {
   border-right: 2px solid #999;
   transform: rotate(45deg);
 }
-
+/* 提交表单背景 */
+.admit{
+  background-repeat: no-repeat;
+  background-attachment:local;
+  background-position: 85% 60rpx;
+  background-size:100px 100px;
+}
 /* 提交表单大标题 */
 .beauty {
   color: #0087a9;
@@ -101,14 +113,16 @@ page {
   display: flex;
   height: 3rpx;
 }
+
 /* 添加新的物品、建议 */
-.square{
+.square {
   width: 24px;
   height: 24px;
   background-repeat: no-repeat;
   background-size: 100% 100%;
 }
-.small_title{
+
+.small_title {
   width: 100%;
   height: 90rpx;
   display: flex;
@@ -117,7 +131,8 @@ page {
   flex-direction: column;
   font-size: large;
 }
-.thetext{
+
+.thetext {
   font-size: large;
   margin-top: 10rpx;
   margin-bottom: 10rpx;
@@ -126,6 +141,7 @@ page {
   display: flex;
   align-items: center;
 }
+
 /* 物品信息显示公用格式 */
 .server-name {
   color: black;
@@ -134,7 +150,7 @@ page {
   word-break: keep-all;
   word-wrap: break-word;
   display: -webkit-box;
-  overflow:hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-all;
   -webkit-box-orient: vertical;
@@ -145,7 +161,7 @@ page {
   color: #999999;
   font-size: smaller;
   display: -webkit-box;
-  overflow:hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-all;
   -webkit-box-orient: vertical;
@@ -218,7 +234,7 @@ page {
   margin-top: 20rpx;
   margin-bottom: 20rpx;
   display: -webkit-box;
-  overflow:hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-all;
   -webkit-box-orient: vertical;

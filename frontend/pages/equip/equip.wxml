@@ -1,5 +1,5 @@
 <!--pages/equip/equip.wxml-->
-<view>
+<view class="admit" style="background-image: url(image/wy.png)">
   <view class="beauty">{{item_id==0?'添加预约物品':'修改预约物品'}}</view>
   <view class="tips" style="margin-bottom:50rpx">——请完整填写以下信息——</view>
   <form bindsubmit="addit">

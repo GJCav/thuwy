@@ -2,7 +2,7 @@
 <!-- 宣传框 -->
 <swiper indicator-dots="true" autoplay="true" interval="5000" duration="1000" circular="true" previous-margin="60px"
   next-margin="60px">
-  <block wx:for="{{imgUrls}}" wx:key="*this">
+  <block wx:for="{{imgUrls}}" wx:key="pic">
     <swiper-item class="slide-wrapper">
       <image src="{{item.pic}}" class="slide-image" data-value="{{index}}" bindtap="goforurl"/>
     </swiper-item>

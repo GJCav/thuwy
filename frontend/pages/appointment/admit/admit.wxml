@@ -1,73 +1,75 @@
 <!--pages/appointment/admit/admit.wxml-->
-<view class="beauty">提交预约申请</view>
-<view class="tips" style="margin-bottom:50rpx">——请确认预约信息——</view>
-<form bindsubmit="appoint">
-  <view class="detail-list" style="margin-left:10%">
-    <text style="font-weight:bold;white-space:nowrap">预约物品名称：</text>
-    <text style="font-weight:normal">{{name}}</text>
-  </view>
-  <view class="detail-list" style="margin-left:10%;font-weight:bold">物品详细信息：</view>
-  <view style="width:80%;margin-left:10%;margin-right:10%;margin-top:20rpx;border:2px solid #dddddd">
-    <view style="margin-left:2%;margin-right:2%">
-      <wemark md="{{md_intro}}" link highlight type="wemark"></wemark>
+<view class="admit" style="background-image: url(image/wy.png)">
+  <view class="beauty">提交预约申请</view>
+  <view class="tips" style="margin-bottom:50rpx">——请确认预约信息——</view>
+  <form bindsubmit="appoint">
+    <view class="detail-list" style="margin-left:10%">
+      <text style="font-weight:bold;white-space:nowrap">预约物品名称：</text>
+      <text style="font-weight:normal">{{name}}</text>
     </view>
-  </view>
-  <view class="detail-list" style="margin-left:10%;font-weight:bold" wx:if="{{attr!=0}}">物品特殊属性：</view>
-  <view wx:for="{{item_feature}}"
-    style="margin-left:10%;margin-top:10rpx;font-size:large;display:flex;flex-direction:row" wx:key="title"
-    wx:if="{{(attr>>index)%2==1}}">
-    <text style="font-weight:900" decode="{{true}}">&nbsp;·&nbsp;&nbsp;</text>{{item.title}}
-  </view>
-  <view class="detail-list" style="margin-left:10%;font-weight:bold">选择预约方式：</view>
-  <radio-group class="detail-list" style="margin-left:15%" bindchange="inputmethod">
-    <label>
-      <radio value="1" class="{{(rsv_method%2==0)?'optiontext2':'optiontext1'}}" disabled="{{rsv_method%2==0}}">固定预约
-      </radio>
-    </label>
-    <label style="margin-left:15%">
-      <radio value="2" class="{{(rsv_method/2<1)?'optiontext2':'optiontext1'}}" disabled="{{rsv_method/2<1}}">自由预约
-      </radio>
-    </label>
-  </radio-group>
-  <view class="detail-list" style="margin-left:10%;font-weight:bold" wx:if="{{choose_method!=0}}">申请使用时间：</view>
-  <checkbox-group bindchange="checkboxChange" wx:if="{{choose_method==1}}">
-    <view wx:for="{{ calendar }}" wx:key="week" wx:for-item="items" wx:for-index="indexs" data-index="{{ index }}"
-      class='listItem {{index==currentIndex? "current":""}}' data-date="{{item.date}}">
-      <view class="datetitle">{{items.whole}}</view>
-      <view wx:for="{{items.week!='星期六'&& items.week!='星期日' ? items1:items2}}" wx:if="{{items.week!='星期六'}}"
-        wx:key="value">
-        <view class="option">
-          <checkbox style="margin-left:20rpx;width:100%;height:100%;display:flex" value="{{indexs}}{{item.value}}"
-            disabled="{{!disable[indexs][item.value]}}">
-            <view class="{{(disable[indexs][item.value])?'optiontext1':'optiontext2'}}">{{item.name}}</view>
-          </checkbox>
+    <view class="detail-list" style="margin-left:10%;font-weight:bold">物品详细信息：</view>
+    <view style="width:80%;margin-left:10%;margin-right:10%;margin-top:20rpx;border:2px solid #dddddd">
+      <view style="margin-left:2%;margin-right:2%">
+        <wemark md="{{md_intro}}" link highlight type="wemark"></wemark>
+      </view>
+    </view>
+    <view class="detail-list" style="margin-left:10%;font-weight:bold" wx:if="{{attr!=0}}">物品特殊属性：</view>
+    <view wx:for="{{item_feature}}"
+      style="margin-left:10%;margin-top:10rpx;font-size:large;display:flex;flex-direction:row" wx:key="title"
+      wx:if="{{(attr>>index)%2==1}}">
+      <text style="font-weight:900" decode="{{true}}">&nbsp;·&nbsp;&nbsp;</text>{{item.title}}
+    </view>
+    <view class="detail-list" style="margin-left:10%;font-weight:bold">选择预约方式：</view>
+    <radio-group class="detail-list" style="margin-left:15%" bindchange="inputmethod">
+      <label>
+        <radio value="1" class="{{(rsv_method%2==0)?'optiontext2':'optiontext1'}}" disabled="{{rsv_method%2==0}}">固定预约
+        </radio>
+      </label>
+      <label style="margin-left:15%">
+        <radio value="2" class="{{(rsv_method/2<1)?'optiontext2':'optiontext1'}}" disabled="{{rsv_method/2<1}}">自由预约
+        </radio>
+      </label>
+    </radio-group>
+    <view class="detail-list" style="margin-left:10%;font-weight:bold" wx:if="{{choose_method!=0}}">申请使用时间：</view>
+    <checkbox-group bindchange="checkboxChange" wx:if="{{choose_method==1}}">
+      <view wx:for="{{ calendar }}" wx:key="week" wx:for-item="items" wx:for-index="indexs" data-index="{{ index }}"
+        class='listItem {{index==currentIndex? "current":""}}' data-date="{{item.date}}">
+        <view class="datetitle">{{items.whole}}</view>
+        <view wx:for="{{items.week!='星期六'&& items.week!='星期日' ? items1:items2}}" wx:if="{{items.week!='星期六'}}"
+          wx:key="value">
+          <view class="option">
+            <checkbox style="margin-left:20rpx;width:100%;height:100%;display:flex" value="{{indexs}}{{item.value}}"
+              disabled="{{!disable[indexs][item.value]}}">
+              <view class="{{(disable[indexs][item.value])?'optiontext1':'optiontext2'}}">{{item.name}}</view>
+            </checkbox>
+          </view>
         </view>
       </view>
+    </checkbox-group>
+    <view wx:if="{{choose_method==2}}">
+      <view class="datetitle">请选择预约日期：</view>
+      <picker value="{{date_index}}" range="{{flex_calendar}}" range-key="whole" bindchange="date_change">
+        <view class="option" style="display:flex;justify-content:center">
+          {{flex_calendar[date_index].whole}}
+        </view>
+      </picker>
+      <view class="datetitle" style="margin-bottom:10rpx">请选择预约时间：</view>
+      <!-- 测试备用 -->
+      <!-- <view style="margin-left:20%;margin-top:10rpx" wx:for="{{occupy[date_index]}}" wx:key="*this">{{item}}</view> -->
+      <canvas catch type="2d" style="width:70%;height:1336px;margin-left:15%;display:flex" id='canvas'>
+        <cover-view id="cover" class="cover-view" catchtouchstart="touch_start" catchtouchmove="touch_move"
+          catchtouchend="touch_end" wx:if="{{choose_method==2}}"
+          style="position:absolute;left:50%;top:40px;width:50%;height:1296px" wx:if="{{hidden2&&hidden1}}"></cover-view>
+      </canvas>
     </view>
-  </checkbox-group>
-  <view wx:if="{{choose_method==2}}">
-    <view class="datetitle">请选择预约日期：</view>
-    <picker value="{{date_index}}" range="{{flex_calendar}}" range-key="whole" bindchange="date_change">
-      <view class="option" style="display:flex;justify-content:center">
-        {{flex_calendar[date_index].whole}}
-      </view>
-    </picker>
-    <view class="datetitle" style="margin-bottom:10rpx">请选择预约时间：</view>
-    <!-- 测试备用 -->
-    <!-- <view style="margin-left:20%;margin-top:10rpx" wx:for="{{occupy[date_index]}}" wx:key="*this">{{item}}</view> -->
-    <canvas catch type="2d" style="width:70%;height:1336px;margin-left:15%;display:flex" id='canvas'>
-      <cover-view id="cover" class="cover-view" catchtouchstart="touch_start" catchtouchmove="touch_move"
-        catchtouchend="touch_end" wx:if="{{choose_method==2}}"
-        style="position:absolute;left:50%;top:40px;width:50%;height:1296px" wx:if="{{hidden2&&hidden1}}"></cover-view>
-    </canvas>
-  </view>
-  <view class="detail-list" style="margin-left:10%;font-weight:bold;margin-top:30rpx">申请预约理由：</view>
-  <view style="margin-top:30rpx">
-    <textarea class="inputbox" style="width:80%;margin-left:10%;margin-right:10%" placeholder="请简述预约设备用途"
-      bindblur="inputwhy" />
-  </view>
-  <button form-type="submit" class="ok" hover-class="oks" style="margin-bottom:50rpx;margin-top:50rpx">提交预约</button>
-</form>
+    <view class="detail-list" style="margin-left:10%;font-weight:bold;margin-top:30rpx">申请预约理由：</view>
+    <view style="margin-top:30rpx">
+      <textarea class="inputbox" style="width:80%;margin-left:10%;margin-right:10%" placeholder="请简述预约设备用途"
+        bindblur="inputwhy" />
+    </view>
+    <button form-type="submit" class="ok" hover-class="oks" style="margin-bottom:50rpx;margin-top:50rpx">提交预约</button>
+  </form>
+</view>
 <!-- 用于解决奇怪的bug -->
 <view style="height:30rpx"></view>
 <!-- 用户须知 -->
@@ -76,7 +78,8 @@
   <wemark md="{{read_text}}" link highlight type="wemark"></wemark>
 </modal>
 <modal title='确认时间' no-cancel='true' confirm-text='确定' hidden="{{hidden2}}" bindconfirm="time_confirm">
-  <picker style="margin-top:50rpx" mode="time" value="{{final_st}}" start="{{select_st}}" end="{{final_ed}}" bindchange="st_change">
+  <picker style="margin-top:50rpx" mode="time" value="{{final_st}}" start="{{select_st}}" end="{{final_ed}}"
+    bindchange="st_change">
     <view class="option" style="display:flex;justify-content:center">
       开始：{{final_st}}
     </view>

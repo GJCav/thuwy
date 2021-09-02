@@ -82,7 +82,7 @@
             <view class='server-description'>{{equip['brief-intro']}}</view>
         </van-col>
         <van-col span="5" offset="2">
-            <button data-value="{{equip.id}}" type="primary" style="margin-top:8%" bindtap="modify"
+            <button data-value="{{equip.id}}" class="ok" hover-class="oks" style="margin-top:8%" bindtap="modify"
                 size="mini">修改</button>
             <button data-value="{{equip.id}}" class="warn" hover-class="warns" bindtap="del" size="mini">删除</button>
         </van-col>

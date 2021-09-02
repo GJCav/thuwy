@@ -1,6 +1,6 @@
 // pages/home/home.js
 const app = getApp()
- //备用
+//备用
 // const util = require('../../utils/util.js')
 Page({
     data: {
@@ -126,21 +126,29 @@ Page({
     //刷新状态
     refresh: function () {
         var t = this.data.activeTab
-        if (app.globalData.userInfo) {
-            this.setData({
-                success: [],
-                ongoing: [],
-                history: [],
-            })
-            if (t == 0)
-                this.going();
-            else if (t == 1)
-                this.waiting();
-            else
-                this.history();
+        if (app.globalData.login) {
+            if (app.globalData.userInfo) {
+                this.setData({
+                    success: [],
+                    ongoing: [],
+                    history: [],
+                })
+                if (t == 0)
+                    this.going();
+                else if (t == 1)
+                    this.waiting();
+                else
+                    this.history();
+            } else {
+                wx.showToast({
+                    title: '未绑定信息',
+                    icon: 'error',
+                    duration: 1500
+                });
+            }
         } else {
             wx.showToast({
-                title: '未绑定信息',
+                title: '未成功登录',
                 icon: 'error',
                 duration: 1500
             });

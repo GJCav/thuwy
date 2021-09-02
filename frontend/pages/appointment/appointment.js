@@ -77,11 +77,19 @@ Page({
   },
   //轮播图链接
   goforurl(e) {
-    var i = e.currentTarget.dataset['value']
-    console.log(i)
-    wx.navigateTo({
-      url: this.data.imgUrls[i].url,
-    })
+    if (app.globalData.login == false) {
+      wx.showToast({
+        title: '未成功登录',
+        icon: 'error',
+        duration: 1000
+      });
+    } else {
+      var i = e.currentTarget.dataset['value']
+      console.log(i)
+      wx.navigateTo({
+        url: this.data.imgUrls[i].url,
+      })
+    }
   },
   //初始化
   onLoad() {

@@ -22,7 +22,7 @@
             </view>
         </view>
         <view style="width:30%;display:flex;flex-direction:column;align-items:center">
-            <button type="primary" size="mini" style="margin-bottom:5%" bindtap="approve"
+            <button class="ok" hover-class="oks" size="mini" style="margin-bottom:5%" bindtap="approve"
                 data-value="{{item.id}}">同意</button>
             <button class="warn" hover-class="warns" size="mini" style="margin-top:5%" bindtap="refuse"
                 data-value="{{item.id}}">拒绝</button>
