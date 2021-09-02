@@ -350,14 +350,15 @@ if getattr(config, 'ENABLE_TEST_ACCOUNT', False):
             db.session.commit()
 
         newAccount = User(fakeOpenId)
-        if request.args.get('mode', 'admin') == 'admin':
+        mode = request.args.get('mode', 'user')
+        if mode == 'admin':
             newAccount.name = f'TAdmin {rint}'
             admin = Admin()
             admin.openid = fakeOpenId
             db.session.add(admin)
-            
         else:
             newAccount.name = f'TUser {rint}'
+
         newAccount.schoolId = f'{rint}'
         newAccount.clazz = f'未央-测试'
         db.session.add(newAccount)
