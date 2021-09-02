@@ -63,7 +63,6 @@ Page({
             icon: 'error',
             duration: 1500
           });
-          stop = true;
         }
       });
     } else {
@@ -204,24 +203,5 @@ Page({
     wx.previewImage({
       urls: [e.currentTarget.dataset['url']],
     })
-  },
-  //测试专用
-  great() {
-    if (app.globalData.userInfo)
-      app.globalData.userInfo = false
-    else
-      app.globalData.userInfo = true
-  },
-  better() {
-    if (app.globalData.login)
-      app.globalData.login = false
-    else
-      app.globalData.login = true
-  },
-  evolve() {
-    if (app.globalData.isadmin)
-      app.globalData.isadmin = false
-    else
-      app.globalData.isadmin = true
   },
 })

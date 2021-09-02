@@ -3,6 +3,8 @@ const app = getApp()
 
 Page({
   data: {
+    index:0,
+
     motto1: ['未登录', '未认证用户', '普通用户', '管理员', '违约用户'],
     motto2: ['—', '未绑定', '已绑定'],
     select: [{
@@ -296,5 +298,20 @@ Page({
         duration: 1500
       })
     }
-  }
+  },
+  //隐藏测试界面
+  hide_test(){
+    this.setData({
+      index:this.data.index+1
+    })
+    if(this.data.index==8)
+    {
+      this.setData({
+        index:0
+      })
+      wx.navigateTo({
+        url: '../hide/hide',
+      })
+    }
+  },
 });

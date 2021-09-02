@@ -1,0 +1,3 @@
+<!--pages/hide/hide.wxml-->
+<button style="width: 400rpx; margin-top: 30%; position: relative; left: 190rpx; top: 80rpx" class="normal" hover-class="normals" bindtap="be_user" size="mini">以用户身份登录</button>
+<button style="width: 400rpx; margin-top: 30%; position: relative; left: 190rpx; top: -3rpx" class="normal" hover-class="normals" bindtap="be_admin" size="mini">以管理员身份登录</button>

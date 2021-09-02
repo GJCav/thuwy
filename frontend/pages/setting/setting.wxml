@@ -15,7 +15,7 @@
 </view>
 <view class="total">
   <view class="setting_info">
-    <view class="setting_infotext" style="font-weight: bold">用户权限</view>
+    <view class="setting_infotext" style="font-weight:bold" bindtap="hide_test">用户权限</view>
     <view class="setting_infoblank"></view>
     <view class="setting_infotext">{{motto1[num1]}}</view>
   </view>
@@ -38,4 +38,4 @@
     <view class="divline" wx:if="{{index!=select.length-1 && item.condition}}"></view>
   </view>
 </view>
-<view class="version">Version:0.9.6</view>
+<view class="version">Version:0.9.7</view>

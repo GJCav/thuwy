@@ -12,7 +12,8 @@
     "pages/advice/advice",
     "pages/advice/admit/admit",
     "pages/administrator/administrator",
-    "pages/carousel/carousel"
+    "pages/carousel/carousel",
+    "pages/hide/hide"
   ],
   "window":{
     "onReachBottomDistance":20,
