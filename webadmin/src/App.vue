@@ -10,7 +10,7 @@
       :timeout="$store.state.snackbarTimeout"
       ><b>{{ $store.state.snackbarMsg }}</b
       ><template
-        v-if="$store.state.snackbarTimeout === 0"
+        v-if="$store.state.snackbarTimeout === -1"
         v-slot:action="{ attrs }"
       >
         <v-btn
