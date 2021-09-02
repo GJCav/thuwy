@@ -4,9 +4,11 @@ import requests.exceptions as RE
 import json as Json
 import time as Time
 import functools
+import os
 
 from . import authRouter
 from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID, skipAdmin, skipLoginAndBind
+from config import config
 from app import db
 from app import adminReqIdPool
 from app import comerrs as ErrCode
@@ -327,3 +329,45 @@ def delAdmin(openid):
     
     db.session.delete(admin)
     return ErrCode.CODE_SUCCESS
+
+if getattr(config, 'ENABLE_TEST_ACCOUNT', False):
+    print('!!Warning!! Running with testing mode, enable testing account auto-creation.')
+
+    @authRouter.route('/test/login/')
+    def loginTestAccount():
+        rint = 0
+        for b in os.urandom(64):
+            rint += b
+        rint %= 10000000000
+        fakeOpenId = f'test-account-{rint}'
+        
+        existAccount = User.fromOpenid(fakeOpenId)
+        if existAccount:
+            existAdmin = Admin.fromId(fakeOpenId)
+            if existAdmin:
+                db.session.delete(existAdmin)
+            db.session.delete(existAccount)
+            db.session.commit()
+
+        newAccount = User(fakeOpenId)
+        if request.args.get('mode', 'admin') == 'admin':
+            newAccount.name = f'TAdmin {rint}'
+            admin = Admin()
+            admin.openid = fakeOpenId
+            db.session.add(admin)
+            
+        else:
+            newAccount.name = f'TUser {rint}'
+        newAccount.schoolId = f'{rint}'
+        newAccount.clazz = f'未央-测试'
+        db.session.add(newAccount)
+
+        try:
+            db.session.commit()
+        except:
+            return ErrCode.CODE_DATABASE_ERROR
+        
+        session['openid'] = fakeOpenId
+        session.permanent = True
+
+        return ErrCode.CODE_SUCCESS

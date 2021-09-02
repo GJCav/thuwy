@@ -39,8 +39,6 @@
 | 203     | wx reject svr          | 微信拒绝了服务器，此时有wx-\*属性                  |
 | 200     | unknown error          | 服务器出现未知的异常                               |
 
-
-
 **Set-Cookie？：** True
 
 该接口会设置形如`session=xxxxx`的Cookie作为登陆信息，下文调用要求`Login?:True`的接口时，需要把这个Cookie传回给后端。
@@ -258,6 +256,27 @@ AdminReq属性：
 **请求参数：** open-id，要删除的管理员id
 
 **返回值：** Json Object，属性如下：
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
+
+
+
+### 使用测试账号登录
+
+**API：** `GET /test/login/?mode=[user|admin]`
+
+**Des：**
+
+当后端的配置为`TestConfig`时这个接口存在，使用这个接口可以创建一个和微信openid无关的测试账号。这些用于测试的账号将会在产品正式上线前删除。
+
+**Args:** mode，为user或其他值时创建拥有用户权限的账号，为admin时创建管理员账号。
+
+**Set-Cookie?** True
+
+**返回值：**
 
 | 属性   | 类型   | 说明     |
 | ------ | ------ | -------- |
