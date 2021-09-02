@@ -69,6 +69,6 @@ App({
     }],
     url: 'https://weiyang.grw20.cn', //本地测试地址：'http://127.0.0.1:5000'
     picurl: 'https://static-weiyang.grw20.cn/api',
-    webBackendUrl: 'http://static.weiyang.grw20.cn/api'
+    webBackendUrl: 'https://static-weiyang.grw20.cn/api'
   }
 })

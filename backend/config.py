@@ -20,10 +20,11 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///data-dev.db?charset=utf8'
+    ENABLE_TEST_ACCOUNT = False
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///data-test.db?charset=utf8'
 
     def set(app):
-        app.secret_key = 'test -----'
+        app.secret_key = os.urandom(24)
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///data.db?charset=utf8'
@@ -31,7 +32,7 @@ class ProductionConfig(Config):
     def set(app):
         app.secret_key = os.urandom(24)
         
-config = ProductionConfig
+config = TestingConfig
 skipLoginAndBind = False
 skipAdmin = False
 userSysName = 'system'  # 默认添加一个 system 管理员，处理定时任务

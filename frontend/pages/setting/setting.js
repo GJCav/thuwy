@@ -223,7 +223,7 @@ Page({
           wx.login().then(loginRes => {
             wx.showModal({
               title: '登录网页端',
-              content: '是否确认登陆？',
+              content: '是否确认登录？',
               success(modelRes) {
                 if (modelRes.confirm) {
                   wx.request({
@@ -272,7 +272,7 @@ Page({
     if (app.globalData.login) {
       wx.showModal({
         title: '提示',
-        content: '确认要退出登陆吗?',
+        content: '确认要退出登录吗?',
         success: (res) => {
           if (res.confirm) {
             console.log('用户点击确定')
