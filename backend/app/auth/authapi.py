@@ -292,7 +292,7 @@ def examAdminReq(reqId):
     if not CheckArgs.hasAttrs(json, ['pass', 'reason']):
         return ErrCode.CODE_ARG_MISSING
 
-    adminReq.reason = json['reason']
+    
     if json['pass'] == 1:
         adminReq.state = 1
         admin = Admin()
@@ -300,6 +300,11 @@ def examAdminReq(reqId):
         db.session.add(admin)
     elif json['pass'] == 0:
         adminReq.state = 2
+    else:
+        return ErrCode.CODE_ARG_INVALID
+        
+    adminReq.reason = json['reason']
+    adminReq.approver = session['openid']
 
     try:
         db.session.commit()
