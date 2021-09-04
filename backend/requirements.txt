@@ -1,8 +1,6 @@
-Flask_SQLAlchemy==2.5.1
 requests==2.24.0
 pytest==6.2.4
 SQLAlchemy==1.4.21
 Flask==2.0.1
-wheel==0.36.2
-uwsgi==2.0.19.1
 Flask-APScheduler==1.12.2
+Flask_SQLAlchemy==2.5.1
