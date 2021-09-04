@@ -251,7 +251,8 @@ Page({
                         });
                       }
                     },
-                    fail: () => {
+                    fail: (res) => {
+                     console.log(res)
                       wx.showToast({
                         title: '拉取信息失败',
                         icon: 'error',
