@@ -69,6 +69,6 @@ App({
     }],
     url: 'https://api.thuwy.top', //本地测试地址：'http://127.0.0.1:5000'
     picurl: 'https://web.thuwy.top/api',
-    webBackendUrl: 'https://web.thuwy.top'
+    webBackendUrl: 'https://web.thuwy.top/api'
   }
 })
