@@ -171,7 +171,6 @@ export default {
     } else {
       this.item = await getItem(this.id);
     }
-    console.log(this.item);
   },
   computed: {
     renderedHtml() {
@@ -182,9 +181,6 @@ export default {
     },
   },
   methods: {
-    handler(e) {
-      console.log(e);
-    },
     async doPostItem() {
       this.submitting = true;
       try {

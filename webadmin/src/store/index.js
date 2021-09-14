@@ -12,7 +12,7 @@ export default new Vuex.Store({
     user: null,
     snackbar: false,
     snackbarMsg: '',
-    snackbarTimeout: 0
+    snackbarTimeout: -1
   },
   mutations: {
     setUser(state, payload) {
@@ -34,7 +34,7 @@ export default new Vuex.Store({
       context.commit('setUser', user);
       return user;
     },
-    showMessage(context, { message, timeout = 0 }) {
+    showMessage(context, { message, timeout = -1 }) {
       context.commit('setSnackbarMessage', message);
       context.commit('setSnackbarTimeout', timeout);
       context.commit('updateSnackbarStatus', true);

@@ -45,7 +45,7 @@ export async function postItem(item) {
 export async function deleteItem(id) {
   var { data } = await request.delete(`/item/${id}/`);
   if (data.code !== 0) {
-    throw data.msg;
+    throw data.errmsg;
   }
   return id;
 }
