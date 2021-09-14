@@ -62,6 +62,7 @@ def getAdviceList():
 @requireBinding
 @requireAdmin
 def getAdviceInfo(adviceId):
+
     if not CheckArgs.isUint64(adviceId):
         return ErrCode.CODE_ARG_INVALID
 
