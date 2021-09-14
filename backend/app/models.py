@@ -87,6 +87,7 @@ class Item(db.Model):
     thumbnail     = db.Column(db.Text)
     mdIntro       = db.Column('md_intro', db.Text)
     attr          = db.Column(db.Integer)
+    group         = db.Column(db.Text)
 
     class Attr:
         ATTR_AUTO_ACCEPT = 0b1 # 自动通过，自动完成
@@ -113,7 +114,8 @@ class Item(db.Model):
             'brief-intro': self.briefIntro,
             'thumbnail': self.thumbnail,
             'rsv-method': self.rsvMethod,
-            'attr': self.attr
+            'attr': self.attr,
+            'group': self.group
         }
 
     # no use

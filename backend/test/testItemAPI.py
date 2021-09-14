@@ -158,7 +158,7 @@ def testAddItemWithBadArg():
 
 def _isItemObject(item: dict):
     # pprint(item.keys())
-    assert item.keys() == {'name', 'id', 'available', 'brief-intro', 'thumbnail', 'rsv-method', 'attr'}
+    assert item.keys() == {'name', 'id', 'available', 'brief-intro', 'thumbnail', 'rsv-method', 'attr', 'group'}
     assert CheckArgs.areStr(item, ['name', 'brief-intro', 'thumbnail'])
     assert CheckArgs.isUrl(item['thumbnail'])
     assert CheckArgs.areInt(item, ['id', 'rsv-method', 'attr'])
@@ -306,6 +306,93 @@ def testDelItem():
         json = R.get(url).json()
     
     assert json['item-count'] == 0
+
+
+def _allItem(**filters):
+    global testItemUrl
+    page = 1
+    while True:
+        filters['p'] = page
+        res = R.get(f'{testItemUrl}', filters)
+        assert res
+        json = res.json()
+        assert json['code'] == 0
+        if len(json['items']) == 0: break
+        for e in json['items']:
+            yield e
+        page += 1
+        
+
+def testItemWithGroup():
+    global testItemCount, testItemCount
+    url = testItemUrl
+
+    idsGroup = []
+    idsNoGroup = []
+
+    # add item with group 0, 1, 2
+    for i in range(50):
+        group = i % 3
+        json = {
+            'name': f'Item with group {i}',
+            'brief-intro': f'bf-intro {i}, group {group}',
+            'md-intro': f'md {i}',
+            'thumbnail': f'http://server/thumb{i}',
+            'rsv-method': i % 2,
+            'group': f'{group}'
+        }
+        res = R.post(url, json=json)
+        assert res.status_code == 200
+        assert res.json().get('code') == 0
+        assert 'item-id' in res.json()
+        idsGroup.append(res.json()['item-id'])
+
+    # add item with no group
+    for i in range(10):
+        reqJson = {
+            'name': f'Item with no group {i}',
+            'brief-intro': f'bf-intro {i}',
+            'md-intro': f'md {i}',
+            'thumbnail': f'http://server/thumb{i}',
+            'rsv-method': i % 2
+        }
+        if i % 3 == 0:
+            pass
+        elif i % 3 == 1:
+            reqJson['group'] = ''
+        else:
+            reqJson['group'] = None
+        
+        res = R.post(url, json=reqJson)
+        assert res
+        json = res.json()
+        assert json
+        assert json['code'] == 0, json
+        assert 'item-id' in json
+        idsNoGroup.append(json['item-id'])
+
+    def _isOfGroup(itemId, groupList):
+        res = R.get(testItemUrl+f'{itemId}/')
+        assert res
+        json = res.json()
+        assert json
+        assert json['code'] == 0, json
+        assert json['item']['group'] in groupList, json['item']
+
+    for id in idsGroup:
+        _isOfGroup(id, ['0', '1', '2'])
+    for id in idsNoGroup:
+        _isOfGroup(id, ['', None])
+
+    # test list filter
+    for i in range(3):
+        for item in _allItem(group=f'{i}'):
+            assert item['group'] in ['0', '1', '2'], item
+
+    for g in ['']:
+        for item in _allItem(group = g):
+            assert item['group'] in ['', None], item
+    
 
 
 # ------------ 给其他模块使用的函数 --------------

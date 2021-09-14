@@ -338,17 +338,18 @@ AdminReq属性：
 
 Item对象是一个Json Object对象，包含如下属性：
 
-| 属性        | 类型        | 说明                                              |
-| ----------- | ----------- | ------------------------------------------------- |
-| name        | string      | 名字                                              |
-| id          | ItemId      | 设备id                                            |
-| available   | bool        | 设备是否可用，如果设备被下架，为0                 |
-| delete      | bool        | 是否删除设备，只在`POST /item/`且是删除操作时存在 |
-| brief-intro | string      | 简要介绍，小于50字符                              |
-| md-intro    | string      | 详细介绍，只在`/item/mdintro`返回                 |
-| thumbnail   | url, string | 缩略图的url                                       |
-| rsv-method  | RsvMethod   | 支持的预约方式                                    |
-| attr        | int         | 特殊属性                                          |
+| 属性        | 类型        | 说明                                               |
+| ----------- | ----------- | -------------------------------------------------- |
+| name        | string      | 名字                                               |
+| id          | ItemId      | 设备id                                             |
+| available   | bool        | 设备是否可用，如果设备被下架，为0                  |
+| delete      | bool        | 是否删除设备，只在`POST /item/`且是删除操作时存在  |
+| brief-intro | string      | 简要介绍，小于50字符                               |
+| md-intro    | string      | 详细介绍，只在`/item/mdintro`返回                  |
+| thumbnail   | url, string | 缩略图的url                                        |
+| rsv-method  | RsvMethod   | 支持的预约方式                                     |
+| attr        | int         | 特殊属性                                           |
+| group       | string      | 所在组名称，若无组，为null或没有内容的字符串，即“” |
 
 
 
@@ -358,15 +359,16 @@ Item对象是一个Json Object对象，包含如下属性：
 
 **Des:** 获取物品列表
 
-**API**： `GET /item?p=<page>/`
+**API**： `GET /item/?p=<page>&group=<group>`
 
 **Login?:**  False
 
 **请求参数**：
 
-| 属性 | 类型 | 必填              | 说明                                       |
-| ---- | ---- | ----------------- | ------------------------------------------ |
-| p    | int  | 否，不填写默认为1 | 分页获取，避免一次性数据过多，每页20条数据 |
+| 属性  | 类型   | 必填              | 说明                                       |
+| ----- | ------ | ----------------- | ------------------------------------------ |
+| p     | int    | 否，不填写默认为1 | 分页获取，避免一次性数据过多，每页20条数据 |
+| group | string | 否                | 限定范围为指定分组                         |
 
 **返回值:** Json Object，其中包含：
 
@@ -424,6 +426,7 @@ Item对象是一个Json Object对象，包含如下属性：
 * thumbnail
 * rsv-method
 * attr，可选参数，默认为 0
+* group，可选参数，默认为null
 
 **返回参数：**
 
@@ -461,6 +464,7 @@ Item对象是一个Json Object对象，包含如下属性：
   * thumbnail
   * rsv-method
   * attr
+  * group，设为null或空字符串表示取消分组
 
 **返回值：** Json Object，包含属性如下
 
