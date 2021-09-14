@@ -19,7 +19,7 @@ class Auth:
    CODE_LOGIN_CNT_ERROR = {'code': 103, 'errmsg': '链接微信失败'}
    CODE_LOGIN_UNKOWN = {'code': 200, 'errmsg': '未知错误，丢人gjm没有考虑这个情况'}
 
-   CODE_BIND_SCHOOLID_EXISTED = {'code': 101,'errmsg': '该学号以存在'}
+   CODE_BIND_SCHOOLID_EXISTED = {'code': 101,'errmsg': '该学号已存在'}
 
    CODE_ALREADY_ADMIN = {'code': 101, 'errmsg': '已经是管理员'}
    CODE_ALREADY_REQUESTED = {'code': 102, 'errmsg': '请勿重复请求'}
@@ -50,4 +50,4 @@ class Advice:
 
 
 class Carousel:
-   CODE_MSG_NOT_FOUND = {'code': 101, 'errmsg': '未找到该宣传栏'}
+   CODE_MSG_NOT_FOUND = {'code': 101, 'errmsg': '未找到该宣传'}
