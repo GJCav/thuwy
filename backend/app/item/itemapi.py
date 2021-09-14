@@ -1,5 +1,7 @@
+from operator import or_
 from flask import request
 import json as Json
+from sqlalchemy import or_
 
 from . import itemRouter
 
@@ -21,9 +23,18 @@ def itemlist():
     page -= 1
     if not CheckArgs.isUint64(page):
         return ErrCode.CODE_ARG_INVALID
+
+    qry = db.session.query(Item).filter(Item.delete == 0)
+
+    if 'group' in request.args:
+        group = request.args.get('group', None, str)
+        if not group:
+            qry = qry.filter(or_(Item.group == None, Item.group == ''))
+        else:
+            qry = qry.filter(Item.group == group)
     
-    itemCount = db.session.query(Item.id).filter(Item.delete == 0).count()
-    items = Item.query.filter(Item.delete == 0).limit(20).offset(20*page).all()
+    itemCount = qry.count()
+    items = qry.limit(20).offset(20*page).all()
     items = [e.toDict() for e in items]
 
     # pprint(items)
@@ -86,6 +97,11 @@ def addItem():
         item.briefIntro = reqJson['brief-intro']
         item.attr       = reqJson.get('attr', 0)
 
+        if 'group' in reqJson:
+            if not reqJson['group']: item.group = None
+            elif CheckArgs.isStr(reqJson['group']): item.group = reqJson['group']
+            else: return ErrCode.CODE_ARG_TYPE_ERR
+
         if not CheckArgs.isUrl(reqJson['thumbnail']): # TODO: 这里可以进一步限制
             return ErrCode.CODE_ARG_FORMAT_ERR
         item.thumbnail  = reqJson['thumbnail']
@@ -113,7 +129,7 @@ def modifyItem(itemId):
     item = db.session.query(Item).filter(Item.id == itemId).one_or_none()
     if not item: return ErrCode.Item.CODE_ITEM_NOT_FOUND
 
-    itemJson = request.json
+    itemJson: dict = request.json
 
     try:
         if 'name' in itemJson: item.name              = str(itemJson['name'])
@@ -123,6 +139,7 @@ def modifyItem(itemId):
         if 'thumbnail' in itemJson: item.thumbnail    = itemJson['thumbnail']
         if 'md-intro' in itemJson: item.mdIntro       = itemJson['md-intro']
         if 'attr' in itemJson: item.attr              = int(itemJson['attr'])
+        if 'group' in itemJson: item.group            = itemJson['group']
     except:
         return ErrCode.CODE_ARG_TYPE_ERR
     

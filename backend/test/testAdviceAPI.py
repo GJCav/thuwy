@@ -1,5 +1,6 @@
 
-from config4test import R, baseUrl
+from config4test import R, baseUrl, headers
+import requests
 import pytest
 import re as Regex
 
@@ -57,7 +58,7 @@ def testGetAdviceList():
 @pytest.mark.funcTest
 def testGetAdviceInfo():
     for id in adviceIds:
-        res = R.get(adviceUrl + f'{id}')
+        res = R.get(adviceUrl + f'{id}/')
         assert res
         json = res.json()
         assert json['code'] == 0, json
@@ -73,7 +74,7 @@ def testGetAdviceInfo():
 @pytest.mark.funcTest
 def testResponse():
     for id in adviceIds:
-        res = R.get(adviceUrl+ f'{id}')
+        res = R.get(adviceUrl+ f'{id}/')
         assert res
         json = res.json()
         assert json['code'] == 0, json
@@ -88,7 +89,7 @@ def testResponse():
         json = res.json()
         assert json['code'] == 0, json
 
-        res = R.get(adviceUrl + f'{id}')
+        res = R.get(adviceUrl + f'{id}/')
         assert res
         json = res.json()
         assert json['code'] == 0, json
@@ -152,7 +153,7 @@ def testGetAdviceListRobustly():
 
 @pytest.mark.robustTest
 def testGetAdviceInfoRobustly():
-    res = R.get(adviceUrl+'0')
+    res = R.get(adviceUrl+'0/')
     assert res
     json = res.json()
     assert json['code'] == ErrCode.Advice.CODE_ADVICE_NOT_FOUND['code']
@@ -180,4 +181,3 @@ def testResponseRobustly():
     assert res
     json = res.json()
     assert json['code'] == ErrCode.CODE_ARG_TYPE_ERR['code']
-
