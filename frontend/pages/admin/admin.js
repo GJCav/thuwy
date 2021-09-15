@@ -1,7 +1,6 @@
 // pages/admin/admin.js
 const app = getApp()
-//备用
-// const util = require('../../utils/util.js') 
+const util = require('../../utils/util.js') 
 Page({
   data: {
     activeTab: 0,
@@ -134,22 +133,12 @@ Page({
       that.going(1).then(function () { //读取进行中的预约
         wx.hideLoading()
       }).catch(function (res) {
-        console.log(res)
         wx.hideLoading();
-        wx.showToast({
-          title: '连接失败',
-          icon: 'error',
-          duration: 1500
-        });
+        util.show_error(res)
       })
     }).catch(function (res) {
-      console.log(res)
       wx.hideLoading();
-      wx.showToast({
-        title: '连接失败',
-        icon: 'error',
-        duration: 1500
-      });
+      util.show_error(res)
     })
   },
   refresh_equip() {
@@ -172,23 +161,13 @@ Page({
           })
           wx.hideLoading();
         } else {
-          console.log(res)
           wx.hideLoading();
-          wx.showToast({
-            title: '连接错误',
-            icon: 'error',
-            duration: 1500
-          })
+          util.show_error(res)
         }
       },
       fail: (res) => {
-        console.log(res)
         wx.hideLoading();
-        wx.showToast({
-          title: '连接失败',
-          icon: 'error',
-          duration: 1500
-        });
+        util.show_error(res)
       }
     });
   },
@@ -215,23 +194,13 @@ Page({
               })
               wx.hideLoading();
             } else {
-              console.log(res)
               wx.hideLoading();
-              wx.showToast({
-                title: '连接错误',
-                icon: 'error',
-                duration: 1500
-              })
+              util.show_error(res)
             }
           },
           fail: (res) => {
-            console.log(res)
             wx.hideLoading();
-            wx.showToast({
-              title: '连接失败',
-              icon: 'error',
-              duration: 1500
-            });
+            util.show_error(res)
           }
         });
       } else {
@@ -246,6 +215,7 @@ Page({
   },
   onPullDownRefresh() {
     this.refresh();
+    wx.stopPullDownRefresh();
   },
   switchTab(e) {
     switch (e.detail.index) {
@@ -287,13 +257,8 @@ Page({
         })
       }
     }).catch(function (res) {
-      console.log(res)
       wx.hideLoading();
-      wx.showToast({
-        title: '连接失败',
-        icon: 'error',
-        duration: 1500
-      });
+      util.show_error(res)
     })
   },
   load_go() {
@@ -312,13 +277,8 @@ Page({
         })
       }
     }).catch(function (res) {
-      console.log(res)
       wx.hideLoading();
-      wx.showToast({
-        title: '连接失败',
-        icon: 'error',
-        duration: 1500
-      });
+      util.show_error(res)
     })
   },
   //审批预约
@@ -374,23 +334,13 @@ Page({
                 });
                 this.refresh_equip();
               } else {
-                console.log(res)
                 wx.hideLoading()
-                wx.showToast({
-                  title: '连接错误',
-                  icon: 'error',
-                  duration: 1500
-                })
+                util.show_error(res)
               }
             },
             fail: (res) => {
-              console.log(res)
               wx.hideLoading();
-              wx.showToast({
-                title: '连接失败',
-                icon: 'error',
-                duration: 1500
-              });
+              util.show_error(res)
             }
           })
         } else if (res.cancel) {

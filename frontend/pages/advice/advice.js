@@ -1,5 +1,6 @@
 // pages/advice/advice.js
 const app = getApp()
+const util = require('../../utils/util.js') 
 Page({
     data: {
         admin:false,
@@ -102,6 +103,7 @@ Page({
     },
     onPullDownRefresh() {
         this.refresh();
+        wx.stopPullDownRefresh();
     },
     refresh() {
         var t = this.data.activeTab
@@ -138,13 +140,8 @@ Page({
         this.advice(1).then(function () { //读取未审阅的建议
             wx.hideLoading()
         }).catch(function (res) {
-            console.log(res)
             wx.hideLoading();
-            wx.showToast({
-                title: '连接失败',
-                icon: 'error',
-                duration: 1500
-            });
+            util.show_error(res)
         })
     },
     //刷新已审批建议
@@ -159,13 +156,8 @@ Page({
         this.checked(1).then(function () { //读取已审阅的建议
             wx.hideLoading()
         }).catch(function (res) {
-            console.log(res)
             wx.hideLoading();
-            wx.showToast({
-                title: '连接失败',
-                icon: 'error',
-                duration: 1500
-            });
+            util.show_error(res)
         })
     },
     //触底刷新
@@ -197,13 +189,8 @@ Page({
                 })
             }
         }).catch(function (res) {
-            console.log(res)
             wx.hideLoading();
-            wx.showToast({
-                title: '连接失败',
-                icon: 'error',
-                duration: 1500
-            });
+            util.show_error(res)
         })
     },
     load_checked() {
@@ -225,13 +212,8 @@ Page({
                 })
             }
         }).catch(function (res) {
-            console.log(res)
             wx.hideLoading();
-            wx.showToast({
-                title: '连接失败',
-                icon: 'error',
-                duration: 1500
-            });
+            util.show_error(res)
         })
     },
     //意见反馈

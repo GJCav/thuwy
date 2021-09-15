@@ -14,27 +14,48 @@ const formatNumber = n => {
   return n[1] ? n : `0${n}`
 }
 
-//获取设备名称
-const app = getApp()
-function the_name(item_id) {
-  return new Promise(function (resolve, reject) {
-      wx.request({
-          url: app.globalData.url + '/item/' + item_id,
-          method: 'GET',
-          success: (res) => {
-              if (res.data.code == 0) {                       
-                  resolve(res.data.item.name)  
-              } else {
-                  reject(res.data)               
-              }
-          },
-          fail: (res) => {console.log(1) 
-              reject(res)                   
-          }
-      })
-  })
+//显示错误信息
+function show_error(res){
+  console.log(res)
+  if(res.errmsg!=undefined){
+    wx.showToast({
+      title: res.errmsg,
+      mask:true,
+      duration: 1500,
+      icon:'error'
+    })
+  } else{
+    wx.showToast({
+      title: '网络连接失败',
+      icon:'error',
+      mask:true,
+      duration: 1500
+    })
+  }
+  return
 }
 
+//获取设备名称,暂时废弃
+// const app = getApp()
+// function the_name(item_id) {
+//   return new Promise(function (resolve, reject) {
+//       wx.request({
+//           url: app.globalData.url + '/item/' + item_id,
+//           method: 'GET',
+//           success: (res) => {
+//               if (res.data.code == 0) {                       
+//                   resolve(res.data.item.name)  
+//               } else {
+//                   reject(res.data)               
+//               }
+//           },
+//           fail: (res) => {console.log(1) 
+//               reject(res)                   
+//           }
+//       })
+//   })
+// }
+
 module.exports = {
-  the_name:the_name
+  show_error:show_error
 }

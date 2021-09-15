@@ -6,8 +6,9 @@
   flex-direction: column;
   align-items: center;
   color: #ffffff;
-  background:-webkit-gradient(linear, 0% 0%, 0% 100%,from(#0087a9), to(rgba(0, 135, 169, 0.5)));
-}  
+  background: linear-gradient(0, rgba(0, 135, 169, 0.5), #0087a9);
+}
+
 .userinfo-avatar {
   overflow: hidden;
   width: 128rpx;
@@ -15,31 +16,36 @@
   margin: 20rpx;
   border-radius: 50%;
 }
+
 /* setting信息栏 */
-.setting_info{
+.setting_info {
   width: 90%;
   height: 80rpx;
   display: flex;
-  flex-direction:row;
+  flex-direction: row;
   background-color: #ffffff;
 }
-.setting_infotext{
+
+.setting_infotext {
   width: 35%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.setting_infoblank{
-  width:30%;
+
+.setting_infoblank {
+  width: 30%;
 }
+
 /* setting选项栏 */
-.repeat{
+.repeat {
   width: 100%;
   display: flex;
   align-items: center;
   flex-direction: column;
 }
-.select{
+
+.select {
   width: 100%;
   height: 80rpx;
   display: flex;
@@ -47,16 +53,18 @@
   justify-content: center;
   background-color: #ffffff;
 }
-.haveselect{
+
+.haveselect {
   background-color: #dddddd;
 }
+
 /* 版本号 */
-.version{
-  bottom:10rpx;
+.version {
+  bottom: 10rpx;
   width: 100%;
-  position:fixed;
-  color:#999999;
-  font-size:small;
-  font-weight:inherit;
+  position: fixed;
+  color: #999999;
+  font-size: small;
+  font-weight: inherit;
   text-align: center;
 }

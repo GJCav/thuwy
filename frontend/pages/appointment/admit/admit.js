@@ -1,6 +1,6 @@
 // pages/appointment/admit/admit.js
 const app = getApp()
-
+const util = require('../../../utils/util.js') 
 Page({
   data: {
     hidden1: true,
@@ -42,7 +42,7 @@ Page({
     ctx: null,
     whole_width: 0, //整体宽度
     now_height: 0,
-    each_height: 81, //单格高度
+    each_height: 80, //单格高度
 
     list: [], //已选择的预约时间
     calendar: [], //固定预约日期表
@@ -147,12 +147,7 @@ Page({
       that.getrsvs().then(function () {
         wx.hideLoading()
       }).catch(function (res) {
-        console.log(res)
-        wx.showToast({
-          title: '信息读取失败',
-          icon: 'error',
-          duration: 1500
-        })
+        util.show_error(res)
         setTimeout(function () {
           wx.navigateBack({
             delta: 1
@@ -160,12 +155,7 @@ Page({
         }, 1500)
       })
     }).catch(function (res) {
-      console.log(res)
-      wx.showToast({
-        title: '信息读取失败',
-        icon: 'error',
-        duration: 1500
-      })
+      util.show_error(res)
       setTimeout(function () {
         wx.navigateBack({
           delta: 1
@@ -451,15 +441,15 @@ Page({
       this.drawRect(1, this.change_time(tmp_time.slice(0, 5)), this.change_time(tmp_time.slice(6)), true)
       begin = tmp_time.slice(6)
     }
-    if (begin < '24:00') this.drawRect(2, this.change_time(begin), this.change_time('23:59'), false)
+    if (begin < '24:00') this.drawRect(2, this.change_time(begin), this.change_time('24:00'), false)
   },
   //时间转换二部曲
   change_time(t) { //时间转位置
     return ((parseInt(t.slice(0, 2)) - 8) * 60 + parseInt(t.slice(3))) * (this.data.each_height / 60)
   },
   change_position(x) { //位置转时间
-    var tmp = parseInt(x * 60 / this.data.each_height)
-    var h = parseInt(tmp / 60) + 8
+    var tmp = Math.round(x * 60 / this.data.each_height)
+    var h =parseInt(tmp / 60) + 8
     var m = tmp % 60
     return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m
   },
@@ -494,8 +484,9 @@ Page({
         } else if (touch_y >= st && touch_y < ed) {
           wx.showToast({
             title: '时间段无法预约',
-            icon: 'error',
-            duration: 1500
+            mask:true,
+            duration: 1000,
+            icon:'error'
           });
           return;
         }
@@ -530,8 +521,9 @@ Page({
         var select_st = that.change_time(that.data.select_st)
         var select_ed = that.change_time(that.data.select_ed)
         var final_st = that.change_time(that.data.final_st)
+        
         if (touch_y > that.data.final_st) {
-          if (touch_y >= that.data.select_ed) touch_y = that.data.select_ed
+          if (touch_y > that.data.select_ed) touch_y = that.data.select_ed
           ctx.clearRect(width / 2, select_st + 40, width / 2, select_ed - select_st)
           that.drawRect(2, select_st, select_ed, false)
           that.drawRect(0, final_st, that.change_time(touch_y), (that.change_time(touch_y) - final_st >= that.data.each_height / 6) ? true : false)
@@ -580,7 +572,6 @@ Page({
   drawRect(state, st, ed, pan) {
     let ctx = this.data.ctx
     let width = this.data.whole_width
-    if(st=='23:59') st='24：00'
     //填充样式
     if (state == 1)
       ctx.fillStyle = 'RGBA(255,0,0,0.5)'
@@ -630,9 +621,9 @@ Page({
     } else {
       wx.showToast({
         title: '至少预约10分钟',
-        icon:'error',
         duration:1000,
-        mask:true
+        mask:true,
+        icon:'error'
       })
     }
   },
@@ -658,22 +649,30 @@ Page({
     if (this.data.choose_method == 0) {
       wx.showToast({
         title: '未选择预约方式',
-        icon: 'error'
+        mask:true,
+        duration:1000,
+        icon:'error'
       })
     } else if (this.data.choose_method == 1 && this.selectedIdxs == null) {
       wx.showToast({
         title: '未选择预约时间',
-        icon: 'error'
+        mask:true,
+        duration:1000,
+        icon:'error'
       })
     } else if (this.data.choose_method == 2 && this.data.final_st == '') {
       wx.showToast({
         title: '未选择预约时间',
-        icon: 'error',
+        mask:true,
+        duration:1000,
+        icon:'error'
       })
     } else if (this.data.reason == '') {
       wx.showToast({
         title: '未填写预约理由',
-        icon: 'error'
+        mask:true,
+        duration:1000,
+        icon:'error'
       })
     } else if (!this.data.read) {
       this.setData({
@@ -744,7 +743,8 @@ Page({
               wx.showToast({
                 title: '预约时间冲突',
                 icon: 'error',
-                mask: true
+                mask: true,
+                duration:1500
               })
             }
             if (res.data.code == 102) {
@@ -752,25 +752,18 @@ Page({
               wx.showToast({
                 title: '超出可预约时间',
                 icon: 'error',
-                mask: true
+                mask: true,
+                duration:1500
               })
             } else {
-              console.log(res)
               wx.hideLoading();
-              wx.showToast({
-                title: '提交失败',
-                icon: 'error'
-              })
+              util.show_error(res)
             }
           }
         },
         fail: function (res) {
-          console.log(res)
           wx.hideLoading();
-          wx.showToast({
-            title: '网络异常',
-            icon: 'error'
-          });
+          util.show_error(res)
         }
       })
     }

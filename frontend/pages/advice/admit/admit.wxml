@@ -37,6 +37,6 @@
       </view>
     </view>
     <button class="ok" hover-class="oks" form-type="submit" style="margin-top:80rpx;margin-bottom:50rpx"
-      wx:if="{{admin&&advice_detail.response==null}}">{{id==0?'提交反馈':'提交答复'}}</button>
+      wx:if="{{id==0||admin&&advice_detail.response==null}}">{{id==0?'提交反馈':'提交答复'}}</button>
   </form>
 </view>

@@ -1,7 +1,6 @@
 // pages/home/home.js
 const app = getApp()
-//备用
-// const util = require('../../utils/util.js')
+const util = require('../../utils/util.js')
 Page({
     data: {
         //记录显示
@@ -27,16 +26,12 @@ Page({
     onPullDownRefresh: function () {
         // this.thetime();
         this.refresh();
+        wx.stopPullDownRefresh();
     },
     //报错函数
     bug(res) {
-        console.log(res)
         wx.hideLoading();
-        wx.showToast({
-            title: '连接失败',
-            icon: 'error',
-            duration: 1500
-        });
+        util.show_error(res)
     },
     //封装读取函数
     waiting() { //获取待审批预约
@@ -143,14 +138,16 @@ Page({
                 wx.showToast({
                     title: '未绑定信息',
                     icon: 'error',
-                    duration: 1500
+                    duration: 1500,
+                    mask:true
                 });
             }
         } else {
             wx.showToast({
                 title: '未成功登录',
                 icon: 'error',
-                duration: 1500
+                duration: 1500,
+                mask:true
             });
         }
     },

@@ -4,10 +4,9 @@ App({
     let that = this
     return new Promise(function (resolve, reject) {
       wx.login({ // 登录
-        timeout: 5000,
+        timeout: 10000,
         success: res => { // 发送 res.code 到后台换取 openId, sessionKey, unionId
           wx.request({
-            timeout: 5000,
             url: that.globalData.url + '/login/',
             method: 'POST',
             data: {
@@ -23,7 +22,6 @@ App({
                 })
                 if (that.globalData.userInfo) {
                   wx.request({
-                    timeout: 5000,
                     url: that.globalData.url + '/profile/',
                     method: 'GET',
                     header: {
@@ -42,8 +40,9 @@ App({
                       reject(res)
                     }
                   })
+                } else{
+                  resolve()
                 }
-                resolve()
               } else {
                 reject(res)
               }
@@ -67,8 +66,9 @@ App({
       title: '自动通过审批',
       text: '在预约提交成功的情况下，系统会自动完成审批。适用于29号楼会议室等不需要管理员特别审批的物品。'
     }],
+    item_group:['全部物品','设备器材','公共活动室','其他物品'],
     url: 'https://api.thuwy.top', //本地测试地址：'http://127.0.0.1:5000'
     picurl: 'https://web.thuwy.top/api',
-    webBackendUrl: 'https://web.thuwy.top'
+    webBackendUrl: 'https://web.thuwy.top/api'
   }
 })
