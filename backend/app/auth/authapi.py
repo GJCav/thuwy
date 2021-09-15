@@ -5,6 +5,7 @@ import json as Json
 import time as Time
 import functools
 import os
+import traceback
 
 from . import authRouter
 from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID
@@ -357,3 +358,66 @@ if getattr(config, 'ENABLE_TEST_ACCOUNT', False):
         session.permanent = True
 
         return ErrCode.CODE_SUCCESS
+
+@authRouter.route('/admin/')
+@requireLogin
+@requireBinding
+@requireAdmin
+def getAdminList():
+
+    profileArr = []
+
+    qryRst = db.session.query(Admin).all()
+    for admin in qryRst:
+        profileArr.append(User.fromOpenid(admin.openid).toDict())
+    
+    rtn = {}
+    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn['profiles'] = profileArr
+    return rtn
+
+@authRouter.route('/user/')
+@requireLogin
+@requireBinding
+@requireAdmin
+def getUserList():
+    PageLimit = 30
+
+    clazz = request.args.get('clazz', None)
+    page = request.args.get('p', 1, int)
+
+    qry = db.session.query(User)
+    if clazz:
+        qry = qry.filter(User.clazz == clazz)
+    
+    qry = qry.limit(PageLimit).offset((page-1)*PageLimit)
+
+    qryRst = qry.all()
+    proArr = [e.toDict() for e in qryRst]
+    
+    rtn = {}
+    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn['profiles'] = proArr
+    return rtn
+
+@authRouter.route('/user/<openid>/', methods=['DELETE'])
+def unbindUser(openid):
+    if not openid:
+        return ErrCode.CODE_ARG_INVALID
+    
+    user = User.fromOpenid(openid)
+
+    if not user:
+        return ErrCode.Auth.CODE_USER_NOT_FOUND
+    
+    user.schoolId = None
+    user.name == None
+    user.clazz = None
+
+    try:
+        db.session.commit()
+    except:
+        traceback.print_exc()
+        return ErrCode.CODE_DATABASE_ERROR
+    
+    return ErrCode.CODE_SUCCESS

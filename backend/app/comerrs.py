@@ -24,6 +24,8 @@ class Auth:
    CODE_ALREADY_ADMIN = {'code': 101, 'errmsg': '已经是管理员'}
    CODE_ALREADY_REQUESTED = {'code': 102, 'errmsg': '请勿重复请求'}
 
+   CODE_USER_NOT_FOUND = {'code': 301, 'errmsg': '用户不存在'}
+
 class Item:
    CODE_ITEM_NOT_FOUND = {'code': 101, 'errmsg': '未找到物品'}
 

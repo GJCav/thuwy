@@ -49,7 +49,8 @@ class User(db.Model):
         return {
             'school-id': self.schoolId,
             'name': self.name,
-            'clazz': self.clazz
+            'clazz': self.clazz,
+            'admin': bool(Admin.fromId(self.openid))
         }
 
     def fromOpenid(openid):
@@ -62,7 +63,6 @@ class User(db.Model):
             return None
         else:
             usr = usr.toDict()
-            usr['admin'] = bool(Admin.fromId(openId))
             return usr
 
     def queryName(openid):
