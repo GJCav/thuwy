@@ -15,7 +15,7 @@
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title class="text-h6"
-            >微未央（管理端）</v-list-item-title
+            >微未央</v-list-item-title
           >
         </v-list-item-content>
       </v-list-item>
@@ -35,7 +35,7 @@
     </v-navigation-drawer>
     <v-app-bar app color="primary" dark>
       <!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
-      <div class="text-h5">微未央（管理端）</div>
+      <div class="text-h5">微未央</div>
 
       <v-spacer></v-spacer>
 

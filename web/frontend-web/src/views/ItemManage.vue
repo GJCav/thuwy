@@ -1,7 +1,9 @@
 <template>
   <v-col lg="6" offset-lg="3" cols="12" offset="0">
     <h1>物品管理</h1>
-    <v-btn to="/item/0/edit" color="success" dark><v-icon>mdi-plus</v-icon>新增物品</v-btn>
+    <v-btn to="/item/0/edit" color="success" dark
+      ><v-icon>mdi-plus</v-icon>新增物品</v-btn
+    >
     <v-card v-for="item in itemList" :key="item.id" style="margin-top: 20px">
       <div class="d-flex flex-no-wrap justify-space-between">
         <div>
@@ -10,7 +12,7 @@
             <v-card-subtitle v-text="item['brief-intro']"></v-card-subtitle
           ></router-link>
 
-          <v-card-actions>
+          <v-card-actions v-if="user !== null && user.admin">
             <v-btn
               :to="`/item/${item.id}/edit`"
               class="ml-2 mt-5"
@@ -106,6 +108,11 @@ export default {
         this.page--;
       }
       return this.loadItemList();
+    },
+  },
+  computed: {
+    user() {
+      return this.$store.state.user;
     },
   },
   components: {

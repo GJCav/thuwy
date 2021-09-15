@@ -57,22 +57,16 @@
           <v-btn
             block
             outlined
-            @click="$refs.file.click()"
+            @click="startUpload('thumbnail')"
             :loading="uploading"
             :disabled="uploading"
-            ><v-icon>mdi-cloud-upload-outline</v-icon>&nbsp;上传
-          </v-btn>
-          <input
-            type="file"
-            ref="file"
-            style="display: none"
-            @change="doUpload"
-          />
+            ><v-icon>mdi-cloud-upload-outline</v-icon>&nbsp;上传</v-btn
+          >
           <v-text-field
             label="封面图URL"
             v-model="item.thumbnail"
           ></v-text-field>
-          <v-img :src="item.thumbnail"></v-img>
+          <v-img :src="item.thumbnail" contain></v-img>
           <br />
 
           <v-text-field
@@ -90,6 +84,7 @@
           <br />
         </v-col>
       </v-row>
+
       <v-row>
         <v-col cols="7">
           <v-textarea
@@ -97,11 +92,14 @@
             label="详细信息（支持MarkDown）"
             v-model="item['md-intro']"
             auto-grow
+            append-icon="mdi-image"
+            @click:append="startUpload('textarea')"
           ></v-textarea>
           <br />
         </v-col>
         <v-col cols="5" v-html="renderedHtml"></v-col>
       </v-row>
+
       <v-row class="justify-center">
         <v-btn-toggle>
           <v-btn @click="$router.back()" outlined :disabled="submitting"
@@ -133,6 +131,7 @@
       text="该操作不可逆！"
       @confirm="confirmDelete"
     ></confirm-box>
+    <input type="file" ref="file" style="display: none" @change="doUpload" />
   </v-row>
 </template>
 
@@ -153,6 +152,7 @@ export default {
       createMode: false,
       dialog: false,
       deleting: false,
+      fileUploadType: '',
     };
   },
   async mounted() {
@@ -207,9 +207,9 @@ export default {
         this.uploading = false;
         throw e;
       }
-      this.item.thumbnail = url;
       e.target.value = '';
       this.uploading = false;
+      this.onUploadFinish(url);
     },
     async confirmDelete(confirm) {
       if (confirm) {
@@ -230,6 +230,17 @@ export default {
         }, 1000);
       }
     },
+    startUpload(type) {
+      this.fileUploadType = type;
+      this.$refs.file.click();
+    },
+    onUploadFinish(url) {
+      if (this.fileUploadType === 'thumbnail') {
+        this.item.thumbnail = url;
+      } else if (this.fileUploadType === 'textarea') {
+        this.item['md-intro'] += `![](${url})\n`;
+      }
+    },
   },
   components: {
     ConfirmBox,
@@ -246,5 +257,9 @@ export default {
 a {
   text-decoration: none;
   color: unset;
+}
+
+.v-textarea {
+  word-break: break-all;
 }
 </style>

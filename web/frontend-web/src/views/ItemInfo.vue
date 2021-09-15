@@ -9,7 +9,7 @@
       <h1 class="text-h3 text-center">物品信息</h1>
       <br />
       <v-row class="justify-center">
-        <v-btn-toggle>
+        <v-btn-toggle v-if="user!==null && user.admin">
           <v-btn :to="`/item/${this.id}/edit`" color="success" outlined
             ><v-icon dense color="success">mdi-pencil</v-icon>编辑</v-btn
           >
@@ -127,6 +127,9 @@ export default {
       }
       return '';
     },
+    user() {
+      return this.$store.state.user;
+    }
   },
   components: {
     ConfirmBox,
