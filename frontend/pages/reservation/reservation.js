@@ -1,5 +1,6 @@
 // pages/reservation/reservation.js
 const app = getApp()
+const util = require('../../utils/util.js') 
 Page({
   data: {
     who: 0,
@@ -32,14 +33,8 @@ Page({
           console.log(res.data.rsv)
           wx.hideLoading()
         } else {
-          console.log(res);
           wx.hideLoading();
-          wx.showToast({
-            mask: true,
-            title: '连接错误',
-            icon: 'error',
-            duration: 1500,
-          })
+          util.show_error(res)
           setTimeout(function () {
             wx.navigateBack({
               delta: 1
@@ -48,14 +43,8 @@ Page({
         }
       },
       fail: (res) => {
-        console.log(res)
         wx.hideLoading();
-        wx.showToast({
-          mask: true,
-          title: '连接失败',
-          icon: 'error',
-          duration: 1500
-        });
+        util.show_error(res)
         setTimeout(function () {
           wx.navigateBack({
             delta: 1
@@ -77,7 +66,8 @@ Page({
       wx.showToast({
         title: '未输入审批回复',
         icon: 'error',
-        duration: 1500
+        duration: 1500,
+        mask:true
       });
       return false
     } else
@@ -125,23 +115,13 @@ Page({
                     prevPage.refresh()
                   }, 1500)
                 } else {
-                  console.log(res);
                   wx.hideLoading();
-                  wx.showToast({
-                    title: '审阅失败',
-                    icon: 'error',
-                    duration: 1500,
-                  })
+                  util.show_error(res)
                 }
               },
               fail: (res) => {
-                console.log(res);
                 wx.hideLoading();
-                wx.showToast({
-                  title: '连接失败',
-                  icon: 'error',
-                  duration: 1500
-                });
+                util.show_error(res)
               }
             })
           }
@@ -192,23 +172,13 @@ Page({
                     prevPage.refresh()
                   }, 1500)
                 } else {
-                  console.log(res);
                   wx.hideLoading();
-                  wx.showToast({
-                    title: '审阅失败',
-                    icon: 'error',
-                    duration: 1500,
-                  })
+                  util.show_error(res)
                 }
               },
               fail: (res) => {
-                console.log(res);
                 wx.hideLoading();
-                wx.showToast({
-                  title: '连接失败',
-                  icon: 'error',
-                  duration: 1500
-                });
+                util.show_error(res)
               }
             })
           }
@@ -255,23 +225,13 @@ Page({
                   prevPage.refresh()
                 }, 1500)
               } else {
-                console.log(res);
                 wx.hideLoading();
-                wx.showToasting({
-                  title: '取消失败',
-                  icon: 'error',
-                  duration: 1500,
-                })
+                util.show_error(res)
               }
             },
             fail: (res) => {
-              console.log(res);
               wx.hideLoading();
-              wx.showToast({
-                title: '连接失败',
-                icon: 'error',
-                duration: 1500
-              });
+              util.show_error(res)
             }
           })
         } else if (res.cancel) {
@@ -307,7 +267,7 @@ Page({
                 wx.hideLoading();
                 wx.showToast({
                   mask: true,
-                  title: "预约结束",
+                  title: "预约已结束",
                   icon: 'success',
                   duration: 1500,
                 })
@@ -320,23 +280,13 @@ Page({
                   prevPage.refresh()
                 }, 1500)
               } else {
-                console.log(res);
                 wx.hideLoading();
-                wx.showToasting({
-                  title: '提交失败',
-                  icon: 'error',
-                  duration: 1500,
-                })
+                util.show_error(res)
               }
             },
             fail: (res) => {
-              console.log(res);
               wx.hideLoading();
-              wx.showToast({
-                title: '连接失败',
-                icon: 'error',
-                duration: 1500
-              });
+              util.show_error(res)
             }
           })
         } else if (res.cancel) {

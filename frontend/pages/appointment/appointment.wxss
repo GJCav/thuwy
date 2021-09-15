@@ -8,3 +8,18 @@
 .slide-wrapper {
   text-align: center;
 }
+/* 搜索框 */
+.search{
+  height:100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:linear-gradient(150deg, #0087a9, #660874d0);
+}
+.search_box{
+  width: 35%;
+  text-align: center;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow:0 0 8rpx wheat;
+}

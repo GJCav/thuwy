@@ -56,15 +56,15 @@
       <view class="datetitle" style="margin-bottom:10rpx">请选择预约时间：</view>
       <!-- 测试备用 -->
       <!-- <view style="margin-left:20%;margin-top:10rpx" wx:for="{{occupy[date_index]}}" wx:key="*this">{{item}}</view> -->
-      <canvas catch type="2d" style="width:70%;height:1336px;margin-left:15%;display:flex" id='canvas'>
+      <canvas catch type="2d" style="width:70%;height:1320px;margin-left:15%;display:flex" id='canvas'>
         <cover-view id="cover" class="cover-view" catchtouchstart="touch_start" catchtouchmove="touch_move"
           catchtouchend="touch_end" wx:if="{{choose_method==2}}"
-          style="position:absolute;left:50%;top:40px;width:50%;height:1296px" wx:if="{{hidden2&&hidden1}}"></cover-view>
+          style="position:absolute;left:50%;top:40px;width:50%;height:1280px" wx:if="{{hidden2&&hidden1}}"></cover-view>
       </canvas>
     </view>
     <view class="detail-list" style="margin-left:10%;font-weight:bold;margin-top:30rpx">申请预约理由：</view>
     <view style="margin-top:30rpx">
-      <textarea class="inputbox" style="width:80%;margin-left:10%;margin-right:10%" placeholder="请简述预约设备用途"
+      <textarea class="inputbox" style="width:80%;margin-left:10%;margin-right:10%" placeholder="请简述预约用途"
         bindblur="inputwhy" />
     </view>
     <button form-type="submit" class="ok" hover-class="oks" style="margin-bottom:50rpx;margin-top:50rpx">提交预约</button>

@@ -1,6 +1,6 @@
 // setting.js
 const app = getApp()
-
+const util = require('../../utils/util.js') 
 Page({
   data: {
     index:0,
@@ -103,13 +103,15 @@ Page({
       wx.showToast({
         title: '未成功登录',
         icon: 'error',
-        duration: 1500
+        duration: 1500,
+        mask:true
       })
     } else if (app.globalData.userInfo) {
       wx.showToast({
         title: '您已绑定信息',
         icon: 'error',
-        duration: 1500
+        duration: 1500,
+        mask:true
       })
     } else {
       wx.navigateTo({
@@ -123,7 +125,8 @@ Page({
       wx.showToast({
         title: '未成功登录',
         icon: 'error',
-        duration: 1500
+        duration: 1500,
+        mask:true
       })
     } else {
       wx.showLoading({
@@ -135,7 +138,8 @@ Page({
         wx.showToast({
           title: '您已成为管理员',
           icon: 'error',
-          duration: 1500,
+          duration: 1000,
+          mask:true
         })
       }
       if (app.globalData.userInfo) {
@@ -153,6 +157,7 @@ Page({
                 title: '提交申请成功',
                 icon: 'success',
                 duration: 1500,
+                mask:true
               })
             } else {
               console.log(res);
@@ -161,7 +166,8 @@ Page({
                 wx.showToast({
                   title: '请勿重复申请',
                   icon: 'error',
-                  duration: 1500,
+                  duration: 1000,
+                  mask:true
                 })
               } else {
                 wx.hideLoading();
@@ -174,13 +180,8 @@ Page({
             }
           },
           fail: (res) => {
-            console.log(res);
             wx.hideLoading();
-            wx.showToast({
-              title: '连接失败',
-              icon: 'error',
-              duration: 1500
-            });
+            util.show_error(res)
           }
         })
       } else {
@@ -188,7 +189,8 @@ Page({
         wx.showToast({
           title: '请先绑定信息',
           icon: 'error',
-          duration: 1500
+          duration: 1500,
+          mask:true
         });
       }
     }
@@ -199,7 +201,8 @@ Page({
       wx.showToast({
         title: '未成功登录',
         icon: 'error',
-        duration: 1500
+        duration: 1500,
+        mask:true
       })
     } else {
       wx.navigateTo({
@@ -213,7 +216,8 @@ Page({
       wx.showToast({
         title: '未成功登录',
         icon: 'error',
-        duration: 1500
+        duration: 1500,
+        mask:true
       })
     } else {
       wx.scanCode({
@@ -241,13 +245,15 @@ Page({
                         wx.showToast({
                           title: '登录成功',
                           icon: 'success',
-                          duration: 1500
+                          duration: 1500,
+                          mask:true
                         });
                       } else {
                         wx.showToast({
                           title: data.msg,
                           icon: 'error',
-                          duration: 1500
+                          duration: 1500,
+                          mask:true
                         });
                       }
                     },
@@ -256,7 +262,8 @@ Page({
                       wx.showToast({
                         title: '拉取信息失败',
                         icon: 'error',
-                        duration: 1500
+                        duration: 1500,
+                        mask:true
                       });
                     }
                   });
@@ -285,7 +292,8 @@ Page({
             wx.showToast({
               title: '请退出后重新登录',
               icon: 'none',
-              duration: 1500
+              duration: 1500,
+              mask:true
             })
           } else if (res.cancel) {
             console.log('用户点击取消')
@@ -296,7 +304,8 @@ Page({
       wx.showToast({
         title: '请退出后重新登录',
         icon: 'none',
-        duration: 1500
+        duration: 1500,
+        mask:true
       })
     }
   },

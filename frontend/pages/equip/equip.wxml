@@ -10,6 +10,13 @@
     <view>
       <input value="{{name}}" class="inputbox" placeholder="请填写设备名称" bindblur="inputname" />
     </view>
+    <view class="labelbox">
+      <image src="/icon/group.png" class="icon"></image>
+      <text class="textbox">物品分组：</text>
+      <picker value="0" range="{{item_group}}" bindchange="inputgroup">
+        <text>{{group}}</text>
+      </picker>
+    </view>
     <view class="tipbox">
       <view class="labelbox">
         <image src="/icon/method.png" class="icon"></image>
@@ -40,12 +47,12 @@
       <image src="/icon/star.png" class="icon"></image>
       <text class="textbox">特殊属性：</text>
     </view>
-      <view class="option" style="height:100rpx;justify-content:center" wx:for="{{item_feature}}" wx:key="title" wx:if="{{(attr>>index)%2==1}}"
-        data-id="{{index}}">
-        <view class="detail">
-          <view class="which">{{item.title}}</view>
-          <button class="warn" hover-class="warns" size="mini" bindtap="del_feature" data-id="{{index}}">删除</button>
-        </view>
+    <view class="option" style="height:100rpx;justify-content:center" wx:for="{{item_feature}}" wx:key="title"
+      wx:if="{{(attr>>index)%2==1}}" data-id="{{index}}">
+      <view class="detail">
+        <view class="which">{{item.title}}</view>
+        <button class="warn" hover-class="warns" size="mini" bindtap="del_feature" data-id="{{index}}">删除</button>
+      </view>
     </view>
     <view class="star" bindtap="show_feature">
       <view class="square" style='background-image:url(icon/add.png)' />
@@ -56,7 +63,7 @@
       <text class="textbox">简要介绍：</text>
     </view>
     <view>
-      <textarea value="{{brief_intro}}" class="inputbox" style="height:120rpx" placeholder="请简述设备情况,不超过40个字"
+      <textarea value="{{brief_intro}}" class="inputbox" style="height:120rpx" placeholder="请简述物品情况,不超过40个字"
         bindblur="inputintro" />
     </view>
     <view class="labelbox">
@@ -87,5 +94,6 @@
     <view class="divline"></view>
     <view class="detail"><text decode="{{true}}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{item.text}}</text></view>
   </view>
-  <view style="font-weight:lighter;color:#999999;height:200rpx;display:flex;justify-content:center;align-items:center">——没有更多特殊属性可以添加了——</view>
+  <view style="font-weight:lighter;color:#999999;height:200rpx;display:flex;justify-content:center;align-items:center">
+    ——没有更多特殊属性可以添加了——</view>
 </page-container>
