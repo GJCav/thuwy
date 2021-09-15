@@ -7,7 +7,7 @@ import functools
 import os
 
 from . import authRouter
-from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID, skipAdmin, skipLoginAndBind
+from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID
 from config import config
 from app import db
 from app import adminReqIdPool
@@ -17,13 +17,6 @@ import app.checkargs as CheckArgs
 
 @authRouter.route('/login/', methods=['POST'])
 def login():
-    CODE_LOGIN_NOT_200 = {'code': 201, 'errmsg': 'not 200 response'}
-    CODE_LOGIN_INCOMPLETE_WX_RES = {'code': 202, 'errmsg': 'incomplete wx responce'}
-    CODE_LOGIN_WEIXIN_REJECT = {'code': 203, 'errmsg': 'wx reject svr' } # , 'wx-code': resJson['errcode'], 'wx-errmsg': resJson.get('errmsg', '')}
-    CODE_LOGIN_TIMEOUT = {'code': 102, 'errmsg': 'svr request timeout'}
-    CODE_LOGIN_CNT_ERROR = {'code': 103, 'errmsg': 'svr cnt err'}
-    CODE_LOGIN_UNKOWN = {'code': 200, 'errmsg': 'unknown error, foolish gjm didn\'t cosider this case..'}
-
     data: dict = request.get_json()
     if not data or not data.get('code', None):
         return ErrCode.CODE_ARG_MISSING
@@ -34,7 +27,7 @@ def login():
             + f"js_code={data['code']}&grant_type=authorization_code", timeout=5)
     
         if res.status_code != 200:
-            return CODE_LOGIN_NOT_200
+            return ErrCode.Auth.CODE_LOGIN_NOT_200
 
         resJson: dict = Json.loads(res.text)
         if  'openid' not in resJson \
@@ -44,11 +37,11 @@ def login():
 
             # print(C.Red('incomplete wx res'), end='')
             # pprint(resJson)
-            return CODE_LOGIN_INCOMPLETE_WX_RES
+            return ErrCode.Auth.CODE_LOGIN_INCOMPLETE_WX_RES
 
         if 'errcode' in resJson and resJson['errcode'] != 0:
             rtn = {}
-            rtn.update(CODE_LOGIN_WEIXIN_REJECT)
+            rtn.update(ErrCode.Auth.CODE_LOGIN_WEIXIN_REJECT)
             rtn.update({
                  'wx-code': resJson['errcode'], 
                  'wx-errmsg': resJson.get('errmsg', '')
@@ -60,13 +53,13 @@ def login():
         session['openid'] = openid
         session.permanent = True
     except RE.Timeout:
-        return CODE_LOGIN_TIMEOUT
+        return ErrCode.Auth.CODE_LOGIN_TIMEOUT
     except RE.ConnectionError as e:
-        return CODE_LOGIN_CNT_ERROR
+        return ErrCode.Auth.CODE_LOGIN_CNT_ERROR
     except Exception as e:
         # print(C.Red(str(e)))
         # pprint(resJson)
-        return CODE_LOGIN_UNKOWN
+        return ErrCode.Auth.CODE_LOGIN_UNKOWN
 
     user = db.session \
         .query(User.openid, User.schoolId) \
@@ -87,14 +80,15 @@ def login():
 def requireLogin(handler):
     @functools.wraps(handler)
     def inner(*args, **kwargs):
-        if skipLoginAndBind and not session.get('openid', None):
-            session['openid'] = 'openid for debug'
-            session['wx-skey'] = 'secret key for debug'
-            return handler(*args, **kwargs)
+        # if skipLoginAndBind and not session.get('openid', None):
+        #     session['openid'] = 'openid for debug'
+        #     session['wx-skey'] = 'secret key for debug'
+        #     return handler(*args, **kwargs)
         if not session.get('openid'):
             return ErrCode.CODE_NOT_LOGGED_IN
         elif not User.fromOpenid(session.get('openid')):
-            return ErrCode.CODE_NOT_LOGGED_IN # 这里意味着用户登录过，但数据库中没有记录，多半是管理员删库了
+            # return ErrCode.CODE_NOT_LOGGED_IN # 这里意味着用户登录过，但数据库中没有记录，多半是管理员删库了
+            return ErrCode.CODE_DATABASE_ERROR
         else:
             return handler(*args, **kwargs)
     return inner
@@ -112,9 +106,6 @@ def didilogin():
 def requireBinding(handler):
     @functools.wraps(handler)
     def inner(*args, **kwargs):
-        if skipLoginAndBind:
-            return handler(*args, **kwargs)
-
         openid = session['openid']
         schoolId = db.session.query(User.schoolId).filter(User.openid == openid).one_or_none()[0] # 这里可以安全的直接使用[0]，因为这个函数总在 requireLogin 后调用
 
@@ -141,8 +132,8 @@ def didibind():
 def requireAdmin(handler):
     @functools.wraps(handler)
     def inner(*args, **kwargs):
-        if skipAdmin:
-            return handler(*args, **kwargs)
+        # if skipAdmin:
+        #     return handler(*args, **kwargs)
         
         openid = session['openid']
         exist = db.session.query(Admin.openid).filter(Admin.openid == openid).one_or_none()
@@ -163,10 +154,6 @@ def amiadmin():
 @authRouter.route('/bind/', methods=['POST'])
 @requireLogin
 def bind():
-    CODE_BIND_SCHOOLID_EXISTED = {
-        'code': 101,
-        'errmsg': 'school id existed'
-    }
 
     reqJson: dict = request.get_json()
     if not reqJson \
@@ -195,7 +182,7 @@ def bind():
         .count() >= 1
 
     if exist:
-        return CODE_BIND_SCHOOLID_EXISTED
+        return ErrCode.Auth.CODE_BIND_SCHOOLID_EXISTED
     
     User.query \
         .filter(User.openid == openid) \
@@ -232,18 +219,16 @@ def getProfile(openId):
 @requireLogin
 @requireBinding
 def requestAdmin():
-    CODE_ALREADY_ADMIN = {'code': 101, 'errmsg': 'you are already admin.'}
-    CODE_ALREADY_REQUESTED = {'code': 102, 'errmsg': 'do not request repeatedly.'}
     
     exist = Admin.fromId(session['openid'])
-    if exist: return CODE_ALREADY_ADMIN
+    if exist: return ErrCode.Auth.CODE_ALREADY_ADMIN
 
     exist = db.session\
         .query(AdminRequest)\
         .filter(AdminRequest.requestor == session['openid']) \
         .filter(AdminRequest.state == 0)\
         .first()
-    if exist: return CODE_ALREADY_REQUESTED
+    if exist: return ErrCode.Auth.CODE_ALREADY_REQUESTED
 
     try:
         req = AdminRequest()

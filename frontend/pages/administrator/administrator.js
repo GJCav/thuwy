@@ -1,5 +1,6 @@
 // pages/administrator/administrator.js
 const app = getApp()
+const util = require('../../utils/util.js') 
 Page({
     data: {
         activeTab: 0,
@@ -29,6 +30,7 @@ Page({
     },
     onPullDownRefresh() {
         this.refresh();
+        wx.stopPullDownRefresh();
     },
     refresh() {
         var t = this.data.activeTab
@@ -57,23 +59,13 @@ Page({
                     });
                     wx.hideLoading()
                 } else {
-                    console.log(res)
                     wx.hideLoading()
-                    wx.showToast({
-                        title: '连接错误',
-                        icon: 'error',
-                        duration: 1500
-                    })
+                    util.show_error(res)
                 }
             },
             fail: (res) => {
-                console.log(res)
                 wx.hideLoading()
-                wx.showToast({
-                    title: '连接失败',
-                    icon: 'error',
-                    duration: 1500
-                })
+                util.show_error(res)
             }
         })
     },
@@ -100,27 +92,18 @@ Page({
                     wx.showToast({
                         title: '审批成功',
                         icon: 'success',
-                        duration: 1500
+                        duration: 1500,
+                        mask:true
                     })
                     this.refresh_admin();
                 } else {
-                    console.log(res)
                     wx.hideLoading();
-                    wx.showToast({
-                        title: '连接错误',
-                        icon: 'error',
-                        duration: 1500
-                    })
+                    util.show_error(res)
                 }
             },
             fail: (res) => {
-                console.log(res)
                 wx.hideLoading();
-                wx.showToast({
-                    title: '连接失败',
-                    icon: 'error',
-                    duration: 1500
-                });
+                util.show_error(res)
             }
         })
     },
@@ -158,7 +141,8 @@ Page({
         wx.showToast({
             title: '功能尚未开通',
             icon: 'error',
-            duration: 1500
+            duration: 1500,
+            musk:true
         });
     }
 })

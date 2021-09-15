@@ -1,11 +1,14 @@
 // appointment.js
 const app = getApp()
-
+const util = require('../../utils/util.js') 
 Page({
   data: {
     sum: 0,
     page: 0,
     items: [],
+
+    cur_group:'',
+    item_group:[],
 
     complete: false,
 
@@ -46,23 +49,14 @@ Page({
             })
             wx.hideLoading();
           } else {
-            console.log(res)
             wx.hideLoading();
-            wx.showToast({
-              title: '连接错误',
-              icon: 'error',
-              duration: 1500
-            })
+            util.show_error(res)
           }
         },
         fail: (res) => {
-          console.log(res)
           wx.hideLoading();
-          wx.showToast({
-            title: '连接失败',
-            icon: 'error',
-            duration: 1500
-          });
+          util.show_error(res)
+
         }
       });
     } else {
@@ -79,8 +73,8 @@ Page({
     if (app.globalData.login == false) {
       wx.showToast({
         title: '未成功登录',
-        icon: 'error',
-        duration: 1000
+        duration: 1000,
+        mask:true
       });
     } else {
       var i = e.currentTarget.dataset['value']
@@ -95,6 +89,10 @@ Page({
     wx.setNavigationBarTitle({
       title: '预约物品'
     })
+    this.setData({
+      item_group:app.globalData.item_group,
+      cur_group:app.globalData.item_group[0]
+    })
     this.refresh();
   },
   onTabItemTap() {
@@ -102,6 +100,7 @@ Page({
   },
   onPullDownRefresh() {
     this.refresh();
+    wx.stopPullDownRefresh();
   },
   refresh() {
     wx.showLoading({
@@ -115,14 +114,16 @@ Page({
           complete: true
         })
         that.getitem()
+        //管理员直接跳转到管理界面
+        // if(app.globalData.isadmin)
+        // {
+        //   wx.navigateTo({
+        //     url: '../admin/admin',
+        //   })
+        // }
       }).catch(function (res) {
-        console.log(res)
         wx.hideLoading()
-        wx.showToast({
-          title: '读取信息失败',
-          icon: 'error',
-          duration: 1500
-        })
+        util.show_error(res)
       })
     } else {
       wx.showLoading({
@@ -137,11 +138,9 @@ Page({
     this.setData({
       items: []
     })
+    const the_group=this.data.cur_group
     wx.request({
-      url: app.globalData.url + '/item/?p=<page>',
-      data: {
-        p: 1
-      },
+      url: app.globalData.url + '/item/?p=1'+(the_group=='全部物品'?'':('&group='+(the_group=='其他物品'?'无分组':the_group))),
       method: 'GET',
       success: (res) => {
         if (res.data.code == 0) {
@@ -152,23 +151,13 @@ Page({
           })
           wx.hideLoading();
         } else {
-          console.log(res)
           wx.hideLoading();
-          wx.showToast({
-            title: '连接错误',
-            icon: 'error',
-            duration: 1500
-          })
+          util.show_error(res)
         }
       },
       fail: (res) => {
-        console.log(res)
         wx.hideLoading();
-        wx.showToast({
-          title: '连接失败',
-          icon: 'error',
-          duration: 1500
-        });
+        util.show_error(res)
       }
     });
   },
@@ -178,7 +167,7 @@ Page({
     if (app.globalData.login == false) {
       wx.showToast({
         title: '未成功登录',
-        icon: 'error',
+        mask:true,
         duration: 1000
       });
     } else if (app.globalData.userInfo) {
@@ -188,7 +177,7 @@ Page({
     } else {
       wx.showToast({
         title: '未绑定信息',
-        icon: 'error',
+        mask:true,
         duration: 1000
       });
       setTimeout(function () {
@@ -197,6 +186,13 @@ Page({
         })
       }, 1000)
     }
+  },
+  //选择预约组别
+  choose_group(e){
+    this.setData({
+      cur_group:this.data.item_group[e.detail.value]
+    })
+    this.refresh()
   },
   //展示放大后图片
   preview(e) {

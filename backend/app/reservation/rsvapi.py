@@ -287,14 +287,12 @@ def querymyrsv():
 
 @rsvRouter.route('/reservation/<int:rsvId>/', methods=['GET'])
 def getRsvInfo(rsvId):
-    CODE_RSV_NOT_FOUND = {'code': 101, 'errmsg': 'reservation not found.'}
-
     if rsvId < 0 or rsvId > (1<<65)-1:
         return ErrCode.CODE_ARG_INVALID
 
     rsv = Reservation.fromRsvId(rsvId)
     if not rsv:
-        return CODE_RSV_NOT_FOUND
+        return ErrCode.Rsv.CODE_RSV_NOT_FOUND
 
     if rsv.method == LongTimeRsv.methodValue: rsv = LongTimeRsv.getFatherRsv(rsv)
     

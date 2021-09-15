@@ -1,5 +1,6 @@
 // pages/advice/admit/admit.js
 const app = getApp()
+const util = require('../../../utils/util.js') 
 Page({
     data: {
         id: 0,
@@ -36,13 +37,8 @@ Page({
                         })
                         wx.hideLoading()
                     } else {
-                        console.log(res)
                         wx.hideLoading()
-                        wx.showToast({
-                            title: '连接错误',
-                            icon: 'error',
-                            duration: 1500
-                        })
+                        util.show_error(res)
                     }
                 },
                 fail: (res) => {

@@ -341,7 +341,7 @@ def testGetMyRsv():
         assert rsv['state'] & state, rsv['state']
     
     for state in testData:
-        res = R.get(url_rsv+f'me?state={state}')
+        res = R.get(url_rsv+f'me/?state={state}')
         assert res
         json = res.json()
         assert json['code'] == 0, json
@@ -408,7 +408,7 @@ def testExamRsv():
     assert RsvState.isReject(json['rsv']['state']) and RsvState.isComplete(json['rsv']['state']), json['rsv']
 
 def testCompleteRsv():
-    res = R.get(url_rsv+'/?state=2')
+    res = R.get(url_rsv+'?state=2')
     assert res
     json = res.json()
     assert json['code'] == 0, json
@@ -427,7 +427,7 @@ def testCompleteRsv():
         assert json['rsv']['state'] & RsvState.STATE_COMPLETE, json['rsv']
 
     
-    res = R.get(url_rsv+'/?state=1')
+    res = R.get(url_rsv+'?state=1')
     assert res
     json = res.json()
     assert json['code'] == 0, json

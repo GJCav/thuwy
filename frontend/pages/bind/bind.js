@@ -1,7 +1,6 @@
 // bind.js
-// 获取应用实例
 const app = getApp()
-
+const util = require('../../utils/util.js') 
 Page({
   data: {
     loading: false,
@@ -32,13 +31,13 @@ Page({
   addUser() {
     if (!(/(^\d+$)/.test(this.data.id))) {
       wx.showToast({
-        title: '学号输入有误',
+        title: '学号输入不合法',
         icon: 'error',
         duration: 1500
       });
     } else if (!(/^未央-.+\d\d$/.test(this.data.clz))) {
       wx.showToast({
-        title: '班级输入有误',
+        title: '班级输入不合法',
         icon: 'error',
         duration: 1500
       });
@@ -75,23 +74,13 @@ Page({
               })
             }, 1500)
           } else {
-            console.log(res)
             wx.hideLoading()
-            wx.showToast({
-              title: '连接错误',
-              icon: 'error',
-              duration: 1500
-            })
+            util.show_error(res)
           }
         },
         fail: (res) => {
-          console.log(res)
           wx.hideLoading();
-          wx.showToast({
-            title: '连接失败',
-            icon: 'error',
-            duration: 1500
-          });
+          util.show_error(res)
         }
       })
     }

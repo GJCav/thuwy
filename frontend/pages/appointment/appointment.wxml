@@ -8,6 +8,11 @@
     </swiper-item>
   </block>
 </swiper>
+<view class="search" style="color:white;font-size:larger">
+  <image src="../../icon/search.png" style="height:60rpx;width:60rpx"></image>
+  <text style="margin-right:15rpx;margin-left:10rpx">筛选预约组别</text>
+  <picker class="search_box" value="0" range="{{item_group}}" bindchange="choose_group">{{cur_group}}</picker>
+</view>
 <!-- 预约物品 -->
 <van-row custom-class="row" wx:for="{{items}}" wx:for-item="equip" wx:for-index="number" wx:key="id" wx:if="{{equip.available}}">
   <van-col span="4" offset="1">

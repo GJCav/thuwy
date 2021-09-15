@@ -1,24 +1,26 @@
 // pages/equip/equip.js
-// 获取应用实例
 const app = getApp()
+const util = require('../../utils/util.js') 
 Page({
   data: {
     item_id: 0,
     name: '',
     available: true,
     brief_intro: '',
-    md_intro: '',
+    md_intro:'',
     rsv_method: 0,
     attr: 0,
+    group:'无分组',
 
     //显示特殊属性
     show: false,
     item_feature: [],
+    item_group:[],
 
     havepic: false,
-    thumbnail: null,
-    uploadurl: null,
-    finalurl: null,
+    thumbnail: '',
+    uploadurl: '',
+    finalurl: '',
 
     methods: [{
       value: 1,
@@ -50,6 +52,11 @@ Page({
   },
   inputcan: function (e) {
     this.data.available = e.detail.value
+  },
+  inputgroup:function(e){
+    this.setData({
+      group:this.data.item_group[e.detail.value]
+    })
   },
   rsvmethod: function (e) {
     let sel = e.detail.value
@@ -110,6 +117,7 @@ Page({
         wx.showToast({
           title: '读取失败',
           icon: 'error',
+          duration:1000,
           mask: true
         })
       },
@@ -118,7 +126,8 @@ Page({
   onLoad: function (options) {
     this.setData({
       item_id: options.id,
-      item_feature: app.globalData.item_feature
+      item_feature: app.globalData.item_feature,
+      item_group:app.globalData.item_group.slice(1,-1).concat(['无分组'])
     })
     if (options.id != 0) {
       wx.setNavigationBarTitle({
@@ -142,6 +151,7 @@ Page({
               thumbnail: those.item.thumbnail,
               available: those.item.available,
               attr: those.item.attr,
+              group:those.item.group
             })
             let that = this.data
             if (that.rsv_method % 2 == 1) {
@@ -156,14 +166,8 @@ Page({
             }
             wx.hideLoading()
           } else {
-            console.log(res)
             wx.hideLoading()
-            wx.showToast({
-              mask: true,
-              title: '连接错误',
-              icon: 'error',
-              duration: 1500
-            })
+            util.show_error(res)
             setTimeout(function () {
               wx.navigateBack({
                 delta: 1
@@ -172,14 +176,8 @@ Page({
           }
         },
         fail: (res) => {
-          console.log(res)
           wx.hideLoading()
-          wx.showToast({
-            mask: true,
-            title: '连接失败',
-            icon: 'error',
-            duration: 1500
-          })
+          util.show_error(res)
           setTimeout(function () {
             wx.navigateBack({
               delta: 1
@@ -193,7 +191,6 @@ Page({
       })
     }
   },
-  onShow() {},
   //封装获取上传地址
   getuploadurl() {
     let that = this
@@ -258,11 +255,12 @@ Page({
   //提交信息
   addit() {
     let that = this
-    if (that.data.mame == '' || that.data.rsv_method == 0 || that.data.brief_intro == '' || that.data.thumbnail == '') {
+    if (that.data.mame == '' || that.data.rsv_method == 0 || that.data.brief_intro == '' || that.data.thumbnail == ''||that.data.group==' ') {
       wx.showToast({
         title: '信息未填写完整',
         icon: 'error',
-        duration: 1500
+        duration: 1500,
+        mask:true
       })
     } else if (that.data.item_id == 0) { //添加物品
       wx.showLoading({
@@ -285,7 +283,8 @@ Page({
               'md-intro': that.data.md_intro,
               thumbnail: that.data.finalurl,
               'rsv-method': that.data.rsv_method,
-              attr: that.data.attr
+              attr: that.data.attr,
+              group:that.data.group
             },
             success: (res) => {
               if (res.data.code == 0) {
@@ -305,23 +304,13 @@ Page({
                   prevPage.refresh()
                 }, 1500)
               } else {
-                console.log(res)
                 wx.hideLoading()
-                wx.showToast({
-                  title: '连接错误',
-                  icon: 'error',
-                  duration: 1500
-                })
+                util.show_error(res)
               }
             },
             fail: (res) => {
-              console.log(res)
               wx.hideLoading();
-              wx.showToast({
-                title: '连接失败',
-                icon: 'error',
-                duration: 1500
-              });
+              util.show_error(res)
             }
           })
         }).catch(function (res) {
@@ -330,7 +319,8 @@ Page({
           wx.showToast({
             title: '图片上传失败',
             icon: 'error',
-            duration: 1500
+            duration: 1500,
+            mask:true
           })
         })
       }).catch(function (res) {
@@ -339,7 +329,8 @@ Page({
         wx.showToast({
           title: '图片服务器错误',
           icon: 'error',
-          duration: 1500
+          duration: 1500,
+          mask:true
         })
       })
     } else { //修改物品
@@ -356,7 +347,8 @@ Page({
             'md-intro': that.data.md_intro,
             'rsv-method': that.data.rsv_method,
             available: that.data.available,
-            attr: that.data.attr
+            attr: that.data.attr,
+            group:that.data.group
           }
           if (that.data.havepic) final_data.thumbnail = that.data.finalurl
           wx.request({
@@ -385,23 +377,13 @@ Page({
                   prevPage.refresh()
                 }, 1500)
               } else {
-                console.log(res)
                 wx.hideLoading()
-                wx.showToast({
-                  title: '连接错误',
-                  icon: 'error',
-                  duration: 1500
-                })
+                util.show_error(res)
               }
             },
             fail: (res) => {
-              console.log(res)
               wx.hideLoading();
-              wx.showToast({
-                title: '连接失败',
-                icon: 'error',
-                duration: 1500
-              });
+              util.show_error(res)
             }
           })
         }).catch(function (res) {
@@ -410,7 +392,8 @@ Page({
           wx.showToast({
             title: '图片上传失败',
             icon: 'error',
-            duration: 1500
+            duration: 1500,
+            mask:true
           })
         })
       }).catch(function (res) {
@@ -419,7 +402,8 @@ Page({
         wx.showToast({
           title: '图片服务器错误',
           icon: 'error',
-          duration: 1500
+          duration: 1500,
+          mask:true
         })
       })
     }
