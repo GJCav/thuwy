@@ -69,6 +69,6 @@ App({
     item_group:['全部物品','设备器材','公共活动室','其他物品'],
     url: 'https://api.thuwy.top', //本地测试地址：'http://127.0.0.1:5000'
     picurl: 'https://web.thuwy.top/api',
-    webBackendUrl: 'https://web.thuwy.top'
+    webBackendUrl: 'https://web.thuwy.top/api'
   }
 })
