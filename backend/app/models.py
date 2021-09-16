@@ -49,7 +49,8 @@ class User(db.Model):
         return {
             'school-id': self.schoolId,
             'name': self.name,
-            'clazz': self.clazz
+            'clazz': self.clazz,
+            'admin': bool(Admin.fromId(self.openid))
         }
 
     def fromOpenid(openid):
@@ -62,7 +63,6 @@ class User(db.Model):
             return None
         else:
             usr = usr.toDict()
-            usr['admin'] = bool(Admin.fromId(openId))
             return usr
 
     def queryName(openid):
@@ -75,6 +75,30 @@ class User(db.Model):
             .filter(User.openid == openid)\
             .one_or_none()
         return rst[0] if rst else None
+
+class UserBinding(db.Model):
+    __tablename__ = 'user_binding'
+    schoolId = db.Column('school_id', db.Text, primary_key = True)
+    name = db.Column(db.Text)
+    clazz = db.Column(db.Text)
+    openid = db.Column(db.Text)
+
+    def check(schoolId, name, clazz):
+        return \
+            db.session.query(UserBinding)\
+            .filter(UserBinding.schoolId == schoolId)\
+            .filter(UserBinding.name == name)\
+            .filter(UserBinding.clazz == clazz)\
+            .one_or_none()
+
+    def toDict(self):
+        return {
+            'id': self.schoolId,
+            'openid': self.openid,
+            'clazz': self.clazz,
+            'name': self.name
+        }
+
 
 class Item(db.Model):
     __tablename__ = "item"
