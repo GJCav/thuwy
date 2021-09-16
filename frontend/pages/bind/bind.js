@@ -1,6 +1,6 @@
 // bind.js
 const app = getApp()
-const util = require('../../utils/util.js') 
+const util = require('../../utils/util.js')
 Page({
   data: {
     loading: false,
@@ -29,60 +29,46 @@ Page({
     });
   },
   addUser() {
-    if (!(/(^\d+$)/.test(this.data.id))) {
-      wx.showToast({
-        title: '学号输入不合法',
-        icon: 'error',
-        duration: 1500
-      });
-    } else if (!(/^未央-.+\d\d$/.test(this.data.clz))) {
-      wx.showToast({
-        title: '班级输入不合法',
-        icon: 'error',
-        duration: 1500
-      });
-    } else {
-      wx.showLoading({
-        mask: true,
-        title: '提交中',
-      })
-      wx.request({
-        header: {
-          'content-type': 'application/json; charset=utf-8',
-          'cookie': wx.getStorageSync('cookie')
-        },
-        url: app.globalData.url + '/bind/',
-        method: "POST",
-        data: {
-          id: this.data.id,
-          name: this.data.name,
-          clazz: this.data.clz
-        },
-        success: (res) => {
-          if (res.data.code == 0) {
-            wx.hideLoading();
-            wx.showToast({
-              mask: true,
-              title: '绑定成功',
-              icon: 'success',
-              duration: 1500
-            });
-            app.globalData.userInfo = true;
-            setTimeout(function () {
-              wx.navigateBack({
-                delta: 1
-              })
-            }, 1500)
-          } else {
-            wx.hideLoading()
-            util.show_error(res)
-          }
-        },
-        fail: (res) => {
+    wx.showLoading({
+      mask: true,
+      title: '提交中',
+    })
+    wx.request({
+      header: {
+        'content-type': 'application/json; charset=utf-8',
+        'cookie': wx.getStorageSync('cookie')
+      },
+      url: app.globalData.url + '/bind/',
+      method: "POST",
+      data: {
+        id: this.data.id,
+        name: this.data.name,
+        clazz: this.data.clz
+      },
+      success: (res) => {
+        if (res.data.code == 0) {
           wx.hideLoading();
+          wx.showToast({
+            mask: true,
+            title: '绑定成功',
+            icon: 'success',
+            duration: 1500
+          });
+          app.globalData.userInfo = true;
+          setTimeout(function () {
+            wx.navigateBack({
+              delta: 1
+            })
+          }, 1500)
+        } else {
+          wx.hideLoading()
           util.show_error(res)
         }
-      })
-    }
+      },
+      fail: (res) => {
+        wx.hideLoading();
+        util.show_error(res)
+      }
+    })
   }
 })

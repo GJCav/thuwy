@@ -160,23 +160,8 @@ Page({
                 mask:true
               })
             } else {
-              console.log(res);
-              if (res.data.code == 102) {
-                wx.hideLoading();
-                wx.showToast({
-                  title: '请勿重复申请',
-                  icon: 'error',
-                  duration: 1000,
-                  mask:true
-                })
-              } else {
-                wx.hideLoading();
-                wx.showToast({
-                  title: '提交申请失败',
-                  icon: 'error',
-                  duration: 1500,
-                })
-              }
+              wx.hideLoading();
+              util.show_error(res)
             }
           },
           fail: (res) => {
