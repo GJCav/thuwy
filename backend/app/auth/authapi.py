@@ -13,7 +13,7 @@ from config import config
 from app import db
 from app import adminReqIdPool
 from app import comerrs as ErrCode
-from app.models import Admin, AdminRequest, User
+from app.models import Admin, AdminRequest, User, UserBinding
 import app.checkargs as CheckArgs
 
 @authRouter.route('/login/', methods=['POST'])
@@ -172,27 +172,29 @@ def bind():
         clazz = str(reqJson['clazz'])
     except:
         return ErrCode.CODE_ARG_TYPE_ERR
-    
-    if not CheckArgs.isSchoolId(schoolId) or not CheckArgs.isClazz(clazz):
-        return ErrCode.CODE_ARG_INVALID
 
     openid = session['openid']
-
-    exist = db.session.query(User.schoolId) \
-        .filter(User.schoolId==schoolId) \
-        .count() >= 1
-
-    if exist:
-        return ErrCode.Auth.CODE_BIND_SCHOOLID_EXISTED
+    user = User.fromOpenid(openid)
     
-    User.query \
-        .filter(User.openid == openid) \
-        .update({
-            'schoolId': schoolId,
-            'name': name,
-            'clazz': clazz
-        })
-    db.session.commit()
+    if user.schoolId != None:
+        return ErrCode.Auth.CODE_ALREADY_BOUND
+
+    bdnInfo = UserBinding.check(schoolId, name, clazz)
+    if bdnInfo == None:
+        return ErrCode.Auth.CODE_INVALID_BIND
+    if bdnInfo.openid != None:
+        return ErrCode.Auth.CODE_TARGET_BOUND
+
+    try:
+        user.name = name
+        user.schoolId = schoolId
+        user.clazz = clazz
+        bdnInfo.openid = openid
+
+        db.session.commit()
+    except:
+        traceback.print_exc()
+        return ErrCode.CODE_DATABASE_ERROR
 
     return ErrCode.CODE_SUCCESS
 
