@@ -55,7 +55,7 @@
       </view>
     </view>
     <view class="star" bindtap="show_feature">
-      <view class="square" style='background-image:url(icon/add.png)' />
+      <image class="square" src='/icon/add.png' />
       <text decode="{{true}}">&nbsp;&nbsp;添加新属性</text>
     </view>
     <view class="labelbox">

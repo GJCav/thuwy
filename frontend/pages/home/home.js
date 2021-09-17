@@ -139,7 +139,7 @@ Page({
                     title: '未绑定信息',
                     icon: 'error',
                     duration: 1500,
-                    mask:true
+                    mask: true
                 });
             }
         } else {
@@ -147,7 +147,7 @@ Page({
                 title: '未成功登录',
                 icon: 'error',
                 duration: 1500,
-                mask:true
+                mask: true
             });
         }
     },
@@ -178,23 +178,9 @@ Page({
     },
     //转换选择
     switchTab(e) {
-        switch (e.detail.index) {
-            case 0:
-                this.setData({
-                    activeTab: 0,
-                });
-                break;
-            case 1:
-                this.setData({
-                    activeTab: 1
-                });
-                break;
-            case 2:
-                this.setData({
-                    activeTab: 2
-                });
-                break;
-        }
+        this.setData({
+            activeTab: e.detail.index,
+        });
         this.refresh()
     },
     //展示细节

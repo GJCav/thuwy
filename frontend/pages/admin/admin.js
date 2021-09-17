@@ -1,6 +1,6 @@
 // pages/admin/admin.js
 const app = getApp()
-const util = require('../../utils/util.js') 
+const util = require('../../utils/util.js')
 Page({
   data: {
     activeTab: 0,
@@ -218,23 +218,9 @@ Page({
     wx.stopPullDownRefresh();
   },
   switchTab(e) {
-    switch (e.detail.index) {
-      case 0:
-        this.setData({
-          activeTab: 0,
-        });
-        break;
-      case 1:
-        this.setData({
-          activeTab: 1
-        });
-        break;
-      case 2:
-        this.setData({
-          activeTab: 2
-        });
-        break;
-    }
+    this.setData({
+      activeTab: e.detail.index,
+    });
     this.refresh()
   },
   //加载更多预约信息

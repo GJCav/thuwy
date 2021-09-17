@@ -67,8 +67,8 @@
 <!-- 管理设备 -->
 <view wx:if="{{activeTab==1}}">
     <view class="small_title" hover-class="haveselect" bindtap="addequip">
-        <view class="thetext" style="font-size:large;width:100%;justify-content:center;color:#999999">
-            <view class="square" style='background-image:url(icon/add.png)' />
+        <view class="thetext" style="width:100%;justify-content:center;color:#999999">
+            <image class="square" src="/icon/add.png" />
             <text decode="{{true}}">&nbsp;&nbsp;添加新的预约物品</text>
         </view>
         <view class="divline"></view>

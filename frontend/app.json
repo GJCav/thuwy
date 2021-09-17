@@ -18,6 +18,7 @@
   "window":{
     "onReachBottomDistance":20,
     "backgroundTextStyle":"light",
+    "backgroundColor": "#0087a9",
     "navigationBarBackgroundColor": "#0087a9",
     "navigationBarTextStyle":"white"
   },

@@ -115,12 +115,12 @@ Page({
         })
         that.getitem()
         //管理员直接跳转到管理界面
-        // if(app.globalData.isadmin)
-        // {
-        //   wx.navigateTo({
-        //     url: '../admin/admin',
-        //   })
-        // }
+        if(app.globalData.isadmin)
+        {
+          wx.navigateTo({
+            url: '../admin/admin',
+          })
+        }
       }).catch(function (res) {
         wx.hideLoading()
         util.show_error(res)

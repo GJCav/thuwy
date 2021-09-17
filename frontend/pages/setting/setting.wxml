@@ -1,19 +1,17 @@
 <!--index.wxml-->
-<view style="margin-bottom:-120rpx">
-  <view class="userinfo">
-    <block wx:if="{{canIUseOpenData}}">
-      <view class="userinfo-avatar">
-        <open-data type="userAvatarUrl"></open-data>
-      </view>
-      <open-data type="userNickName"></open-data>
-    </block>
-    <block wx:else>
-      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-      <text>{{userInfo.nickName}}</text>
-    </block>
-  </view>
+<view class="userinfo">
+  <block wx:if="{{canIUseOpenData}}">
+    <view class="userinfo-avatar">
+      <open-data type="userAvatarUrl"></open-data>
+    </view>
+    <open-data type="userNickName"></open-data>
+  </block>
+  <block wx:else>
+    <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+    <text>{{userInfo.nickName}}</text>
+  </block>
 </view>
-<view class="total">
+<view class="total" style="margin-top:-100rpx;">
   <view class="setting_info">
     <view class="setting_infotext" style="font-weight:bold" bindtap="hide_test">用户权限</view>
     <view class="setting_infoblank"></view>
@@ -26,9 +24,9 @@
     <view class="setting_infotext">{{motto2[num2]}}</view>
   </view>
 </view>
-
-<view class="total" style="margin-top: 150rpx;color:#777777">
-  <view class="repeat" wx:for="{{select}}" wx:key="text" wx:if="{{item.condition}}" >
+<!-- 各类选项 -->
+<view class="total" style="margin-top:120rpx;color:#777777">
+  <view class="repeat" wx:for="{{select}}" wx:key="text" wx:if="{{item.condition}}">
     <view class="select" bindtap="{{item.go}}" hover-class="haveselect">
       <view style="width:40%">{{item.text}}</view>
       <view style="width:50%">
@@ -38,4 +36,5 @@
     <view class="divline" wx:if="{{index!=select.length-1 && item.condition}}"></view>
   </view>
 </view>
+<image src="/image/logo.png" mode="aspectFit" style="width:100%;height:170rpx;display:inline-block"></image>
 <view class="version">Version:1.0.0</view>

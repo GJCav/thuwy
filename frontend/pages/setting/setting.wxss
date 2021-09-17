@@ -1,20 +1,31 @@
 /**index.wxss**/
 /* 用户头像&昵称 */
 .userinfo {
-  display: flex;
   height: 350rpx;
-  flex-direction: column;
+  border-radius: 50%;
+  display: flex;
   align-items: center;
+  flex-direction: column;
   color: #ffffff;
-  background: linear-gradient(0, rgba(0, 135, 169, 0.5), #0087a9);
 }
-
+.userinfo::after{
+  content: '';  
+  width: 140%;
+  height: 375rpx;
+  position: absolute;
+  z-index: -1;
+  left: -20%;
+  top: 0;
+  border-radius: 0 0 50% 50%;
+  background: linear-gradient(0, rgba(0, 135, 169, 0.5),#0087a9);
+}
 .userinfo-avatar {
   overflow: hidden;
   width: 128rpx;
   height: 128rpx;
   margin: 20rpx;
   border-radius: 50%;
+  border: 3px solid #660874;
 }
 
 /* setting信息栏 */

@@ -1,9 +1,9 @@
 // pages/advice/advice.js
 const app = getApp()
-const util = require('../../utils/util.js') 
+const util = require('../../utils/util.js')
 Page({
     data: {
-        admin:false,
+        admin: false,
         activeTab: 0,
         p1: 0,
         p2: 0,
@@ -17,7 +17,7 @@ Page({
             title: '建议反馈'
         })
         this.setData({
-          admin:(options.admin=='1')
+            admin: (options.admin == '1')
         })
         this.refresh()
     },
@@ -26,7 +26,7 @@ Page({
         let that = this
         return new Promise(function (resolve, reject) {
             wx.request({
-                url: app.globalData.url + '/advice/'+(that.data.admin?'':'me/')+'?state=<state>&p=<page>',
+                url: app.globalData.url + '/advice/' + (that.data.admin ? '' : 'me/') + '?state=<state>&p=<page>',
                 method: 'GET',
                 header: {
                     'content-type': 'application/json; charset=utf-8',
@@ -63,10 +63,10 @@ Page({
     },
     checked(page) {
         let that = this
-        console.log(app.globalData.url + '/advice/'+(that.data.admin?'':'me/')+'?state=<state>&p=<page>')
+        console.log(app.globalData.url + '/advice/' + (that.data.admin ? '' : 'me/') + '?state=<state>&p=<page>')
         return new Promise(function (resolve, reject) {
             wx.request({
-                url: app.globalData.url + '/advice/'+(that.data.admin?'':'me/')+'?state=<state>&p=<page>',
+                url: app.globalData.url + '/advice/' + (that.data.admin ? '' : 'me/') + '?state=<state>&p=<page>',
                 method: 'GET',
                 header: {
                     'content-type': 'application/json; charset=utf-8',
@@ -114,18 +114,9 @@ Page({
         }
     },
     switchTab(e) {
-        switch (e.detail.index) {
-            case 0:
-                this.setData({
-                    activeTab: 0,
-                });
-                break;
-            case 1:
-                this.setData({
-                    activeTab: 1
-                });
-                break;
-        }
+        this.setData({
+            activeTab: e.detail.index,
+        });
         this.refresh()
     },
     //刷新待审批建议
@@ -220,12 +211,12 @@ Page({
     showadvice(e) {
         var id = e.currentTarget.dataset['id']
         wx.navigateTo({
-            url: 'admit/admit?id=' + id+'&admin='+this.data.admin,
+            url: 'admit/admit?id=' + id + '&admin=' + this.data.admin,
         })
     },
-    addadvice(){
+    addadvice() {
         wx.navigateTo({
-            url: 'admit/admit?id=0&admin='+this.data.admin,
+            url: 'admit/admit?id=0&admin=' + this.data.admin,
         })
     }
 })

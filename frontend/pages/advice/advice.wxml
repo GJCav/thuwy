@@ -8,7 +8,7 @@
 <view wx:if="{{activeTab==0}}">
     <view class="small_title" hover-class="haveselect" bindtap="addadvice" wx:if="{{!admin}}">
         <view class="thetext" style="font-size:large;width:100%;justify-content:center;color:#999999">
-            <view class="square" style='background-image:url(icon/add.png)' />
+            <image class="square" src="/icon/add.png" />
             <text decode="{{true}}">&nbsp;&nbsp;反馈新的建议</text>
         </view>
         <view class="divline"></view>

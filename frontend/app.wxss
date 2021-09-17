@@ -38,14 +38,6 @@ page {
   background-color: lightgray;
 }
 
-/* 头像 */
-.avatar {
-  width: 70px;
-  height: 70px;
-  border-radius: 30%;
-  border: 3px solid #660874;
-  overflow: hidden
-}
 .icon {
   width: 80rpx;
   height: 80rpx;
@@ -75,7 +67,7 @@ page {
   transform: rotate(45deg);
 }
 
-/* 提交表单背景 */
+/* 提交表单未央背景 */
 .admit {
   background-repeat: no-repeat;
   background-attachment: local;
@@ -114,8 +106,8 @@ page {
 
 /* 添加新的物品、建议 */
 .square {
-  width: 24px;
-  height: 24px;
+  width: 50rpx;
+  height: 50rpx;
   background-repeat: no-repeat;
   background-size: 100% 100%;
 }
@@ -138,7 +130,14 @@ page {
   align-items: center;
 }
 
-/* 物品信息显示公用格式 */
+/* 物品信息格式 */
+.avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 30%;
+  border: 3px solid #660874;
+  overflow: hidden
+}
 .server-name {
   color: black;
   font-size: larger;
