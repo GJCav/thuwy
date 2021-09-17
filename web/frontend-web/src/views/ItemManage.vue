@@ -1,10 +1,19 @@
 <template>
   <v-col lg="6" offset-lg="3" cols="12" offset="0">
     <h1>物品管理</h1>
-    <v-btn to="/item/0/edit" color="success" dark
+    <v-btn
+      v-if="user !== null && user.admin"
+      to="/item/0/edit"
+      color="success"
+      dark
       ><v-icon>mdi-plus</v-icon>新增物品</v-btn
     >
-    <v-card v-for="item in itemList" :key="item.id" style="margin-top: 20px">
+    <v-card
+      color="cyan lighten-5"
+      v-for="item in itemList"
+      :key="item.id"
+      style="margin-top: 20px"
+    >
       <div class="d-flex flex-no-wrap justify-space-between">
         <div>
           <router-link :to="`/item/${item.id}`">

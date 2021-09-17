@@ -1,5 +1,5 @@
 <template>
-  <v-card :key="rsv.id" style="margin-top: 20px">
+  <v-card :key="rsv.id" style="margin-top: 20px" color="cyan lighten-5">
     <div class="d-flex flex-no-wrap justify-space-between">
       <div>
         <v-card-title class="text-h5"
