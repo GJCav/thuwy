@@ -8,37 +8,51 @@
       dark
       ><v-icon>mdi-plus</v-icon>新增物品</v-btn
     >
-    <v-card
-      color="cyan lighten-5"
-      v-for="item in itemList"
-      :key="item.id"
-      style="margin-top: 20px"
-    >
-      <div class="d-flex flex-no-wrap justify-space-between">
-        <div>
-          <router-link :to="`/item/${item.id}`">
-            <v-card-title class="text-h5" v-text="item.name"></v-card-title>
-            <v-card-subtitle v-text="item['brief-intro']"></v-card-subtitle
-          ></router-link>
+    <v-hover v-slot="{ hover }" v-for="item in itemList" :key="item.id">
+      <v-card
+        :elevation="hover ? 12 : 2"
+        color="cyan lighten-5"
+        style="margin-top: 50px"
+        :class="{ 'on-hover': hover }"
+      >
+        <router-link :to="`/item/${item.id}`">
+          <v-img
+            :src="item.thumbnail"
+            max-height="384px"
+            class="white--text align-end"
+          >
+            <v-card-title
+              style="font-weight: 700; text-shadow: 0 0 2px black"
+              class="text-h5"
+              v-text="item.name"
+            ></v-card-title>
+            <v-card-subtitle
+              style="font-weight: 700; text-shadow: 0 0 1px black"
+              v-text="item['brief-intro']"
+            ></v-card-subtitle></v-img
+        ></router-link>
 
-          <v-card-actions v-if="user !== null && user.admin">
+        <v-expand-transition>
+          <v-card-actions
+            v-if="user !== null && user.admin"
+            v-show="hover"
+            style="padding: 0"
+          >
             <v-btn
               :to="`/item/${item.id}/edit`"
-              class="ml-2 mt-5"
+              class="ml-3 mt-2 mb-2"
               outlined
               rounded
-              small
               color="success"
             >
               <v-icon small>mdi-pencil</v-icon>
               编辑
             </v-btn>
             <v-btn
-              class="ml-2 mt-5"
+              class="ml-3 mt-2 mb-2"
               color="error"
               outlined
               rounded
-              small
               @click="dialog = (itemToDelete = item.id) > 0"
               :loading="deleting && itemToDelete === item.id"
               :disabled="deleting && itemToDelete === item.id"
@@ -47,14 +61,9 @@
               删除
             </v-btn>
           </v-card-actions>
-        </div>
-
-        <v-avatar class="ma-3" size="125" tile>
-          <v-img :src="item.thumbnail"></v-img>
-        </v-avatar>
-      </div>
-    </v-card>
-    <!-- <v-pagination @next="turnPage(1)" @previous="turnPage(2)"></v-pagination> -->
+        </v-expand-transition>
+      </v-card>
+    </v-hover>
     <confirm-box
       v-model="dialog"
       title="确认删除"
@@ -134,5 +143,13 @@ export default {
 a {
   text-decoration: none;
   color: unset;
+}
+
+.v-card {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.v-card:not(.on-hover) {
+  opacity: 0.6;
 }
 </style>
