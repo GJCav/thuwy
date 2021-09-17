@@ -1,6 +1,6 @@
 <template>
   <v-col
-    class="text-center"
+    class="text-center mt-9"
     cols="12"
     sm="6"
     offset-sm="3"

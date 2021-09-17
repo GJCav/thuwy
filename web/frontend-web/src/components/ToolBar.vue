@@ -6,7 +6,7 @@
       v-model="drawer"
       expand-on-hover
       :mini-variant.sync="mini"
-      color="blue lighten-1"
+      color="cyan darken-2"
       dark
     >
       <v-list-item class="px-2">
@@ -33,7 +33,7 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app color="cyan darken-4" dark>
       <!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
       <div class="text-h5">微未央</div>
 

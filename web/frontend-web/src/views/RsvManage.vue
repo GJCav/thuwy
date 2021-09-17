@@ -16,7 +16,7 @@
         {{ tabItem }}
       </v-tab>
     </v-tabs>
-    <v-tabs-items v-model="tab">
+    <v-tabs-items v-model="tab" style="background-color: transparent">
       <v-tab-item>
         <v-col>
           <!--待审批-->
