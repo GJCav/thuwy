@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :style="{ backgroundImage: `url(${bg})` }">
     <router-view />
     <v-snackbar
       dark
@@ -30,10 +30,17 @@ export default {
   name: 'App',
 
   data: () => ({
-    //
+    bg: require('@/assets/bg.jpg'),
   }),
   created() {
     this.$store.dispatch('refreshProfile');
   },
 };
 </script>
+
+<style scoped>
+div[data-app='true'] {
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+</style>
