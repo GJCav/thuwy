@@ -191,6 +191,7 @@ wx.request({
 | clazz     | string | 班级         |
 | school-id | string | 学号         |
 | admin     | bool   | 是否为管理员 |
+| openid    | string | 用户的openid |
 
 
 
@@ -623,18 +624,19 @@ Item对象是一个Json Object对象，包含如下属性：
 
 Rsv对象是一个Json Object，包含如下属性：
 
-| 属性     | 类型      | 说明                             |
-| -------- | --------- | -------------------------------- |
-| id       | RsvId     | 这个预约的编号                   |
-| item     | string    | 预约物品的名字                   |
-| item-id  | int64     | 物品ID                           |
-| guest    | string    | 预约人的名字                     |
-| reason   | string    | 预约理由                         |
-| method   | RsvMethod | 使用的预约方法，保证只有一位为 1 |
-| state    | RsvState  | 预约状态                         |
-| interval | Any       | 具体类型、含义根据RsvMethod确定  |
-| approver | string    | 审核员姓名                       |
-| exam-rst | string    | 审核批语                         |
+| 属性      | 类型      | 说明                             |
+| --------- | --------- | -------------------------------- |
+| id        | RsvId     | 这个预约的编号                   |
+| item      | string    | 预约物品的名字                   |
+| item-id   | int64     | 物品ID                           |
+| thumbnail | string    | 物品缩略图URL                    |
+| guest     | string    | 预约人的名字                     |
+| reason    | string    | 预约理由                         |
+| method    | RsvMethod | 使用的预约方法，保证只有一位为 1 |
+| state     | RsvState  | 预约状态                         |
+| interval  | Any       | 具体类型、含义根据RsvMethod确定  |
+| approver  | string    | 审核员姓名                       |
+| exam-rst  | string    | 审核批语                         |
 
 
 
