@@ -21,6 +21,14 @@
             max-height="384px"
             class="white--text align-end"
           >
+            <template v-slot:placeholder>
+              <v-row class="fill-height ma-0" align="center" justify="center">
+                <v-progress-circular
+                  indeterminate
+                  color="grey darken-3"
+                ></v-progress-circular>
+              </v-row>
+            </template>
             <v-card-title
               style="font-weight: 700; text-shadow: 0 0 2px black"
               class="text-h5"

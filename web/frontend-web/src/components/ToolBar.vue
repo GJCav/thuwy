@@ -69,11 +69,6 @@ export default {
           title: '主页',
           to: '/',
         },
-        // {
-        //   icon: 'mdi-account',
-        //   title: '用户管理',
-        //   to: '/user',
-        // },
         {
           icon: 'mdi-file',
           title: '物品管理',
@@ -83,6 +78,11 @@ export default {
           icon: 'mdi-certificate',
           title: '预约审批',
           to: '/reservation',
+        },
+        {
+          icon: 'mdi-account',
+          title: '用户管理',
+          to: '/user',
         },
       ],
     };
