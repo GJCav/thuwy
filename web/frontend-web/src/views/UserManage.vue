@@ -124,6 +124,7 @@ export default {
         {
           text: '姓名',
           value: 'name',
+          sortable: false,
         },
         {
           text: '班级',
@@ -136,16 +137,19 @@ export default {
         {
           text: '操作',
           value: 'action',
+          sortable: false,
         },
       ],
       headers2: [
         {
           text: '姓名',
           value: 'name',
+          sortable: false,
         },
         {
           text: '操作',
           value: 'action',
+          sortable: false,
         },
       ],
       users: [],
