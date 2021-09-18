@@ -104,7 +104,10 @@ class UserBinding(db.Model):
         }
 
     def fromOpenId(openid):
-        db.session.query(UserBinding).filter(UserBinding.openid == openid).one_or_none()
+        return db.session\
+            .query(UserBinding)\
+            .filter(UserBinding.openid == openid)\
+            .one_or_none()
 
 class Item(db.Model):
     __tablename__ = "item"

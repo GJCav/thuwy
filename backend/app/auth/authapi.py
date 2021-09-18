@@ -419,7 +419,7 @@ def unbindUser(openid):
         return ErrCode.Auth.CODE_USER_NOT_FOUND
     
     if not ubdn:
-        return ErrCode.CODE_DATABASE_ERROR
+        return ErrCode.CODE_DATABASE_CONSISTANCE_ERROR
     
     user.schoolId = None
     user.name == None
