@@ -10,33 +10,10 @@ Page({
   },
   onLoad: function (options) {
     wx.setNavigationBarTitle({
-      title: '下载文件'
+      title: '预约须知'
     })
   },
   download(e) {
-    wx.showLoading({
-      title: '下载中',
-      mask: true
-    })
-    console.log(e.currentTarget.dataset.url)
-    wx.downloadFile({
-      timeout: 15000,
-      url: e.currentTarget.dataset.url,
-      success(res) {
-        if (res.statusCode === 200) {
-          wx.hideLoading()
-          wx.openDocument({
-            filePath: res.tempFilePath,
-          })
-        } else {
-          wx.hideLoading()
-          util.show_error(res)
-        }
-      },
-      fail(res) {
-        wx.hideLoading()
-        util.show_error(res)
-      }
-    })
+   
   }
 })

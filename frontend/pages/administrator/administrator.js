@@ -54,10 +54,10 @@ Page({
             mask: true,
             title: '加载中',
         })
-        let data=this.data
+        let data = this.data
         console.log(data.class[data.index[0]][data.index[1]])
         wx.request({
-            url: app.globalData.url + '/user/?clazz='+data.class[data.index[0]][data.index[1]],
+            url: app.globalData.url + '/user/?clazz=' + data.class[data.index[0]][data.index[1]],
             method: 'GET',
             header: {
                 'content-type': 'application/json; charset=utf-8',
@@ -212,7 +212,7 @@ Page({
     },
     //解除权限
     fired(e) {
-        let that=this
+        let that = this
         let id = e.currentTarget.dataset.value
         wx.showModal({
             title: '提示',
@@ -241,18 +241,9 @@ Page({
                                     duration: 1500,
                                     mask: true
                                 })
-                                if(id==wx.getStorageSync('cookie'))
-                                {
-                                    setTimeout(function () {
-                                        wx.navigateBack({
-                                            delta: 5,
-                                          })                                   
-                                      }, 1500)
-                                } else{
-                                    setTimeout(function () {
-                                        that.refresh()                                  
-                                      }, 1500)
-                                }
+                                setTimeout(function () {
+                                    that.refresh()
+                                }, 1500)
                             } else {
                                 wx.hideLoading();
                                 util.show_error(res)
@@ -282,13 +273,13 @@ Page({
         console.log('修改的列为', e.detail.column, '，值为', e.detail.value);
         if (e.detail.column == 0) {
             this.setData({
-                'user_clazz[1]':this.data.class[e.detail.value]
+                'user_clazz[1]': this.data.class[e.detail.value]
             })
         }
     },
     //解除绑定
-    unlock(e){
-        let that=this
+    unlock(e) {
+        let that = this
         let id = e.currentTarget.dataset.value
         wx.showModal({
             title: '提示',
@@ -317,18 +308,9 @@ Page({
                                     duration: 1500,
                                     mask: true
                                 })
-                                if(id==wx.getStorageSync('cookie'))
-                                {
-                                    setTimeout(function () {
-                                        wx.navigateBack({
-                                            delta: 5,
-                                          })                                   
-                                      }, 1500)
-                                } else{
-                                    setTimeout(function () {
-                                        that.refresh()                                  
-                                      }, 1500)
-                                }
+                                setTimeout(function () {
+                                    that.refresh()
+                                }, 1500)
                             } else {
                                 wx.hideLoading();
                                 util.show_error(res)

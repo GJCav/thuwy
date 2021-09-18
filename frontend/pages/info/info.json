@@ -1,5 +1,6 @@
 {
   "usingComponents": {
-    "wemark": "../../dist/wemark/wemark"
+    "wemark": "../../dist/wemark/wemark",
+    "towxml":"/towxml/towxml"
   }
 }

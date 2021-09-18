@@ -1,4 +1,4 @@
 <!--pages/info/info.wxml-->
 <view style="margin-left:15%;margin-right:15%">
-    <wemark md="{{md_info}}" link highlight type="wemark"></wemark>
+    <towxml nodes="{{md_info}}"></towxml>
 </view>

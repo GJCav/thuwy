@@ -63,9 +63,9 @@
 <view wx:if="{{activeTab==2}}">
     <!-- 班级筛选器 -->
     <view class="small_title">
-        <view class="thetext" style="font-weight:bold;width:100%;justify-content:center;color:black">
+        <view class="thetext" style="width:100%;justify-content:center;color:black">
             <image class="square" src="/icon/black_search.png" />
-            <text style="margin-right:15rpx;margin-left:10rpx">搜索：</text>
+            <text style="font-weight:bold;margin-right:15rpx;margin-left:10rpx">搜索：</text>
             <picker class="search_box" mode="multiSelector" range="{{user_clazz}}" bindchange="choose_clazz" bindcolumnchange="change_column">{{grade[0][index[0]]+"  "}}{{class[index[0]][index[1]]}}</picker>
         </view>
     <view class="divline"></view>

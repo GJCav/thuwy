@@ -12,6 +12,10 @@ Page({
       go: "bindinfo",
       condition: true
     }, {
+      text: "查看预约须知",
+      go: "document",
+      condition: true
+    },{
       text: "申请成为管理员",
       go: "beadmin",
       condition: true
@@ -19,10 +23,6 @@ Page({
       text: "进入管理员界面",
       go: "admin",
       condition: false
-    },{
-      text: "下载物品预约须知",
-      go: "document",
-      condition: true
     },{
       text: "反馈问题和建议",
       go: "advice",
@@ -53,8 +53,8 @@ Page({
   onShow() {
     this.setData({
       'select[0].condition': !app.globalData.userInfo,
-      'select[1].condition': !app.globalData.isadmin,
-      'select[2].condition': app.globalData.isadmin
+      'select[2].condition': !app.globalData.isadmin,
+      'select[3].condition': app.globalData.isadmin
     })
     if (app.globalData.login) {
       if (app.globalData.userInfo) {
@@ -195,7 +195,7 @@ Page({
       })
     }
   },
-  //下载文件
+  //查看须知
   document(){
     wx.navigateTo({
       url: '../document/document',

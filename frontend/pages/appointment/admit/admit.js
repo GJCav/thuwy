@@ -206,6 +206,7 @@ Page({
           const date = new Date();
           const cur_hour = date.getHours()
           const cur_min = date.getMinutes()
+          const cur_date=date.getDate()
           const cur_time = (cur_hour < 10 ? '0' : '') + cur_hour + ':' + (cur_min < 10 ? '0' : '') + cur_min
           if (res.data.code == 0) {
             var tmp = that.data.disable;
@@ -286,9 +287,12 @@ Page({
             }
             //今日特殊处理
             //固定时间预约
-            if (cur_hour >= 8) tmp[0][0] = false
-            if (cur_hour >= 13) tmp[0][1] = false
-            if (cur_hour >= 18) tmp[0][2] = false
+            if(cur_date==parseInt(that.data.calendar[0].date.slice(-2)))
+            {
+              if (cur_hour >= 8) tmp[0][0] = false
+              if (cur_hour >= 13) tmp[0][1] = false
+              if (cur_hour >= 18) tmp[0][2] = false
+            }
             that.setData({
               disable: tmp
             })
