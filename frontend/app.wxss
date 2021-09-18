@@ -7,9 +7,13 @@ page {
 }
 
 /* 按钮 */
+button{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .ok {
   color: white;
-  text-align: center;
   border-radius: 20px;
   box-shadow:0 0 8rpx rgba(7, 193, 97, 0.7);
   background: linear-gradient(rgb(7, 193, 96), rgb(7, 193, 96), rgb(8, 165, 84));
@@ -19,7 +23,6 @@ page {
 }
 .warn {
   color: white;
-  text-align: center;
   border-radius: 20px;
   box-shadow:0 0 8rpx rgb(255, 50, 50, 0.7);
   background: linear-gradient(rgb(255, 50, 50), rgb(255, 50, 50), rgba(210, 50, 50));
@@ -29,7 +32,6 @@ page {
 }
 .normal {
   color: #444444;
-  text-align: center;
   border-radius: 20px;
   box-shadow:0 0 8rpx rgb(230, 230, 230, 0.7);
   background: linear-gradient(rgb(230, 230, 230), rgb(230, 230, 230), lightgray);
@@ -227,6 +229,25 @@ page {
   word-break: break-all;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+/* setting选项栏 */
+.repeat {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.select {
+  width: 100%;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+}
+.haveselect {
+  background-color: #dddddd;
 }
 
 /* 预约细节公用格式 */

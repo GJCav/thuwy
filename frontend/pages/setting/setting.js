@@ -17,13 +17,13 @@ Page({
       condition: true
     }, {
       text: "进入管理员界面",
-      go: "goadmin",
+      go: "admin",
       condition: false
-    }, {
-      text: "扫码登录网页端",
-      go: "scanQR",
+    },{
+      text: "下载物品预约须知",
+      go: "document",
       condition: true
-    }, {
+    },{
       text: "反馈问题和建议",
       go: "advice",
       condition: true
@@ -92,7 +92,7 @@ Page({
     })
   },
   //进入管理员界面
-  goadmin() {
+  admin() {
     wx.navigateTo({
       url: '../admin/admin',
     })
@@ -195,6 +195,12 @@ Page({
       })
     }
   },
+  //下载文件
+  document(){
+    wx.navigateTo({
+      url: '../document/document',
+    })
+  },
   //扫描二维码
   async scanQR() {
     if (app.globalData.login == false) {
@@ -275,7 +281,7 @@ Page({
             app.globalData.userInfo = false
             this.onShow()
             wx.showToast({
-              title: '请退出后重新登录',
+              title: '退出登录成功',
               icon: 'none',
               duration: 1500,
               mask:true
@@ -287,7 +293,7 @@ Page({
       })
     } else {
       wx.showToast({
-        title: '请退出后重新登录',
+        title: '未成功登录',
         icon: 'none',
         duration: 1500,
         mask:true

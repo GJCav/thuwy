@@ -1,0 +1,4 @@
+<!--pages/document/document.wxml-->
+<view class="repeat" wx:for="{{document}}" wx:key="name">
+    <view class="select"  bindtap="download" hover-class="haveselect" data-url="{{item.url}}">{{item.name}}</view>
+</view>

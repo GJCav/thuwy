@@ -12,6 +12,7 @@
     "pages/advice/advice",
     "pages/advice/admit/admit",
     "pages/administrator/administrator",
+    "pages/document/document",
     "pages/carousel/carousel",
     "pages/hide/hide"
   ],

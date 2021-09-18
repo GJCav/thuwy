@@ -14,7 +14,7 @@
         <view class="divline"></view>
     </view>
     <view class="total" wx:for="{{advice_list}}" wx:key="id"
-        style="background-image:url(icon/adv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
+        style="background-image:url(icon/adv.png);background-repeat:no-repeat;background-size:256rpx 256rpx;background-position:left bottom">
         <view class="detail">
             <view class="which">{{item.title}}</view>
             <button class="ok" hover-class="oks" bindtap="showadvice" data-id="{{item.id}}" size='mini'
@@ -36,7 +36,7 @@
 </view>
 <view wx:if="{{activeTab==1}}">
     <view class="total" wx:for="{{checked_list}}" wx:key="id"
-        style="background-image:url(icon/adv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
+        style="background-image:url(icon/adv.png);background-repeat:no-repeat;background-size:256rpx 256rpx;background-position:left bottom">
         <view class="detail">
             <view class="which">{{item.title}}</view>
             <button class="ok" hover-class="oks" bindtap="showadvice" data-id="{{item.id}}" size='mini'

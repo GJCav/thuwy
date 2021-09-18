@@ -1,5 +1,6 @@
 <!--index.wxml-->
 <view class="userinfo">
+  <image class="code" src="/icon/code.png" bindtap="scanQR"></image>
   <block wx:if="{{canIUseOpenData}}">
     <view class="userinfo-avatar">
       <open-data type="userAvatarUrl"></open-data>
@@ -28,13 +29,13 @@
 <view class="total" style="margin-top:120rpx;color:#777777">
   <view class="repeat" wx:for="{{select}}" wx:key="text" wx:if="{{item.condition}}">
     <view class="select" bindtap="{{item.go}}" hover-class="haveselect">
-      <view style="width:40%">{{item.text}}</view>
-      <view style="width:50%">
-        <view style="margin-left:90%" class="arrow"></view>
+      <view style="width:50%">{{item.text}}</view>
+      <view style="width:40%">
+        <view style="margin-left:85%" class="arrow"></view>
       </view>
     </view>
     <view class="divline" wx:if="{{index!=select.length-1 && item.condition}}"></view>
   </view>
 </view>
-<image src="/image/logo.png" mode="aspectFit" style="width:100%;height:170rpx;display:inline-block"></image>
+<image src="/image/logo.png" mode="aspectFit" style="width:100%;height:170rpx;margin-top:50rpx;margin-bottom:50rpx;display:inline-block"></image>
 <view class="version">Version:1.0.0</view>

@@ -12,7 +12,7 @@
         <view class="divline"></view>
     </view>
     <view class="total" wx:for="{{rsv_list1}}" wx:key="id"
-        style="background-image:url(icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
+        style="background-image:url(icon/rsv.png);background-repeat:no-repeat;background-size:256rpx 256rpx;background-position:left bottom">
         <view class="detail">
             <view class="which">{{item.item}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"
@@ -40,7 +40,7 @@
         <view class="divline"></view>
     </view>
     <view class="total" wx:for="{{rsv_list2}}" wx:key="id"
-        style="background-image:url(icon/rsv.png);background-repeat:no-repeat;background-size:250rpx 250rpx;background-position:left bottom">
+        style="background-image:url(icon/rsv.png);background-repeat:no-repeat;background-size:256rpx 256rpx;background-position:left bottom">
         <view class="detail">
             <view class="which">{{item.item}}</view>
             <view class="pic" hover-class="haspic" style="text-align:center; width:30%; border-radius:20rpx"

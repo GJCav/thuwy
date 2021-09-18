@@ -1,4 +1,14 @@
 /**index.wxss**/
+
+/* 扫码登陆 */
+.code{
+  width: 64rpx;
+  height: 64rpx;
+  position:absolute;
+  right:5%;
+  top:10rpx
+}
+
 /* 用户头像&昵称 */
 .userinfo {
   height: 350rpx;
@@ -36,37 +46,14 @@
   flex-direction: row;
   background-color: #ffffff;
 }
-
 .setting_infotext {
   width: 35%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .setting_infoblank {
   width: 30%;
-}
-
-/* setting选项栏 */
-.repeat {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-}
-
-.select {
-  width: 100%;
-  height: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-}
-
-.haveselect {
-  background-color: #dddddd;
 }
 
 /* 版本号 */

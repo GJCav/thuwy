@@ -42,13 +42,8 @@ Page({
                     }
                 },
                 fail: (res) => {
-                    console.log(res)
                     wx.hideLoading()
-                    wx.showToast({
-                        title: '连接失败',
-                        icon: 'error',
-                        duration: 1500
-                    })
+                    util.show_error(res)
                 }
             })
         }
@@ -112,23 +107,13 @@ Page({
                                 prevPage.refresh()
                             }, 1500)
                         } else {
-                            console.log(res)
                             wx.hideLoading()
-                            wx.showToast({
-                                title: '连接错误',
-                                icon: 'error',
-                                duration: 1500
-                            })
+                            util.show_error(res)
                         }
                     },
                     fail: (res) => {
-                        console.log(res)
-                        wx.hideLoading();
-                        wx.showToast({
-                            title: '连接失败',
-                            icon: 'error',
-                            duration: 1500
-                        });
+                        wx.hideLoading()
+                        util.show_error(res)
                     }
                 })
             }
@@ -168,23 +153,13 @@ Page({
                                 prevPage.refresh()
                             }, 1500)
                         } else {
-                            console.log(res)
                             wx.hideLoading()
-                            wx.showToast({
-                                title: '连接错误',
-                                icon: 'error',
-                                duration: 1500
-                            })
+                            util.show_error(res)
                         }
                     },
                     fail: (res) => {
-                        console.log(res)
-                        wx.hideLoading();
-                        wx.showToast({
-                            title: '连接失败',
-                            icon: 'error',
-                            duration: 1500
-                        });
+                        wx.hideLoading()
+                        util.show_error(res)
                     }
                 })
             }

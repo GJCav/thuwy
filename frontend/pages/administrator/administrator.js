@@ -212,15 +212,57 @@ Page({
     },
     //解除权限
     fired(e) {
-        let value = e.currentTarget.dataset.value
+        let that=this
+        let id = e.currentTarget.dataset.value
         wx.showModal({
             title: '提示',
             content: '确认要解除管理员权限?',
             success: (res) => {
                 if (res.confirm) {
+                    wx.showLoading({
+                        mask: true,
+                        title: '提交中',
+                    })
                     console.log('用户点击确定')
                     //解除权限
-
+                    wx.request({
+                        url: app.globalData.url + '/admin/' + id + '/',
+                        method: 'DELETE',
+                        header: {
+                            'content-type': 'application/json; charset=utf-8',
+                            'cookie': wx.getStorageSync('cookie')
+                        },
+                        success: (res) => {
+                            if (res.data.code == 0) {
+                                wx.hideLoading();
+                                wx.showToast({
+                                    title: '解除权限成功',
+                                    icon: 'success',
+                                    duration: 1500,
+                                    mask: true
+                                })
+                                if(id==wx.getStorageSync('cookie'))
+                                {
+                                    setTimeout(function () {
+                                        wx.navigateBack({
+                                            delta: 5,
+                                          })                                   
+                                      }, 1500)
+                                } else{
+                                    setTimeout(function () {
+                                        that.refresh()                                  
+                                      }, 1500)
+                                }
+                            } else {
+                                wx.hideLoading();
+                                util.show_error(res)
+                            }
+                        },
+                        fail: (res) => {
+                            wx.hideLoading();
+                            util.show_error(res)
+                        }
+                    })
                 } else if (res.cancel) {
                     console.log('用户点击取消')
                 }
@@ -244,4 +286,63 @@ Page({
             })
         }
     },
+    //解除绑定
+    unlock(e){
+        let that=this
+        let id = e.currentTarget.dataset.value
+        wx.showModal({
+            title: '提示',
+            content: '确认要解绑用户信息?',
+            success: (res) => {
+                if (res.confirm) {
+                    wx.showLoading({
+                        mask: true,
+                        title: '提交中',
+                    })
+                    console.log('用户点击确定')
+                    //解除权限
+                    wx.request({
+                        url: app.globalData.url + '/user/' + id + '/',
+                        method: 'DELETE',
+                        header: {
+                            'content-type': 'application/json; charset=utf-8',
+                            'cookie': wx.getStorageSync('cookie')
+                        },
+                        success: (res) => {
+                            if (res.data.code == 0) {
+                                wx.hideLoading();
+                                wx.showToast({
+                                    title: '解除权限成功',
+                                    icon: 'success',
+                                    duration: 1500,
+                                    mask: true
+                                })
+                                if(id==wx.getStorageSync('cookie'))
+                                {
+                                    setTimeout(function () {
+                                        wx.navigateBack({
+                                            delta: 5,
+                                          })                                   
+                                      }, 1500)
+                                } else{
+                                    setTimeout(function () {
+                                        that.refresh()                                  
+                                      }, 1500)
+                                }
+                            } else {
+                                wx.hideLoading();
+                                util.show_error(res)
+                            }
+                        },
+                        fail: (res) => {
+                            wx.hideLoading();
+                            util.show_error(res)
+                        }
+                    })
+                } else if (res.cancel) {
+                    console.log('用户点击取消')
+                }
+            }
+        })
+    }
 })

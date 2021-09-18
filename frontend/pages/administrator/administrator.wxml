@@ -36,7 +36,8 @@
 <!-- 管理员名单 -->
 <view wx:if="{{activeTab==1}}">
     <view class="total" style="flex-direction:row" wx:for="{{admin_list}}" wx:key="name" wx:if="{{item.name!='system'}}">
-        <view class="detail" style="flex-direction:column;width:60%;margin-left:3%">
+        <image style="width:192rpx;height:192rpx;position:absolute;left:5%;" src="/icon/admin.png"></image>
+        <view class="detail" style="flex-direction:column;width:60%;margin-left:3%;z-index:1">
             <view style="width:100%;flex-direction:row;display:flex;margin-top:3%">
                 <view style="width:30%;text-align:center">学号：</view>
                 <view style="width:70%;text-align:right">{{item['school-id']}}</view>
@@ -51,7 +52,7 @@
             </view>
         </view>
         <view style="width:40%;display:flex;flex-direction:column;align-items:center">
-            <button class="warn" hover-class="warns" size="mini" bindtap="fired" data-value="{{}}">解除权限</button>
+            <button class="warn" hover-class="warns" size="mini" bindtap="fired" data-value="{{item.openid}}">解除权限</button>
         </view>
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align:center;margin-top:50%"
@@ -70,7 +71,8 @@
     <view class="divline"></view>
     </view>
     <view class="total" style="flex-direction:row" wx:for="{{user_list}}" wx:key="name">
-        <view class="detail" style="flex-direction:column;width:60%;margin-left:3%">
+        <image style="width:128rpx;height:128rpx;position:absolute;left:6%;" src="/icon/user.png"></image>
+        <view class="detail" style="flex-direction:column;width:60%;margin-left:3%;z-index:1">
             <view style="width:100%;flex-direction:row;display:flex;margin-top:3%;margin-bottom:3%">
                 <view style="width:30%;text-align:center">学号：</view>
                 <view style="width:70%;text-align:right">{{item['school-id']}}</view>
@@ -81,7 +83,7 @@
             </view>
         </view>
         <view style="width:40%;display:flex;flex-direction:column;align-items:center">
-            <button class="warn" hover-class="warns" size="mini" bindtap="unlock" data-value="{{}}">解除绑定</button>
+            <button class="warn" hover-class="warns" size="mini" bindtap="unlock" data-value="{{item.openid}}">解除绑定</button>
         </view>
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align:center;margin-top:50%"

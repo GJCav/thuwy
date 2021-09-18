@@ -67,7 +67,7 @@ App({
       text: '在预约提交成功的情况下，系统会自动完成审批。适用于29号楼会议室等不需要管理员特别审批的物品。'
     }],
     item_group:['全部物品','设备器材','公共活动室','其他物品'],
-    url: 'https://api.thuwy.top', //本地测试地址：'http://127.0.0.1:5000'
+    url: 'http://183.173.252.26:5000', //本地测试地址：'http://127.0.0.1:5000'https://api.thuwy.top
     picurl: 'https://web.thuwy.top/api',
     webBackendUrl: 'https://web.thuwy.top/api'
   }

@@ -4,6 +4,6 @@
     width: 60%;
     text-align: center;
     border-radius: 20px;
-    background:linear-gradient(#b4e2ee, #b4e2ee,#8ccfe0);
-    box-shadow:0 0 10rpx #7acbdfbb;
+    background:linear-gradient(150deg,#8ccfe0, #b4e2ee,#8ccfe0);
+    box-shadow:0 0 10rpx #7acbdf;
 }

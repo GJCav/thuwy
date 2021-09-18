@@ -17,7 +17,7 @@ const formatNumber = n => {
 //显示错误信息
 function show_error(res){
   console.log(res)
-  if(res.data.errmsg!=undefined){
+  if(res.data!=undefined){
     wx.showToast({
       title: res.data.errmsg,
       mask:true,
