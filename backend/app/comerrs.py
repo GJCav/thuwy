@@ -8,6 +8,7 @@ CODE_ARG_TYPE_ERR   = {'code': 6, 'errmsg': '参数类型错误'}
 CODE_ARG_INVALID    = {'code': 7, 'errmsg': '参数非法'}
 
 CODE_DATABASE_ERROR = {'code': 20, 'errmsg': '数据库错误'}
+CODE_DATABASE_CONSISTANCE_ERROR = {'code': 21, 'errmsg': 'database consistance error'}
 
 CODE_SERVER_BUGS = {'code': -100, 'errmsg': '服务器错误'}
 
