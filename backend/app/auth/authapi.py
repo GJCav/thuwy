@@ -314,9 +314,13 @@ def delAdmin(openid):
     admin = Admin.fromId(openid)
     if not admin:
         return ErrCode.CODE_ARG_INVALID
-    
-    
+
     db.session.delete(admin)
+    try:
+        db.session.commit()
+    except:
+        traceback.print_exc()
+        return ErrCode.CODE_DATABASE_ERROR
     return ErrCode.CODE_SUCCESS
 
 if getattr(config, 'ENABLE_TEST_ACCOUNT', False):
