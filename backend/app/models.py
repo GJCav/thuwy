@@ -1,4 +1,5 @@
 
+from typing import Any
 from app import db
 from sqlalchemy import or_, and_
 from sqlalchemy.engine.row import Row
@@ -50,7 +51,8 @@ class User(db.Model):
             'school-id': self.schoolId,
             'name': self.name,
             'clazz': self.clazz,
-            'admin': bool(Admin.fromId(self.openid))
+            'admin': bool(Admin.fromId(self.openid)),
+            'openid': self.openid
         }
 
     def fromOpenid(openid):
@@ -126,6 +128,9 @@ class Item(db.Model):
     def queryItemName(itemId):
         qryRst = db.session.query(Item.name).filter(Item.id == itemId).one_or_none()
         return qryRst[0] if qryRst else None
+
+    def fromId(id):
+        return db.session.query(Item).filter(Item.id == id).one_or_none()
 
     def toDict(self):
         """
@@ -380,11 +385,13 @@ class LongTimeRsv(SubRsvDelegator):
             raise ValueError(f'this is not a long time reservation. id: {rsv.id}')
 
         rsv = LongTimeRsv.getFatherRsv(rsv)
+        item: Item = Item.fromId(rsv.itemId)
 
         rsvDict = {
             'id': rsv.id,
-            'item': Item.queryItemName(rsv.itemId),
+            'item': item.name,
             'item-id': rsv.itemId,
+            'thumbnail': item.thumbnail,
             'guest': User.queryName(rsv.guest),
             'reason': rsv.reason,
             'method': rsv.method,
@@ -474,9 +481,13 @@ class FlexTimeRsv(SubRsvDelegator):
     def toDict(rsv: Reservation):
         if rsv.method != FlexTimeRsv.methodValue:
             raise ValueError(f'this is not a flexiable time reservation. id: {rsv.id}')
+        
+        item: Item = Item.fromId(rsv.itemId)
+
         rsvDict = {
             'id': rsv.id,
-            'item': Item.queryItemName(rsv.itemId),
+            'item': item.name,
+            'thumbnail': item.thumbnail,
             'item-id': rsv.itemId,
             'guest': User.queryName(rsv.guest),
             'reason': rsv.reason,

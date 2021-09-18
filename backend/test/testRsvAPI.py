@@ -334,10 +334,10 @@ def testGetMyRsv():
     ]
 
     def valid(rsv, state = 2**65-1):
-        assert CheckArgs.hasAttrs(rsv, ['id', 'item', 'item-id', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst']), rsv
+        assert CheckArgs.hasAttrs(rsv, ['id', 'item', 'item-id', 'reason', 'method', 'state', 'interval', 'approver', 'exam-rst', 'thumbnail']), rsv
         assert 'guest' not in rsv, rsv
         assert CheckArgs.areInt(rsv, ['id', 'item-id', 'method']), rsv
-        assert CheckArgs.areStr(rsv, ['reason'])
+        assert CheckArgs.areStr(rsv, ['reason', 'thumbnail'])
         assert rsv['state'] & state, rsv['state']
     
     for state in testData:
