@@ -315,6 +315,7 @@ def delAdmin(openid):
     if not admin:
         return ErrCode.CODE_ARG_INVALID
     
+    
     db.session.delete(admin)
     return ErrCode.CODE_SUCCESS
 
@@ -408,13 +409,18 @@ def unbindUser(openid):
         return ErrCode.CODE_ARG_INVALID
     
     user = User.fromOpenid(openid)
+    ubdn: UserBinding = UserBinding.fromOpenId(openid)
 
     if not user:
         return ErrCode.Auth.CODE_USER_NOT_FOUND
     
+    if not ubdn:
+        return ErrCode.CODE_DATABASE_ERROR
+    
     user.schoolId = None
     user.name == None
     user.clazz = None
+    ubdn.openid = None
 
     try:
         db.session.commit()

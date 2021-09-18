@@ -1,5 +1,7 @@
 
 from typing import Any
+
+from sqlalchemy.sql.operators import op
 from app import db
 from sqlalchemy import or_, and_
 from sqlalchemy.engine.row import Row
@@ -101,6 +103,8 @@ class UserBinding(db.Model):
             'name': self.name
         }
 
+    def fromOpenId(openid):
+        db.session.query(UserBinding).filter(UserBinding.openid == openid).one_or_none()
 
 class Item(db.Model):
     __tablename__ = "item"
