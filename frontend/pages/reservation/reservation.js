@@ -1,6 +1,6 @@
 // pages/reservation/reservation.js
 const app = getApp()
-const util = require('../../utils/util.js') 
+const util = require('../../utils/util.js')
 Page({
   data: {
     who: 0,
@@ -16,14 +16,14 @@ Page({
     })
     this.setData({
       who: options.who,
-        //who=0:用户端且已审批
-        //who=1:用户端且待审批
-        //who=2：管理员端
+      //who=0:用户端且已审批
+      //who=1:用户端且待审批
+      //who=2：管理员端
       rsvid: options.rsvid,
     })
     //获取预约详细信息
     wx.request({
-      url: app.globalData.url + '/reservation/' + this.data.rsvid+'/',
+      url: app.globalData.url + '/reservation/' + this.data.rsvid + '/',
       method: 'GET',
       success: (res) => {
         if (res.data.code == 0) {
@@ -67,7 +67,7 @@ Page({
         title: '未输入审批回复',
         icon: 'error',
         duration: 1500,
-        mask:true
+        mask: true
       });
       return false
     } else
@@ -79,8 +79,8 @@ Page({
       title: '提示',
       content: '确认要批准本次预约?',
       success: (res) => {
-        if (this.pan()) {
-          if (res.confirm) {
+        if (res.confirm) {
+          if (this.pan()) {
             wx.showLoading({
               mask: true,
               title: '提交中',
@@ -90,7 +90,7 @@ Page({
                 'content-type': 'application/json; charset=utf-8',
                 'cookie': wx.getStorageSync('cookie')
               },
-              url: app.globalData.url + "/reservation/" + this.data.rsvid+'/',
+              url: app.globalData.url + "/reservation/" + this.data.rsvid + '/',
               method: "POST",
               data: {
                 op: 1,
@@ -147,7 +147,7 @@ Page({
                 'content-type': 'application/json; charset=utf-8',
                 'cookie': wx.getStorageSync('cookie')
               },
-              url: app.globalData.url + "/reservation/" + this.data.rsvid+'/',
+              url: app.globalData.url + "/reservation/" + this.data.rsvid + '/',
               method: "POST",
               data: {
                 op: 1,
@@ -205,7 +205,7 @@ Page({
               'content-type': 'application/json; charset=utf-8',
               'cookie': wx.getStorageSync('cookie')
             },
-            url: app.globalData.url + "/reservation/" + this.data.rsvid+'/',
+            url: app.globalData.url + "/reservation/" + this.data.rsvid + '/',
             method: "DELETE",
             success: (res) => {
               if (res.data.code == 0) {
@@ -257,7 +257,7 @@ Page({
               'content-type': 'application/json; charset=utf-8',
               'cookie': wx.getStorageSync('cookie')
             },
-            url: app.globalData.url + "/reservation/" + this.data.rsvid+"/",
+            url: app.globalData.url + "/reservation/" + this.data.rsvid + "/",
             method: "POST",
             data: {
               op: 2,

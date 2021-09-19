@@ -246,7 +246,7 @@ Page({
                       that.setData({
                         [path]: the_occupy.concat(that.data.cast[the_time.slice(-1) - 1])
                       })
-                      if (the_date.week == '星期六') {
+                      if (the_date.week == '星期六'&&j!=that.data.flex_calendar.length-1) {
                         let the_occupys = that.data.occupy[j + 1]
                         var path = 'occupy[' + (j + 1) + ']'
                         that.setData({
