@@ -64,7 +64,7 @@
     </view>
     <view class="detail-list" style="margin-left:10%;font-weight:bold;margin-top:30rpx">申请预约理由：</view>
     <view style="margin-top:30rpx">
-      <textarea class="inputbox" style="width:80%;margin-left:10%;margin-right:10%" placeholder="请简述预约用途"
+      <textarea class="inputbox" style="width:80%;margin-left:10%;margin-right:10%" placeholder="请简述预约用途,并填写联系方式"
         bindblur="inputwhy" />
     </view>
     <button form-type="submit" class="ok" hover-class="oks" style="margin-bottom:50rpx;margin-top:50rpx">提交预约</button>

@@ -74,6 +74,7 @@ Page({
       wx.showToast({
         title: '未成功登录',
         duration: 1000,
+        icon:'error',
         mask:true
       });
     } else {

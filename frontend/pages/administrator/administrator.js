@@ -9,14 +9,14 @@ Page({
         user_list: [], //用户列表
 
         user_clazz: [
-            ["行政", "2020级", "2021级"],
-            ["未央教务"]
+            ["未央管理", "2020级", "2021级"],
+            ["未央团工委","党建辅导员","带班辅导员", "未央教务"]
         ],
         grade: [
-            ["行政", "2020级", "2021级"]
+            ["未央管理", "2020级", "2021级"]
         ],
         class: [
-            ["未央教务"],
+            ["未央团工委","党建辅导员","带班辅导员", "未央教务"],
             ["未央-建环01", "未央-水木01", "未央-水木02", "未央-环01", "未央-能动01", "未央-能动02", "未央-机械01", "未央-精01", "未央-工01", "未央-电01", "未央-微01", "未央-软件01", "未央-工物01", "未央-材01"],
             ["未央-建环11", "未央-水木11", "未央-水木12", "未央-环11", "未央-能动11", "未央-能动12", "未央-机械11", "未央-精11", "未央-工11", "未央-电11", "未央-微11", "未央-软件11", "未央-工物11", "未央-材11", "未央-材12", "未央-材13"],
         ],
@@ -212,10 +212,10 @@ Page({
     },
     //解除权限
     fired(e) {
-        let id =e.currentTarget.dataset.id
+        let id = e.currentTarget.dataset.id
         if (id == app.globalData.school_id) {
             wx.showToast({
-                icon:"error",
+                icon: "error",
                 title: '不能解除权限',
                 duration: 1000,
                 mask: true
@@ -288,13 +288,13 @@ Page({
         }
     },
     //解除绑定
-    unlock(e) {    
+    unlock(e) {
         let id = e.currentTarget.dataset.id
         if (id == app.globalData.school_id) {
             wx.showToast({
                 title: '不能解除绑定',
                 duration: 1000,
-                icon:"error",
+                icon: "error",
                 mask: true
             })
         } else {

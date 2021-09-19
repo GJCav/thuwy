@@ -550,7 +550,7 @@ Page({
     }
   },
   touch_end(e) {
-    if (this.data.selected && this.data.final_st != this.data.final_ed) {
+    if (this.data.selected && this.data.final_st <= this.data.final_ed) {
       wx.showLoading({
         title: '加载中',
         mask: true

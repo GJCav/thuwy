@@ -18,7 +18,7 @@ Page({
     },{
       text: "申请成为管理员",
       go: "beadmin",
-      condition: true
+      condition: false
     }, {
       text: "进入管理员界面",
       go: "admin",
@@ -53,7 +53,7 @@ Page({
   onShow() {
     this.setData({
       'select[0].condition': !app.globalData.userInfo,
-      'select[2].condition': !app.globalData.isadmin,
+      // 'select[2].condition': !app.globalData.isadmin,
       'select[3].condition': app.globalData.isadmin
     })
     if (app.globalData.login) {

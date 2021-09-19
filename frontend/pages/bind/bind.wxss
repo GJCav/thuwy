@@ -2,3 +2,20 @@
 page {
   background-color: #ffffff
 }
+.depart{
+  color:#777777;
+  font-style: italic;
+  width: 70%;
+  background-color: #ffffff;
+  border: 2px solid #dddddd;
+  margin-left: 15%;
+  margin-right: 15%;
+}
+.have_depart{
+  color:#000000;
+  width: 70%;
+  background-color: #ffffff;
+  border: 2px solid #dddddd;
+  margin-left: 15%;
+  margin-right: 15%;
+}
