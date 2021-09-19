@@ -98,7 +98,7 @@ export default {
     };
   },
   async mounted() {
-    this.loadRsvList();
+    return this.loadRsvList();
   },
   methods: {
     async loadRsvList() {

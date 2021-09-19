@@ -82,6 +82,13 @@
             v-model="item['brief-intro']"
           ></v-text-field>
           <br />
+
+          <v-text-field
+            label="物品分组"
+            outlined
+            v-model="item['group']"
+          ></v-text-field>
+          <br />
         </v-col>
       </v-row>
 
@@ -165,6 +172,7 @@ export default {
         'md-intro': '',
         thumbnail: '',
         'rsv-method': '',
+        group: '',
         attr: 0,
         id: 0,
       };
