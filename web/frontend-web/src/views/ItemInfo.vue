@@ -9,7 +9,7 @@
       <h1 class="text-h3 text-center">物品信息</h1>
       <br />
       <v-row class="justify-center">
-        <v-btn-toggle v-if="user!==null && user.admin">
+        <v-btn-toggle v-if="user !== null && user.admin">
           <v-btn :to="`/item/${this.id}/edit`" color="success" outlined
             ><v-icon dense color="success">mdi-pencil</v-icon>编辑</v-btn
           >
@@ -31,7 +31,10 @@
           <v-img :src="item.thumbnail" max-width="384px"></v-img>
         </v-row>
         <div class="text-h5">名称</div>
-        <div class="subtitle-1">{{ item.name }}</div>
+        <div class="subtitle-1">
+          {{ item.name }}<v-chip outlined small class="ma-2" color="cyan" ripple>{{ item.group }}</v-chip
+          >
+        </div>
         <br />
 
         <div class="text-h5">简介</div>
@@ -129,7 +132,7 @@ export default {
     },
     user() {
       return this.$store.state.user;
-    }
+    },
   },
   components: {
     ConfirmBox,
