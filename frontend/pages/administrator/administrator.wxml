@@ -52,7 +52,7 @@
             </view>
         </view>
         <view style="width:40%;display:flex;flex-direction:column;align-items:center">
-            <button class="warn" hover-class="warns" size="mini" bindtap="fired" data-value="{{item.openid}}">解除权限</button>
+            <button class="warn" hover-class="warns" size="mini" bindtap="fired" data-value="{{item.openid}}" data-id="{{item['school-id']}}">解除权限</button>
         </view>
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align:center;margin-top:50%"
@@ -65,7 +65,7 @@
     <view class="small_title">
         <view class="thetext" style="width:100%;justify-content:center;color:black">
             <image class="square" src="/icon/black_search.png" />
-            <text style="font-weight:bold;margin-right:15rpx;margin-left:10rpx">搜索：</text>
+            <text style="font-weight:bold;margin-right:15rpx;margin-left:10rpx">筛选：</text>
             <picker class="search_box" mode="multiSelector" range="{{user_clazz}}" bindchange="choose_clazz" bindcolumnchange="change_column">{{grade[0][index[0]]+"  "}}{{class[index[0]][index[1]]}}</picker>
         </view>
     <view class="divline"></view>
@@ -83,7 +83,7 @@
             </view>
         </view>
         <view style="width:40%;display:flex;flex-direction:column;align-items:center">
-            <button class="warn" hover-class="warns" size="mini" bindtap="unlock" data-value="{{item.openid}}">解除绑定</button>
+            <button class="warn" hover-class="warns" size="mini" bindtap="unlock" data-value="{{item.openid}}" data-id="{{item['school-id']}}">解除绑定</button>
         </view>
     </view>
     <view style="font-weight:lighter;color:#999999;height:100rpx;text-align:center;margin-top:50%"

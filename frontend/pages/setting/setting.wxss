@@ -58,11 +58,9 @@
 
 /* 版本号 */
 .version {
-  bottom: 10rpx;
   width: 100%;
-  position: fixed;
+  margin-bottom: 20rpx;
   color: #999999;
   font-size: small;
-  font-weight: inherit;
   text-align: center;
 }

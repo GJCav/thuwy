@@ -37,5 +37,5 @@
     <view class="divline" wx:if="{{index!=select.length-1 && item.condition}}"></view>
   </view>
 </view>
-<image src="/image/logo.png" mode="aspectFit" style="width:100%;height:170rpx;margin-top:50rpx;margin-bottom:50rpx;display:inline-block"></image>
+<image src="/image/logo.png" mode="aspectFit" style="width:100%;height:120rpx;margin-top:50rpx;display:inline-block"></image>
 <view class="version">Version:1.0.0</view>

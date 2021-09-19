@@ -1,4 +1,5 @@
 <!--pages/document/document.wxml-->
 <view class="repeat" wx:for="{{document}}" wx:key="name">
-    <view class="select"  bindtap="download" hover-class="haveselect" data-url="{{item.url}}">{{item.name}}</view>
+    <view class="select"  bindtap="read_it" hover-class="haveselect" data-type="{{item.type}}">{{item.name}}</view>
+    <view class="divline" wx:if="{{index!=document.length-1}}"></view>
 </view>

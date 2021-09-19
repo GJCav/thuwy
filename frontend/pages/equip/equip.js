@@ -89,13 +89,13 @@ Page({
   },
   del_feature(e) {
     this.setData({
-      attr: this.data.attr - (1 << e.currentTarget.dataset['id']),
+      attr: this.data.attr - (1 << e.currentTarget.dataset.id),
     })
   },
   //预览详细介绍（md格式）
   showmd() {
     wx.navigateTo({
-      url: '../info/info?title=详情预览',
+      url: '../info/info?title=详情预览&type=0',
     })
   },
   choosepic: function (e) {

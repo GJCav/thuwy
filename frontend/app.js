@@ -31,6 +31,7 @@ App({
                     },
                     success: (res) => {
                       if (res.data.code == 0) {
+                        that.globalData.school_id=res.data['school-id']
                         that.globalData.isadmin = res.data.admin ? true : false
                         resolve()
                       } else {
@@ -60,6 +61,7 @@ App({
     })
   },
   globalData: {
+    school_id:'',
     login: false,
     isadmin: false,
     userInfo: false,
@@ -67,7 +69,7 @@ App({
       title: '自动通过审批',
       text: '在预约提交成功的情况下，系统会自动完成审批。适用于29号楼会议室等不需要管理员特别审批的物品。'
     }],
-    item_group:['全部物品','设备器材','公共活动室','其他物品'],
+    item_group:['全部物品','未央设备','29号楼','其他物品'],
     url: 'https://api.thuwy.top', //本地测试地址：'http://127.0.0.1:5000'https://api.thuwy.top
     picurl: 'https://web.thuwy.top/api',
     webBackendUrl: 'https://web.thuwy.top/api'

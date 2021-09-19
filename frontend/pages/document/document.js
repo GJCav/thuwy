@@ -5,7 +5,10 @@ Page({
   data: {
     document: [{
       name: '学生公寓29号楼活动室借用指南',
-      url: 'https://static.thuwy.top/image/2021/08/16/1629094147961_nb3lrm247jgpdku37akcs2wx2wwheixv.jpeg'
+      type: '29号楼'
+    },{
+      name:'未央设备借用管理办法(2021版)',
+      type:'未央设备'
     }]
   },
   onLoad: function (options) {
@@ -13,7 +16,9 @@ Page({
       title: '预约须知'
     })
   },
-  download(e) {
-   
+  read_it(e) {
+    wx.navigateTo({
+      url: '../info/info?title=预约须知&type='+e.currentTarget.dataset.type,
+    })
   }
 })

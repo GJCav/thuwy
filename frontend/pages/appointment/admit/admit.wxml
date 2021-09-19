@@ -9,8 +9,8 @@
     </view>
     <view class="detail-list" style="margin-left:10%;font-weight:bold">物品详细信息：</view>
     <view style="width:80%;margin-left:10%;margin-right:10%;margin-top:20rpx;border:2px solid #dddddd">
-      <view style="margin-left:2%;margin-right:2%">
-        <wemark md="{{md_intro}}" link highlight type="wemark"></wemark>
+      <view style="padding:2%">
+        <towxml nodes="{{md_intro}}"></towxml>
       </view>
     </view>
     <view class="detail-list" style="margin-left:10%;font-weight:bold" wx:if="{{attr!=0}}">物品特殊属性：</view>
@@ -73,11 +73,12 @@
 <!-- 用于解决奇怪的bug -->
 <view style="height:30rpx"></view>
 <!-- 用户须知 -->
-<modal title='未央书院物品预约须知' cancel-text='关闭' confirm-text='确定' hidden="{{hidden1}}" bindconfirm="read_confirm"
+<modal title='物品预约须知' cancel-text='取消' confirm-text='确定' hidden="{{hidden1}}" bindconfirm="read_confirm"
   bindcancel="read_cancel">
-  <wemark md="{{read_text}}" link highlight type="wemark"></wemark>
+  <text decode="{{true}}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;点击下方“确定”即表明已经知晓并同意未央书院相关预约须知。</text>
+  <view style="width:100%;font-size:small;display:flex;margin-top:30rpx;justify-content:center;color:steelblue;text-decoration-line:underline" bindtap="read_info">点击阅读相关预约须知</view>
 </modal>
-<modal title='确认时间' no-cancel='true' confirm-text='确定' hidden="{{hidden2}}" bindconfirm="time_confirm">
+<modal title='确认时间' cancel-text='关闭' confirm-text='确定' hidden="{{hidden2}}" bindconfirm="time_confirm" bindcancel="time_cancel">
   <picker style="margin-top:50rpx" mode="time" value="{{final_st}}" start="{{select_st}}" end="{{final_ed}}"
     bindchange="st_change">
     <view class="option" style="display:flex;justify-content:center">

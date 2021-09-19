@@ -14,7 +14,7 @@ Page({
     }, {
       text: "查看预约须知",
       go: "document",
-      condition: true
+      condition: false
     },{
       text: "申请成为管理员",
       go: "beadmin",
