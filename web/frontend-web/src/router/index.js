@@ -33,11 +33,11 @@ const routes = [
         path: '/item/new',
         name: 'ItemCreate'
       },
-      // {
-      //   path: '/user',
-      //   name: 'UserManage',
-      //   component: () => import('@/views/UserManage.vue')
-      // },
+      {
+        path: '/user',
+        name: 'UserManage',
+        component: () => import('@/views/UserManage.vue')
+      },
       {
         path: '/reservation',
         name: 'RsvManage',
@@ -47,9 +47,14 @@ const routes = [
         path: '/about',
         name: 'About',
         component: () => import('@/views/About.vue')
+      },
+      {
+        path: '*',
+        name: 'NotFound',
+        component: () => import('@/views/404.vue')
       }
     ]
-  },
+  }
 ];
 
 const router = new VueRouter({

@@ -314,8 +314,13 @@ def delAdmin(openid):
     admin = Admin.fromId(openid)
     if not admin:
         return ErrCode.CODE_ARG_INVALID
-    
+
     db.session.delete(admin)
+    try:
+        db.session.commit()
+    except:
+        traceback.print_exc()
+        return ErrCode.CODE_DATABASE_ERROR
     return ErrCode.CODE_SUCCESS
 
 if getattr(config, 'ENABLE_TEST_ACCOUNT', False):
@@ -408,13 +413,18 @@ def unbindUser(openid):
         return ErrCode.CODE_ARG_INVALID
     
     user = User.fromOpenid(openid)
+    ubdn: UserBinding = UserBinding.fromOpenId(openid)
 
     if not user:
         return ErrCode.Auth.CODE_USER_NOT_FOUND
     
+    if not ubdn:
+        return ErrCode.CODE_DATABASE_CONSISTANCE_ERROR
+    
     user.schoolId = None
     user.name == None
     user.clazz = None
+    ubdn.openid = None
 
     try:
         db.session.commit()

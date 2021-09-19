@@ -34,7 +34,8 @@ export async function postItem(item) {
     'md-intro': item['md-intro'],
     thumbnail: item.thumbnail,
     'rsv-method': item['rsv-method'],
-    attr: item.attr
+    attr: item.attr,
+    group: item.group
   });
   if (data.code !== 0) {
     throw data.errmsg;

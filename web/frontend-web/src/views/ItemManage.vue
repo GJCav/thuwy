@@ -8,62 +8,80 @@
       dark
       ><v-icon>mdi-plus</v-icon>新增物品</v-btn
     >
-    <v-hover v-slot="{ hover }" v-for="item in itemList" :key="item.id">
-      <v-card
-        :elevation="hover ? 12 : 2"
-        color="cyan lighten-5"
-        style="margin-top: 50px"
-        :class="{ 'on-hover': hover }"
-      >
-        <router-link :to="`/item/${item.id}`">
-          <v-img
-            :src="item.thumbnail"
-            max-height="384px"
-            class="white--text align-end"
-          >
-            <v-card-title
-              style="font-weight: 700; text-shadow: 0 0 2px black"
-              class="text-h5"
-              v-text="item.name"
-            ></v-card-title>
-            <v-card-subtitle
-              style="font-weight: 700; text-shadow: 0 0 1px black"
-              v-text="item['brief-intro']"
-            ></v-card-subtitle></v-img
-        ></router-link>
 
-        <v-expand-transition>
-          <v-card-actions
-            v-if="user !== null && user.admin"
-            v-show="hover"
-            style="padding: 0"
-          >
-            <v-btn
-              :to="`/item/${item.id}/edit`"
-              class="ml-3 mt-2 mb-2"
-              outlined
-              rounded
-              color="success"
+    <v-select :items="tags" v-model="tag" clearable></v-select>
+
+    <template v-for="item in itemList">
+      <v-hover
+        v-slot="{ hover }"
+        :key="item.id"
+        v-if="!tag || item.group === tag"
+      >
+        <v-card
+          :elevation="hover ? 12 : 2"
+          color="cyan lighten-5"
+          style="margin-bottom: 30px"
+          :class="{ 'on-hover': hover }"
+        >
+          <router-link :to="`/item/${item.id}`">
+            <v-img
+              :src="item.thumbnail"
+              max-height="384px"
+              class="white--text align-end"
             >
-              <v-icon small>mdi-pencil</v-icon>
-              编辑
-            </v-btn>
-            <v-btn
-              class="ml-3 mt-2 mb-2"
-              color="error"
-              outlined
-              rounded
-              @click="dialog = (itemToDelete = item.id) > 0"
-              :loading="deleting && itemToDelete === item.id"
-              :disabled="deleting && itemToDelete === item.id"
+              <template v-slot:placeholder>
+                <v-row class="fill-height ma-0" align="center" justify="center">
+                  <v-progress-circular
+                    indeterminate
+                    color="grey darken-3"
+                  ></v-progress-circular>
+                </v-row>
+              </template>
+              <v-card-title
+                style="font-weight: 700; text-shadow: 0 0 2px black"
+                class="text-h5"
+                v-text="item.name"
+              ></v-card-title>
+              <v-card-subtitle
+                style="font-weight: 700; text-shadow: 0 0 1px black"
+                v-text="item['brief-intro']"
+              ></v-card-subtitle></v-img
+          ></router-link>
+
+          <v-expand-transition>
+            <v-card-actions
+              v-if="user !== null && user.admin"
+              v-show="hover"
+              style="padding: 0"
             >
-              <v-icon small>mdi-trash-can-outline</v-icon>
-              删除
-            </v-btn>
-          </v-card-actions>
-        </v-expand-transition>
-      </v-card>
-    </v-hover>
+              <v-btn
+                :to="`/item/${item.id}/edit`"
+                class="ml-3 mt-2 mb-2"
+                outlined
+                rounded
+                color="success"
+              >
+                <v-icon small>mdi-pencil</v-icon>
+                编辑
+              </v-btn>
+              <v-btn
+                class="ml-3 mt-2 mb-2"
+                color="error"
+                outlined
+                rounded
+                @click="dialog = (itemToDelete = item.id) > 0"
+                :loading="deleting && itemToDelete === item.id"
+                :disabled="deleting && itemToDelete === item.id"
+              >
+                <v-icon small>mdi-trash-can-outline</v-icon>
+                删除
+              </v-btn>
+            </v-card-actions>
+          </v-expand-transition>
+        </v-card>
+      </v-hover>
+    </template>
+
     <confirm-box
       v-model="dialog"
       title="确认删除"
@@ -85,6 +103,8 @@ export default {
       itemToDelete: null,
       dialog: false,
       deleting: false,
+      tags: [],
+      tag: null,
     };
   },
   async mounted() {
@@ -93,6 +113,12 @@ export default {
   methods: {
     async loadItemList() {
       this.itemList = await getItemList();
+      let tagList = {};
+      for (let i = 0; i < this.itemList.length; i++) {
+        this.itemList[i].group = this.itemList[i].group || '无分组';
+        tagList[this.itemList[i].group] = true;
+      }
+      this.tags = Object.keys(tagList);
     },
     async confirmDelete(confirm) {
       if (confirm) {

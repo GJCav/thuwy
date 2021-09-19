@@ -177,8 +177,9 @@ def itemRsvInfo(itemId):
         db.session.query(Reservation) \
         .filter(Reservation.itemId == itemId) \
         .filter(Reservation.st >= timestamp.today()) \
-        .filter(Reservation.ed <= timestamp.aWeekAfter()) \
+        .filter(Reservation.ed <= timestamp.daysAfter(8)) \
         .all()
+        # .filter(Reservation.ed <= timestamp.aWeekAfter()) \
 
     skipRsvIds = set()
     arr = []
