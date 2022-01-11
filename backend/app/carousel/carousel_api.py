@@ -3,9 +3,10 @@ import traceback
 from sqlalchemy import desc
 
 from . import carouselRouter
+from .carousel_model import CarouselMsg
 
 from app.auth import requireLogin, requireAdmin, requireBinding
-from app.models import db, CarouselMsg
+from app.models import db
 from app import comerrs as ErrCode
 from app import carouselIdPool
 from app import checkargs as CheckArgs

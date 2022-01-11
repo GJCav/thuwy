@@ -17,7 +17,7 @@ import app.checkargs as CheckArgs
 
 testItemCount = 100
 
-addNewItem = False
+addNewItem = True
 testItemUrl = baseUrl + 'item/'
 
 # 在使用该测试前删除原来的数据库
