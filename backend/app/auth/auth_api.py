@@ -8,12 +8,12 @@ import os
 import traceback
 
 from . import authRouter
-from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID
-from config import config
+from config import WX_APP_ID, WX_APP_SECRET, config
 from app import adminReqIdPool
 from app import comerrs as ErrCode
-from app.models import db, Admin, AdminRequest, User, UserBinding
 import app.checkargs as CheckArgs
+
+from .auth_model import db, Admin, AdminRequest, User, UserBinding
 
 @authRouter.route('/login/', methods=['POST'])
 def login():
@@ -94,8 +94,6 @@ def requireLogin(handler):
     return inner
 
 def didilogin():
-    if skipLoginAndBind and not session.get('openid'):
-        return 'skipped'
     if not session.get('openid'):
         return 'no'
     elif not User.fromOpenid(session.get('openid')):

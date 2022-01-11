@@ -12,91 +12,6 @@ from . import carouselIdPool
 
 db = SQLAlchemy(use_native_unicode='utf8')
 
-class Admin(db.Model):
-    __tablename__ = 'admin'
-    openid        = db.Column(db.Text, primary_key = True)
-
-    def fromId(id):
-        return db.session.query(Admin).filter(Admin.openid == id).one_or_none()
-
-class User(db.Model):
-    __tablename__ = "user"
-    openid        = db.Column(db.Text, primary_key = True)
-    schoolId      = db.Column('school_id', db.Text, unique=True)
-    name          = db.Column(db.Text)
-    clazz         = db.Column(db.Text)
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    def __init__(self, openid, *args, **kwargs) -> None:
-        self.openid = openid
-        super().__init__(*args, **kwargs)
-
-    def __repr__(self) -> str:
-        return f'User({self.name}, {self.schoolId}, {self.clazz}, {self.openid})'
-
-    def toDict(self):
-        return {
-            'school-id': self.schoolId,
-            'name': self.name,
-            'clazz': self.clazz,
-            'admin': bool(Admin.fromId(self.openid)),
-            'openid': self.openid
-        }
-
-    def fromOpenid(openid):
-        return db.session.query(User).filter(User.openid == openid).one_or_none()
-
-    def queryProfile(openId):
-        openId = str(openId)
-        usr = db.session.query(User).filter(User.openid == openId).one_or_none()
-        if usr == None:
-            return None
-        else:
-            usr = usr.toDict()
-            return usr
-
-    def queryName(openid):
-        """
-        return: name of openid, none if not found.
-        """
-
-        rst = db.session\
-            .query(User.name)\
-            .filter(User.openid == openid)\
-            .one_or_none()
-        return rst[0] if rst else None
-
-class UserBinding(db.Model):
-    __tablename__ = 'user_binding'
-    schoolId = db.Column('school_id', db.Text, primary_key = True)
-    name = db.Column(db.Text)
-    clazz = db.Column(db.Text)
-    openid = db.Column(db.Text)
-
-    def check(schoolId, name, clazz):
-        return \
-            db.session.query(UserBinding)\
-            .filter(UserBinding.schoolId == schoolId)\
-            .filter(UserBinding.name == name)\
-            .filter(UserBinding.clazz == clazz)\
-            .one_or_none()
-
-    def toDict(self):
-        return {
-            'id': self.schoolId,
-            'openid': self.openid,
-            'clazz': self.clazz,
-            'name': self.name
-        }
-
-    def fromOpenId(openid):
-        return db.session\
-            .query(UserBinding)\
-            .filter(UserBinding.openid == openid)\
-            .one_or_none()
-
 class Item(db.Model):
     __tablename__ = "item"
     id            = db.Column(db.Integer, primary_key=True)
@@ -256,6 +171,8 @@ class SubRsvDelegator:
             if rsv.method == cls.methodValue:
                 return cls
         raise TypeError(f'Unknown method: {rsv.method}')
+
+from app.auth.auth_model import User, Admin
 
 class LongTimeRsv(SubRsvDelegator):
     methodValue = 1
@@ -503,26 +420,6 @@ class FlexTimeRsv(SubRsvDelegator):
     def isBegan(rsv: Reservation, now):
         return (rsv.st <= now < rsv.ed)
 
-class AdminRequest(db.Model):
-    __tablename__ = 'admin_req'
-    id            = db.Column(db.Integer, primary_key = True)
-    requestor     = db.Column(db.Text)
-    approver      = db.Column(db.Text)
-    state         = db.Column(db.Integer) # 0: waiting, 1: accept, 2: reject
-    reason        = db.Column(db.Text)
-
-    def fromId(id):
-        return db.session.query(AdminRequest).filter(AdminRequest.id == id).one_or_none()
-
-    def toDict(self):
-        return {
-            'id': self.id,
-            'requestor': User.fromOpenid(self.requestor).toDict(),
-            'approver': User.queryName(self.approver),
-            # 'state': self.state,
-            'reason': self.reason
-        }
-
 class Advice(db.Model):
     STATE_WAIT = 1
     STATE_END = 2
@@ -618,41 +515,41 @@ def _getIntervalStr(self: Reservation):
 # TODO: 换个更恰当的名字
 # 20210823 有bug，而且非常丑陋，现在弃用
 # def mergeAndBeautify(qryRst: list):
-    """
-    qryRst中的rsv对象至少包含如下属性：
-        * id
-        * method
-        * st
-        * ed
-        * chore
-    """
-    groups = {}
-    rsvArr = []
-    for e in qryRst:
-        # e: Row,
-        # setattr(e, 'interval', None), 因为 e 是Row类型，不能动态添加属性，所以hack一下
-        e = _Dict(**dict(e))
-        e.interval = None
+    # """
+    # qryRst中的rsv对象至少包含如下属性：
+    #     * id
+    #     * method
+    #     * st
+    #     * ed
+    #     * chore
+    # """
+    # groups = {}
+    # rsvArr = []
+    # for e in qryRst:
+    #     # e: Row,
+    #     # setattr(e, 'interval', None), 因为 e 是Row类型，不能动态添加属性，所以hack一下
+    #     e = _Dict(**dict(e))
+    #     e.interval = None
 
-        if e.method == FlexTimeRsv.methodValue:
-            e.interval = _getIntervalStr(e)
-            rsvArr.append(e)
+    #     if e.method == FlexTimeRsv.methodValue:
+    #         e.interval = _getIntervalStr(e)
+    #         rsvArr.append(e)
         
-        elif e.method == LongTimeRsv.methodValue:
-            relation: dict = Json.loads(e.chore)['group-rsv']
-            if 'sub-rsvs' in relation:
-                e.interval = []
-                e.interval.append(_getIntervalStr(e))
+    #     elif e.method == LongTimeRsv.methodValue:
+    #         relation: dict = Json.loads(e.chore)['group-rsv']
+    #         if 'sub-rsvs' in relation:
+    #             e.interval = []
+    #             e.interval.append(_getIntervalStr(e))
 
-                for subRsvIds in relation['sub-rsvs']:
-                    if subRsvIds in groups:
-                        e.interval.append(_getIntervalStr(groups[subRsvIds]))
+    #             for subRsvIds in relation['sub-rsvs']:
+    #                 if subRsvIds in groups:
+    #                     e.interval.append(_getIntervalStr(groups[subRsvIds]))
                 
-                groups[e.id] = e
-                rsvArr.append(e)
-            else:
-                if relation['fth-rsv'] in groups:
-                    groups[relation['fth-rsv']].interval.append(_getIntervalStr(e))
-                else:
-                    groups[e.id] = e
-    return rsvArr
+    #             groups[e.id] = e
+    #             rsvArr.append(e)
+    #         else:
+    #             if relation['fth-rsv'] in groups:
+    #                 groups[relation['fth-rsv']].interval.append(_getIntervalStr(e))
+    #             else:
+    #                 groups[e.id] = e
+    # return rsvArr
