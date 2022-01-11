@@ -18,10 +18,8 @@ accessKeyPool  = Snowflake(MACHINE_ID)
 adviceIdPool   = Snowflake(MACHINE_ID)
 carouselIdPool = Snowflake(MACHINE_ID)
 
-db = SQLAlchemy(app, use_native_unicode='utf8')
 from . import models as Models
-db.create_all()
-Models.init_db()
+Models.init_db(app)
 
 scheduler = APScheduler()
 scheduler.init_app(app)

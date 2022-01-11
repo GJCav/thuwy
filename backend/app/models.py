@@ -1,28 +1,16 @@
 
-from typing import Any
-
-from sqlalchemy.sql.operators import op
-from app import db
-from sqlalchemy import or_, and_
-from sqlalchemy.engine.row import Row
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_
+from sqlalchemy import or_
 import json as Json
 import re as Regex
-import base64
-import os
 
 from . import timetools as timestamp
-from app import snowflake as Snowflake
 from config import userSysName
 from . import rsvstate as RsvState
 from . import carouselIdPool
 
-# db: SQLAlchemy
-# class Student(db.Model):
-#     __tablename__ = 'students'
-#     id = db.Column('id', db.Integer, primary_key = True)
-#     name = db.Column(db.String(100))
-#     city = db.Column(db.String(100))
-
+db = SQLAlchemy(use_native_unicode='utf8')
 
 class Admin(db.Model):
     __tablename__ = 'admin'
@@ -627,8 +615,10 @@ class Advice(db.Model):
         return rst
 
 
-def init_db():
-    with db.app.app_context():
+def init_db(app):
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
         userSys = User.fromOpenid(userSysName)
         if not userSys:
             userSys = User(userSysName)

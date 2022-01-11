@@ -1,7 +1,7 @@
 import traceback
 
-from . import scheduler, app, db
-from .models import Item, Reservation, LongTimeRsv
+from . import scheduler, app
+from .models import Item, Reservation, LongTimeRsv, db
 from . import timetools as timestamp
 from . import rsvstate as RsvState
 

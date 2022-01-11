@@ -5,9 +5,9 @@ from sqlalchemy import or_
 
 from . import itemRouter
 
-from app import db, itemIdPool
+from app import itemIdPool
 from app import comerrs as ErrCode
-from app.models import Admin, AdminRequest, LongTimeRsv, User, Item, Reservation
+from app.models import db, LongTimeRsv, Item, Reservation
 import app.checkargs as CheckArgs
 from app.auth import requireAdmin, requireBinding, requireLogin
 import app.timetools as timestamp

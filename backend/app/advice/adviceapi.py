@@ -2,9 +2,9 @@ from flask import request, session
 
 from . import adviceRouter
 from app.auth import requireAdmin, requireBinding, requireLogin
-from app.models import Advice
+from app.models import db, Advice
 from app import comerrs as ErrCode
-from app import adviceIdPool, db
+from app import adviceIdPool
 from app import timetools as timestamp
 from app import checkargs as CheckArgs
 from app import snowflake

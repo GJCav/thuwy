@@ -5,7 +5,7 @@ from sqlalchemy import desc
 
 from . import rsvRouter
 
-from app import db, rsvIdPool, MACHINE_ID
+from app import rsvIdPool, MACHINE_ID
 from app import comerrs as ErrCode
 from app.models import *
 import app.models as Models

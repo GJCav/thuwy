@@ -10,10 +10,9 @@ import traceback
 from . import authRouter
 from config import WX_APP_ID, WX_APP_SECRET, MACHINE_ID
 from config import config
-from app import db
 from app import adminReqIdPool
 from app import comerrs as ErrCode
-from app.models import Admin, AdminRequest, User, UserBinding
+from app.models import db, Admin, AdminRequest, User, UserBinding
 import app.checkargs as CheckArgs
 
 @authRouter.route('/login/', methods=['POST'])
