@@ -7,7 +7,7 @@ from . import itemRouter
 
 from app import itemIdPool
 from app import comerrs as ErrCode
-from app.models import db, LongTimeRsv, Item, Reservation
+from .model import db, Item
 import app.checkargs as CheckArgs
 from app.auth import requireAdmin, requireBinding, requireLogin
 import app.timetools as timestamp
@@ -173,6 +173,8 @@ def delItem(itemId):
 
 @itemRouter.route('/item/<int:itemId>/reservation/')
 def itemRsvInfo(itemId):
+    from app.models import LongTimeRsv, Reservation
+
     qryRst = \
         db.session.query(Reservation) \
         .filter(Reservation.itemId == itemId) \

@@ -13,7 +13,7 @@ from app import adminReqIdPool
 from app import comerrs as ErrCode
 import app.checkargs as CheckArgs
 
-from .auth_model import db, Admin, AdminRequest, User, UserBinding
+from .model import db, Admin, AdminRequest, User, UserBinding
 
 @authRouter.route('/login/', methods=['POST'])
 def login():
