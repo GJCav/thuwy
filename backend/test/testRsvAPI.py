@@ -4,7 +4,8 @@ from config4test import R, baseUrl
 
 import sys
 sys.path.append('..')
-import app.comerrs as ErrCode
+from app.comerrs import *
+from app.reservation.errcode import *
 import app.checkargs as CheckArgs
 import app.timetools as T
 from app.reservation.model import FlexTimeRsv
@@ -27,7 +28,7 @@ def testRsvWithoutLogin():
     })
 
     assert res
-    assert res.json()['code'] == ErrCode.CODE_NOT_LOGGED_IN['code']
+    assert res.json()['code'] == CODE_NOT_LOGGED_IN['code']
 
 @pytest.mark.skip
 def testLoginAndBinding():
@@ -37,9 +38,9 @@ def testLoginAndBinding():
     assert res
 
     reqJson = res.json()
-    if reqJson['code'] == ErrCode.CODE_NOT_LOGGED_IN['code']:
+    if reqJson['code'] == CODE_NOT_LOGGED_IN['code']:
         pytest.exit('not logged in')
-    elif reqJson['code'] == ErrCode.CODE_UNBOUND['code']:
+    elif reqJson['code'] == CODE_UNBOUND['code']:
         pytest.exit("haven't bound.")
 
     assert reqJson['code'] == 0
@@ -138,7 +139,7 @@ def testRsvFlexTime():
     res = R.post(url_rsv, json=reqJson)
     assert res
     json = res.json()
-    assert json['code'] == ErrCode.Rsv.CODE_METHOD_NOT_SUPPORT['code'], f'测试方法不支持的情况: {json}'
+    assert json['code'] == CODE_METHOD_NOT_SUPPORT['code'], f'测试方法不支持的情况: {json}'
 
     reqJson = {
         'item-id': 123,
@@ -149,7 +150,7 @@ def testRsvFlexTime():
     res = R.post(url_rsv, json=reqJson)
     assert res
     json = res.json()
-    assert json['code'] == ErrCode.Rsv.CODE_ITEM_NOT_FOUND['code'], f'测试找不到物品的情况: {json}'
+    assert json['code'] == CODE_ITEM_NOT_FOUND['code'], f'测试找不到物品的情况: {json}'
 
 
     interval = _flexInterval(3, (8, 0), (9, 0))
@@ -168,7 +169,7 @@ def testRsvFlexTime():
         res = R.post(url_rsv, json=mj)
         assert res
         json = res.json()
-        assert json['code'] == ErrCode.CODE_ARG_MISSING['code'], f'测试缺少参数的情况: {mj}'
+        assert json['code'] == CODE_ARG_MISSING['code'], f'测试缺少参数的情况: {mj}'
 
     
     # --------------------- 测试参数类型错误的情况 ------------------------
@@ -192,7 +193,7 @@ def testRsvFlexTime():
         res = R.post(url_rsv, json=temp)
         assert res
         json = res.json()
-        assert json['code'] == ErrCode.CODE_ARG_TYPE_ERR['code'], f'测试参数类型错误的情况: {temp}'
+        assert json['code'] == CODE_ARG_TYPE_ERR['code'], f'测试参数类型错误的情况: {temp}'
 
     # ------------------- 测试参数格式错误的情况  -----------------------
     reqJson = {
@@ -211,7 +212,7 @@ def testRsvFlexTime():
         res = R.post(url_rsv, json=temp)
         assert res
         json = res.json()
-        assert json['code'] == ErrCode.CODE_ARG_FORMAT_ERR['code'], f'测试参数格式错误的情况: {temp}\r\n{json}'
+        assert json['code'] == CODE_ARG_FORMAT_ERR['code'], f'测试参数格式错误的情况: {temp}\r\n{json}'
     
     # TODO: 等后端区分INVALID ERROR和FORMAT ERROR后添加INVALID的测试
 
@@ -436,7 +437,7 @@ def testCompleteRsv():
         res = R.post(url_rsv+f'{rsvId}/', json={'op': 2})
         assert res
         json = res.json()
-        assert json['code'] == ErrCode.Rsv.CODE_RSV_WAITING['code'], json
+        assert json['code'] == CODE_RSV_WAITING['code'], json
 
     res = R.get(url_rsv+'?state=4')
     assert res
@@ -447,7 +448,7 @@ def testCompleteRsv():
         res = R.post(url_rsv+f'{rsvId}/', json={'op': 2})
         assert res
         json = res.json()
-        assert json['code'] == ErrCode.Rsv.CODE_RSV_COMPLETED['code'], json
+        assert json['code'] == CODE_RSV_COMPLETED['code'], json
 
 
 

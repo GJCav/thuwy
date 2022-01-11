@@ -4,7 +4,8 @@ from .model import db, Advice
 
 from . import adviceRouter
 from app.auth import requireAdmin, requireBinding, requireLogin
-from app import comerrs as ErrCode
+from app.comerrs import *
+from .errcode import *
 from app import adviceIdPool
 from app import timetools as timestamp
 from app import checkargs as CheckArgs
@@ -23,10 +24,10 @@ def getAdviceList():
     try:
         page = int(page)
     except:
-        return ErrCode.CODE_ARG_TYPE_ERR
+        return CODE_ARG_TYPE_ERR
     
     if not CheckArgs.isUint64(page) or page <= 0:
-        return ErrCode.CODE_ARG_INVALID
+        return CODE_ARG_INVALID
 
 
     qry = db.session.query(Advice)
@@ -35,14 +36,14 @@ def getAdviceList():
         try:
             st = timestamp.parseDate(st)
         except Exception as e:
-            return ErrCode.CODE_ARG_FORMAT_ERR
+            return CODE_ARG_FORMAT_ERR
         qry = qry.filter(Advice.id >= snowflake.makeId(st, 0, 0))
     
     if ed != None:
         try:
             ed = timestamp.parseDate(ed)
         except Exception as e:
-            return ErrCode.CODE_ARG_FORMAT_ERR
+            return CODE_ARG_FORMAT_ERR
         qry = qry.filter(Advice.id < snowflake.makeId(ed, 0, 0))
     
     if state != None:
@@ -51,7 +52,7 @@ def getAdviceList():
     qryRst = qry.limit(20).offset(20*(page-1)).all()
 
     rtn = {}
-    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn.update(CODE_SUCCESS)
     rtn['page'] = page
     rtn['advice'] = []
     for advice in qryRst:
@@ -65,15 +66,15 @@ def getAdviceList():
 def getAdviceInfo(adviceId):
 
     if not CheckArgs.isUint64(adviceId):
-        return ErrCode.CODE_ARG_INVALID
+        return CODE_ARG_INVALID
 
     advice = Advice.queryById(adviceId)
 
     if not advice:
-        return ErrCode.Advice.CODE_ADVICE_NOT_FOUND
+        return CODE_ADVICE_NOT_FOUND
 
     rtn = {}
-    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn.update(CODE_SUCCESS)
     rtn['advice'] = advice.toDict(True)
     return rtn
 
@@ -89,10 +90,10 @@ def getMyAdviceList():
     try:
         page = int(page)
     except:
-        return ErrCode.CODE_ARG_TYPE_ERR
+        return CODE_ARG_TYPE_ERR
     
     if not CheckArgs.isUint64(page) or page <= 0:
-        return ErrCode.CODE_ARG_INVALID
+        return CODE_ARG_INVALID
 
 
     qry = db.session.query(Advice).filter(Advice.proponent == session['openid'])
@@ -101,14 +102,14 @@ def getMyAdviceList():
         try:
             st = timestamp.parseDate(st)
         except Exception as e:
-            return ErrCode.CODE_ARG_FORMAT_ERR
+            return CODE_ARG_FORMAT_ERR
         qry = qry.filter(Advice.id >= snowflake.makeId(st, 0, 0))
     
     if ed != None:
         try:
             ed = timestamp.parseDate(ed)
         except Exception as e:
-            return ErrCode.CODE_ARG_FORMAT_ERR
+            return CODE_ARG_FORMAT_ERR
         qry = qry.filter(Advice.id < snowflake.makeId(ed, 0, 0))
     
     if state != None:
@@ -117,7 +118,7 @@ def getMyAdviceList():
     qryRst = qry.limit(20).offset(20*(page-1)).all()
 
     rtn = {}
-    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn.update(CODE_SUCCESS)
     rtn['page'] = page
     rtn['advice'] = []
     for advice in qryRst:
@@ -129,20 +130,20 @@ def getMyAdviceList():
 @requireBinding
 def responseAdvice(adviceId):
     if not CheckArgs.isUint64(adviceId):
-        return ErrCode.CODE_ARG_INVALID
+        return CODE_ARG_INVALID
 
     json = request.get_json()
     if json == None:
-        return ErrCode.CODE_ARG_INVALID
+        return CODE_ARG_INVALID
     if 'response' not in json:
-        return ErrCode.CODE_ARG_MISSING
+        return CODE_ARG_MISSING
     if not CheckArgs.isStr(json['response']):
-        return ErrCode.CODE_ARG_TYPE_ERR
+        return CODE_ARG_TYPE_ERR
 
     advice = Advice.queryById(adviceId)
 
     if not advice:
-        return ErrCode.Advice.CODE_ADVICE_NOT_FOUND
+        return CODE_ADVICE_NOT_FOUND
 
     advice.response = json['response']
     advice.state = Advice.STATE_END
@@ -151,9 +152,9 @@ def responseAdvice(adviceId):
         db.session.commit()
     except Exception as e:
         print(str(e))
-        return ErrCode.CODE_DATABASE_ERROR
+        return CODE_DATABASE_ERROR
 
-    return ErrCode.CODE_SUCCESS
+    return CODE_SUCCESS
 
 @adviceRouter.route('/advice/', methods=['POST'])
 @requireLogin
@@ -161,11 +162,11 @@ def responseAdvice(adviceId):
 def adminAdvice():
     json = request.get_json()
 
-    if not json: return ErrCode.CODE_ARG_INVALID
+    if not json: return CODE_ARG_INVALID
     if not CheckArgs.hasAttrs(json, ['title', 'content']):
-        return ErrCode.CODE_ARG_MISSING
+        return CODE_ARG_MISSING
     if not CheckArgs.areStr(json, ['title', 'content']):
-        return ErrCode.CODE_ARG_TYPE_ERR
+        return CODE_ARG_TYPE_ERR
     
     advice = Advice()
     advice.id = adviceIdPool.next()
@@ -179,9 +180,9 @@ def adminAdvice():
         db.session.commit()
     except Exception as e:
         print(e)
-        return ErrCode.CODE_DATABASE_ERROR
+        return CODE_DATABASE_ERROR
 
     rtn = {}
-    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn.update(CODE_SUCCESS)
     rtn['advice-id'] = advice.id
     return rtn

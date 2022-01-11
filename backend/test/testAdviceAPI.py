@@ -6,7 +6,8 @@ import re as Regex
 
 import sys
 sys.path.append('..')
-import app.comerrs as ErrCode
+from app.comerrs import *
+from app.advice.errcode import *
 
 adviceUrl = baseUrl + 'advice/'
 
@@ -117,7 +118,7 @@ def testAddAdviceRobustly():
         res = R.post(adviceUrl, json=reqJson)
         assert res
         json = res.json()
-        assert json['code'] == ErrCode.CODE_ARG_MISSING['code'], json
+        assert json['code'] == CODE_ARG_MISSING['code'], json
 
     for k in baseReqJson.keys():
         reqjson = {}
@@ -127,16 +128,16 @@ def testAddAdviceRobustly():
         res = R.post(adviceUrl, json=reqJson)
         assert res
         json = res.json()
-        assert json['code'] == ErrCode.CODE_ARG_TYPE_ERR['code'], json
+        assert json['code'] == CODE_ARG_TYPE_ERR['code'], json
 
 @pytest.mark.robustTest
 def testGetAdviceListRobustly():
     pageData = [
         # page, http code, json code, response page
-        (-1, 200, ErrCode.CODE_ARG_INVALID['code'], 0),
-        (0, 200, ErrCode.CODE_ARG_INVALID['code'], 0),
-        (2**128, 200, ErrCode.CODE_ARG_INVALID['code'], 0),
-        ('a', 200, ErrCode.CODE_ARG_TYPE_ERR['code'], 1),
+        (-1, 200, CODE_ARG_INVALID['code'], 0),
+        (0, 200, CODE_ARG_INVALID['code'], 0),
+        (2**128, 200, CODE_ARG_INVALID['code'], 0),
+        ('a', 200, CODE_ARG_TYPE_ERR['code'], 1),
         (100, 200, 0, 100)
     ]
     
@@ -156,7 +157,7 @@ def testGetAdviceInfoRobustly():
     res = R.get(adviceUrl+'0/')
     assert res
     json = res.json()
-    assert json['code'] == ErrCode.Advice.CODE_ADVICE_NOT_FOUND['code']
+    assert json['code'] == CODE_ADVICE_NOT_FOUND['code']
 
 
 @pytest.mark.robustTest
@@ -164,7 +165,7 @@ def testResponseRobustly():
     res = R.post(adviceUrl + '0/', json={'response': ''})
     assert res
     json = res.json()
-    assert json['code'] == ErrCode.Advice.CODE_ADVICE_NOT_FOUND['code']
+    assert json['code'] == CODE_ADVICE_NOT_FOUND['code']
 
     res = R.post(adviceUrl, json={'title': 'test res robustly', 'content': 'none'})
     assert res
@@ -175,9 +176,9 @@ def testResponseRobustly():
     res = R.post(adviceUrl+f'{adviceId}/', json={})
     assert res
     json = res.json()
-    assert json['code'] == ErrCode.CODE_ARG_MISSING['code']
+    assert json['code'] == CODE_ARG_MISSING['code']
 
     res = R.post(adviceUrl+f'{adviceId}/', json={'response': 54})
     assert res
     json = res.json()
-    assert json['code'] == ErrCode.CODE_ARG_TYPE_ERR['code']
+    assert json['code'] == CODE_ARG_TYPE_ERR['code']

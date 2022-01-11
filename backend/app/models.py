@@ -32,35 +32,7 @@ class _Dict(dict):
     def __setattr__(self, name: str, value) -> None:
         self[name] = value
 
-# """
-# 即使是LongTimeRsv，也只返回单挑 interval 
-# """
-# def _getIntervalStr(self: Reservation):
-#     """
-#     self中至少有Reservation中的如下属性：
-#         * method
-#         * st
-#         * ed
-#     return: 可读的时间段信息
-#     """
-#     if self.method == LongTimeRsv.methodValue:
-#         hour = timestamp.getHour(self.st)
-#         if hour == LongTimeRsv.morningStartHour:
-#             return f'{timestamp.getDate(self.st)} {LongTimeRsv.morningCode}'
-#         elif hour == LongTimeRsv.afternoonStartHour:
-#             return f'{timestamp.getDate(self.st)} {LongTimeRsv.afternoonCode}'
-#         elif hour == LongTimeRsv.nightStartHour:
-#             return f'{timestamp.getDate(self.st)} {LongTimeRsv.nightCode}'
-#         else:
-#             return f'{timestamp.getDate(self.st)} {LongTimeRsv.weekendCode}'
 
-#     elif self.method == FlexTimeRsv.methodValue:
-#         return f'{timestamp.getDate(self.st)} {timestamp.clock(self.st)}-{timestamp.clock(self.ed)}'
-
-
-# TODO: 换个更恰当的名字
-# 20210823 有bug，而且非常丑陋，现在弃用
-# def mergeAndBeautify(qryRst: list):
     # """
     # qryRst中的rsv对象至少包含如下属性：
     #     * id

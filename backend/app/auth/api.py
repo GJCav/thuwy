@@ -10,7 +10,8 @@ import traceback
 from . import authRouter
 from config import WX_APP_ID, WX_APP_SECRET, config
 from app import adminReqIdPool
-from app import comerrs as ErrCode
+from app.comerrs import *
+from .errcode import *
 import app.checkargs as CheckArgs
 
 from .model import db, Admin, AdminRequest, User, UserBinding
@@ -19,7 +20,7 @@ from .model import db, Admin, AdminRequest, User, UserBinding
 def login():
     data: dict = request.get_json()
     if not data or not data.get('code', None):
-        return ErrCode.CODE_ARG_MISSING
+        return CODE_ARG_MISSING
 
     try:
         res = R.get(f'https://api.weixin.qq.com/sns/jscode2session?'  \
@@ -27,7 +28,7 @@ def login():
             + f"js_code={data['code']}&grant_type=authorization_code", timeout=5)
     
         if res.status_code != 200:
-            return ErrCode.Auth.CODE_LOGIN_NOT_200
+            return CODE_LOGIN_NOT_200
 
         resJson: dict = Json.loads(res.text)
         if  'openid' not in resJson \
@@ -37,11 +38,11 @@ def login():
 
             # print(C.Red('incomplete wx res'), end='')
             # pprint(resJson)
-            return ErrCode.Auth.CODE_LOGIN_INCOMPLETE_WX_RES
+            return CODE_LOGIN_INCOMPLETE_WX_RES
 
         if 'errcode' in resJson and resJson['errcode'] != 0:
             rtn = {}
-            rtn.update(ErrCode.Auth.CODE_LOGIN_WEIXIN_REJECT)
+            rtn.update(CODE_LOGIN_WEIXIN_REJECT)
             rtn.update({
                  'wx-code': resJson['errcode'], 
                  'wx-errmsg': resJson.get('errmsg', '')
@@ -53,13 +54,13 @@ def login():
         session['openid'] = openid
         session.permanent = True
     except RE.Timeout:
-        return ErrCode.Auth.CODE_LOGIN_TIMEOUT
+        return CODE_LOGIN_TIMEOUT
     except RE.ConnectionError as e:
-        return ErrCode.Auth.CODE_LOGIN_CNT_ERROR
+        return CODE_LOGIN_CNT_ERROR
     except Exception as e:
         # print(C.Red(str(e)))
         # pprint(resJson)
-        return ErrCode.Auth.CODE_LOGIN_UNKOWN
+        return CODE_LOGIN_UNKOWN
 
     user = db.session \
         .query(User.openid, User.schoolId) \
@@ -73,7 +74,7 @@ def login():
         user = (None, None)
     
     rtn = {}
-    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn.update(CODE_SUCCESS)
     rtn['bound'] = user[1] != None
     return rtn
 
@@ -85,10 +86,10 @@ def requireLogin(handler):
         #     session['wx-skey'] = 'secret key for debug'
         #     return handler(*args, **kwargs)
         if not session.get('openid'):
-            return ErrCode.CODE_NOT_LOGGED_IN
+            return CODE_NOT_LOGGED_IN
         elif not User.fromOpenid(session.get('openid')):
-            # return ErrCode.CODE_NOT_LOGGED_IN # 这里意味着用户登录过，但数据库中没有记录，多半是管理员删库了
-            return ErrCode.CODE_DATABASE_ERROR
+            # return CODE_NOT_LOGGED_IN # 这里意味着用户登录过，但数据库中没有记录，多半是管理员删库了
+            return CODE_DATABASE_ERROR
         else:
             return handler(*args, **kwargs)
     return inner
@@ -108,7 +109,7 @@ def requireBinding(handler):
         schoolId = db.session.query(User.schoolId).filter(User.openid == openid).one_or_none()[0] # 这里可以安全的直接使用[0]，因为这个函数总在 requireLogin 后调用
 
         if schoolId == None:
-            return ErrCode.CODE_UNBOUND
+            return CODE_UNBOUND
         else:
             return handler(*args, **kwargs)
     return inner
@@ -138,7 +139,7 @@ def requireAdmin(handler):
         if exist:
             return handler(*args, **kwargs)
         else:
-            return ErrCode.CODE_NOT_ADMIN
+            return CODE_NOT_ADMIN
     return inner
 
 def amiadmin():
@@ -161,26 +162,26 @@ def bind():
         or not reqJson['name'] \
         or 'clazz' not in reqJson \
         or not reqJson['clazz']:
-        return ErrCode.CODE_ARG_MISSING
+        return CODE_ARG_MISSING
 
     try:
         schoolId = str(reqJson['id'])
         name = str(reqJson['name'])
         clazz = str(reqJson['clazz'])
     except:
-        return ErrCode.CODE_ARG_TYPE_ERR
+        return CODE_ARG_TYPE_ERR
 
     openid = session['openid']
     user = User.fromOpenid(openid)
     
     if user.schoolId != None:
-        return ErrCode.Auth.CODE_ALREADY_BOUND
+        return CODE_ALREADY_BOUND
 
     bdnInfo = UserBinding.check(schoolId, name, clazz)
     if bdnInfo == None:
-        return ErrCode.Auth.CODE_INVALID_BIND
+        return CODE_INVALID_BIND
     if bdnInfo.openid != None:
-        return ErrCode.Auth.CODE_TARGET_BOUND
+        return CODE_TARGET_BOUND
 
     try:
         user.name = name
@@ -191,16 +192,16 @@ def bind():
         db.session.commit()
     except:
         traceback.print_exc()
-        return ErrCode.CODE_DATABASE_ERROR
+        return CODE_DATABASE_ERROR
 
-    return ErrCode.CODE_SUCCESS
+    return CODE_SUCCESS
 
 @authRouter.route('/profile/')
 @requireLogin
 def getMyProfile():
     rtn = User.queryProfile(session['openid'])
-    if rtn == None: return ErrCode.CODE_ARG_INVALID
-    rtn.update(ErrCode.CODE_SUCCESS)
+    if rtn == None: return CODE_ARG_INVALID
+    rtn.update(CODE_SUCCESS)
     return rtn
 
 @authRouter.route('/profile/<openId>/', methods=['GET'])
@@ -210,8 +211,8 @@ def getMyProfile():
 def getProfile(openId):
     openId = str(openId)
     profile = User.queryProfile(openId)
-    if profile == None: return ErrCode.CODE_ARG_INVALID
-    profile.update(ErrCode.CODE_SUCCESS)
+    if profile == None: return CODE_ARG_INVALID
+    profile.update(CODE_SUCCESS)
     return profile
 
 
@@ -221,14 +222,14 @@ def getProfile(openId):
 def requestAdmin():
     
     exist = Admin.fromId(session['openid'])
-    if exist: return ErrCode.Auth.CODE_ALREADY_ADMIN
+    if exist: return CODE_ALREADY_ADMIN
 
     exist = db.session\
         .query(AdminRequest)\
         .filter(AdminRequest.requestor == session['openid']) \
         .filter(AdminRequest.state == 0)\
         .first()
-    if exist: return ErrCode.Auth.CODE_ALREADY_REQUESTED
+    if exist: return CODE_ALREADY_REQUESTED
 
     try:
         req = AdminRequest()
@@ -239,10 +240,10 @@ def requestAdmin():
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        return ErrCode.CODE_DATABASE_ERROR
+        return CODE_DATABASE_ERROR
     
     rtn = {'id': req.id}
-    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn.update(CODE_SUCCESS)
     return rtn
 
 
@@ -261,7 +262,7 @@ def adminReqList():
         arr.append(r.toDict())
     
     rtn = {'list': arr}
-    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn.update(CODE_SUCCESS)
     return rtn
 
 
@@ -271,13 +272,13 @@ def adminReqList():
 @requireAdmin
 def examAdminReq(reqId):
     adminReq = AdminRequest.fromId(reqId)
-    if not adminReq: return ErrCode.CODE_ARG_INVALID
-    if adminReq.state != 0: return ErrCode.CODE_ARG_INVALID
+    if not adminReq: return CODE_ARG_INVALID
+    if adminReq.state != 0: return CODE_ARG_INVALID
     # TODO: 细分ErrCode
 
     json = request.get_json()
     if not CheckArgs.hasAttrs(json, ['pass', 'reason']):
-        return ErrCode.CODE_ARG_MISSING
+        return CODE_ARG_MISSING
 
     
     if json['pass'] == 1:
@@ -288,7 +289,7 @@ def examAdminReq(reqId):
     elif json['pass'] == 0:
         adminReq.state = 2
     else:
-        return ErrCode.CODE_ARG_INVALID
+        return CODE_ARG_INVALID
         
     adminReq.reason = json['reason']
     adminReq.approver = session['openid']
@@ -297,9 +298,9 @@ def examAdminReq(reqId):
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        return ErrCode.CODE_DATABASE_ERROR
+        return CODE_DATABASE_ERROR
     
-    return ErrCode.CODE_SUCCESS
+    return CODE_SUCCESS
 
 
 @authRouter.route('/admin/<openid>/', methods=['DELETE'])
@@ -310,15 +311,15 @@ def delAdmin(openid):
     openid = str(openid)
     admin = Admin.fromId(openid)
     if not admin:
-        return ErrCode.CODE_ARG_INVALID
+        return CODE_ARG_INVALID
 
     db.session.delete(admin)
     try:
         db.session.commit()
     except:
         traceback.print_exc()
-        return ErrCode.CODE_DATABASE_ERROR
-    return ErrCode.CODE_SUCCESS
+        return CODE_DATABASE_ERROR
+    return CODE_SUCCESS
 
 if getattr(config, 'ENABLE_TEST_ACCOUNT', False):
     print('!!Warning!! Running with testing mode, enable testing account auto-creation.')
@@ -356,12 +357,12 @@ if getattr(config, 'ENABLE_TEST_ACCOUNT', False):
         try:
             db.session.commit()
         except:
-            return ErrCode.CODE_DATABASE_ERROR
+            return CODE_DATABASE_ERROR
         
         session['openid'] = fakeOpenId
         session.permanent = True
 
-        return ErrCode.CODE_SUCCESS
+        return CODE_SUCCESS
 
 @authRouter.route('/admin/')
 @requireLogin
@@ -376,7 +377,7 @@ def getAdminList():
         profileArr.append(User.fromOpenid(admin.openid).toDict())
     
     rtn = {}
-    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn.update(CODE_SUCCESS)
     rtn['profiles'] = profileArr
     return rtn
 
@@ -400,23 +401,23 @@ def getUserList():
     proArr = [e.toDict() for e in qryRst]
     
     rtn = {}
-    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn.update(CODE_SUCCESS)
     rtn['profiles'] = proArr
     return rtn
 
 @authRouter.route('/user/<openid>/', methods=['DELETE'])
 def unbindUser(openid):
     if not openid:
-        return ErrCode.CODE_ARG_INVALID
+        return CODE_ARG_INVALID
     
     user = User.fromOpenid(openid)
     ubdn: UserBinding = UserBinding.fromOpenId(openid)
 
     if not user:
-        return ErrCode.Auth.CODE_USER_NOT_FOUND
+        return CODE_USER_NOT_FOUND
     
     if not ubdn:
-        return ErrCode.CODE_DATABASE_CONSISTANCE_ERROR
+        return CODE_DATABASE_CONSISTANCE_ERROR
     
     user.schoolId = None
     user.name == None
@@ -427,6 +428,6 @@ def unbindUser(openid):
         db.session.commit()
     except:
         traceback.print_exc()
-        return ErrCode.CODE_DATABASE_ERROR
+        return CODE_DATABASE_ERROR
     
-    return ErrCode.CODE_SUCCESS
+    return CODE_SUCCESS
