@@ -7,13 +7,15 @@ from . import rsvRouter
 
 from app import rsvIdPool, MACHINE_ID
 from app import comerrs as ErrCode
-from app.models import *
-import app.models as Models
 import app.checkargs as CheckArgs
-import app.rsvstate as RsvState
+from . import rsv_state as RsvState
+from .model import *
+from app.models import _Dict
 from app.auth import requireAdmin, requireBinding, requireLogin
 import app.timetools as timestamp
 import app.snowflake as Snowflake
+
+from config import userSysName
 
 @rsvRouter.route('/reservation/')
 @requireLogin
@@ -118,7 +120,7 @@ def reserve():
             if st > timestamp.aWeekAfter() or ed < timestamp.now():
                 return ErrCode.Rsv.CODE_TIME_OUT_OF_RANGE
 
-            new = Models._Dict()
+            new = _Dict()
             new.id = rsvIdPool.next()
             new.st = st
             new.ed = ed

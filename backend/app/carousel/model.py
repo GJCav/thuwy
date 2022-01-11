@@ -1,6 +1,6 @@
 from app import carouselIdPool
 from app.models import db
-from app.models import User
+from app.auth.model import User
 import app.timetools as timestamp
 
 class CarouselMsg(db.Model):

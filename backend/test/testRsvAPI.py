@@ -7,8 +7,8 @@ sys.path.append('..')
 import app.comerrs as ErrCode
 import app.checkargs as CheckArgs
 import app.timetools as T
-from app.models import FlexTimeRsv
-import app.rsvstate as RsvState
+from app.reservation.model import FlexTimeRsv
+import app.reservation.rsv_state as RsvState
 
 
 url_profile = baseUrl + 'profile/'
