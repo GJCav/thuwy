@@ -1,13 +1,17 @@
 {
     "pages": [
-        "pages/index/index"
+        "pages/home/home"
     ],
     "window": {
+        "onReachBottomDistance": 20,
         "backgroundTextStyle": "light",
-        "navigationBarBackgroundColor": "#fff",
-        "navigationBarTitleText": "Weixin",
-        "navigationBarTextStyle": "black"
+        "backgroundColor": "#0087a9",
+        "navigationBarBackgroundColor": "#0087a9",
+        "navigationBarTextStyle": "white"
     },
-    "style": "v2",
+    "networkTimeout": {
+        "request": 10000,
+        "uploadFile": 10000
+    },
     "sitemapLocation": "sitemap.json"
 }

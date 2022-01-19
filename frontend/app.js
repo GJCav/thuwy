@@ -1,2 +1,7 @@
 // app.js
-App({})
+App({
+
+    globaldata:{
+        
+    }
+})

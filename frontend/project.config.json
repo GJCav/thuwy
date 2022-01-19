@@ -30,10 +30,15 @@
             "disablePlugins": [],
             "outputPath": ""
         },
-        "useIsolateContext": true,
+        "useIsolateContext": false,
         "userConfirmedBundleSwitch": false,
-        "packNpmManually": false,
-        "packNpmRelationList": [],
+        "packNpmManually": true,
+        "packNpmRelationList": [
+            {
+                "packageJsonPath": "./package.json",
+                "miniprogramNpmDistDir": "./"
+            }
+        ],
         "minifyWXSS": true,
         "disableUseStrict": false,
         "minifyWXML": true,
@@ -43,8 +48,8 @@
     },
     "compileType": "miniprogram",
     "libVersion": "2.21.4",
-    "appid": "wx61ce2b3ce5970382",
-    "projectname": "miniprogram-1",
+    "appid": "wx7bfe035eee90419b",
+    "projectname": "微未央",
     "debugOptions": {
         "hidedInDevtools": []
     },
