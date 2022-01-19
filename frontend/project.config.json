@@ -5,7 +5,7 @@
     },
     "setting": {
         "urlCheck": true,
-        "es6": false,
+        "es6": true,
         "enhance": true,
         "postcss": true,
         "preloadBackgroundData": false,
@@ -30,7 +30,7 @@
             "disablePlugins": [],
             "outputPath": ""
         },
-        "useIsolateContext": false,
+        "useIsolateContext": true,
         "userConfirmedBundleSwitch": false,
         "packNpmManually": false,
         "packNpmRelationList": [],
@@ -42,9 +42,9 @@
         "ignoreUploadUnusedFiles": true
     },
     "compileType": "miniprogram",
-    "libVersion": "2.19.2",
-    "appid": "wx7bfe035eee90419b",
-    "projectname": "frontend",
+    "libVersion": "2.21.4",
+    "appid": "wx61ce2b3ce5970382",
+    "projectname": "miniprogram-1",
     "debugOptions": {
         "hidedInDevtools": []
     },

@@ -1,4 +1,0 @@
-<!--pages/info/info.wxml-->
-<view style="width: 100%">
-    <towxml nodes="{{md_info}}"></towxml>
-</view>

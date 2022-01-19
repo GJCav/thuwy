@@ -1,55 +1,13 @@
 {
-  "pages":[
-    "pages/appointment/appointment",
-    "pages/appointment/admit/admit",
-    "pages/bind/bind",
-    "pages/setting/setting",
-    "pages/home/home",
-    "pages/admin/admin",
-    "pages/equip/equip",
-    "pages/reservation/reservation",
-    "pages/info/info",
-    "pages/advice/advice",
-    "pages/advice/admit/admit",
-    "pages/administrator/administrator",
-    "pages/document/document",
-    "pages/carousel/carousel",
-    "pages/hide/hide"
-  ],
-  "window":{
-    "onReachBottomDistance":20,
-    "backgroundTextStyle":"light",
-    "backgroundColor": "#0087a9",
-    "navigationBarBackgroundColor": "#0087a9",
-    "navigationBarTextStyle":"white"
-  },
-  "tabBar": {
-    "selectedColor": "#353535",
-    "list": [
-      {
-        "pagePath": "pages/appointment/appointment",
-        "text": "预约",
-        "iconPath": "image/timeline.png",
-        "selectedIconPath": "image/timeline_s.png"
-      },
-      {
-        "pagePath": "pages/home/home",
-        "text": "我的",
-        "iconPath": "image/home.png",
-        "selectedIconPath": "image/home_s.png"
-      },
-      {
-        "pagePath": "pages/setting/setting",
-        "text": "管理",
-        "iconPath": "image/settings.png",
-        "selectedIconPath": "image/settings_s.png"
-      }
-    ]
-  },
-  "networkTimeout": {
-    "request": 10000,
-    "uploadFile": 10000
-  },
-  "style": "v2",
-  "sitemapLocation": "sitemap.json"
+    "pages": [
+        "pages/index/index"
+    ],
+    "window": {
+        "backgroundTextStyle": "light",
+        "navigationBarBackgroundColor": "#fff",
+        "navigationBarTitleText": "Weixin",
+        "navigationBarTextStyle": "black"
+    },
+    "style": "v2",
+    "sitemapLocation": "sitemap.json"
 }
