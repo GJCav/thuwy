@@ -10,6 +10,9 @@ Page({
     reason: '',
   },
   onLoad: function (options) {
+    wx.setNavigationBarTitle({
+      title: "预约信息"
+  })
     wx.showLoading({
       mask: true,
       title: '加载中',

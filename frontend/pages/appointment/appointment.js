@@ -169,6 +169,7 @@ Page({
       wx.showToast({
         title: '未成功登录',
         mask:true,
+        icon:'error',
         duration: 1000
       });
     } else if (app.globalData.userInfo) {
@@ -179,6 +180,7 @@ Page({
       wx.showToast({
         title: '未绑定信息',
         mask:true,
+        icon:'error',
         duration: 1000
       });
       setTimeout(function () {

@@ -30,18 +30,21 @@
             "disablePlugins": [],
             "outputPath": ""
         },
-        "enableEngineNative": false,
-        "useIsolateContext": true,
+        "useIsolateContext": false,
         "userConfirmedBundleSwitch": false,
         "packNpmManually": false,
         "packNpmRelationList": [],
         "minifyWXSS": true,
-        "showES6CompileOption": false
+        "disableUseStrict": false,
+        "minifyWXML": true,
+        "showES6CompileOption": false,
+        "useCompilerPlugins": false,
+        "ignoreUploadUnusedFiles": true
     },
     "compileType": "miniprogram",
     "libVersion": "2.19.2",
     "appid": "wx7bfe035eee90419b",
-    "projectname": "%E6%9C%AA%E5%A4%AE%E4%B9%A6%E9%99%A2%E9%A2%84%E7%BA%A6%E7%B3%BB%E7%BB%9F",
+    "projectname": "frontend",
     "debugOptions": {
         "hidedInDevtools": []
     },

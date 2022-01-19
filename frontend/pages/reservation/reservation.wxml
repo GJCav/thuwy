@@ -59,13 +59,13 @@
     </view>
     <view class="detail-list" style="flex-direction:column">
       <view style="font-weight:bold"> 预约理由：</view>
-      <view style="margin-top:15rpx; border:2px solid #dddddd;padding: 10rpx"><text
-          decode="{{true}}">&nbsp;&nbsp;&nbsp;&nbsp;{{rsv_detail.reason}}</text></view>
+      <view style="margin-top:15rpx; border:2px solid #dddddd;padding: 10rpx">
+      <text>{{rsv_detail.reason}}</text></view>
     </view>
     <view class="detail-list" style="flex-direction:column" wx:if="{{who==0&&rsv_detail['exam-rst']!=null||who==2}}">
       <view style="font-weight:bold"> 审批回复：</view>
       <view style="margin-top:15rpx; border:2px solid #dddddd;padding: 10rpx;" wx:if="{{who==0}}">
-        <text decode="{{true}}">&nbsp;&nbsp;&nbsp;&nbsp;{{rsv_detail['exam-rst']=="auto accept by system"?"无需管理员审核即可预约,系统自动通过":rsv_detail['exam-rst']}}</text>
+        <text>{{rsv_detail['exam-rst']=="auto accept by system"?"无需管理员审核即可预约,系统自动通过":rsv_detail['exam-rst']}}</text>
       </view>
     </view>
     <textarea class="inputbox" wx:if="{{who==2}}"
