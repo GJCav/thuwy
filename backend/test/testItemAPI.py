@@ -12,7 +12,8 @@ import sys
 from config4test import R, baseUrl
 
 sys.path.append('..')
-import app.comerrs as ErrCode
+from app.comerrs import *
+from app.item.errcode import *
 import app.checkargs as CheckArgs
 
 testItemCount = 100
@@ -131,7 +132,7 @@ def testAddItemWithBadArg():
         
         assert res.status_code == 200
         resJson = res.json()
-        assert resJson['code'] == ErrCode.CODE_ARG_TYPE_ERR['code']
+        assert resJson['code'] == CODE_ARG_TYPE_ERR['code']
         assert resJson.keys() == {'code', 'errmsg'}
 
     for k in ['rsv-method']:
@@ -141,7 +142,7 @@ def testAddItemWithBadArg():
         
         assert res.status_code == 200
         resJson = res.json()
-        assert resJson['code'] == ErrCode.CODE_ARG_TYPE_ERR['code']
+        assert resJson['code'] == CODE_ARG_TYPE_ERR['code']
         assert resJson.keys() == {'code', 'errmsg'}
 
     print('wrong format args')
@@ -153,7 +154,7 @@ def testAddItemWithBadArg():
         
         assert res.status_code == 200
         resJson = res.json()
-        assert resJson['code'] == ErrCode.CODE_ARG_FORMAT_ERR['code']
+        assert resJson['code'] == CODE_ARG_FORMAT_ERR['code']
         assert resJson.keys() == {'code', 'errmsg'}
 
 def _isItemObject(item: dict):
@@ -193,10 +194,10 @@ def testShowItem():
     assert len(res.json()['items']) == 0
 
     res = R.get(f'{url}?p={2**128}')
-    assert res.json()['code'] == ErrCode.CODE_ARG_INVALID['code']
+    assert res.json()['code'] == CODE_ARG_INVALID['code']
 
     res = R.get(f'{url}?p=0')
-    assert res.json()['code'] == ErrCode.CODE_ARG_INVALID['code']
+    assert res.json()['code'] == CODE_ARG_INVALID['code']
 
 
 @pytest.mark.modifyItem
@@ -290,11 +291,11 @@ def testDelItem():
 
     res = R.delete(url+f'{2**128}/')
     assert res
-    assert res.json()['code'] == ErrCode.CODE_ARG_INVALID['code'], '测试一个过大id'
+    assert res.json()['code'] == CODE_ARG_INVALID['code'], '测试一个过大id'
 
     res = R.delete(url+'12233/')
     assert res
-    assert res.json()['code'] == ErrCode.Item.CODE_ITEM_NOT_FOUND['code'], '测试不存在的id'
+    assert res.json()['code'] == CODE_ITEM_NOT_FOUND['code'], '测试不存在的id'
 
     json = R.get(url).json()
     while json['items']:

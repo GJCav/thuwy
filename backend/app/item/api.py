@@ -5,9 +5,10 @@ from sqlalchemy import or_
 
 from . import itemRouter
 
-from app import db, itemIdPool
-from app import comerrs as ErrCode
-from app.models import Admin, AdminRequest, LongTimeRsv, User, Item, Reservation
+from app import itemIdPool
+from app.comerrs import *
+from .errcode import *
+from .model import db, Item
 import app.checkargs as CheckArgs
 from app.auth import requireAdmin, requireBinding, requireLogin
 import app.timetools as timestamp
@@ -18,11 +19,11 @@ def itemlist():
     try:
         page = int(page)
     except:
-        return ErrCode.CODE_ARG_TYPE_ERR
+        return CODE_ARG_TYPE_ERR
     
     page -= 1
     if not CheckArgs.isUint64(page):
-        return ErrCode.CODE_ARG_INVALID
+        return CODE_ARG_INVALID
 
     qry = db.session.query(Item).filter(Item.delete == 0)
 
@@ -39,7 +40,7 @@ def itemlist():
 
     # pprint(items)
 
-    rst = ErrCode.CODE_SUCCESS.copy()
+    rst = CODE_SUCCESS.copy()
     rst.update({
         'item-count': itemCount,
         'page': page+1,
@@ -53,14 +54,14 @@ def itemlist():
 def itemInfo(itemId):
 
     if not CheckArgs.isUint64(itemId):
-        return ErrCode.CODE_ARG_INVALID
+        return CODE_ARG_INVALID
     
     item = db.session.query(Item).filter(Item.id == itemId).one_or_none()
     if not item:
-        return ErrCode.Item.CODE_ITEM_NOT_FOUND
+        return CODE_ITEM_NOT_FOUND
     else:
         rst = {}
-        rst.update(ErrCode.CODE_SUCCESS)
+        rst.update(CODE_SUCCESS)
         rst['item'] = item.toDict()
         rst['item']['md-intro'] = item.mdIntro
         rst['item']['delete'] = item.delete
@@ -80,12 +81,12 @@ def addItem():
         or reqJson.get('rsv-method') == None:
 
         # pprint(reqJson)
-        return ErrCode.CODE_ARG_MISSING
+        return CODE_ARG_MISSING
 
     if not CheckArgs.areStr(reqJson, ['name', 'brief-intro', 'md-intro', 'thumbnail']) \
         or not CheckArgs.areInt(reqJson, ['rsv-method']):
         # pprint(reqJson)
-        return ErrCode.CODE_ARG_TYPE_ERR
+        return CODE_ARG_TYPE_ERR
 
     try:
         item            = Item()
@@ -100,23 +101,23 @@ def addItem():
         if 'group' in reqJson:
             if not reqJson['group']: item.group = None
             elif CheckArgs.isStr(reqJson['group']): item.group = reqJson['group']
-            else: return ErrCode.CODE_ARG_TYPE_ERR
+            else: return CODE_ARG_TYPE_ERR
 
         if not CheckArgs.isUrl(reqJson['thumbnail']): # TODO: 这里可以进一步限制
-            return ErrCode.CODE_ARG_FORMAT_ERR
+            return CODE_ARG_FORMAT_ERR
         item.thumbnail  = reqJson['thumbnail']
         item.mdIntro    = reqJson['md-intro']
     except:
-        return ErrCode.CODE_ARG_TYPE_ERR
+        return CODE_ARG_TYPE_ERR
 
     try:
         db.session.add(item)
         db.session.commit()
     except:
         db.session.rollback()
-        return ErrCode.CODE_DATABASE_ERROR
+        return CODE_DATABASE_ERROR
     rtn = {}
-    rtn.update(ErrCode.CODE_SUCCESS)
+    rtn.update(CODE_SUCCESS)
     rtn['item-id'] = item.id
     return rtn
 
@@ -127,7 +128,7 @@ def addItem():
 @requireAdmin
 def modifyItem(itemId):
     item = db.session.query(Item).filter(Item.id == itemId).one_or_none()
-    if not item: return ErrCode.Item.CODE_ITEM_NOT_FOUND
+    if not item: return CODE_ITEM_NOT_FOUND
 
     itemJson: dict = request.json
 
@@ -141,15 +142,15 @@ def modifyItem(itemId):
         if 'attr' in itemJson: item.attr              = int(itemJson['attr'])
         if 'group' in itemJson: item.group            = itemJson['group']
     except:
-        return ErrCode.CODE_ARG_TYPE_ERR
+        return CODE_ARG_TYPE_ERR
     
     try:
         db.session.commit()
     except:
         db.session.rollback()
-        return ErrCode.CODE_DATABASE_ERROR
+        return CODE_DATABASE_ERROR
 
-    return ErrCode.CODE_SUCCESS
+    return CODE_SUCCESS
 
 
 @itemRouter.route('/item/<int:itemId>/', methods=['DELETE'])
@@ -157,22 +158,24 @@ def modifyItem(itemId):
 @requireBinding
 @requireAdmin
 def delItem(itemId):
-    if not CheckArgs.isUint64(itemId): return ErrCode.CODE_ARG_INVALID
+    if not CheckArgs.isUint64(itemId): return CODE_ARG_INVALID
     item = db.session.query(Item).filter(Item.id == itemId).one_or_none() 
-    if not item: return ErrCode.Item.CODE_ITEM_NOT_FOUND
+    if not item: return CODE_ITEM_NOT_FOUND
 
     try:
         item.delete = True
         db.session.commit()
     except:
         db.session.rollback()
-        return ErrCode.CODE_DATABASE_ERROR
+        return CODE_DATABASE_ERROR
     
-    return ErrCode.CODE_SUCCESS
+    return CODE_SUCCESS
 
 
 @itemRouter.route('/item/<int:itemId>/reservation/')
 def itemRsvInfo(itemId):
+    from app.models import LongTimeRsv, Reservation
+
     qryRst = \
         db.session.query(Reservation) \
         .filter(Reservation.itemId == itemId) \
@@ -198,7 +201,7 @@ def itemRsvInfo(itemId):
         arr.append(rsv.toDict())
 
     rst = {}
-    rst.update(ErrCode.CODE_SUCCESS)
+    rst.update(CODE_SUCCESS)
     def _process(e):
         del e['item-id']
         del e['guest']
