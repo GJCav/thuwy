@@ -19,20 +19,22 @@ adviceIdPool   = Snowflake(MACHINE_ID)
 carouselIdPool = Snowflake(MACHINE_ID)
 
 from . import models as Models
-Models.init_db(app)
-
-scheduler = APScheduler()
-scheduler.init_app(app)
-scheduler.start()
-from . import jobs
 
 from .auth import authRouter
 from .item import itemRouter
 from .reservation import rsvRouter
 from .advice import adviceRouter
 from .carousel import carouselRouter
+
 app.register_blueprint(authRouter)
 app.register_blueprint(itemRouter)
 app.register_blueprint(rsvRouter)
 app.register_blueprint(adviceRouter)
 app.register_blueprint(carouselRouter)
+
+Models.init_db(app)
+
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
+from . import jobs
