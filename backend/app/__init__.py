@@ -1,6 +1,6 @@
-from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
 from flask_apscheduler import APScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 import config
 from config import MACHINE_ID
 from .snowflake import Snowflake
@@ -11,11 +11,11 @@ cfg = config.config
 app.config.from_object(cfg)
 cfg.set(app)
 
-rsvIdPool      = Snowflake(MACHINE_ID)
-itemIdPool     = Snowflake(MACHINE_ID)
+rsvIdPool = Snowflake(MACHINE_ID)
+itemIdPool = Snowflake(MACHINE_ID)
 adminReqIdPool = Snowflake(MACHINE_ID)
-accessKeyPool  = Snowflake(MACHINE_ID)
-adviceIdPool   = Snowflake(MACHINE_ID)
+accessKeyPool = Snowflake(MACHINE_ID)
+adviceIdPool = Snowflake(MACHINE_ID)
 carouselIdPool = Snowflake(MACHINE_ID)
 
 from . import models as Models

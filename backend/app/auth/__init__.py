@@ -1,8 +1,9 @@
 from flask import Blueprint
 
-authRouter = Blueprint('auth', __name__)
+authRouter = Blueprint("auth", __name__)
 from . import api
 from .api import requireLogin, requireBinding, requireAdmin
+
 
 def init_sys_account():
     from .model import db, User, Admin
