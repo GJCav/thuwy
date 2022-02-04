@@ -16,3 +16,7 @@ CODE_ALREADY_ADMIN = {"code": 101, "errmsg": "已经是管理员"}
 CODE_ALREADY_REQUESTED = {"code": 102, "errmsg": "请勿重复请求"}
 
 CODE_USER_NOT_FOUND = {"code": 301, "errmsg": "用户不存在"}
+
+CODE_OAUTH_RETRY = {"code": 401, "errmsg": "服务器忙，请重试"}
+CODE_OAUTH_HOLDON = {"code": 402, "errmsg": "等待用户确认"}
+CODE_OAUTH_REJECT = {"code": 403, "errmsg": "用户拒绝授权"}

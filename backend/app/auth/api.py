@@ -7,14 +7,29 @@ import functools
 import os
 import traceback
 
+from app.auth import util
+
 from . import authRouter
 from config import WX_APP_ID, WX_APP_SECRET, config
 from app import adminReqIdPool
 from app.comerrs import *
 from .errcode import *
 import app.checkargs as CheckArgs
+from app import timetools as timestamp
 
-from .model import db, Admin, AdminRequest, User, UserBinding
+from .model import (
+    OAUTH_CODE_LEN,
+    OAUTH_TOKEN_LEN,
+    OAuthReqScope,
+    OAuthRequest,
+    OAuthToken,
+    db,
+    Admin,
+    AdminRequest,
+    User,
+    UserBinding,
+)
+from .model import Scope
 
 
 @authRouter.route("/login/", methods=["POST"])
@@ -472,3 +487,160 @@ def unbindUser(openid):
         return CODE_DATABASE_ERROR
 
     return CODE_SUCCESS
+
+
+@authRouter.route("/oauth/authorize/", methods=["POST"])
+def requestOAuth():
+    json = request.json
+    if not json:
+        return CODE_ARG_INVALID
+    if "scopes" not in json:
+        return CODE_ARG_MISSING
+
+    scopeList = []
+    for e in json["scopes"]:
+        if not CheckArgs.isStr(e):
+            return CODE_ARG_TYPE_ERR
+        scope = Scope.fromScopeStr(e)
+        if not scope:
+            return CODE_ARG_INVALID
+        scopeList.append(scope)
+
+    code = util.randomString(OAUTH_CODE_LEN)
+    exist = (
+        db.session.query(OAuthRequest)
+        .filter(OAuthRequest.code == code)
+        .filter(OAuthRequest.expireAt >= timestamp.now())
+        .filter(OAuthRequest.reject == 0)
+        .one_or_none()
+    )
+
+    if exist:
+        return CODE_OAUTH_RETRY
+
+    oauthReq = OAuthRequest()
+    oauthReq.code = code
+    oauthReq.expireAt = timestamp.clockAfter(timestamp.now(), 0, 5)
+    db.session.add(oauthReq)
+
+    try:
+        db.session.commit()  # 先提交一次，让oauthReq生成ID
+    except:
+        return CODE_DATABASE_ERROR
+
+    for s in scopeList:
+        s: Scope
+        reqScope = OAuthReqScope()
+        reqScope.scopeId = s.id
+        reqScope.reqId = oauthReq.id
+        db.session.add(reqScope)
+
+    try:
+        db.session.commit()
+    except:
+        return CODE_DATABASE_ERROR
+
+    rtn = {}
+    rtn.update(CODE_SUCCESS)
+    rtn.update(oauthReq.toDict())
+    return rtn
+
+
+def getOAuthInfo(oauthReq):
+    if oauthReq.reject:
+        return CODE_OAUTH_REJECT
+
+    if not oauthReq.token:
+        return CODE_OAUTH_HOLDON
+    
+    rtn = {
+        "token": oauthReq.token.token,
+        "expire_at": oauthReq.token.expireAt,
+        "scopes": [e.scope.toDict() for e in oauthReq.scopes],
+    }
+    rtn.update(CODE_SUCCESS)
+    return rtn
+
+
+def grantOAuth(oauthReq: OAuthRequest):
+    openid = session.get("openid")
+    if not openid:
+        return CODE_NOT_LOGGED_IN
+    
+    if oauthReq.reject: # 拒绝后重复
+        return CODE_OAUTH_REJECT
+    
+    if oauthReq.token != None: # 授权后重复
+        rtn = {"token": oauthReq.token.token, 'expire_at': oauthReq.token.expireAt}
+        rtn.update(CODE_SUCCESS)
+        return rtn
+    
+    json = request.json
+    if not json:
+        return CODE_ARG_INVALID
+    if 'authorize' not in json:
+        return CODE_ARG_MISSING
+    
+    if json['authorize'] == 'grant':
+        tokenStr = util.randomString(OAUTH_TOKEN_LEN)
+        token = (
+            db.session.query(OAuthToken)
+            .filter(OAuthToken.expireAt >= timestamp.now())
+            .filter(OAuthToken.token == tokenStr)
+            .one_or_none()
+        )
+        if token:
+            return CODE_OAUTH_RETRY  # 生成的token str重复了
+
+        token = OAuthToken()
+        token.token = tokenStr
+        token.expireAt = timestamp.daysAfter(7)
+        token.ownerId = openid
+        token.reqId = oauthReq.id
+        try:
+            db.session.add(token)
+            db.session.commit()
+        except:
+            return CODE_DATABASE_ERROR
+        
+        for reqScope in oauthReq.scopes:
+            reqScope.tokenId = token.id
+        
+        try:
+            db.session.commit()
+        except:
+            return CODE_DATABASE_ERROR
+        
+        rtn = {'token': token.token, 'expire_at': token.expireAt}
+        rtn.update(CODE_SUCCESS)
+        return rtn
+    
+    elif json['authorize'] == 'reject':
+        try:
+            oauthReq.reject = 1
+            db.session.commit()
+        except:
+            return CODE_DATABASE_ERROR
+        return CODE_SUCCESS
+    
+    else:
+        return CODE_ARG_INVALID
+
+
+@authRouter.route("/oauth/authorize/<authCode>/", methods=["GET", "POST"])
+def modifyOAuth(authCode):
+    if not authCode:
+        return CODE_ARG_MISSING
+    oauthReq: OAuthRequest = (
+        db.session.query(OAuthRequest)
+        .filter(OAuthRequest.expireAt >= timestamp.now())
+        .filter(OAuthRequest.code == authCode)
+        .one_or_none()
+    )
+    if not oauthReq:
+        return CODE_ARG_INVALID
+
+    if request.method == "GET":
+        return getOAuthInfo(oauthReq)
+    elif request.method == "POST":
+        return grantOAuth(oauthReq)

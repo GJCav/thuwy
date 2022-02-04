@@ -4,6 +4,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import config
 from config import MACHINE_ID
 from .snowflake import Snowflake
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 
@@ -38,3 +39,5 @@ scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
 from . import jobs
+
+migrate = Migrate(app, Models.db)
