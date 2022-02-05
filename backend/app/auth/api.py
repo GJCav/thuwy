@@ -25,8 +25,8 @@ from .model import (
     OAuthReqScope,
     OAuthRequest,
     OAuthToken,
+    Privilege,
     db,
-    Admin,
     AdminRequest,
     User,
     UserBinding,
@@ -233,18 +233,10 @@ def getProfile(openId):
 @requireScope(["profile"])
 def requestAdmin():
 
-    exist = Admin.fromId(session["openid"])
-    if exist:
-        return CODE_ALREADY_ADMIN
-
-    exist = (
-        db.session.query(AdminRequest)
-        .filter(AdminRequest.requestor == session["openid"])
-        .filter(AdminRequest.state == 0)
-        .first()
-    )
-    if exist:
-        return CODE_ALREADY_REQUESTED
+    privileges = User.fromOpenid(session["openid"]).privileges
+    for p in privileges:
+        if p.scope.scope == "admin":
+            return CODE_ALREADY_REQUESTED
 
     try:
         req = AdminRequest()
@@ -284,7 +276,6 @@ def examAdminReq(reqId):
         return CODE_ARG_INVALID
     if adminReq.state != 0:
         return CODE_ARG_INVALID
-    # TODO: 细分ErrCode
 
     json = request.get_json()
     if not CheckArgs.hasAttrs(json, ["pass", "reason"]):
@@ -292,9 +283,10 @@ def examAdminReq(reqId):
 
     if json["pass"] == 1:
         adminReq.state = 1
-        admin = Admin()
-        admin.openid = adminReq.requestor
-        db.session.add(admin)
+        p = Privilege()
+        p.openid = adminReq.requestor
+        p.scopeId = Scope.fromScopeStr("admin").id
+        db.session.add(p)
     elif json["pass"] == 0:
         adminReq.state = 2
     else:
@@ -316,11 +308,17 @@ def examAdminReq(reqId):
 @requireScope(["profile admin"])
 def delAdmin(openid):
     openid = str(openid)
-    admin = Admin.fromId(openid)
-    if not admin:
+
+    adminPrivilege = (
+        db.session.query(Privilege)
+        .filter(Privilege.openid == openid)
+        .filter(Privilege.scopeId == Scope.fromScopeStr("admin").id)
+        .one_or_none()
+    )
+    if not adminPrivilege:
         return CODE_ARG_INVALID
 
-    db.session.delete(admin)
+    db.session.delete(adminPrivilege)
     try:
         db.session.commit()
     except:
@@ -329,61 +327,19 @@ def delAdmin(openid):
     return CODE_SUCCESS
 
 
-if getattr(config, "ENABLE_TEST_ACCOUNT", False):
-    print(
-        "!!Warning!! Running with testing mode, enable testing account auto-creation."
-    )
-
-    @authRouter.route("/test/login/")
-    def loginTestAccount():
-        rint = 0
-        for b in os.urandom(64):
-            rint += b
-        rint %= 10000000000
-        fakeOpenId = f"test-account-{rint}"
-
-        existAccount = User.fromOpenid(fakeOpenId)
-        if existAccount:
-            existAdmin = Admin.fromId(fakeOpenId)
-            if existAdmin:
-                db.session.delete(existAdmin)
-            db.session.delete(existAccount)
-            db.session.commit()
-
-        newAccount = User(fakeOpenId)
-        mode = request.args.get("mode", "user")
-        if mode == "admin":
-            newAccount.name = f"TAdmin {rint}"
-            admin = Admin()
-            admin.openid = fakeOpenId
-            db.session.add(admin)
-        else:
-            newAccount.name = f"TUser {rint}"
-
-        newAccount.schoolId = f"{rint}"
-        newAccount.clazz = f"未央-测试"
-        db.session.add(newAccount)
-
-        try:
-            db.session.commit()
-        except:
-            return CODE_DATABASE_ERROR
-
-        session["openid"] = fakeOpenId
-        session.permanent = True
-
-        return CODE_SUCCESS
-
-
 @authRouter.route("/admin/")
 @requireScope(["profile admin"])
 def getAdminList():
 
     profileArr = []
 
-    qryRst = db.session.query(Admin).all()
-    for admin in qryRst:
-        profileArr.append(User.fromOpenid(admin.openid).toDict())
+    privileges: List[Privilege] = (
+        db.session.query(Privilege)
+        .filter(Privilege.scopeId == Scope.fromScopeStr("admin").id)
+        .all()
+    )
+    for p in privileges:
+        profileArr.append(p.user.toDict())
 
     rtn = {}
     rtn.update(CODE_SUCCESS)

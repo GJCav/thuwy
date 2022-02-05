@@ -8,7 +8,7 @@ from app import timetools as timestamp
 import re as Regex
 import json as Json
 
-from app.auth.model import User, Admin
+from app.auth.model import User
 from app.item.model import Item
 
 from sqlalchemy import BIGINT, INTEGER, TEXT, VARCHAR

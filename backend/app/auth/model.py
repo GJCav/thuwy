@@ -13,14 +13,6 @@ SCOPE_STR = VARCHAR(64)
 TOKEN_STR = VARCHAR(OAUTH_TOKEN_LEN, collation="utf8_bin")
 
 
-class Admin(db.Model):
-    __tablename__ = "admin"
-    openid = db.Column(WECHAT_OPENID, primary_key=True)
-
-    def fromId(id):
-        return db.session.query(Admin).filter(Admin.openid == id).one_or_none()
-
-
 class AdminRequest(db.Model):
     __tablename__ = "admin_req"
     id = db.Column(SNOWFLAKE_ID, primary_key=True)
@@ -29,7 +21,7 @@ class AdminRequest(db.Model):
     state = db.Column(INTEGER)  # 0: waiting, 1: accept, 2: reject
     reason = db.Column(TEXT)
 
-    def fromId(id):
+    def fromId(id) -> "AdminRequest":
         return (
             db.session.query(AdminRequest).filter(AdminRequest.id == id).one_or_none()
         )
@@ -68,9 +60,17 @@ class User(db.Model):
             "school-id": self.schoolId,
             "name": self.name,
             "clazz": self.clazz,
-            "admin": bool(Admin.fromId(self.openid)),
+            "admin": self.isAdmin(),
             "openid": self.openid,
         }
+
+    def isAdmin(self) -> bool:
+        return bool(
+            db.session.query(Privilege)
+            .filter(Privilege.openid == self.openid)
+            .filter(Privilege.scopeId == Scope.fromScopeStr("admin").id)
+            .one_or_none()
+        )
 
     def fromOpenid(openid) -> "User":
         return db.session.query(User).filter(User.openid == openid).one_or_none()
