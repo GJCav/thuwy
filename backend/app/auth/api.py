@@ -1,3 +1,5 @@
+from cgitb import handler
+from typing import List
 from flask import request, session
 import requests as R
 import requests.exceptions as RE
@@ -192,6 +194,57 @@ def amiadmin():
     else:
         return "no"
 
+
+def requireScope(scopes: List[str]):
+    def _checkScope(handler):
+        @functools.wraps(handler)
+        def inner(*args, **kwargs):
+            privileges = set()
+            openid = session.get("openid")
+            token = None
+            if openid:
+                user = User.fromOpenid(openid)
+                if user.schoolId:
+                    privileges.add("profile")
+                for p in user.privileges:
+                    privileges.add(p.scope.scope)
+            elif request.headers.get("Token"):
+                tokenStr = request.headers.get("Token")
+                token: OAuthToken = (
+                    db.session.query(OAuthToken)
+                    .filter(OAuthToken.token == tokenStr)
+                    .filter(OAuthToken.expireAt >= timestamp.now())
+                    .one_or_none()
+                )
+                if token:
+                    if token.owner.schoolId:
+                        privileges.add("profile")
+                    for s in token.scopes:
+                        privileges.add(s.scope.scope)
+
+            canAccess = False
+            for target in scopes:
+                require = set(target.split(" "))
+                if require.issubset(privileges):
+                    canAccess = True
+                    break
+            if canAccess:
+                revokeSession = False
+                if token:
+                    session["openid"] = token.owner.openid # 兼容老代码，之后会删除
+                    revokeSession = True
+                rtn = handler(*args, **kwargs)
+                if revokeSession:
+                    session.pop("openid")
+                return rtn
+            else:
+                rtn = {"requirement": scopes}
+                rtn.update(CODE_ACCESS_DENIED)
+                return rtn
+
+        return inner
+
+    return _checkScope
 
 @authRouter.route("/bind/", methods=["POST"])
 @requireLogin
@@ -496,6 +549,8 @@ def requestOAuth():
         return CODE_ARG_INVALID
     if "scopes" not in json:
         return CODE_ARG_MISSING
+    if not json["scopes"]:
+        return CODE_ARG_MISSING
 
     scopeList = []
     for e in json["scopes"]:
@@ -552,7 +607,7 @@ def getOAuthInfo(oauthReq):
 
     if not oauthReq.token:
         return CODE_OAUTH_HOLDON
-    
+
     rtn = {
         "token": oauthReq.token.token,
         "expire_at": oauthReq.token.expireAt,
@@ -566,22 +621,22 @@ def grantOAuth(oauthReq: OAuthRequest):
     openid = session.get("openid")
     if not openid:
         return CODE_NOT_LOGGED_IN
-    
-    if oauthReq.reject: # 拒绝后重复
+
+    if oauthReq.reject:  # 拒绝后重复
         return CODE_OAUTH_REJECT
-    
-    if oauthReq.token != None: # 授权后重复
-        rtn = {"token": oauthReq.token.token, 'expire_at': oauthReq.token.expireAt}
+
+    if oauthReq.token != None:  # 授权后重复
+        rtn = {"token": oauthReq.token.token, "expire_at": oauthReq.token.expireAt}
         rtn.update(CODE_SUCCESS)
         return rtn
-    
+
     json = request.json
     if not json:
         return CODE_ARG_INVALID
-    if 'authorize' not in json:
+    if "authorize" not in json:
         return CODE_ARG_MISSING
-    
-    if json['authorize'] == 'grant':
+
+    if json["authorize"] == "grant":
         tokenStr = util.randomString(OAUTH_TOKEN_LEN)
         token = (
             db.session.query(OAuthToken)
@@ -602,27 +657,27 @@ def grantOAuth(oauthReq: OAuthRequest):
             db.session.commit()
         except:
             return CODE_DATABASE_ERROR
-        
+
         for reqScope in oauthReq.scopes:
             reqScope.tokenId = token.id
-        
+
         try:
             db.session.commit()
         except:
             return CODE_DATABASE_ERROR
-        
-        rtn = {'token': token.token, 'expire_at': token.expireAt}
+
+        rtn = {"token": token.token, "expire_at": token.expireAt}
         rtn.update(CODE_SUCCESS)
         return rtn
-    
-    elif json['authorize'] == 'reject':
+
+    elif json["authorize"] == "reject":
         try:
             oauthReq.reject = 1
             db.session.commit()
         except:
             return CODE_DATABASE_ERROR
         return CODE_SUCCESS
-    
+
     else:
         return CODE_ARG_INVALID
 

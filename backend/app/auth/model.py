@@ -51,7 +51,7 @@ class User(db.Model):
     name = db.Column(TEXT)
     clazz = db.Column(TEXT)
 
-    privileges = relationship("Privilege", back_populates="user")
+    privileges: List['Privilege'] = relationship("Privilege", back_populates="user")
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -72,7 +72,7 @@ class User(db.Model):
             "openid": self.openid,
         }
 
-    def fromOpenid(openid):
+    def fromOpenid(openid) -> 'User':
         return db.session.query(User).filter(User.openid == openid).one_or_none()
 
     def queryProfile(openId):

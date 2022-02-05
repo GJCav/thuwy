@@ -6,6 +6,7 @@ CODE_ARG_MISSING = {"code": 4, "errmsg": "参数缺失"}
 CODE_ARG_FORMAT_ERR = {"code": 5, "errmsg": "参数格式错误"}
 CODE_ARG_TYPE_ERR = {"code": 6, "errmsg": "参数类型错误"}
 CODE_ARG_INVALID = {"code": 7, "errmsg": "参数非法"}
+CODE_ACCESS_DENIED = {"code": 8, "errmsg": "您无此权限"}
 
 CODE_DATABASE_ERROR = {"code": 20, "errmsg": "数据库错误"}
 CODE_DATABASE_CONSISTANCE_ERROR = {"code": 21, "errmsg": "database consistance error"}
