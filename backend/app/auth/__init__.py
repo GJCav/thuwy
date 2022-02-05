@@ -34,5 +34,5 @@ def init_sys_account():
         sysAdminPrivilege = Privilege()
         sysAdminPrivilege.openid = userSys.name
         sysAdminPrivilege.scope = (
-            db.session(Scope).filter(Scope.scope == "admin").one_or_none()
+            db.session.query(Scope).filter(Scope.scope == "admin").one_or_none()
         )
