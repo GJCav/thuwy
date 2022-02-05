@@ -1,9 +1,10 @@
-testCookieStr = """session=eyJfcGVybWFuZW50Ijp0cnVlLCJvcGVuaWQiOiJvdnRBQjU0NEg3dzJ6N0phNkNOYUNBWGtJU2VRIiwid3gtc2tleSI6InlBaExnVmsxVjRlR0hwdDNrSk5yaVE9PSJ9.YfKQJg.OLzSL81wYcsZrqaSv1IKNFLezqE; Expires=Sun 30 Jan 2022 12:29:26 GMT; Secure; HttpOnly; Path=/; SameSite=None"""
+testCookieStr = """session=eyJfcGVybWFuZW50Ijp0cnVlLCJvcGVuaWQiOiJvdnRBQjU0NEg3dzJ6N0phNkNOYUNBWGtJU2VRIiwid3gtc2tleSI6Im4wdmNmRTJpVnUyNHg3VGpPaHN4S2c9PSJ9.Yf5GjA.V0g79-4gg1PAWJcofHBuCQmU180; Expires=Tue 08 Feb 2022 09:42:36 GMT; Secure; HttpOnly; Path=/; SameSite=None"""
+
 
 cookieStr = """session=eyJvcGVuaWQiOiJvZHo0QjR4bFRnbEJaWGpHSVZoNjVhRnNpeUFZIiwid3gtc2tleSI6IloxLy92SWpPSUF3SWxjT1lMUnk5OXc9PSJ9.YRjPPw.7vAzce2sYdzbDe1AfI_4NKX0mR4; HttpOnly; Path=/"""
 
-headers = {"cookie": testCookieStr}
-
+# headers = {"cookie": testCookieStr}
+headers = {"Token": ""}
 
 import requests as R
 

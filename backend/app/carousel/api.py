@@ -5,7 +5,7 @@ from sqlalchemy import desc
 from . import carouselRouter
 from .model import CarouselMsg
 
-from app.auth import requireLogin, requireAdmin, requireBinding
+from app.auth import requireScope
 from app.models import db
 from app.comerrs import *
 from .errcode import *
@@ -25,9 +25,7 @@ def getCarouselList():
 
 
 @carouselRouter.route("/carousel/", methods=["POST"])
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def addCarousel():
     json = request.get_json()
 
@@ -65,9 +63,7 @@ def addCarousel():
 
 
 @carouselRouter.route("/carousel/<int:carouselId>/")
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def getCarouselInfo(carouselId):
     msg = CarouselMsg.queryById(carouselId)
 
@@ -82,9 +78,7 @@ def getCarouselInfo(carouselId):
 
 
 @carouselRouter.route("/carousel/<int:carouselId>/", methods=["POST"])
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def modifyCarouselMsg(carouselId):
     msg = CarouselMsg.queryById(carouselId)
     if msg == None:
@@ -142,9 +136,7 @@ def modifyCarouselMsg(carouselId):
 
 
 @carouselRouter.route("/carousel/history/", methods=["POST"])
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def getHistory():
     qry = db.session.query(CarouselMsg)
 

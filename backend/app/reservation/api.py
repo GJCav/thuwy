@@ -12,7 +12,7 @@ import app.checkargs as CheckArgs
 from . import rsv_state as RsvState
 from .model import *
 from app.models import _Dict
-from app.auth import requireAdmin, requireBinding, requireLogin
+from app.auth import requireScope
 import app.timetools as timestamp
 import app.snowflake as Snowflake
 
@@ -20,9 +20,7 @@ from config import userSysName
 
 
 @rsvRouter.route("/reservation/")
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def getRsvList():
 
     qry = db.session.query(Reservation).order_by(desc(Reservation.id))
@@ -81,8 +79,7 @@ def getRsvList():
 
 
 @rsvRouter.route("/reservation/", methods=["POST"])
-@requireLogin
-@requireBinding
+@requireScope(["profile"])
 def reserve():
     reqJson: dict = request.get_json()
     if not reqJson or not CheckArgs.hasAttrs(
@@ -243,7 +240,7 @@ def reserve():
 
 
 @rsvRouter.route("/reservation/me/")
-@requireLogin
+@requireScope(["profile"])
 def querymyrsv():
     openid = session["openid"]
 
@@ -331,9 +328,7 @@ def getRsvInfo(rsvId):
 
 
 @rsvRouter.route("/reservation/<int:rsvId>/", methods=["POST"])
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def modifyRsv(rsvId):
     rsv: Reservation = Reservation.query.filter(Reservation.id == rsvId).one_or_none()
 
@@ -412,8 +407,7 @@ def completeRsv(rsv: Reservation):
 
 
 @rsvRouter.route("/reservation/<int:rsvId>/", methods=["DELETE"])
-@requireLogin
-@requireBinding
+@requireScope(["profile"])
 def cancelRsv(rsvId):
 
     rsv: Reservation = Reservation.query.filter(Reservation.id == rsvId).one_or_none()

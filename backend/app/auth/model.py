@@ -8,9 +8,9 @@ from sqlalchemy.orm import relationship
 
 OAUTH_CODE_LEN = 24
 OAUTH_TOKEN_LEN = 24
-OAUTH_CODE = VARCHAR(OAUTH_CODE_LEN, collation='utf8_bin')
+OAUTH_CODE = VARCHAR(OAUTH_CODE_LEN, collation="utf8_bin")
 SCOPE_STR = VARCHAR(64)
-TOKEN_STR = VARCHAR(OAUTH_TOKEN_LEN, collation='utf8_bin')
+TOKEN_STR = VARCHAR(OAUTH_TOKEN_LEN, collation="utf8_bin")
 
 
 class Admin(db.Model):
@@ -51,7 +51,7 @@ class User(db.Model):
     name = db.Column(TEXT)
     clazz = db.Column(TEXT)
 
-    privileges: List['Privilege'] = relationship("Privilege", back_populates="user")
+    privileges: List["Privilege"] = relationship("Privilege", back_populates="user")
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -72,7 +72,7 @@ class User(db.Model):
             "openid": self.openid,
         }
 
-    def fromOpenid(openid) -> 'User':
+    def fromOpenid(openid) -> "User":
         return db.session.query(User).filter(User.openid == openid).one_or_none()
 
     def queryProfile(openId):
@@ -132,8 +132,12 @@ class OAuthRequest(db.Model):
     expireAt = Column("expire_at", BIGINT)
     reject = Column(INTEGER, default=0)
 
-    scopes: List['OAuthReqScope'] = relationship("OAuthReqScope", back_populates="request")
-    token: 'OAuthToken' = relationship("OAuthToken", back_populates="request", uselist=False)
+    scopes: List["OAuthReqScope"] = relationship(
+        "OAuthReqScope", back_populates="request"
+    )
+    token: "OAuthToken" = relationship(
+        "OAuthToken", back_populates="request", uselist=False
+    )
 
     def toDict(self) -> dict:
         return {
@@ -150,9 +154,9 @@ class OAuthReqScope(db.Model):
     reqId = Column("req_id", INTEGER, ForeignKey("oauth_req.id"))
     tokenId = Column("token_id", INTEGER, ForeignKey("oauth_token.id"))
 
-    scope: 'Scope' = relationship("Scope")
+    scope: "Scope" = relationship("Scope")
     request: OAuthRequest = relationship("OAuthRequest", back_populates="scopes")
-    token: 'OAuthToken' = relationship("OAuthToken", back_populates="scopes")
+    token: "OAuthToken" = relationship("OAuthToken", back_populates="scopes")
 
 
 class OAuthToken(db.Model):
@@ -163,7 +167,9 @@ class OAuthToken(db.Model):
     ownerId = Column("owner_id", WECHAT_OPENID, ForeignKey("user.openid"))
     reqId = Column("req_id", INTEGER, ForeignKey("oauth_req.id"))
 
-    scopes: List['OAuthReqScope'] = relationship("OAuthReqScope", back_populates="token")
+    scopes: List["OAuthReqScope"] = relationship(
+        "OAuthReqScope", back_populates="token"
+    )
     owner: User = relationship("User")
     request: OAuthRequest = relationship("OAuthRequest")
 
@@ -183,7 +189,7 @@ class Scope(db.Model):
 
 
 class Privilege(db.Model):
-    __tablename__ = "privilege"
+    __tablename__ = "oauth_privilege"
     id = Column(INTEGER, primary_key=True, autoincrement=True)
     openid = Column(WECHAT_OPENID, ForeignKey("user.openid"))
     scopeId = Column(INTEGER, ForeignKey("oauth_scope.id"))

@@ -3,7 +3,7 @@ from flask import request, session
 from .model import db, Advice
 
 from . import adviceRouter
-from app.auth import requireAdmin, requireBinding, requireLogin
+from app.auth import requireScope
 from app.comerrs import *
 from .errcode import *
 from app import adviceIdPool
@@ -13,9 +13,7 @@ from app import snowflake
 
 
 @adviceRouter.route("/advice/")
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def getAdviceList():
     st = request.args.get("st", None)
     ed = request.args.get("ed", None)
@@ -61,9 +59,7 @@ def getAdviceList():
 
 
 @adviceRouter.route("/advice/<int:adviceId>/")
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def getAdviceInfo(adviceId):
 
     if not CheckArgs.isUint64(adviceId):
@@ -81,8 +77,7 @@ def getAdviceInfo(adviceId):
 
 
 @adviceRouter.route("/advice/me/")
-@requireLogin
-@requireBinding
+@requireScope(["profile"])
 def getMyAdviceList():
     st = request.args.get("st", None)
     ed = request.args.get("ed", None)
@@ -128,8 +123,7 @@ def getMyAdviceList():
 
 
 @adviceRouter.route("/advice/<int:adviceId>/", methods=["POST"])
-@requireLogin
-@requireBinding
+@requireScope(["profile"])
 def responseAdvice(adviceId):
     if not CheckArgs.isUint64(adviceId):
         return CODE_ARG_INVALID
@@ -160,8 +154,7 @@ def responseAdvice(adviceId):
 
 
 @adviceRouter.route("/advice/", methods=["POST"])
-@requireLogin
-@requireBinding
+@requireScope(["profile"])
 def adminAdvice():
     json = request.get_json()
 

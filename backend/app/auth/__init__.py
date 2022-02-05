@@ -4,7 +4,7 @@ from app.auth.model import Scope
 
 authRouter = Blueprint("auth", __name__)
 from . import api
-from .api import requireLogin, requireBinding, requireAdmin
+from .api import requireScope
 
 
 def init_sys_account():
@@ -18,7 +18,7 @@ def init_sys_account():
         userSys.schoolId = userSysName
         userSys.clazz = userSysName
         db.session.add(userSys)
-    
+
     adminSys = Admin.fromId(userSysName)
     if not adminSys:
         adminSys = Admin()
@@ -26,16 +26,15 @@ def init_sys_account():
         db.session.add(adminSys)
 
     scopes = [
-        {'scope': 'profile', 'des': '基本用户信息'},
-        {'scope': 'admin', 'des': '管理员权限'},
+        {"scope": "profile", "des": "基本用户信息"},
+        {"scope": "admin", "des": "管理员权限"},
     ]
     for e in scopes:
-        scope = Scope.fromScopeStr(e['scope'])
+        scope = Scope.fromScopeStr(e["scope"])
         if not scope:
             scope = Scope()
-            scope.scope = e['scope']
-            scope.description = e['des']
+            scope.scope = e["scope"]
+            scope.description = e["des"]
             db.session.add(scope)
-        
+
     db.session.commit()
-    

@@ -102,99 +102,6 @@ def login():
     return rtn
 
 
-def requireLogin(handler):
-    @functools.wraps(handler)
-    def inner(*args, **kwargs):
-        # if skipLoginAndBind and not session.get('openid', None):
-        #     session['openid'] = 'openid for debug'
-        #     session['wx-skey'] = 'secret key for debug'
-        #     return handler(*args, **kwargs)
-        if not session.get("openid"):
-            return CODE_NOT_LOGGED_IN
-        elif not User.fromOpenid(session.get("openid")):
-            # return CODE_NOT_LOGGED_IN # 这里意味着用户登录过，但数据库中没有记录，多半是管理员删库了
-            return CODE_DATABASE_ERROR
-        else:
-            return handler(*args, **kwargs)
-
-    return inner
-
-
-def didilogin():
-    if not session.get("openid"):
-        return "no"
-    elif not User.fromOpenid(session.get("openid")):
-        return "yes but database lost your record."
-    else:
-        return "yes"
-
-
-def requireBinding(handler):
-    @functools.wraps(handler)
-    def inner(*args, **kwargs):
-        openid = session["openid"]
-        schoolId = (
-            db.session.query(User.schoolId)
-            .filter(User.openid == openid)
-            .one_or_none()[0]
-        )  # 这里可以安全的直接使用[0]，因为这个函数总在 requireLogin 后调用
-
-        if schoolId == None:
-            return CODE_UNBOUND
-        else:
-            return handler(*args, **kwargs)
-
-    return inner
-
-
-def didibind():
-    if didilogin() == "skipped":
-        return "skipped"
-    if "no" in didilogin():
-        return "no and check your login state"
-    openid = session["openid"]
-    schoolId = (
-        db.session.query(User.schoolId).filter(User.openid == openid).one_or_none()
-    )
-    if not schoolId:
-        return "no and database lost your record"
-    if not schoolId[0]:
-        return "no"
-    else:
-        return "yes"
-
-
-def requireAdmin(handler):
-    @functools.wraps(handler)
-    def inner(*args, **kwargs):
-        # if skipAdmin:
-        #     return handler(*args, **kwargs)
-
-        openid = session["openid"]
-        exist = (
-            db.session.query(Admin.openid).filter(Admin.openid == openid).one_or_none()
-        )
-        if exist:
-            return handler(*args, **kwargs)
-        else:
-            return CODE_NOT_ADMIN
-
-    return inner
-
-
-def amiadmin():
-    if didilogin() != "yes":
-        return "no and you did not login"
-    if didibind() != "yes":
-        return "no and you did not bind"
-    openid = session["openid"]
-    exist = db.session.query(Admin.openid).filter(Admin.openid == openid).one_or_none()
-    if exist:
-        return "yes"
-    else:
-        return "no"
-
-
 def requireScope(scopes: List[str]):
     def _checkScope(handler):
         @functools.wraps(handler)
@@ -231,7 +138,7 @@ def requireScope(scopes: List[str]):
             if canAccess:
                 revokeSession = False
                 if token:
-                    session["openid"] = token.owner.openid # 兼容老代码，之后会删除
+                    session["openid"] = token.owner.openid  # 兼容老代码，之后会删除
                     revokeSession = True
                 rtn = handler(*args, **kwargs)
                 if revokeSession:
@@ -246,9 +153,14 @@ def requireScope(scopes: List[str]):
 
     return _checkScope
 
+
 @authRouter.route("/bind/", methods=["POST"])
-@requireLogin
 def bind():
+    if not session.get("openid"):
+        return CODE_NOT_LOGGED_IN
+    elif not User.fromOpenid(session.get("openid")):
+        # return CODE_NOT_LOGGED_IN # 这里意味着用户登录过，但数据库中没有记录，多半是管理员删库了
+        return CODE_DATABASE_ERROR
 
     reqJson: dict = request.get_json()
     if (
@@ -296,8 +208,9 @@ def bind():
 
 
 @authRouter.route("/profile/")
-@requireLogin
 def getMyProfile():
+    if not session.get("openid"):
+        return CODE_NOT_LOGGED_IN
     rtn = User.queryProfile(session["openid"])
     if rtn == None:
         return CODE_ARG_INVALID
@@ -306,9 +219,7 @@ def getMyProfile():
 
 
 @authRouter.route("/profile/<openId>/", methods=["GET"])
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def getProfile(openId):
     openId = str(openId)
     profile = User.queryProfile(openId)
@@ -319,8 +230,7 @@ def getProfile(openId):
 
 
 @authRouter.route("/admin/request/", methods=["POST"])
-@requireLogin
-@requireBinding
+@requireScope(["profile"])
 def requestAdmin():
 
     exist = Admin.fromId(session["openid"])
@@ -353,9 +263,7 @@ def requestAdmin():
 
 
 @authRouter.route("/admin/request/", methods=["GET"])
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def adminReqList():
     qryRst = db.session.query(AdminRequest).filter(AdminRequest.state == 0).all()
 
@@ -369,9 +277,7 @@ def adminReqList():
 
 
 @authRouter.route("/admin/request/<int:reqId>/", methods=["POST"])
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def examAdminReq(reqId):
     adminReq = AdminRequest.fromId(reqId)
     if not adminReq:
@@ -407,9 +313,7 @@ def examAdminReq(reqId):
 
 
 @authRouter.route("/admin/<openid>/", methods=["DELETE"])
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def delAdmin(openid):
     openid = str(openid)
     admin = Admin.fromId(openid)
@@ -472,9 +376,7 @@ if getattr(config, "ENABLE_TEST_ACCOUNT", False):
 
 
 @authRouter.route("/admin/")
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def getAdminList():
 
     profileArr = []
@@ -490,9 +392,7 @@ def getAdminList():
 
 
 @authRouter.route("/user/")
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def getUserList():
     PageLimit = 30
 
@@ -515,6 +415,7 @@ def getUserList():
 
 
 @authRouter.route("/user/<openid>/", methods=["DELETE"])
+@requireScope(["profile admin"])
 def unbindUser(openid):
     if not openid:
         return CODE_ARG_INVALID
@@ -637,6 +538,14 @@ def grantOAuth(oauthReq: OAuthRequest):
         return CODE_ARG_MISSING
 
     if json["authorize"] == "grant":
+        user = User.fromOpenid(openid)
+        ownPrivileges = set([e.scope.scope for e in user.privileges])
+        reqPrivileges = set([e.scope.scope for e in oauthReq.scopes])
+        if User.fromOpenid(openid).schoolId:
+            ownPrivileges.add("profile")
+        if not reqPrivileges.issubset(ownPrivileges):
+            return CODE_ACCESS_DENIED
+
         tokenStr = util.randomString(OAUTH_TOKEN_LEN)
         token = (
             db.session.query(OAuthToken)

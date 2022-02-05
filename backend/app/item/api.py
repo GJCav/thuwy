@@ -10,7 +10,7 @@ from app.comerrs import *
 from .errcode import *
 from .model import db, Item
 import app.checkargs as CheckArgs
-from app.auth import requireAdmin, requireBinding, requireLogin
+from app.auth import requireScope
 import app.timetools as timestamp
 
 
@@ -66,9 +66,7 @@ def itemInfo(itemId):
 
 
 @itemRouter.route("/item/", methods=["POST"])
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def addItem():
     reqJson = request.json
 
@@ -127,9 +125,7 @@ def addItem():
 
 
 @itemRouter.route("/item/<int:itemId>/", methods=["POST"])
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def modifyItem(itemId):
     item = db.session.query(Item).filter(Item.id == itemId).one_or_none()
     if not item:
@@ -167,9 +163,7 @@ def modifyItem(itemId):
 
 
 @itemRouter.route("/item/<int:itemId>/", methods=["DELETE"])
-@requireLogin
-@requireBinding
-@requireAdmin
+@requireScope(["profile admin"])
 def delItem(itemId):
     if not CheckArgs.isUint64(itemId):
         return CODE_ARG_INVALID
