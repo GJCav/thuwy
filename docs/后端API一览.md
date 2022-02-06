@@ -10,7 +10,6 @@
     * [管理员请求列表](#管理员请求列表)
     * [审核管理员](#审核管理员)
     * [删除管理员](#删除管理员)
-    * [使用测试账号登录](#使用测试账号登录)
   * [物品管理](#物品管理)
     * [Item对象](#item对象)
     * [物品列表](#物品列表)
@@ -152,7 +151,7 @@ wx.request({
 
 **API:** `POST /bind/`
 
-**Login?:** True
+**要求：** 先完成登录步骤，带上`Session`信息
 
 **请求参数:** Json Object
 
@@ -201,7 +200,7 @@ wx.request({
 
 **Des：** 获取当前用户信息
 
-**Login:** True
+**Scope: ** profile
 
 **请求参数：** 无
 
@@ -215,7 +214,7 @@ wx.request({
 
 **Des：** 获取其他用户信息
 
-**Login:** True, 有管理员权限
+**Scope:** ["profile admin"]
 
 **请求参数：** open-id，目标用户的openid
 
@@ -229,7 +228,7 @@ wx.request({
 
 **API:** `POST /admin/request/`
 
-**Login:** True，且需要绑定
+**Scope:** profile
 
 **请求参数：** 无
 
@@ -249,7 +248,7 @@ wx.request({
 
 **API:** `GET /admin/request/`
 
-**Login:?** True, 有管理员权限
+**Scope:** ["profile admin"]
 
 **请求参数:** 无
 
@@ -285,7 +284,7 @@ AdminReq属性：
 
 **API:** `POST /admin/request/<requst-id>/` 
 
-**Login?:** True, 需要绑定，需要为管理员
+**Scope:** ["profile admin"]
 
 **请求参数:** Json Object，
 
@@ -307,7 +306,7 @@ AdminReq属性：
 
 **API：** `GET /admin/`
 
-**Login：** True，且绑定，且登录。
+**Scope:** ["profile"]
 
 **返回值：**
 
@@ -323,7 +322,7 @@ AdminReq属性：
 
 **API:** `DELETE /admin/<open-id>/`
 
-**Login:** 登陆绑定，且有管理员权限
+**Scope:** ["profile admin"]
 
 **请求参数：** open-id，要删除的管理员id
 
@@ -336,32 +335,13 @@ AdminReq属性：
 
 
 
-### 使用测试账号登录
-
-**API：** `GET /test/login/?mode=[user|admin]`
-
-**Des：**
-
-当后端的配置为`TestConfig`时这个接口存在，使用这个接口可以创建一个和微信openid无关的测试账号。这些用于测试的账号将会在产品正式上线前删除。
-
-**Args:** mode，为user或其他值时创建拥有用户权限的账号，为admin时创建管理员账号。
-
-**Set-Cookie?** True
-
-**返回值：**
-
-| 属性   | 类型   | 说明     |
-| ------ | ------ | -------- |
-| code   | int    | 错误码   |
-| errmsg | string | 错误信息 |
-
 
 
 ### 获取用户列表
 
 **API：** `GET /user/?clazz=<class>&p=<page>`
 
-**Login:** True，且绑定，且为管理员
+**Scope:** ["profile admin"]
 
 **Args：** 
 
@@ -388,7 +368,7 @@ AdminReq属性：
 
 **Des：** 删除该用户的绑定关系。
 
-**Login:** True，且绑定，且为管理员
+**Scope:** ["profile admin"]
 
 **Args：** 
 
@@ -410,6 +390,10 @@ AdminReq属性：
 | 301  | 用户不存在 |
 
 
+
+## OAuth 鉴权
+
+见[鉴权部分文档](鉴权部分文档.md)
 
 
 
@@ -442,8 +426,6 @@ Item对象是一个Json Object对象，包含如下属性：
 
 **API**： `GET /item/?p=<page>&group=<group>`
 
-**Login?:**  False
-
 **请求参数**：
 
 | 属性  | 类型   | 必填              | 说明                                       |
@@ -468,8 +450,6 @@ Item对象是一个Json Object对象，包含如下属性：
 **API:** `GET /item/<item-id>/`
 
 **Des：** 获取物品详细信息，包括`md-intro`、`delete`、`attr`属性
-
-**Login?：** False
 
 **请求参数：** 无
 
@@ -497,7 +477,7 @@ Item对象是一个Json Object对象，包含如下属性：
 
 **API：** `POST /item/`
 
-**Login?:** True，且绑定，且是管理员
+**Scope:** ["profile admin"]
 
 **请求参数：** Item，包含且只包含如下属性：
 
@@ -531,7 +511,7 @@ Item对象是一个Json Object对象，包含如下属性：
 
 **Des：** 修改物品信息
 
-**Login?：** True，要求绑定、登陆
+**Scope:** ["profile admin"]
 
 **请求参数：** 
 
@@ -568,6 +548,8 @@ Item对象是一个Json Object对象，包含如下属性：
 
 **Des：** 删除物品
 
+**Scope:** ["profile admin"]
+
 **请求参数：** item-id，物品id
 
 **返回值：** Json Object，包含属性如下
@@ -590,10 +572,6 @@ Item对象是一个Json Object对象，包含如下属性：
 **API:**  `GET /item/<item-id>/reservation/`
 
 **Des：** 查询某个物品未来7天的预约信息
-
-**Des:** 查询某个物品未来一周的预约信息。
-
-**Login?:** False
 
 **请求参数：** Json Object，属性如下：
 
@@ -737,7 +715,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **Des:** 提交一个预约
 
-**Login?:** True，且需要事先绑定姓名学号。
+**Scope:** ["profile"]
 
 **请求参数** ：Rsv对象，只需包含如下属性，其余省略：
 
@@ -775,7 +753,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API:** `GET /reservation/me/?st=<start-time>&ed=<end-time>&state=<state>/`
 
-**Login?**: True
+**Scope:** ["profile"]
 
 **请求参数**:
 
@@ -805,8 +783,6 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **Des：** 获取某个预约的详细信息
 
-**Login?：** False
-
 **请求参数：** `rsv-id`
 
 **返回值：** Json Object，属性如下：
@@ -833,7 +809,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API:** `DELETE /reservation/<rsv-id>/`
 
-**Login?:** True，且要求绑定
+**Scope:** ["profile"]
 
 **请求参数：** Json Object，包含如下属性：
 
@@ -869,7 +845,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 > 注意：不是 提交预约 的时间，这个和`GET /reservation/me`的有所不同，之后可能会修改`GET /reservation/me`的约定。
 
-**Login?:** True，绑定、且为管理员
+**Scope:** ["profile admin"]
 
 **请求参数：** 一下参数都是可选的。
 
@@ -910,7 +886,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API：** `POST /reservation/<rsv-id>/`
 
-**Login?:** True，且绑定，且为管理员
+**Scope:** ["profile"]
 
 **请求参数：** Json Object,
 
@@ -989,7 +965,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API:** `GET /advice/?state=<state>&st=<st>&ed=<ed>&p=<page>`
 
-**Login:** True, 且绑定，且为管理员
+**Scope:** ["profile admin"]
 
 **请求参数：**
 
@@ -1015,7 +991,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API:** `POST /advice/`
 
-**Login:** True，且绑定。
+**Scope:** ["profile"]
 
 **请求参数：** Json Object, 属性如下：
 
@@ -1064,7 +1040,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API:** `GET /advice/<advice-id>`
 
-**Login:** True，且绑定
+**Scope:** ["profile"]
 
 **Args：** advice-id
 
@@ -1082,7 +1058,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API：** `POST /advice/<advice-id>`
 
-**Login:** True，且绑定，且为管理员
+**Scope:** ["profile admin"]
 
 **Args:** advice-id
 
@@ -1142,8 +1118,6 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API:** `GET /carousel/`
 
-**Login:** False
-
 **返回值:** Json Object，包含如下内容
 
 | 属性      | 类型       | 说明               |
@@ -1160,7 +1134,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API:** `POST /carousel/`
 
-**Login:** True, 且登录，且为管理员
+**Scope:** ["profile"]
 
 **请求参数：** Carousel 对象，不包含`owner`、`id`、`hide`、`last-version`属性。
 
@@ -1178,7 +1152,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API:** `POST /carousel/<carousel-id>/`
 
-**Login:** True,且登录，且为管理员
+**Scope:** ["profile"]
 
 **请求参数:** Json Object，包含 Carousel 排除 `id` 、`last-version`外的部分属性，覆盖设置服务器中对应Carousel对应属性的值。
 
@@ -1196,7 +1170,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API:** `GET /carousel/<carouselId>/`
 
-**Login：** TRUE，且登录，且为管理员。
+**Scope:** ["profile admin"]
 
 **返回值：** Json Object，属性如下：
 
@@ -1214,7 +1188,7 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 **API:** `GET /carousel/history/?st=<st>&ed=<ed>&hide=<hide>&last-ver=<lver>&page=<page>`
 
-**Login:** True, 且绑定，且为管理员
+**Scope:** ["profile admin"]
 
 **Args:** 
 
@@ -1238,8 +1212,6 @@ RsvId是一个int64，每一位有不同的含义，具体会仿照snowflake算�
 
 
 ## 错误码
-
-> GJM: 我是傻逼，一开始应该设计成没有重合的错误码的 QAQ
 
 错误码保留\[$\infin$, 100\]，作为公共错误码；\[101, +inf) 为某个API特定错误码。
 
