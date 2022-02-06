@@ -1,6 +1,6 @@
 from cgitb import handler
 from typing import List
-from flask import request, session
+from flask import request, session, g
 import requests as R
 import requests.exceptions as RE
 import json as Json
@@ -110,6 +110,7 @@ def requireScope(scopes: List[str]):
             openid = session.get("openid")
             token = None
             if openid:
+                g.openid = openid
                 user = User.fromOpenid(openid)
                 if user.schoolId:
                     privileges.add("profile")
@@ -124,6 +125,7 @@ def requireScope(scopes: List[str]):
                     .one_or_none()
                 )
                 if token:
+                    g.openid = token.ownerId
                     if token.owner.schoolId:
                         privileges.add("profile")
                     for s in token.scopes:
