@@ -101,46 +101,55 @@ def login():
     rtn["bound"] = user[1] != None
     return rtn
 
+def challengeScope(scopes: List[str]):
+    if not g.privileges:
+        privileges = set()
+        openid = session.get("openid")
+        token = None
+        if openid:
+            g.openid = openid
+            user = User.fromOpenid(openid)
+            if user.schoolId:
+                privileges.add("profile")
+            for p in user.privileges:
+                privileges.add(p.scope.scope)
+        elif request.headers.get("Token"):
+            tokenStr = request.headers.get("Token")
+            token: OAuthToken = (
+                db.session.query(OAuthToken)
+                .filter(OAuthToken.token == tokenStr)
+                .filter(OAuthToken.expireAt >= timestamp.now())
+                .one_or_none()
+            )
+            if token:
+                g.openid = token.ownerId
+                g.token = token
+                if token.owner.schoolId:
+                    privileges.add("profile")
+                for s in token.scopes:
+                    privileges.add(s.scope.scope)
+        g.privileges = privileges
+    
+    privileges = g.privileges
+
+    canAccess = False
+    for target in scopes:
+        require = set(target.split(" "))
+        if require.issubset(privileges):
+            canAccess = True
+            break
+    return canAccess
+
 
 def requireScope(scopes: List[str]):
     def _checkScope(handler):
         @functools.wraps(handler)
         def inner(*args, **kwargs):
-            privileges = set()
-            openid = session.get("openid")
-            token = None
-            if openid:
-                g.openid = openid
-                user = User.fromOpenid(openid)
-                if user.schoolId:
-                    privileges.add("profile")
-                for p in user.privileges:
-                    privileges.add(p.scope.scope)
-            elif request.headers.get("Token"):
-                tokenStr = request.headers.get("Token")
-                token: OAuthToken = (
-                    db.session.query(OAuthToken)
-                    .filter(OAuthToken.token == tokenStr)
-                    .filter(OAuthToken.expireAt >= timestamp.now())
-                    .one_or_none()
-                )
-                if token:
-                    g.openid = token.ownerId
-                    if token.owner.schoolId:
-                        privileges.add("profile")
-                    for s in token.scopes:
-                        privileges.add(s.scope.scope)
-
-            canAccess = False
-            for target in scopes:
-                require = set(target.split(" "))
-                if require.issubset(privileges):
-                    canAccess = True
-                    break
+            canAccess = challengeScope(scopes)
             if canAccess:
                 revokeSession = False
-                if token:
-                    session["openid"] = token.owner.openid  # 兼容老代码，之后会删除
+                if g.token:
+                    session["openid"] = g.token.owner.openid  # 兼容老代码，之后会删除
                     revokeSession = True
                 rtn = handler(*args, **kwargs)
                 if revokeSession:
@@ -150,7 +159,6 @@ def requireScope(scopes: List[str]):
                 rtn = {"requirement": scopes}
                 rtn.update(CODE_ACCESS_DENIED)
                 return rtn
-
         return inner
 
     return _checkScope

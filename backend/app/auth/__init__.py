@@ -6,13 +6,15 @@ from . import api
 from .api import requireScope
 
 
-def init_sys_account():
+def init():
     from .model import db, User, Privilege, Scope
     from config import userSysName
 
     scopes = [
         {"scope": "profile", "des": "基本用户信息"},
         {"scope": "admin", "des": "管理员权限"},
+        {"scope": "teacher", "des": "教师权限"},
+        {"scope": "monitor", "des": "班长权限"}
     ]
     for e in scopes:
         scope = Scope.fromScopeStr(e["scope"])

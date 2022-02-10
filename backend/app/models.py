@@ -9,9 +9,9 @@ def init_db(app):
     with app.app_context():
         db.create_all()
 
-        from app.auth import init_sys_account
+        from app.auth import init
 
-        init_sys_account()
+        init()
     pass
 
 
