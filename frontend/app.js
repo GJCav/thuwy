@@ -1,7 +1,0 @@
-// app.js
-App({
-
-    globaldata:{
-        
-    }
-})

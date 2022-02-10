@@ -1,0 +1,40 @@
+<script>
+	export default {
+		onLaunch: function() {
+			console.log('App Launch')
+			let that = this
+			uni.login().then(res => {
+					return uni.request({ // 发送 res.code 到后台换取 openId, sessionKey, unionId
+						url: that.globalData.url.backend + '/login/',
+						method: 'POST',
+						data: {
+							code: res.code
+						}
+					})
+				},
+			).then(res => {
+				if (res.data.code == 0) {
+					that.globalData.login = true;
+					uni.setStorage({ // 将得到的openid存储到缓存里面方便后面调用
+						key: "cookie",
+						data: res.cookies[0]
+					})
+				}
+				console.log(res.cookies)
+			})
+		},
+		globalData: {
+			login: false, // 是否以微信账号登录
+			profile: null, // 用户账号信息
+			url: {
+				backend: 'https://api.thuwy.top', // 后端地址
+				picture: 'https://web.thuwy.top/api', // 图片站地址
+				website: 'https://web.thuwy.top/api' // 网页端地址
+			}
+		}
+	}
+</script>
+
+<style>
+	/*每个页面公共css */
+</style>
