@@ -43,8 +43,8 @@
 				"text": "状态"
 			}, {
 				"pagePath": "pages/main/setting/setting",
-				"iconPath": "static/setting/设置-未选中.png",
-				"selectedIconPath": "static/setting/设置-选中.png",
+				"iconPath": "static/setting/setting_icon_unfocused.png",
+				"selectedIconPath": "static/setting/setting_icon_focused.png",
 				"text": "设置"
 			}
 		]

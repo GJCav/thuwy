@@ -1,7 +1,7 @@
 <template>
-	<view>
-		<view style="display: flex; flex-direction: column; height: 1235rpx; "> <!-- 页面总view -->
-			<image class="img-top" src="../../../static/setting/背景图片.png"></image>
+	<view class="bground">
+		<view style="display: flex; flex-direction: column" :style="{ height: windowHeight + 'px' }"> <!-- 页面总view -->
+			<image class="img-top" src="../../../static/setting/background_pic.png"></image>
 			<view class="main-view"> <!-- 除了背景图之外的所有部分,使用flex布局 -->
 				<image class="avatar" src="../../../static/setting/avatar_default.png"></image>
 				<view class="identity-container"> <!-- 身份信息 -->
@@ -22,12 +22,12 @@
 				</view>
 				<view class="operations-container"> <!-- 操作按钮的容器 -->
 					<view class="operations">
-						<image class="operation-icon" src="../../../static/setting/反馈&建议.svg"></image>
+						<image class="operation-icon" src="../../../static/setting/feedback.svg"></image>
 						<text class="operation-text">反馈&建议</text>
 					</view>
 					<view class="dividing-lines"></view>
 					<view class="operations">
-						<image class="operation-icon" src="../../../static/setting/扫码登录.svg"></image>
+						<image class="operation-icon" src="../../../static/setting/scan_to_sign_in.svg"></image>
 						<text class="operation-text">扫码登录</text>
 					</view>
 					<view class="dividing-lines"></view>
@@ -41,6 +41,7 @@
 				<text style="font-family: Roboto;font-style: normal;font-weight: 300;font-size: 18rpx;color: #000000;">Version: {{version}}</text>
 			</view>
 		</view>
+		<image class="dandelion" src="../../../static/setting/dandelion.svg"></image>
 	</view>
 </template>
 
@@ -57,11 +58,17 @@
 					{title: '小程序管理员', index: 4, class:"mp-admin-auth"},
 				],
 				id: 2020999999,
-				version: "2.0.0"
+				version: "2.0.0",
+				windowHeight: 0
 			}
 		},
 		onLoad() {
-
+			let that = this;
+			uni.getSystemInfo({
+				success(res) {
+					that.windowHeight = res.windowHeight;
+				}
+			})
 		},
 		methods: {
 			
@@ -100,7 +107,7 @@
 		height: 300rpx;
 		
 		margin-left: 30rpx;
-		margin-top: 15rpx;
+		margin-top: 0rpx;
 		margin-bottom: 10rpx;
 		
 		border: 10rpx solid #660874;
@@ -123,7 +130,7 @@
 		font-size: 60rpx;
 		line-height: 70rpx;
 		
-		color: #333;
+		color: #000;
 		text-shadow:
 			2rpx 0rpx 0rpx #FFFFFF,
 			-2rpx 0rpx 0rpx #FFFFFF,
@@ -168,7 +175,7 @@
 	.authorities-view {
 		/* 所有权限标签的总体容器 */
 		margin-left: 15rpx;
-		margin-top: 10rpx;
+		margin-top: 15rpx;
 		margin-bottom: 18rpx;
 		
 		width: 400rpx;
@@ -206,6 +213,8 @@
 	.id {
 		width: 248rpx;
 		height: 42rpx;
+		margin-left: 10rpx;
+		margin-top: 10rpx;
 		
 		font-family: Roboto;
 		font-style: normal;
@@ -213,7 +222,7 @@
 		font-size: 32rpx;
 		line-height: 42rpx;
 		
-		color: #333;
+		color: #000;
 	}
 	
 	.unauthorizedinfo-container {
@@ -288,5 +297,18 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+	}
+	.bground {
+		opacity: 1;
+	}
+	.dandelion {
+		z-index: -10;
+		position: absolute;
+		width: 700rpx;
+		height: 637.76rpx;
+		left: 150rpx;
+		bottom: 0rpx;
+		
+		opacity: 0.6;
 	}
 </style>
