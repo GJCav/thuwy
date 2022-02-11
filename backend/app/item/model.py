@@ -1,27 +1,32 @@
+from typing import Text
 from app.models import db
+
+from sqlalchemy import BIGINT, INTEGER, TEXT, VARCHAR
+from app.models import WECHAT_OPENID, SNOWFLAKE_ID
+
 
 class Item(db.Model):
     __tablename__ = "item"
-    id            = db.Column(db.Integer, primary_key=True)
-    name          = db.Column(db.Text, nullable=False)
-    available     = db.Column(db.Integer)
-    delete        = db.Column(db.Integer)
-    rsvMethod     = db.Column('rsv_method', db.Integer, nullable=False)
-    briefIntro    = db.Column('brief_intro', db.Text)
-    thumbnail     = db.Column(db.Text)
-    mdIntro       = db.Column('md_intro', db.Text)
-    attr          = db.Column(db.Integer)
-    group         = db.Column(db.Text)
+    id = db.Column(SNOWFLAKE_ID, primary_key=True)
+    name = db.Column(VARCHAR(128), nullable=False)
+    available = db.Column(INTEGER)
+    delete = db.Column(INTEGER)
+    rsvMethod = db.Column("rsv_method", INTEGER, nullable=False)
+    briefIntro = db.Column("brief_intro", VARCHAR(4096))
+    thumbnail = db.Column(VARCHAR(4096))
+    mdIntro = db.Column("md_intro", TEXT)
+    attr = db.Column(INTEGER)
+    group = db.Column(VARCHAR(4096))
 
     class Attr:
-        ATTR_AUTO_ACCEPT = 0b1 # 自动通过，自动完成
+        ATTR_AUTO_ACCEPT = 0b1  # 自动通过，自动完成
 
         def queryAttrById(id) -> int:
             qryRst = db.session.query(Item.attr).filter(Item.id == id).one_or_none()
             return qryRst[0] if qryRst else None
 
         def isAutoAccept(attr) -> bool:
-            return (attr & Item.Attr.ATTR_AUTO_ACCEPT)
+            return attr & Item.Attr.ATTR_AUTO_ACCEPT
 
     def queryItemName(itemId):
         qryRst = db.session.query(Item.name).filter(Item.id == itemId).one_or_none()
@@ -35,14 +40,14 @@ class Item(db.Model):
         json without md-intro
         """
         return {
-            'name': self.name,
-            'id': self.id,
-            'available': bool(self.available),
-            'brief-intro': self.briefIntro,
-            'thumbnail': self.thumbnail,
-            'rsv-method': self.rsvMethod,
-            'attr': self.attr,
-            'group': self.group
+            "name": self.name,
+            "id": self.id,
+            "available": bool(self.available),
+            "brief-intro": self.briefIntro,
+            "thumbnail": self.thumbnail,
+            "rsv-method": self.rsvMethod,
+            "attr": self.attr,
+            "group": self.group,
         }
 
     # no use
@@ -58,10 +63,7 @@ class Item(db.Model):
         """
         return none if item not found.
         """
-        qry = db.session\
-            .query(Item.rsvMethod)\
-            .filter(Item.id == id)\
-            .one_or_none()
+        qry = db.session.query(Item.rsvMethod).filter(Item.id == id).one_or_none()
         return qry[0] if qry else None
 
     def __repr__(self) -> str:

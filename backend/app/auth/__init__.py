@@ -1,12 +1,29 @@
 from flask import Blueprint
 
-authRouter = Blueprint('auth', __name__)
-from . import api
-from .api import requireLogin, requireBinding, requireAdmin
 
-def init_sys_account():
-    from .model import db, User, Admin
+authRouter = Blueprint("auth", __name__)
+from . import api
+from .api import requireScope
+
+
+def init():
+    from .model import db, User, Privilege, Scope
     from config import userSysName
+
+    scopes = [
+        {"scope": "profile", "des": "基本用户信息"},
+        {"scope": "admin", "des": "管理员权限"},
+        {"scope": "teacher", "des": "教师权限"},
+        {"scope": "monitor", "des": "班长权限"}
+    ]
+    for e in scopes:
+        scope = Scope.fromScopeStr(e["scope"])
+        if not scope:
+            scope = Scope()
+            scope.scope = e["scope"]
+            scope.description = e["des"]
+            db.session.add(scope)
+    db.session.commit()
 
     userSys = User.fromOpenid(userSysName)
     if not userSys:
@@ -15,9 +32,9 @@ def init_sys_account():
         userSys.schoolId = userSysName
         userSys.clazz = userSysName
         db.session.add(userSys)
-    adminSys = Admin.fromId(userSysName)
-    if not adminSys:
-        adminSys = Admin()
-        adminSys.openid = userSysName
-        db.session.add(adminSys)
-    db.session.commit()
+
+        sysAdminPrivilege = Privilege()
+        sysAdminPrivilege.openid = userSys.name
+        sysAdminPrivilege.scope = (
+            db.session.query(Scope).filter(Scope.scope == "admin").one_or_none()
+        )

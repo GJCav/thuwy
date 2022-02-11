@@ -1,40 +1,49 @@
+from enum import unique
+from typing import List
 from app.models import db
 
-class Admin(db.Model):
-    __tablename__ = 'admin'
-    openid        = db.Column(db.Text, primary_key = True)
+from app.models import SNOWFLAKE_ID, WECHAT_OPENID, SCHOOL_ID
+from sqlalchemy import BIGINT, INTEGER, TEXT, VARCHAR, Column, ForeignKey
+from sqlalchemy.orm import relationship
 
-    def fromId(id):
-        return db.session.query(Admin).filter(Admin.openid == id).one_or_none()
+OAUTH_CODE_LEN = 24
+OAUTH_TOKEN_LEN = 24
+OAUTH_CODE = VARCHAR(OAUTH_CODE_LEN, collation="utf8_bin")
+SCOPE_STR = VARCHAR(64)
+TOKEN_STR = VARCHAR(OAUTH_TOKEN_LEN, collation="utf8_bin")
 
 
 class AdminRequest(db.Model):
-    __tablename__ = 'admin_req'
-    id            = db.Column(db.Integer, primary_key = True)
-    requestor     = db.Column(db.Text)
-    approver      = db.Column(db.Text)
-    state         = db.Column(db.Integer) # 0: waiting, 1: accept, 2: reject
-    reason        = db.Column(db.Text)
+    __tablename__ = "admin_req"
+    id = db.Column(SNOWFLAKE_ID, primary_key=True)
+    requestor = db.Column(WECHAT_OPENID)
+    approver = db.Column(WECHAT_OPENID)
+    state = db.Column(INTEGER)  # 0: waiting, 1: accept, 2: reject
+    reason = db.Column(TEXT)
 
-    def fromId(id):
-        return db.session.query(AdminRequest).filter(AdminRequest.id == id).one_or_none()
+    def fromId(id) -> "AdminRequest":
+        return (
+            db.session.query(AdminRequest).filter(AdminRequest.id == id).one_or_none()
+        )
 
     def toDict(self):
         return {
-            'id': self.id,
-            'requestor': User.fromOpenid(self.requestor).toDict(),
-            'approver': User.queryName(self.approver),
+            "id": self.id,
+            "requestor": User.fromOpenid(self.requestor).toDict(),
+            "approver": User.queryName(self.approver),
             # 'state': self.state,
-            'reason': self.reason
+            "reason": self.reason,
         }
 
 
 class User(db.Model):
     __tablename__ = "user"
-    openid        = db.Column(db.Text, primary_key = True)
-    schoolId      = db.Column('school_id', db.Text, unique=True)
-    name          = db.Column(db.Text)
-    clazz         = db.Column(db.Text)
+    openid = db.Column(WECHAT_OPENID, primary_key=True)
+    schoolId = db.Column("school_id", SCHOOL_ID, unique=True)
+    name = db.Column(TEXT)
+    clazz = db.Column(TEXT)
+
+    privileges: List["Privilege"] = relationship("Privilege", back_populates="user")
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -44,18 +53,26 @@ class User(db.Model):
         super().__init__(*args, **kwargs)
 
     def __repr__(self) -> str:
-        return f'User({self.name}, {self.schoolId}, {self.clazz}, {self.openid})'
+        return f"User({self.name}, {self.schoolId}, {self.clazz}, {self.openid})"
 
     def toDict(self):
         return {
-            'school-id': self.schoolId,
-            'name': self.name,
-            'clazz': self.clazz,
-            'admin': bool(Admin.fromId(self.openid)),
-            'openid': self.openid
+            "school-id": self.schoolId,
+            "name": self.name,
+            "clazz": self.clazz,
+            "admin": self.isAdmin(),
+            "openid": self.openid,
         }
 
-    def fromOpenid(openid):
+    def isAdmin(self) -> bool:
+        return bool(
+            db.session.query(Privilege)
+            .filter(Privilege.openid == self.openid)
+            .filter(Privilege.scopeId == Scope.fromScopeStr("admin").id)
+            .one_or_none()
+        )
+
+    def fromOpenid(openid) -> "User":
         return db.session.query(User).filter(User.openid == openid).one_or_none()
 
     def queryProfile(openId):
@@ -72,37 +89,110 @@ class User(db.Model):
         return: name of openid, none if not found.
         """
 
-        rst = db.session\
-            .query(User.name)\
-            .filter(User.openid == openid)\
-            .one_or_none()
+        rst = db.session.query(User.name).filter(User.openid == openid).one_or_none()
         return rst[0] if rst else None
 
+
 class UserBinding(db.Model):
-    __tablename__ = 'user_binding'
-    schoolId = db.Column('school_id', db.Text, primary_key = True)
-    name = db.Column(db.Text)
-    clazz = db.Column(db.Text)
-    openid = db.Column(db.Text)
+    __tablename__ = "user_binding"
+    schoolId = db.Column("school_id", SCHOOL_ID, primary_key=True)
+    name = db.Column(TEXT)
+    clazz = db.Column(TEXT)
+    openid = db.Column(TEXT)
 
     def check(schoolId, name, clazz):
-        return \
-            db.session.query(UserBinding)\
-            .filter(UserBinding.schoolId == schoolId)\
-            .filter(UserBinding.name == name)\
-            .filter(UserBinding.clazz == clazz)\
+        return (
+            db.session.query(UserBinding)
+            .filter(UserBinding.schoolId == schoolId)
+            .filter(UserBinding.name == name)
+            .filter(UserBinding.clazz == clazz)
             .one_or_none()
+        )
 
     def toDict(self):
         return {
-            'id': self.schoolId,
-            'openid': self.openid,
-            'clazz': self.clazz,
-            'name': self.name
+            "id": self.schoolId,
+            "openid": self.openid,
+            "clazz": self.clazz,
+            "name": self.name,
         }
 
     def fromOpenId(openid):
-        return db.session\
-            .query(UserBinding)\
-            .filter(UserBinding.openid == openid)\
+        return (
+            db.session.query(UserBinding)
+            .filter(UserBinding.openid == openid)
             .one_or_none()
+        )
+
+
+class OAuthRequest(db.Model):
+    __tablename__ = "oauth_req"
+    id = Column(INTEGER, primary_key=True, autoincrement=True)
+    code = Column(OAUTH_CODE)  # random code generated by OAuth backend
+    expireAt = Column("expire_at", BIGINT)
+    reject = Column(INTEGER, default=0)
+
+    scopes: List["OAuthReqScope"] = relationship(
+        "OAuthReqScope", back_populates="request"
+    )
+    token: "OAuthToken" = relationship(
+        "OAuthToken", back_populates="request", uselist=False
+    )
+
+    def toDict(self) -> dict:
+        return {
+            "auth_code": self.code,
+            "expire_at": self.expireAt,
+            "scopes": [e.scope.toDict() for e in self.scopes],
+        }
+
+
+class OAuthReqScope(db.Model):
+    __tablename__ = "oauth_req_scope"
+    id = Column(INTEGER, primary_key=True, autoincrement=True)
+    scopeId = Column("scope_id", INTEGER, ForeignKey("oauth_scope.id"))
+    reqId = Column("req_id", INTEGER, ForeignKey("oauth_req.id"))
+    tokenId = Column("token_id", INTEGER, ForeignKey("oauth_token.id"))
+
+    scope: "Scope" = relationship("Scope")
+    request: OAuthRequest = relationship("OAuthRequest", back_populates="scopes")
+    token: "OAuthToken" = relationship("OAuthToken", back_populates="scopes")
+
+
+class OAuthToken(db.Model):
+    __tablename__ = "oauth_token"
+    id = Column(INTEGER, primary_key=True, autoincrement=True)
+    token = Column(TOKEN_STR)
+    expireAt = Column("expire_at", BIGINT)
+    ownerId = Column("owner_id", WECHAT_OPENID, ForeignKey("user.openid"))
+    reqId = Column("req_id", INTEGER, ForeignKey("oauth_req.id"))
+
+    scopes: List["OAuthReqScope"] = relationship(
+        "OAuthReqScope", back_populates="token"
+    )
+    owner: User = relationship("User")
+    request: OAuthRequest = relationship("OAuthRequest")
+
+
+class Scope(db.Model):
+    __tablename__ = "oauth_scope"
+    id = Column(INTEGER, primary_key=True)
+    scope = Column(SCOPE_STR, unique=True)
+    description = Column(VARCHAR(4096))
+
+    @staticmethod
+    def fromScopeStr(scope) -> "Scope":
+        return db.session.query(Scope).filter(Scope.scope == scope).one_or_none()
+
+    def toDict(self):
+        return {"scope": self.scope, "description": self.description}
+
+
+class Privilege(db.Model):
+    __tablename__ = "oauth_privilege"
+    id = Column(INTEGER, primary_key=True, autoincrement=True)
+    openid = Column(WECHAT_OPENID, ForeignKey("user.openid"))
+    scopeId = Column('scope_id', INTEGER, ForeignKey("oauth_scope.id"))
+
+    user: User = relationship("User", back_populates="privileges")
+    scope: Scope = relationship("Scope")
