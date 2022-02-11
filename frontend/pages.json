@@ -1,19 +1,20 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
+			"path": "pages/main/setting/setting",
+			"style": {
+				"navigationBarTitleText": "设置"
+			}
+		},
+		{
 			"path": "pages/main/index/index",
 			"style": {
-				"navigationBarTitleText": "微未央"
+				"navigationBarTitleText": "主页"
 			}
 		},{
 			"path": "pages/main/state/state",
 			"style": {
-				"navigationBarTitleText": "事项状态"
-			}
-		},{
-			"path": "pages/main/setting/setting",
-			"style": {
-				"navigationBarTitleText": "个人页面"
+				"navigationBarTitleText": "状态"
 			}
 		}
 	],
@@ -21,13 +22,14 @@
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "微未央",
 		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"backgroundColor": "#F8F8F8",
+		"navigationStyle":"custom"
 	},
 	"tabBar": {  // 导航栏
 		"color": "#7A7E83",
 		"selectedColor": "#80C3D4",
-		"borderStyle": "black",
-		"backgroundColor": "#F8F8F8",
+		"borderStyle": "white",
+		"backgroundColor": "#f0f0f0",
 		"list": [{
 				"pagePath": "pages/main/index/index",
 				"iconPath": "static/logo.png",
@@ -41,8 +43,8 @@
 				"text": "状态"
 			}, {
 				"pagePath": "pages/main/setting/setting",
-				"iconPath": "static/logo.png",
-				"selectedIconPath": "static/logo.png",
+				"iconPath": "static/setting/设置-未选中.png",
+				"selectedIconPath": "static/setting/设置-选中.png",
 				"text": "设置"
 			}
 		]
