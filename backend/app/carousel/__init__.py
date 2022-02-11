@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-carouselRouter = Blueprint('carousel', __name__)
+carouselRouter = Blueprint("carousel", __name__)
 
-from . import carouselapi
+from . import api

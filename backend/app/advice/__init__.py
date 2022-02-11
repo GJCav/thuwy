@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-adviceRouter = Blueprint('advice', __name__)
+adviceRouter = Blueprint("advice", __name__)
 
-from . import adviceapi
+from . import api
