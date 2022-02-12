@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<image class="weiyang-background" src="../../static/weiyang.svg"></image>
+		<image class="weiyang-background" mode="widthFix" src="../../static/weiyang.svg"></image>
 	</view>
 </template>
 
@@ -16,8 +16,9 @@
 <style>
 	.weiyang-background {
 		position: fixed;
-		bottom: -10rpx;
-		left: 150rpx;
-		z-index: -20;
+		width: 600rpx;
+		bottom: -15rpx;
+		right: 0rpx;
+		z-index: -15;
 	}
 </style>

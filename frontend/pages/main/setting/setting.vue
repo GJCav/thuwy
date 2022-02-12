@@ -1,5 +1,6 @@
 <template>
 	<view class="bground">
+		<weiyang-background></weiyang-background>
 		<view style="display: flex; flex-direction: column" :style="{ height: windowHeight + 'px' }"> <!-- 页面总view -->
 			<image class="img-top" src="../../../static/setting/background_pic.png"></image>
 			<view class="main-view"> <!-- 除了背景图之外的所有部分,使用flex布局 -->
@@ -31,9 +32,7 @@
 						<text class="operation-text">扫码登录</text>
 					</view>
 					<view class="dividing-lines"></view>
-				</view>
-			
-				
+				</view>	
 			</view>
 			<view style="flex-grow: 1;"></view>
 			<button class="buttons"><text style="font: 36rpx 900 Roboto; color: #FFFFFF;line-height: 42rpx;">退出登录</text></button>
@@ -41,7 +40,6 @@
 				<text style="font-family: Roboto;font-style: normal;font-weight: 300;font-size: 18rpx;color: #000000;">Version: {{version}}</text>
 			</view>
 		</view>
-		<image class="dandelion" src="../../../static/setting/dandelion.svg"></image>
 	</view>
 </template>
 
@@ -300,15 +298,5 @@
 	}
 	.bground {
 		opacity: 1;
-	}
-	.dandelion {
-		z-index: -10;
-		position: absolute;
-		width: 700rpx;
-		height: 637.76rpx;
-		left: 150rpx;
-		bottom: 0rpx;
-		
-		opacity: 0.6;
 	}
 </style>
