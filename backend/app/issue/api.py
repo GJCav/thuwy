@@ -1,5 +1,4 @@
 from . import issueRouter
-
 from app.comerrs import *
 from app.auth import requireScope
 
