@@ -10,6 +10,7 @@
 			<view class="info">{{text.info}}</view>
 			<view class="tag" :style="{'background-color':color[1]}">{{text.tag}}</view>
 		</view>
+		<image class="card-background" mode="widthFix" :src="'../../static/components/'+pic"></image>
 	</view>
 </template>
 
@@ -34,6 +35,10 @@
 				type: Array,
 				default:['#F3F3F3','#CCCCCC','#999999']
 			},
+			pic:{ // 图片名称
+				type:String,
+				default:'answer.svg'
+			},
 			url: { // 跳转绝对路径,可带参数
 				type: String,
 				required:true
@@ -54,6 +59,10 @@
 	.weiyang-card {
 		display: flex;
 		flex-direction: column;
+		
+		position: relative;
+		z-index: -2;
+		overflow: hidden;
 
 		width: 650rpx;
 		padding: 20rpx;
@@ -85,6 +94,9 @@
 
 	.content {
 		padding: 30rpx 0;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow:ellipsis;
 		font: bold 36rpx sans-serif;
 	}
 
@@ -94,5 +106,16 @@
 
 		color: #FFFFFF;
 		font: 900 40rpx sans-serif
+	}
+	
+	/* 背景图片 */
+	.card-background{
+		opacity: 0.3;
+		width: 300rpx;
+		
+		position: absolute;
+		right: 0;
+		bottom: -50rpx;
+		z-index: -1;
 	}
 </style>
