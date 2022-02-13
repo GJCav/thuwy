@@ -224,7 +224,7 @@ else:
 
 **Des:** 发送 Tag ID, 查询该 Tag 的详细信息
 
-**Scope:** `["profile dayi", "profile admin"]`
+**Scope:** `["profile"]`
 
 **API:** `GET /issue/tag/<name>/`
 
