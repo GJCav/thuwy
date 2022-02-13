@@ -1,6 +1,7 @@
 <template>
-	<view>
-		
+	<view class="container">
+		<weiyang-card></weiyang-card>
+		<weiyang-card></weiyang-card>
 	</view>
 </template>
 

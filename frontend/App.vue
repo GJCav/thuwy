@@ -35,6 +35,15 @@
 	}
 </script>
 
-<style>
-	/*每个页面公共css */
+<!-- 每个页面公共css -->
+<style>	
+	/* 弹性容器 */
+	.container { 
+		display: flex;
+		width: 100%;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+	}
 </style>
