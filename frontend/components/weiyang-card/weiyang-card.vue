@@ -1,14 +1,14 @@
 <template>
-	<view class="weiyang-card" :style="normal_color">
+	<view class="weiyang-card" :style="{color:color[1],'background-color':color[0]}" @click="NavigatePage()">
 		<view class="flex-line" style="align-items: flex-start;">
 			<view class="title">{{text.title}}</view>
 			<view class="corner">{{text.corner}}</view>
 		</view>
 		<view class="theme">{{text.theme}}</view>
-		<view class="content">{{text.content}}</view>
+		<view class="content" :style="{color:color[2]}">{{text.content}}</view>
 		<view class="flex-line" style="align-items: flex-end;">
 			<view class="info">{{text.info}}</view>
-			<view class="tag">{{text.tag}}</view>
+			<view class="tag" :style="{'background-color':color[1]}">{{text.tag}}</view>
 		</view>
 	</view>
 </template>
@@ -34,26 +34,16 @@
 				type: Array,
 				default:['#F3F3F3','#CCCCCC','#999999']
 			},
-			url: { // 跳转绝对路径
+			url: { // 跳转绝对路径,可带参数
 				type: String,
-				default: '/pages/main/index/index'
+				required:true
 			}
 		},
-		computed:{
-			light_color(){
-				return{
-					color:this.color[0]
-				}
-			},
-			normal_color(){
-				return{
-					color:this.color[1]
-				}
-			},
-			dark_color(){
-				return{
-					color:this.color[2]
-				}
+		methods:{
+			NavigatePage(){
+				uni.navigateTo({
+					url:this.url
+				})
 			}
 		}
 	}
@@ -69,7 +59,6 @@
 		padding: 20rpx;
 		margin: 20rpx 0 0 0;
 		border-radius: 30rpx;
-		border: 2rpx solid #000000;
 	}
 
 	/* 横向弹性框 */
@@ -102,7 +91,6 @@
 	.tag {
 		padding: 3rpx 10rpx;
 		border-radius: 10rpx;
-		background-color: #000000;
 
 		color: #FFFFFF;
 		font: 900 40rpx sans-serif
