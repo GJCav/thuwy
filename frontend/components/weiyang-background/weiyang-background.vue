@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<image class="weiyang-background" mode="widthFix" src="@/static/weiyang.svg"></image>
+		<image class="weiyang-background" mode="widthFix" src="@/static/conponents/weiyang-background/weiyang.svg"></image>
 	</view>
 </template>
 

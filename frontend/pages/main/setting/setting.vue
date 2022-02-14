@@ -66,7 +66,6 @@
 			</view>
 		</movable-area>
 		<weiyang-background></weiyang-background>
-		<!-- <image class="dandelion" src="../../../static/setting/dandelion.svg"></image> -->
 	</view>
 </template>
 
