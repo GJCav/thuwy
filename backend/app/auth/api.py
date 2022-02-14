@@ -101,6 +101,7 @@ def login():
     rtn["bound"] = user[1] != None
     return rtn
 
+
 def challengeScope(scopes: List[str]):
     if not g.privileges:
         privileges = set()
@@ -129,7 +130,7 @@ def challengeScope(scopes: List[str]):
                 for s in token.scopes:
                     privileges.add(s.scope.scope)
         g.privileges = privileges
-    
+
     privileges = g.privileges
 
     canAccess = False
@@ -159,6 +160,7 @@ def requireScope(scopes: List[str]):
                 rtn = {"requirement": scopes}
                 rtn.update(CODE_ACCESS_DENIED)
                 return rtn
+
         return inner
 
     return _checkScope
