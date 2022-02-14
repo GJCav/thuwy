@@ -2,7 +2,7 @@
 	<view class="weiyang-card" :style="{color:color[1],'background-color':color[0]}" @click="NavigatePage()">
 		<view class="flex-line" style="align-items: flex-start;">
 			<view class="title">{{text.title}}</view>
-			<view class="corner">{{text.corner}}</view>
+			<view class="corner"><slot></slot></view>
 		</view>
 		<view class="theme">{{text.theme}}</view>
 		<view class="content" :style="{color:color[2]}">{{text.content}}</view>
@@ -10,20 +10,37 @@
 			<view class="info">{{text.info}}</view>
 			<view class="tag" :style="{'background-color':color[1]}">{{text.tag}}</view>
 		</view>
-		<image class="card-background" mode="widthFix" :src="'../../static/components/'+pic"></image>
+		<image mode="widthFix" :src="picurl"></image>
 	</view>
 </template>
 
 <script>
 	export default {
 		name: 'weiyang-card',
+		data(){
+			return	{
+				colordata:[[ // 物品预约
+						['#DAF3ED','#45C5A6','#37806F'],
+						['#E5EFEC','#607870','#323E3A'],
+						['#FDF1EE','#EB3341','#380A0A'],
+					],[ // 教务答疑
+						['#CEE0EF','#112C9A','#202969'],
+						['#D6DDE3','#202969','#171D4D'],
+					],[ // 从游坊
+						['#D2CEF0','#5800A6','#440080'],
+						['#D0CFDD','#4B2D74','#311E4D'],
+						['#FDF1EE','#EB3341','#380A0A'],
+						["#F3F3F3","#CCCCCC","#999999"],
+					]
+				]
+			}
+		},
 		props: {
 			text: { // 卡片文本
 				type: Object,
 				default () {
 					return {
 						title: '卡片标题',
-						corner: '卡片角标',
 						theme: '卡片主题',
 						content: '卡片正文',
 						info: '卡片信息',
@@ -31,17 +48,21 @@
 					}
 				}
 			},
-			color: { // 卡片色调
-				type: Array,
-				default:['#F3F3F3','#CCCCCC','#999999']
-			},
-			pic:{ // 图片名称
-				type:String,
-				default:'answer.svg'
+			pattern: { // 卡片样式
+				type: Number,
+				default:11
 			},
 			url: { // 跳转绝对路径,可带参数
 				type: String,
 				required:true
+			}
+		},
+		computed:{
+			picurl(){
+				return '../../static/components/'+String(this.pattern)+'.svg'
+			},
+			color(){
+				return this.colordata[parseInt(this.pattern/10)-1][this.pattern%10-1]
 			}
 		},
 		methods:{
@@ -109,10 +130,8 @@
 	}
 	
 	/* 背景图片 */
-	.card-background{
-		opacity: 0.3;
+	.weiyang-card image{
 		width: 300rpx;
-		
 		position: absolute;
 		right: 0;
 		bottom: -50rpx;
