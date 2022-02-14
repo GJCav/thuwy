@@ -1,6 +1,6 @@
 <template>
 	<view class="container">
-		<view v-for="item in sample">
+		<view v-for="item in sample" :key="item">
 			<weiyang-card :pattern="item">{{'卡片角标'}}</weiyang-card>
 		</view>
 	</view>

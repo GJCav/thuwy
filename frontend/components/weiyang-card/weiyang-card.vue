@@ -10,7 +10,7 @@
 			<view class="info">{{text.info}}</view>
 			<view class="tag" :style="{'background-color':color[1]}">{{text.tag}}</view>
 		</view>
-		<image mode="widthFix" :src="picurl"></image>
+		<image class="weiyang-card-background" mode="widthFix" :src="picurl"></image>
 	</view>
 </template>
 
@@ -59,7 +59,7 @@
 		},
 		computed:{
 			picurl(){
-				return '../../static/components/'+String(this.pattern)+'.svg'
+				return '../../static/conponents/weiyang-card/'+String(this.pattern)+'.svg'
 			},
 			color(){
 				return this.colordata[parseInt(this.pattern/10)-1][this.pattern%10-1]
@@ -130,7 +130,7 @@
 	}
 	
 	/* 背景图片 */
-	.weiyang-card image{
+	.weiyang-card-background{
 		width: 300rpx;
 		position: absolute;
 		right: 0;

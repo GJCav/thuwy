@@ -38,19 +38,19 @@
 		"backgroundColor": "#F0F0F0",
 		"list": [{
 				"pagePath": "pages/main/index/index",
-				"iconPath": "static/logo.png",
-				"selectedIconPath": "static/logo.png",
+				"iconPath": "static/main/index/index_unfocused.png",
+				"selectedIconPath": "static/main/index/index_focused.png",
 				"text": "主页"
 			},
 			{
 				"pagePath": "pages/main/state/state",
-				"iconPath": "static/logo.png",
-				"selectedIconPath": "static/logo.png",
+				"iconPath": "static/main/state/state_unfocused.png",
+				"selectedIconPath": "static/main/state/state_focused.png",
 				"text": "状态"
 			}, {
 				"pagePath": "pages/main/setting/setting",
-				"iconPath": "static/setting/setting_icon_unfocused.png",
-				"selectedIconPath": "static/setting/setting_icon_focused.png",
+				"iconPath": "static/main/setting/setting_unfocused.png",
+				"selectedIconPath": "static/main/setting/setting_focused.png",
 				"text": "设置"
 			}
 		]
