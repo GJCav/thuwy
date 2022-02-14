@@ -26,7 +26,7 @@ def issueSearchOverview():
     return response
 
 
-@issueRouter.route("/issue/<int:id>", methods=["GET"])
+@issueRouter.route("/issue/<int:id>/", methods=["GET"])
 @requireScope(["profile"])
 def issueSearchDetail(id: int):
     """Search for all issues related with the specific issue."""
@@ -44,7 +44,7 @@ def issueNew():
     return response
 
 
-@issueRouter.route("/issue/<int:id>", methods=["POST"])
+@issueRouter.route("/issue/<int:id>/", methods=["POST"])
 @requireScope(["profile"])
 def issueEdit(id: int):
     """Edit an existing issue."""
@@ -53,7 +53,7 @@ def issueEdit(id: int):
     return response
 
 
-@issueRouter.route("/issue/<int:id>", methods=["DELETE"])
+@issueRouter.route("/issue/<int:id>/", methods=["DELETE"])
 @requireScope(["profile"])
 def issueDelete(id: int):
     """Delete an issue."""
@@ -71,7 +71,7 @@ def issueTagSearchOverview():
     return response
 
 
-@issueRouter.route("/issue/tag/<str:name>", methods=["GET"])
+@issueRouter.route("/issue/tag/<name>/", methods=["GET"])
 @requireScope(["profile"])
 def issueTagSearchDetail(name: str):
     """Search for detailed information of the tag"""
@@ -80,7 +80,7 @@ def issueTagSearchDetail(name: str):
     return response
 
 
-@issueRouter.route("/issue/tag/<str:name>", methods=["DELETE"])
+@issueRouter.route("/issue/tag/<name>/", methods=["DELETE"])
 @requireScope(["profile admin", "profile dayi"])
 def issueTagDelete(name: str):
     """Delete tag named `name`."""
