@@ -4,10 +4,10 @@
 			style="background-image: linear-gradient(rgba(255,255,255,0.2) 95%, rgba(255,255,255,1)), url(static/setting/background_pic.png)">
 		</view>
 		<movable-area
-			style="position: absolute; top:0rpx; width: 100%; height: 100%; display: flex; flex-direction: column;">
+			style="position: absolute; top:50rpx; width: 100%; height: calc(100% - 50rpx); display: flex; flex-direction: column;">
 			<!-- 页面总view -->
-			<movable-view out-of-bounds friction="100" direction="vertical" y="200rpx"
-				:style="{height: widowHeightinRpx - 200 + 'rpx'}" class="main-view">
+			<movable-view out-of-bounds direction="vertical" y="150rpx"
+				style="height: calc(100% - 150rpx);" class="main-view">
 				<!-- 除了背景图和底部按钮之外的所有部分,使用flex布局 -->
 				<view style="display: flex;flex-flow: row wrap;align-content: flex-start;">
 					<!-- 放置头像和身份信息tag的view -->
@@ -29,36 +29,35 @@
 						</view>
 					</view>
 				</view>
-				<view class="unauthorizedinfo-container">
+				<button-animation class="unauthorizedinfo-container" style="margin-left: 30rpx;" bgcolor="#FFD5D5" hovercolor="#ffc4c4">
 					<!-- 账号绑定 -->
-					<image style="width: 75rpx; height: 75rpx;" src="../../../static/setting/Warning.svg"></image>
-					<text class="warning-text">账号未绑定，点击此处进行绑定</text>
-					<image style="width: 15rpx;margin-top: 6rpx;margin-left: 15rpx;"
-						src="../../../static/setting/Arrow.svg"></image>
-				</view>
+					<view class="unauthorizedinfo-container flex-row">
+						<image style="width: 75rpx; height: 75rpx;" src="../../../static/setting/Warning.svg"></image>
+						<text class="warning-text">账号未绑定，点击此处进行绑定</text>
+						<image style="width: 15rpx;margin-top: 6rpx;margin-left: 15rpx;"
+							src="../../../static/setting/Arrow.svg"></image>
+					</view>
+				</button-animation>
 				<view class="operations-container">
 					<!-- 操作按钮的容器 -->
-					<view class="operations">
-						<image class="operation-icon" src="../../../static/setting/feedback.svg"></image>
-						<text class="operation-text">反馈&建议</text>
-					</view>
+					<button-animation class="operation" style="margin-left: 15rpx;" bgcolor="transparent" hovercolor="#c8c8c8">
+						<view class="operation flex-column">
+							<image class="operation-icon" src="../../../static/setting/feedback.svg"></image>
+							<text class="operation-text">反馈&建议</text>
+						</view>
+					</button-animation>
 					<view class="dividing-lines"></view>
-					<view class="operations">
-						<image class="operation-icon" src="../../../static/setting/scan_to_sign_in.svg"></image>
-						<text class="operation-text">扫码登录</text>
-					</view>
+					<button-animation class="operation" style="margin-left: 15rpx;" bgcolor="transparent" hovercolor="#c8c8c8">
+						<view class="operation flex-column">
+							<image class="operation-icon" src="../../../static/setting/scan_to_sign_in.svg"></image>
+							<text class="operation-text">扫码登录</text>
+						</view>
+					</button-animation>
 					<view class="dividing-lines"></view>
 				</view>
 			</movable-view>
 			<view style="flex-grow: 1;"></view>
-			<!-- <button
-				class="buttons"
-				hover-class="buttons-hover"
-				hover-stay-time="150"
-				@tap="onTouchStart" @touchstart="onTouchStart" @touchmove="onTouchStart" @touchend="onTouchEnd">
-				<text class="button-text">退出登录</text>
-			</button> -->
-			<button-animation><text class="button-text">退出登录</text></button-animation>
+			<button-animation style="z-index: 100;" class="log-off flex-row" bgcolor="#0087A9" hovercolor="#00657f"><view class="button-text">退出登录</view></button-animation>
 			<view style="margin-left: 322rpx; margin-top: 0rpx">
 				<text
 					style="font-family: Roboto;font-style: normal;font-weight: 300;font-size: 18rpx;color: #000000;">Version:
@@ -66,7 +65,6 @@
 			</view>
 		</movable-area>
 		<weiyang-background></weiyang-background>
-		<!-- <image class="dandelion" src="../../../static/setting/dandelion.svg"></image> -->
 	</view>
 </template>
 
@@ -133,52 +131,17 @@
 </script>
 
 <style>
-	@keyframes expand {
-		10% {
-			background-image: radial-gradient(circle at center, #00657f 28%, #0087A9);
-		}
-		20% {
-			background-image: radial-gradient(circle at center, #00657f 36%, #0087A9);
-		}
-		30% {
-			background-image: radial-gradient(circle at center, #00657f 44%, #0087A9);
-		}
-		40% {
-			background-image: radial-gradient(circle at center, #00657f 52%, #0087A9);
-		}
-		50% {
-			background-image: radial-gradient(circle at center, #00657f 60%, #0087A9);
-		}
-		70% {
-			background-image: radial-gradient(circle at center, #00657f 76%, #0087A9);
-		}
-		80% {
-			background-image: radial-gradient(circle at center, #00657f 84%, #0087A9);
-		}
-		90% {
-			background-image: radial-gradient(circle at center, #00657f 92%, #0087A9);
-		}
-		100% {
-			background-image: radial-gradient(circle at center, #00657f 100%, #0087A9);
-		}
-	}
-	
-	.buttons {
-		z-index: 100;
-		width: 690rpx;
-		height: 120rpx;
-		border-radius: 30rpx;
+	.flex-row {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-	
-		background: #0087A9;
 	}
-	.buttons-hover {
-		background-image: radial-gradient(circle at center, #00657f 20%, #0087A9);
-		animation: expand .1s linear forwards;
+	.flex-column {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
 	}
-
 	.img-top {
 		/* 背景图片 */
 		z-index: -10;
@@ -199,7 +162,7 @@
 		/* z-index: 10; */
 		z-index: 10;
 		width: 100%;
-
+		
 
 		background: linear-gradient(transparent 0%, transparent 196rpx, white 204rpx, white 600rpx, transparent 601rpx, transparent 100%);
 
@@ -353,37 +316,12 @@
 		/* 未授权的红色警告 */
 		width: 690rpx;
 		height: 120rpx;
-
-		margin-left: 30rpx;
-
-		background: #FFD5D5;
-		border-radius: 30rpx;
-
-
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
-
-	.unauthorizedinfo-container-hover {
-		/* 未授权的红色警告 */
-		width: 690rpx;
-		height: 120rpx;
-
-		margin-left: 30rpx;
-
-		background: #FFD5D5;
-		border-radius: 30rpx;
-
-
-		display: flex;
-		justify-content: center;
-		align-items: center;
+		overflow: hidden;
 	}
 
 	.warning-text {
 		margin-left: 23rpx;
-
+		
 		font-family: Roboto;
 		font-style: normal;
 		font-weight: bold;
@@ -405,21 +343,17 @@
 		display: flex;
 		align-items: center;
 	}
-
+	
+	.operation {
+		 width: 200rpx;
+		 height: 200rpx;
+	}
+	
 	.dividing-lines {
 		width: 0rpx;
 		height: 180rpx;
 		border: 1rpx solid #CCCCCC;
-		margin-left: 40rpx;
-	}
-
-	.operations {
-		width: 150rpx;
-		margin-left: 40rpx;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		/* flex-grow: 1; */
+		margin-left: 15rpx;
 	}
 
 	.operation-icon {
@@ -436,27 +370,22 @@
 	}
 
 	.button-text {
+		width: 690rpx;
+		height: 120rpx;
 		font-family: Roboto;
 		font-style: normal;
 		font-weight: 900;
 		font-size: 36rpx;
-		line-height: 42rpx;
-
+		line-height: 120rpx;
+		text-align: center;
+		text-justify: kashida;
 		color: #FFFFFF;
 	}
-
-	.bground {
-		opacity: 0.8;
+	.log-off {
+		width: 690rpx;
+		height: 120rpx;
+		margin-left: 30rpx;
 	}
-
-	.dandelion {
-		z-index: -10;
-		position: absolute;
-		width: 700rpx;
-		height: 637.76rpx;
-		left: 150rpx;
-		bottom: 0rpx;
-
-		opacity: 0.6;
-	}
+	
+	
 </style>

@@ -1,13 +1,14 @@
 <template>
 	<view>
-		<button
+		<view
 			class="buttons"
 			hover-class="buttons-hover"
 			:style="{ '--bg-color':bgcolor , '--hover-color':hovercolor , '--duration':duration + 'ms'}"
 			hover-stay-time="200"
 			>
+			<!-- 使用view而不是button的原因：使用button会有一个去不掉的难看的框 -->
 			<slot></slot>
-		</button>
+		</view>
 	</view>
 </template>
 
@@ -16,19 +17,15 @@
 		name: "button-animation",
 		data() {
 			return {
-				d: 1000
+				
 			};
 		},
 		props: {
 			bgcolor: {
 				type: String,
-				default: "#0087A9",
-				required: false
 			},
 			hovercolor: {
 				type: String,
-				default: '#00657f',
-				required: false
 			},
 			duration: {
 				type: Number,
@@ -39,7 +36,7 @@
 </script>
 
 <style>
-	@keyframes expand {
+	@keyframes ripple {
 		0%{
 			background-image: radial-gradient(circle at center, var(--hover-color) 20%,  var(--bg-color));
 		}
@@ -79,19 +76,24 @@
 			background-image: radial-gradient(circle at center, var(--hover-color) 100%, var(--bg-color));
 		}
 	}
-
+	
+	
 	.buttons {
-		z-index: 100;
-		width: 690rpx;
-		height: 120rpx;
 		border-radius: 30rpx;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		
+		outline:0 none !important; 
+		border: none;
 		background: var(--bg-color);
+		box-shadow: 0 3rpx 8rpx rgba(0, 0, 0, 0.3); /* black with 30% opacity */
+		
+		
+		transform: scale(1);
+		transition: transform var(--duration);
+		transition-timing-function: ease-in-out;
 	}
 
 	.buttons-hover {
-		animation: expand var(--duration) linear forwards;
+		transform: scale(0.98);
+		animation: ripple var(--duration) linear forwards;
 	}
 </style>
