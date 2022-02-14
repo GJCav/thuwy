@@ -2,6 +2,8 @@ from . import issueRouter
 from app.comerrs import *
 from app.auth import requireScope
 
+from flask import request
+
 SAMPLE_ISSUE = {
     "id": 123456,
     "title": "Title",
@@ -21,6 +23,19 @@ SAMPLE_ISSUE = {
 @requireScope(["profile"])
 def issueSearchOverview():
     """Filter issues with given parameters."""
+    # get & check args
+    page_size = request.args.get(key="page_size", default=10, type=int)
+    page_size = 10 if page_size > 10 else page_size
+    page_num = request.args.get(key="page_num", default=1, type=int)
+    page_num -= 1
+    sort_by = request.args.get(key="sort_by", default="last_modified_at", type=str)
+    reply_to = request.args.get(key="reply_to", default=None, type=int)
+    root_id = request.args.get(key="root_id", default=None, type=int)
+    authors = request.args.get(key="authors", default="", type=str)
+    tags = request.args.get(key="tags", default="", type=str)
+    visibility = request.args.get(key="visibility", default="", type=str)
+    start_time = request.args.get(key="start_time", default=0, type=int)
+    end_time = request.args.get(key="end_time", default=None, type=int)
     response = {"count": 0, "issues": [SAMPLE_ISSUE]}
     response.update(CODE_SUCCESS)
     return response

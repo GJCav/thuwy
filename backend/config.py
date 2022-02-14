@@ -1,7 +1,7 @@
 import os
 import datetime
 
-UNIX_USERNAME = "jcav"
+UNIX_USERNAME = "lq"
 DB_UNIX_SOCK = r"/run/mysqld/mysqld.sock"
 
 
@@ -53,6 +53,6 @@ config = DevelopmentConfig
 userSysName = "system"  # 默认添加一个 system 管理员，处理定时任务
 
 # 这两个数据是测试号
-WX_APP_ID = "wxe7ad44246de39b1c"
-WX_APP_SECRET = "130e4ff26bfe7bd283bf6e0294b4665e"
+WX_APP_ID = "wxc32f29e7a1c08dba"
+WX_APP_SECRET = "26e3ede2ebace7c238fdd43a6c0394a3"
 MACHINE_ID = 0

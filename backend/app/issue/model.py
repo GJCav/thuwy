@@ -45,7 +45,9 @@ class Issue(db.Model):
     author = db.Column("author", WECHAT_OPENID)
     date = db.Column("date", db.BIGINT, doc="creation time stored in `timestamp` form")
     last_modified_at = db.Column(
-        "last_modified_at", db.BIGINT, doc="date modified sotred in `timestamp` form",
+        "last_modified_at",
+        db.BIGINT,
+        doc="date modified sotred in `timestamp` form",
     )
     reply_to = db.Column("reply_to", SNOWFLAKE_ID, doc="ID of the Issue replying to")
     root_id = db.Column(
