@@ -1,9 +1,5 @@
 <template>
 	<view class="content">
-		<!-- 背景层 -->
-		<view class = "background-layer">
-			<image src="./bg_Weiyang.svg" class="background-image"></image>
-		</view>
 		<!-- 上层 -->
 		<view class="top-layer">
 			<!-- 滑动窗口 -->
@@ -34,6 +30,9 @@
 					<text class="button-text">从游坊</text>
 				</view>
 			</view>
+		</view>
+		<view>
+			<weiyang-background></weiyang-background>
 		</view>
 	</view>
 </template>
@@ -233,5 +232,4 @@
 		max-width: 250rpx;
 		max-height: 250rpx;
 	}
-	
 </style>

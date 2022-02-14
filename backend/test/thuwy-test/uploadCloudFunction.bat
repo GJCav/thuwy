@@ -1,0 +1,1 @@
+"C:\programs\微信web开发者工具\cli.bat" cloud functions deploy --e cloud1-6gutycxu3765af68 --n quickstartFunctions --r --project "D:\repos\wy-rsv-testfront" --report

@@ -7,6 +7,7 @@
   >
     <v-card :loading="loginState !== 'success' && loginState !== 'fail'">
       <v-card-title>请扫码登录</v-card-title>
+      <v-card-subtitle>「微未央」-「管理」-「右上角扫码」</v-card-subtitle>
       <v-img v-if="requestId !== ''" max-width="512px" :src="qrSrc"></v-img>
       <v-card-text v-else>正在拉取二维码……</v-card-text>
       <v-card-text v-if="loginState === 'success'" class="text-center"

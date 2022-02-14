@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-rsvRouter = Blueprint('reservation', __name__)
+rsvRouter = Blueprint("reservation", __name__)
 
-from . import rsvapi
+from . import api

@@ -1,10 +1,11 @@
 import threading
 import time
 import sys
-sys.path.append('..')
+
+sys.path.append("..")
 from app.snowflake import Snowflake, getFlow, getTime, getMachineId
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # test code here
     pool = Snowflake()
     cnt = 100
@@ -12,7 +13,7 @@ if __name__ == '__main__':
     flowBitoverflow = 0
     for i in range(cnt):
         a.append([])
-    
+
     stlock = threading.Lock()
     stCdn = threading.Condition(stlock)
 
@@ -29,19 +30,19 @@ if __name__ == '__main__':
             #     time.sleep(0.002)
             #     id = pool.next()
             a[idx].append((idx, id))
-    
+
     thds = []
     for i in range(cnt):
-        thds.append(threading.Thread(target=needId, args=(i, )))
+        thds.append(threading.Thread(target=needId, args=(i,)))
 
     for i in range(cnt):
         thds[i].start()
 
     time.sleep(1)
-    print('run!')
+    print("run!")
     with stlock:
         stCdn.notifyAll()
-    
+
     for i in range(cnt):
         thds[i].join()
 
@@ -55,17 +56,18 @@ if __name__ == '__main__':
         check[id] = check.get(id, 0) + 1
         thdMap[id] = thdMap.get(id, [])
         thdMap[id].append(tid)
-    
+
     for key in check.keys():
         if key == -1:
-            print(f'F: {key}')
+            print(f"F: {key}")
             for e in thdMap[key]:
-                print(f'   {e}')
+                print(f"   {e}")
         if check[key] != 1 and key != -1:
-            print(f"E: {key} {check[key]}, flow: {getFlow(key)}, time {getTime(key)}, mach {getMachineId(key)}")
+            print(
+                f"E: {key} {check[key]}, flow: {getFlow(key)}, time {getTime(key)}, mach {getMachineId(key)}"
+            )
             for e in thdMap[key]:
-                print(f'   {e}')
+                print(f"   {e}")
 
     print(f"flowbit overflow: {flowBitoverflow}")
-    print('done.')
-    
+    print("done.")
