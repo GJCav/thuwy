@@ -1,4 +1,3 @@
-from cgitb import handler
 from typing import List
 from flask import request, session, g
 import requests as R
@@ -12,7 +11,7 @@ import traceback
 from app.auth import util
 
 from . import authRouter
-from config import WX_APP_ID, WX_APP_SECRET, config
+from config import WX_APP_ID, WX_APP_SECRET, config, DevelopmentConfig
 from app import adminReqIdPool
 from app.comerrs import *
 from .errcode import *
@@ -149,7 +148,7 @@ def requireScope(scopes: List[str]):
             canAccess = challengeScope(scopes)
             if canAccess:
                 revokeSession = False
-                if g.token:
+                if g.get("token"):
                     session["openid"] = g.token.owner.openid  # 兼容老代码，之后会删除
                     revokeSession = True
                 rtn = handler(*args, **kwargs)
@@ -576,3 +575,18 @@ def modifyOAuth(authCode):
         return getOAuthInfo(oauthReq)
     elif request.method == "POST":
         return grantOAuth(oauthReq)
+
+
+if config == DevelopmentConfig:
+    @authRouter.route("/testaccount/<openid>/")
+    def switchToTestAccount(openid):
+        challengeScope(["profile"])
+        oldOpenid = g.get("openid")
+
+        user = User.fromOpenid(openid)
+        if not user:
+            if session.get("openid"): session.pop("openid")
+            return {"old": oldOpenid, "current": None}
+        else:
+            session["openid"] = user.openid
+            return {"old": oldOpenid, "current": user.openid}

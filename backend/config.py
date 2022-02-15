@@ -27,17 +27,6 @@ class DevelopmentConfig(Config):
         app.secret_key = "dev ----"
 
 
-class TestingConfig(Config):
-    TESTING = True
-    ENABLE_TEST_ACCOUNT = False
-    SQLALCHEMY_DATABASE_URI = (
-        "mysql+pymysql://%s@/thuwy_dev?unix_socket=%s&charset=utf8mb4"
-        % (UNIX_USERNAME, DB_UNIX_SOCK)
-    )
-
-    def set(app):
-        app.secret_key = os.urandom(24)
-
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = (
