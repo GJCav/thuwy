@@ -1,4 +1,4 @@
-from urllib import request
+from flask import request
 from . import congyouRouter
 from app.comerrs import *
 
@@ -34,7 +34,7 @@ SAMPLE_ENROLLMENT = {
 
 @congyouRouter.route("/lecture/", methods = ["GET", "POST"])
 @requireScope(["profile", "congyou profile"])
-def lecturelist() :
+def lectureList() :
     if request.method == "GET" and challengeScope(["profile"]):
         ret = {"lecture-count" : 1,
                 "page" : 1, 
@@ -47,22 +47,26 @@ def lecturelist() :
         ret.update(CODE_SUCCESS)
         return ret
 
-@congyouRouter.route("/lecture/<int:id>/", methods = ["GET", "POST"])
+@congyouRouter.route("/lecture/<int:id>/", methods = ["GET", "POST", "DELETE"])
 @requireScope(["profile", "profile congyou"])
-def lecturelist(id : int) :
+def lectureDetail(id : int) :
     if request.method == "GET" and challengeScope(["profile"]):
         ret = {"lecture" : [SAMPLE_LECTURE]}
         ret.update(CODE_SUCCESS)
         return ret
     elif request.method == "POST" and challengeScope(["profile congyou"]):
         reqJson = request.json
-    ret = {}
-    ret.update(CODE_SUCCESS)
-    return ret
+        ret = {}
+        ret.update(CODE_SUCCESS)
+        return ret
+    elif request.method == "DELETE" and challengeScope(["profile congyou"]):
+        ret = {}
+        ret.update(CODE_SUCCESS)
+        return ret
 
 @congyouRouter.route("/lecture_enrollment/", methods = ["GET", "POST"])
 @requireScope(["profile"])
-def lecturelist() :
+def lectureEnrollmentList() :
     if request.method == "POST" : 
         reqJson = request.json
         ret = {"enrollment_id" : 135}
@@ -75,9 +79,9 @@ def lecturelist() :
         ret.update(CODE_SUCCESS)
         return ret
 
-@congyouRouter.route("/lecture_enrollment/<int : id>/", methods = ["POST", "DELETE"])
+@congyouRouter.route("/lecture_enrollment/<int:id>/", methods = ["POST", "DELETE"])
 @requireScope(["profile"])
-def lecturelist(id : int) :
+def lectureEnrollmentModify(id : int) :
     if request.method == "POST" : 
         reqJson = request.json
         ret = {}
@@ -90,7 +94,7 @@ def lecturelist(id : int) :
 
 @congyouRouter.route("/wish_remain/", methods = ["GET"])
 @requireScope(["profile"])
-def lecturelist(id : int) :
+def userWish(id : int) :
     ret = {"first" : 1, 
             "second" : 2}
     ret.update(CODE_SUCCESS)
