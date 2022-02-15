@@ -1,10 +1,14 @@
 <template>
 	<view>
-		<view class="img-container"
+		<!-- <view class="img-container"
 			style="background-image: linear-gradient(rgba(255,255,255,0.2) 95%, rgba(255,255,255,1)), url(static/setting/background_pic.png)">
-		</view>
+		</view> -->
+		<image src="../../../static/setting/background_pic.png"
+			style="width: 100%; height: 400rpx; opacity: 0.85;"></image>
+		<image src="../../../static/setting/background_pic.png"
+			style="margin-top: -10rpx;width: 100%; height: 100rpx; opacity: 0.85; object-fit:cover;transform: rotateX(180deg);"></image>
 		<movable-area
-			style="position: absolute; top:50rpx; width: 100%; height: calc(100% - 50rpx); display: flex; flex-direction: column;">
+			style="position: absolute; top:0rpx; width: 100%; height: calc(100%); display: flex; flex-direction: column;">
 			<!-- 页面总view -->
 			<movable-view out-of-bounds direction="vertical" y="150rpx"
 				style="height: calc(100% - 150rpx);" class="main-view">
@@ -211,10 +215,10 @@
 
 		color: #000;
 		text-shadow:
-			2rpx 0rpx 0rpx #FFFFFF,
-			-2rpx 0rpx 0rpx #FFFFFF,
-			0rpx 2rpx 0rpx #FFFFFF,
-			0rpx -2rpx 0rpx #FFFFFF;
+			2rpx 2rpx 0rpx #FFFFFF,
+			-2rpx -2rpx 0rpx #FFFFFF,
+			-2rpx 2rpx 0rpx #FFFFFF,
+			2rpx -2rpx 0rpx #FFFFFF;
 	}
 
 	.student-auth {
