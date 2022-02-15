@@ -220,11 +220,15 @@ def bind():
 
 @authRouter.route("/profile/")
 def getMyProfile():
-    if not session.get("openid"):
+    challengeScope(["profile"])
+    if not g.get("openid"):
         return CODE_NOT_LOGGED_IN
-    rtn = User.queryProfile(session["openid"])
+    rtn = User.queryProfile(g.openid)
+    
     if rtn == None:
         return CODE_ARG_INVALID
+    
+    rtn["privileges"] = list(g.get("privileges"))
     rtn.update(CODE_SUCCESS)
     return rtn
 
@@ -508,8 +512,20 @@ def grantOAuth(oauthReq: OAuthRequest):
         user = User.fromOpenid(openid)
         ownPrivileges = set([e.scope.scope for e in user.privileges])
         reqPrivileges = set([e.scope.scope for e in oauthReq.scopes])
+
         if User.fromOpenid(openid).schoolId:
             ownPrivileges.add("profile")
+
+        if '*' in reqPrivileges:
+            reqPrivileges = ownPrivileges
+            oauthReq.scopes.clear()
+            for e in ownPrivileges:
+                reqScope = OAuthReqScope()
+                reqScope.reqId = oauthReq.id
+                reqScope.scopeId = Scope.fromScopeStr(e).id
+                db.session.add(reqScope)
+            db.session.commit()
+
         if not reqPrivileges.issubset(ownPrivileges):
             return CODE_ACCESS_DENIED
 
