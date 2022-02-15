@@ -2,7 +2,7 @@
 	<view class="weiyang-card" :style="{color:color[1],'background-color':color[0]}" @click="NavigatePage()">
 		<view class="flex-line" style="align-items: flex-start;">
 			<view class="title">{{text.title}}</view>
-			<view class="corner"><slot></slot></view>
+			<view class="corner"><slot/></view>
 		</view>
 		<view class="theme">{{text.theme}}</view>
 		<view class="content" :style="{color:color[2]}">{{text.content}}</view>
@@ -59,7 +59,7 @@
 		},
 		computed:{
 			picurl(){
-				return '../../static/conponents/weiyang-card/'+String(this.pattern)+'.svg'
+				return '../../static/components/weiyang-card/'+String(this.pattern)+'.svg'
 			},
 			color(){
 				return this.colordata[parseInt(this.pattern/10)-1][this.pattern%10-1]
@@ -75,7 +75,7 @@
 	}
 </script>
 
-<style>
+<style scoped>
 	/* 整体卡片排版 */
 	.weiyang-card {
 		display: flex;

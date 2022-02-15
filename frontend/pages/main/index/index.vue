@@ -9,8 +9,7 @@
 			</swiper-item>
 		</swiper>
 		<view class="row-container">
-			<view :class="current==index?'indicator-dot-active':'indicator-dot'" v-for="(item,index) in carousel_list"
-				:key="index"></view>
+			<view :class="current==index?'indicator-dot-active':'indicator-dot'" v-for="(item,index) in carousel_list" :key="index"></view>
 		</view>
 		<!-- 功能按钮 -->
 		<view class="row-container" style="flex-wrap: wrap;justify-content: space-between;padding:50rpx 10%;">
@@ -62,7 +61,7 @@
 	}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 	/* 主页顶部滑动窗口 */
 	swiper {
 		height: 400rpx;
@@ -76,35 +75,32 @@
 		bottom: 0;
 	}
 
-	swiper-item {
+	/* 主页顶部滑动窗口内容装饰 */
+	.swiper-item-decoration {
+		@include swiper-justify;
+		height: 100rpx;
 
-		/* 主页顶部滑动窗口内容装饰 */
-		.swiper-item-decoration {
-			@include swiper-justify;
-			height: 100rpx;
-
-			border-radius: 25rpx;
-			background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));
-		}
-
-		/* 主页顶部滑动窗口内容图片*/
-		.swiper-item-image {
-			@include swiper-justify;
-			height: 100%;
-			border-radius: 25rpx;
-		}
-
-		/* 主页顶部滑动窗口文字 */
-		.swiper-item-text {
-			@include swiper-justify;
-			padding: 15rpx 25rpx;
-
-			font-weight: 900;
-			font-size: 40rpx;
-			color: #FFFFFF;
-		}
-
+		border-radius: 25rpx;
+		background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));
 	}
+
+	/* 主页顶部滑动窗口内容图片*/
+	.swiper-item-image {
+		@include swiper-justify;
+		height: 100%;
+		border-radius: 25rpx;
+	}
+
+	/* 主页顶部滑动窗口文字 */
+	.swiper-item-text {
+		@include swiper-justify;
+		padding: 15rpx 25rpx;
+
+		font-weight: 900;
+		font-size: 40rpx;
+		color: #FFFFFF;
+	}
+
 
 
 	/* 指示点 */

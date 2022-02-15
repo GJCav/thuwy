@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<image class="weiyang-background" mode="widthFix" src="@/static/conponents/weiyang-background/weiyang.svg"></image>
+		<image class="weiyang-background" mode="widthFix" src="@/static/components/weiyang-background/weiyang.svg"></image>
 	</view>
 </template>
 
@@ -13,7 +13,7 @@
 	}
 </script>
 
-<style>
+<style scoped>
 	.weiyang-background {
 		position: fixed;
 		width: 600rpx;
