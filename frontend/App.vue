@@ -36,14 +36,26 @@
 </script>
 
 <!-- 每个页面公共css -->
-<style>	
+<style lang="scss">
+
 	/* 弹性容器 */
-	.container { 
+	@mixin flex-container {
 		display: flex;
-		width: 100%;
-		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		box-sizing: border-box;
+	}
+	
+	
+	.col-container { 
+		width: 100%;
+		flex-direction: column;
+		@include flex-container;
+		
+	}
+	.row-container {
+		width: 100%;
+		flex-direction: row;
+		@include flex-container;
 	}
 </style>

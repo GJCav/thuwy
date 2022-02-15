@@ -35,7 +35,7 @@
 	}
 </script>
 
-<style>
+<style scoped>
 	@keyframes ripple {
 		0%{
 			background-image: radial-gradient(circle at center, var(--hover-color) 20%,  var(--bg-color));
