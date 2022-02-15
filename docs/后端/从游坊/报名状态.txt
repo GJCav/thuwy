@@ -10,6 +10,7 @@
 A未报名
 B报名成功
 C报名失败
+在Lecture_enrollment对象中，state = 1代表A，state = 2代表B，state = 3代表C
 
 
 首页我的状态显示卡片有（括号内不显示）：

@@ -26,12 +26,14 @@ from .item import itemRouter
 from .reservation import rsvRouter
 from .advice import adviceRouter
 from .carousel import carouselRouter
+from .congyou import congyouRouter
 
 app.register_blueprint(authRouter)
 app.register_blueprint(itemRouter)
 app.register_blueprint(rsvRouter)
 app.register_blueprint(adviceRouter)
 app.register_blueprint(carouselRouter)
+app.register_blueprint(congyouRouter)
 
 Models.init_db(app)
 

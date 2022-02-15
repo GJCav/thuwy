@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-itemRouter = Blueprint("congyou", __name__)
+congyouRouter = Blueprint("congyou", __name__)
 
-from . import api as item_api
+from . import api as congyou_api

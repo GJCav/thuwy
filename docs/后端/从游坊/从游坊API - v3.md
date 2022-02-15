@@ -218,8 +218,7 @@
 | errmsg        | string     | 错误信息                                                    |
 | lecture-count | int        | Lecture的总个数                                             |
 | page          | int        | 返回的是第几页                                              |
-| enrollments   | Json Array | 包含` Lecture_enrollment`对象，与下面返回的lectures一一对应 |
-| lectures      | Json Array | 包含Lecture对象，按时间排序                                 |
+| enrollments   | Json Array | 包含` Lecture_enrollment`对象 |
 
 ### 修改报名的从游坊
 
