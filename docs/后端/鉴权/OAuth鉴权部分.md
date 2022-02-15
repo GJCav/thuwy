@@ -81,6 +81,13 @@ API：`POST /oauth/authroize/`
 {"scopes": ["profile", "admin"]}
 ```
 
+如果`scopes`列表中包含`*`，则会一次性获得授权用户的所有权限。
+例如：
+
+```json
+{"scopes": ["*"]}
+```
+
 返回值：
 
 | 属性      | 类型        | 说明                                 |
@@ -320,6 +327,10 @@ def someAPI():
 | scope | SCOPE_STr, unique | Scope名 |
 | description | VARCHAR(4096) | 附加描述信息 |
 
+特殊`Scope`：
+
+* profile：表示已经登录，所有用户默认具有这个权限。但`Privilege`表中没有这一行，`profile`是程序运行时自动添加的。
+* `*`：在授权时被替换为一个用户所具有的所有`Privilege`
 
 
 `Privilege`
@@ -330,13 +341,6 @@ def someAPI():
 | openid | OpenID |表明OpenID对应用户具有该Scope的权限|
 | scope_id | int |对应Scope的ID|
 
-特殊`Privilege`：
-
-* profile：表示已经登录，所有用户默认具有这个权限。但`Privilege`表中没有这一行。
-
-`Privilege`列表：
-
-* `admin`：表示管理员权限
 
 
 
@@ -360,16 +364,10 @@ def someAPI():
 
 
 
-### 未来改进
-
-`Privilege`表支持通配符匹配之类的。
-
-
-
 ## 现有Scope/Privilege
 
-* `profile`, 只要登录，都具有此权限
-* `admin`，管理员，可以增删查改其他用户的权限
-* `teacher`，教师
-* `monitor`，班长
-
+* `profile`, 只要登录，都具有此权限。
+* `*`：一个新号，如果OAuth请求中包含这个scope，最后用户授权时将一次性授予该用于拥有的所有privilege，主要是为了方便网页端开发，这样就只用登陆&授权一次。 
+* `admin`：表示管理员权限，一些老旧API大量使用这个scope。
+* `congyou`：从游坊管理权限，包括从游坊的发布、修改等。
+* `dayi`：答疑坊管理权限，包括提问的回答、审核、公开等。

@@ -17,6 +17,7 @@ def init():
         {"scope": "admin", "des": "管理员权限"},
         {"scope": "teacher", "des": "教师权限"},
         {"scope": "monitor", "des": "班长权限"},
+        {"scope": "*", "des": "获取用户具有的所有权限"}
     ]
     for e in scopes:
         scope = Scope.fromScopeStr(e["scope"])
