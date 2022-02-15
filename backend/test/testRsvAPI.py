@@ -357,7 +357,7 @@ def testReserveWeekend():
 def testGetMyRsv():
     testData = [1, 2, 4, 16]
 
-    def valid(rsv, state=2 ** 65 - 1):
+    def valid(rsv, state=2**65 - 1):
         assert CheckArgs.hasAttrs(
             rsv,
             [

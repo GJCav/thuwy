@@ -192,7 +192,7 @@ class Privilege(db.Model):
     __tablename__ = "oauth_privilege"
     id = Column(INTEGER, primary_key=True, autoincrement=True)
     openid = Column(WECHAT_OPENID, ForeignKey("user.openid"))
-    scopeId = Column('scope_id', INTEGER, ForeignKey("oauth_scope.id"))
+    scopeId = Column("scope_id", INTEGER, ForeignKey("oauth_scope.id"))
 
     user: User = relationship("User", back_populates="privileges")
     scope: Scope = relationship("Scope")
