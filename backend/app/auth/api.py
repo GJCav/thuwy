@@ -103,7 +103,7 @@ def login():
 
 
 def challengeScope(scopes: List[str]):
-    if not g.privileges:
+    if not g.get("privileges"):
         privileges = set()
         openid = session.get("openid")
         token = None
