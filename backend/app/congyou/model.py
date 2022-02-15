@@ -2,13 +2,13 @@ from typing import List
 from app.models import db
 
 from sqlalchemy import BIGINT, INTEGER, TEXT, VARCHAR, JSON, ForeignKey
-from app.models import WECHAT_OPENID, SNOWFLAKE_ID
+from app.models import WECHAT_OPENID
 from sqlalchemy.orm import relationship
 
 class Lecture(db.Model):
     __tablename__ = "lecture"
-    lecture_id = db.Column(INTEGER, primary_key=True)
-    user_id = db.Column(SNOWFLAKE_ID)
+    lecture_id = db.Column(INTEGER, primary_key=True, autoincrement=True)
+    user_id = db.Column(WECHAT_OPENID)
     title = db.Column(VARCHAR(50))
     theme = db.Column(VARCHAR(50))
     state = db.Column(INTEGER)
@@ -27,9 +27,9 @@ class Lecture(db.Model):
 
 class Lecture_enrollment(db.Model):
     __tablename__ = "lecture_enrollment"
-    enrollment_id = db.Column(INTEGER, primary_key = True)
+    enrollment_id = db.Column(INTEGER, primary_key = True, autoincrement=True)
     lecture_id = db.Column(INTEGER, ForeignKey("lecture.lecture_id"))
-    user_id = db.Column(SNOWFLAKE_ID)
+    user_id = db.Column(WECHAT_OPENID)
     wish = db.Column(INTEGER)
     state = db.Column(INTEGER)
     delete = db.Column(INTEGER)

@@ -7,7 +7,7 @@
 | 字段名         | 类型         | 说明                                |
 | -------------- | ------------ | ----------------------------------- |
 | lecture_id     | int          | 申请ID                              |
-| user_id        | int          | 申请者的WECHAT_OPENID               |
+| user_id        | str          | 申请者的WECHAT_OPENID               |
 | title          | VARCHAR(50) | 该期从游坊名称 |
 | theme          | VARCHAR(50) | 该期从游坊主题 |
 | state          | int          | 见txt文件                        |
