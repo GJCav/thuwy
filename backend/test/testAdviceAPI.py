@@ -140,7 +140,7 @@ def testGetAdviceListRobustly():
         # page, http code, json code, response page
         (-1, 200, CODE_ARG_INVALID["code"], 0),
         (0, 200, CODE_ARG_INVALID["code"], 0),
-        (2 ** 128, 200, CODE_ARG_INVALID["code"], 0),
+        (2**128, 200, CODE_ARG_INVALID["code"], 0),
         ("a", 200, CODE_ARG_TYPE_ERR["code"], 1),
         (100, 200, 0, 100),
     ]
