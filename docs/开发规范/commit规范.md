@@ -23,6 +23,7 @@ docs: 添加提交规范和暂定API
 **type**，必填，说明commit类别，备选标识如下：
 
 * feat：添加新功能(feature)
+* impr: 改进原有功能
 * fix: 修复bug
 * docs: 文档相关
 * refactor: 重构，保证代码功能不会发生变化。包括代码风格变化、性能改善等。
