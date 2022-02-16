@@ -1,17 +1,24 @@
-from datetime import datetime
-from typing import Any
 from .types import Visibility
-import sqlalchemy
-from app.models import db
-from app.models import WECHAT_OPENID
 from .utils import _am_admin
 
+from app.models import db
+from app.models import WECHAT_OPENID
+
 from flask import g
+import sqlalchemy
+
+from datetime import datetime
+from typing import Any
+
 
 # Common parameters when construct a new `Column` object:
 #     name, type_, default, doc, nullable, primary_key, unique
+
+
 IssueTitleTy = db.VARCHAR(80)
 IssueTagNameTy = db.VARCHAR(80)
+
+
 issue_tag = db.Table(
     "issue_tag",
     db.Column("issue_id", db.Integer, db.ForeignKey("issue.id"), primary_key=True),

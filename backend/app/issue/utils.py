@@ -1,5 +1,6 @@
-from flask import g
 from .types import Visibility
+
+from flask import g
 
 
 def _am_admin() -> bool:

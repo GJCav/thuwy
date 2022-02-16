@@ -1,16 +1,17 @@
-from typing import Any
-import sqlalchemy
-
 from . import issueRouter
 from .errcode import *
+from .model import db, IssueTagMeta, Issue
+from .types import Visibility
+from .utils import _try_modify_visibility
+
+from app.auth import requireScope
+from app.comerrs import *
+
 from flask import request
 from flask import g
-from app.comerrs import *
-from app.auth import requireScope
+import sqlalchemy
 
-from .model import db, IssueTagMeta, Issue, Visibility
-from .utils import _try_modify_visibility
-from app import issue
+from typing import Any
 
 
 SAMPLE_ISSUE = {
