@@ -25,7 +25,7 @@
 
 ### 获取从游坊列表
 
-**API:** `GET /lecture/?p=<page>&type=<type>&state=<state> `
+**API:** `GET /lecture/?p=<page>&subject=<subject>&state=<state> `
 
 **Scope:** ["profile"] 
 
@@ -34,7 +34,7 @@
 | 属性  | 类型 | 必填               | 说明                                       |
 | ----- | ---- | ------------------ | ------------------------------------------ |
 | p     | int  | 否，不填默认为1    | 分页获取，避免一次性数据过多，每页20条数据 |
-| type  | int  | 否，不填默认为全部 | 该期从游坊方向的标签                       |
+| subject  | int  | 否，不填默认为全部 | 该期从游坊方向的标签                       |
 | state | int  | 否，不填默认为全部 | 见txt文件                                  |
 
 **返回值:** Json Object，其中包含：
@@ -45,7 +45,7 @@
 | errmsg        | string     | 错误信息                                                     |
 | lecture-count | int        | Lecture的总个数                                              |
 | page          | int        | 返回的是第几页                                               |
-| lectures      | Json Array | 包含` Lecture`对象，以时间排序。**其中的Lecture对象不包含detail_intro属性** |
+| lectures      | Json Array | 包含` Lecture`对象，以deadline时间排序。**其中的Lecture对象不包含detail_intro属性** |
 
 ### 从游坊详细信息
 
@@ -86,7 +86,6 @@
 * teacher
 * brief-intro
 * detail-intro
-* start_time
 * deadline
 * holding_time
 
@@ -115,7 +114,6 @@
   * teacher
   * brief-intro
   * detail-intro
-  * start_time
   * deadline
   * holding_time
 
