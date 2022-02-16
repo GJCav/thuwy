@@ -27,9 +27,13 @@
 			login: false, // 是否以微信账号登录
 			profile: null, // 用户账号信息
 			url: {
-				backend: 'https://api.thuwy.top', // 后端地址
-				picture: 'https://web.thuwy.top/api', // 图片站地址
-				website: 'https://web.thuwy.top/api' // 网页端地址
+				// backend: 'https://api.thuwy.top', // 后端地址
+				// picture: 'https://https://static.thuwy.top', // 图片站地址
+				// website: 'https://https://web.thuwy.top/api' // 网页后端地址
+				backend: 'https://dev-api.thuwy.top', // 开发后端地址
+				picture: 'https://dev-static.thuwy.top', // 开发图片站地址
+				website:'https://dev-web.thuwy.top/api' // 开发网页后端地址
+				
 			}
 		}
 	}
