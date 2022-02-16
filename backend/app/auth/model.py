@@ -62,6 +62,7 @@ class User(db.Model):
             "clazz": self.clazz,
             "admin": self.isAdmin(),
             "openid": self.openid,
+            "all-privileges": self.getAllPrivileges()
         }
 
     def isAdmin(self) -> bool:
@@ -71,6 +72,11 @@ class User(db.Model):
             .filter(Privilege.scopeId == Scope.fromScopeStr("admin").id)
             .one_or_none()
         )
+
+    def getAllPrivileges(self) -> List["str"]:
+        priList = [e.scope.scope for e in self.privileges]
+        if self.schoolId: priList.append("profile")
+        return priList
 
     def fromOpenid(openid) -> "User":
         return db.session.query(User).filter(User.openid == openid).one_or_none()
