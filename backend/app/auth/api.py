@@ -1,4 +1,3 @@
-from cgitb import handler
 from typing import List
 from flask import request, session, g
 import requests as R
@@ -12,7 +11,7 @@ import traceback
 from app.auth import util
 
 from . import authRouter
-from config import WX_APP_ID, WX_APP_SECRET, config
+from config import WX_APP_ID, WX_APP_SECRET, config, DevelopmentConfig
 from app import adminReqIdPool
 from app.comerrs import *
 from .errcode import *
@@ -101,8 +100,9 @@ def login():
     rtn["bound"] = user[1] != None
     return rtn
 
+
 def challengeScope(scopes: List[str]):
-    if not g.privileges:
+    if not g.get("privileges"):
         privileges = set()
         openid = session.get("openid")
         token = None
@@ -129,7 +129,7 @@ def challengeScope(scopes: List[str]):
                 for s in token.scopes:
                     privileges.add(s.scope.scope)
         g.privileges = privileges
-    
+
     privileges = g.privileges
 
     canAccess = False
@@ -148,7 +148,7 @@ def requireScope(scopes: List[str]):
             canAccess = challengeScope(scopes)
             if canAccess:
                 revokeSession = False
-                if g.token:
+                if g.get("token"):
                     session["openid"] = g.token.owner.openid  # 兼容老代码，之后会删除
                     revokeSession = True
                 rtn = handler(*args, **kwargs)
@@ -159,6 +159,7 @@ def requireScope(scopes: List[str]):
                 rtn = {"requirement": scopes}
                 rtn.update(CODE_ACCESS_DENIED)
                 return rtn
+
         return inner
 
     return _checkScope
@@ -219,11 +220,15 @@ def bind():
 
 @authRouter.route("/profile/")
 def getMyProfile():
-    if not session.get("openid"):
+    challengeScope(["profile"])
+    if not g.get("openid"):
         return CODE_NOT_LOGGED_IN
-    rtn = User.queryProfile(session["openid"])
+    rtn = User.queryProfile(g.openid)
+    
     if rtn == None:
         return CODE_ARG_INVALID
+    
+    rtn["privileges"] = list(g.get("privileges"))
     rtn.update(CODE_SUCCESS)
     return rtn
 
@@ -409,6 +414,68 @@ def unbindUser(openid):
     return CODE_SUCCESS
 
 
+@authRouter.route("/user/<openid>/scope/", methods=["GET", "POST"])
+@requireScope(["profile scopeAdmin"])
+def usrScopeInfo(openid):
+    user = User.fromOpenid(openid)
+    if not user: return CODE_USER_NOT_FOUND
+
+    if request.method == "GET":
+        rtn = {"scopes": user.getAllPrivileges()}
+        rtn.update(CODE_SUCCESS)
+        return rtn
+    elif request.method == "POST":
+        json = request.get_json()
+        if not json: return CODE_ARG_MISSING
+        if "scope" not in json: return CODE_ARG_MISSING
+        if not CheckArgs.isStr(json["scope"]): return CODE_ARG_INVALID
+
+        scopeStr = json["scope"]
+        if scopeStr in user.getAllPrivileges():
+            return CODE_PRIVILEGE_EXISTED
+        
+        scope = Scope.fromScopeStr(scopeStr)
+        if not scope: return CODE_SCOPE_NOT_FOUND
+
+        pri = Privilege()
+        pri.openid = user.openid
+        pri.scopeId = scope.id
+        db.session.add(pri)
+
+        try:
+            db.session.commit()
+        except:
+            return CODE_DATABASE_ERROR
+        
+        rtn = {"scopes": user.getAllPrivileges()}
+        rtn.update(CODE_SUCCESS)
+        return rtn
+
+@authRouter.route("/user/<openid>/scope/<scopeStr>/", methods=["DELETE"])
+@requireScope(["profile scopeAdmin"])
+def delUsrScopeInfo(openid, scopeStr):
+    user = User.fromOpenid(openid)
+    if not user: return CODE_USER_NOT_FOUND
+
+    ownPrivileges = user.privileges
+    found = False
+    for pri in ownPrivileges:
+        if pri.scope.scope == scopeStr:
+            db.session.delete(pri)
+            found = True
+    
+    try:
+        db.session.commit()
+    except:
+        return CODE_DATABASE_ERROR
+
+    if not found: return CODE_PRIVILEGE_NOT_FOUND
+
+    rtn = {"scopes": user.getAllPrivileges()}
+    rtn.update(CODE_SUCCESS)
+    return rtn
+
+
 @authRouter.route("/oauth/authorize/", methods=["POST"])
 def requestOAuth():
     json = request.json
@@ -507,8 +574,20 @@ def grantOAuth(oauthReq: OAuthRequest):
         user = User.fromOpenid(openid)
         ownPrivileges = set([e.scope.scope for e in user.privileges])
         reqPrivileges = set([e.scope.scope for e in oauthReq.scopes])
+
         if User.fromOpenid(openid).schoolId:
             ownPrivileges.add("profile")
+
+        if '*' in reqPrivileges:
+            reqPrivileges = ownPrivileges
+            oauthReq.scopes.clear()
+            for e in ownPrivileges:
+                reqScope = OAuthReqScope()
+                reqScope.reqId = oauthReq.id
+                reqScope.scopeId = Scope.fromScopeStr(e).id
+                db.session.add(reqScope)
+            db.session.commit()
+
         if not reqPrivileges.issubset(ownPrivileges):
             return CODE_ACCESS_DENIED
 
@@ -574,3 +653,18 @@ def modifyOAuth(authCode):
         return getOAuthInfo(oauthReq)
     elif request.method == "POST":
         return grantOAuth(oauthReq)
+
+
+if config == DevelopmentConfig:
+    @authRouter.route("/testaccount/<openid>/")
+    def switchToTestAccount(openid):
+        challengeScope(["profile"])
+        oldOpenid = g.get("openid")
+
+        user = User.fromOpenid(openid)
+        if not user:
+            if session.get("openid"): session.pop("openid")
+            return {"old": oldOpenid, "current": None}
+        else:
+            session["openid"] = user.openid
+            return {"old": oldOpenid, "current": user.openid}

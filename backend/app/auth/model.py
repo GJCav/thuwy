@@ -62,6 +62,7 @@ class User(db.Model):
             "clazz": self.clazz,
             "admin": self.isAdmin(),
             "openid": self.openid,
+            "all-privileges": self.getAllPrivileges()
         }
 
     def isAdmin(self) -> bool:
@@ -71,6 +72,11 @@ class User(db.Model):
             .filter(Privilege.scopeId == Scope.fromScopeStr("admin").id)
             .one_or_none()
         )
+
+    def getAllPrivileges(self) -> List["str"]:
+        priList = [e.scope.scope for e in self.privileges]
+        if self.schoolId: priList.append("profile")
+        return priList
 
     def fromOpenid(openid) -> "User":
         return db.session.query(User).filter(User.openid == openid).one_or_none()
@@ -192,7 +198,7 @@ class Privilege(db.Model):
     __tablename__ = "oauth_privilege"
     id = Column(INTEGER, primary_key=True, autoincrement=True)
     openid = Column(WECHAT_OPENID, ForeignKey("user.openid"))
-    scopeId = Column('scope_id', INTEGER, ForeignKey("oauth_scope.id"))
+    scopeId = Column("scope_id", INTEGER, ForeignKey("oauth_scope.id"))
 
     user: User = relationship("User", back_populates="privileges")
     scope: Scope = relationship("Scope")

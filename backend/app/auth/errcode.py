@@ -20,3 +20,8 @@ CODE_USER_NOT_FOUND = {"code": 301, "errmsg": "用户不存在"}
 CODE_OAUTH_RETRY = {"code": 401, "errmsg": "服务器忙，请重试"}
 CODE_OAUTH_HOLDON = {"code": 402, "errmsg": "等待用户确认"}
 CODE_OAUTH_REJECT = {"code": 403, "errmsg": "用户拒绝授权"}
+
+CODE_SCOPE_NOT_FOUND = {"code": 411, "errmsg": "不存在这个Scope"}
+
+CODE_PRIVILEGE_EXISTED = {"code": 421, "errmsg": "用户已经具有这个权限"}
+CODE_PRIVILEGE_NOT_FOUND = {"code": 422, "errmsg": "用户不具备指定权限"}
