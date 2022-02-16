@@ -20,7 +20,7 @@ class Lecture(db.Model):
     teacher = db.Column(VARCHAR(50))
     brief_intro = db.Column(VARCHAR(255))
     detail_intro = db.Column(JSON)
-    start_time = db.Column(BIGINT)
+    # start_time = db.Column(BIGINT)
     deadline = db.Column(BIGINT)
     holding_time = db.Column(BIGINT)
 

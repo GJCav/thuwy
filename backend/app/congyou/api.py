@@ -83,7 +83,7 @@ def lectureList() :
             or not reqJson.get("teacher")
             or not reqJson.get("brief-intro")
             or not reqJson.get("detail-intro")
-            or not reqJson.get("start_time")
+            # or not reqJson.get("start_time")
             or not reqJson.get("deadline")
             or not reqJson.get("holding_time")) : 
                 return CODE_ARG_MISSING
@@ -100,7 +100,7 @@ def lectureList() :
             lecture.teacher = reqJson["teacher"]
             lecture.brief_intro = reqJson["brief-intro"]
             lecture.detail_intro = reqJson["detail-intro"]
-            lecture.start_time = reqJson["start_time"]
+            # lecture.start_time = reqJson["start_time"]
             lecture.deadline = reqJson["deadline"]
             lecture.holding_time = reqJson["holding_time"]
         except:
@@ -150,8 +150,8 @@ def lectureDetail(lectureId : int) :
                 lecture.brief_intro = reqJson["brief-intro"]
             if "detail-intro" in reqJson :
                 lecture.detail_intro = reqJson["detail-intro"]
-            if "start_time" in reqJson :
-                lecture.start_time = reqJson["start_time"]
+            # if "start_time" in reqJson :
+            #     lecture.start_time = reqJson["start_time"]
             if "deadline" in reqJson :
                 lecture.deadline = reqJson["deadline"]
             if "holding_time" in reqJson :
