@@ -8,6 +8,9 @@ from sqlalchemy import BIGINT, INTEGER, TEXT, VARCHAR, JSON, ForeignKey, func
 from app.models import WECHAT_OPENID, SNOWFLAKE_ID
 from sqlalchemy.orm import relationship
 
+first_total = 5
+second_total = 10
+
 
 class Lecture(db.Model):
     __tablename__ = "lecture"
@@ -38,9 +41,9 @@ class Lecture(db.Model):
             "state": self.state,
             "visible": self.visible,
             "total": self.total,
-            "first": getWishCount(1, self.lecture_id),
-            "second": getWishCount(2, self.lecture_id),
-            "third": getWishCount(3, self.lecture_id),
+            "first": getLectureWishCount(1, self.lecture_id),
+            "second": getLectureWishCount(2, self.lecture_id),
+            "third": getLectureWishCount(3, self.lecture_id),
             "subject": self.subject,
             "teacher": self.teacher,
             "brief_intro": self.brief_intro,
@@ -58,9 +61,9 @@ class Lecture(db.Model):
             "state": self.state,
             "visible": self.visible,
             "total": self.total,
-            "first": getWishCount(1, self.lecture_id),
-            "second": getWishCount(2, self.lecture_id),
-            "third": getWishCount(3, self.lecture_id),
+            "first": getLectureWishCount(1, self.lecture_id),
+            "second": getLectureWishCount(2, self.lecture_id),
+            "third": getLectureWishCount(3, self.lecture_id),
             "subject": self.subject,
             "teacher": self.teacher,
             "brief_intro": self.brief_intro,
@@ -77,17 +80,41 @@ class Lecture_enrollment(db.Model):
     wish = db.Column(INTEGER)
     state = db.Column(INTEGER)
     delete = db.Column(INTEGER)
+    enrollment_time = db.Column(BIGINT)
 
     lecture: Lecture = relationship("Lecture", back_populates="lecture_enrollment")
 
+    def toDict(self) -> dict :
+        return {
+            "enrollment_id" : self.enrollment_id, 
+            "lecture_id" : self.lecture_id, 
+            "user_id" : self.user_id, 
+            "wish" : self.wish, 
+            "state" : self.state, 
+            "enrollment_time" : self.enrollment_time, 
+            "lecture" : self.lecture.toDictNoDetail()
+        }
 
-def getWishCount(wish: int, lecture_id: int) -> int:
+
+def getLectureWishCount(wish: int, lecture_id: int) -> int:
     a = (
         db.session.query(func.count("*"))
         .select_from(Lecture_enrollment)
         .filter(
             Lecture_enrollment.lecture_id == int(lecture_id),
             Lecture_enrollment.wish == int(wish),
+        )
+        .scalar()
+    )
+    return int(a)
+
+def getUserWishCount(wish: int, user_id: int) -> int:
+    a = (
+        db.session.query(func.count("*"))
+        .select_from(Lecture_enrollment)
+        .filter(
+            Lecture_enrollment.user_id == int(user_id),
+            Lecture_enrollment.wish == int(wish)
         )
         .scalar()
     )
