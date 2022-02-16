@@ -18,6 +18,7 @@ import app.snowflake as Snowflake
 
 from config import userSysName
 
+from app.reservation.notification import sendEmailByTHUWY
 
 @rsvRouter.route("/reservation/")
 @requireScope(["profile admin"])

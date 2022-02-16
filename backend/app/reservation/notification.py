@@ -47,10 +47,13 @@ def sendEmailByTHUWY(receiverNum, mailReceiverNames, mailReceiverAddrs, bodyCont
     try:
         SMTPObj.sendmail(mailSenderAddr, mailReceiverAddrs, MMMObj.as_string()) # 发送邮件
         rtn["result"] = "Email sending succeeded!"
-    except smtplib.SMTPResponseException as e:
+    except Exception as e:
         print(e)
         rtn["result"] = "Email sending failed."
     
     SMTPObj.quit()  # 退出
     
     return rtn
+
+def sendSubcription():
+    pass
