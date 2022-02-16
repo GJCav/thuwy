@@ -414,6 +414,68 @@ def unbindUser(openid):
     return CODE_SUCCESS
 
 
+@authRouter.route("/user/<openid>/scope/", methods=["GET", "POST"])
+@requireScope(["profile scopeAdmin"])
+def usrScopeInfo(openid):
+    user = User.fromOpenid(openid)
+    if not user: return CODE_USER_NOT_FOUND
+
+    if request.method == "GET":
+        rtn = {"scopes": user.getAllPrivileges()}
+        rtn.update(CODE_SUCCESS)
+        return rtn
+    elif request.method == "POST":
+        json = request.get_json()
+        if not json: return CODE_ARG_MISSING
+        if "scope" not in json: return CODE_ARG_MISSING
+        if not CheckArgs.isStr(json["scope"]): return CODE_ARG_INVALID
+
+        scopeStr = json["scope"]
+        if scopeStr in user.getAllPrivileges():
+            return CODE_PRIVILEGE_EXISTED
+        
+        scope = Scope.fromScopeStr(scopeStr)
+        if not scope: return CODE_SCOPE_NOT_FOUND
+
+        pri = Privilege()
+        pri.openid = user.openid
+        pri.scopeId = scope.id
+        db.session.add(pri)
+
+        try:
+            db.session.commit()
+        except:
+            return CODE_DATABASE_ERROR
+        
+        rtn = {"scopes": user.getAllPrivileges()}
+        rtn.update(CODE_SUCCESS)
+        return rtn
+
+@authRouter.route("/user/<openid>/scope/<scopeStr>/", methods=["DELETE"])
+@requireScope(["profile scopeAdmin"])
+def delUsrScopeInfo(openid, scopeStr):
+    user = User.fromOpenid(openid)
+    if not user: return CODE_USER_NOT_FOUND
+
+    ownPrivileges = user.privileges
+    found = False
+    for pri in ownPrivileges:
+        if pri.scope.scope == scopeStr:
+            db.session.delete(pri)
+            found = True
+    
+    try:
+        db.session.commit()
+    except:
+        return CODE_DATABASE_ERROR
+
+    if not found: return CODE_PRIVILEGE_NOT_FOUND
+
+    rtn = {"scopes": user.getAllPrivileges()}
+    rtn.update(CODE_SUCCESS)
+    return rtn
+
+
 @authRouter.route("/oauth/authorize/", methods=["POST"])
 def requestOAuth():
     json = request.json

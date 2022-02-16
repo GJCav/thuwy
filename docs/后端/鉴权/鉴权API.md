@@ -1,4 +1,6 @@
-## 鉴权
+# 鉴权
+
+## 基本用户信息
 
 ### 登陆
 
@@ -134,13 +136,14 @@ wx.request({
 
 用户档案对象，包含属性如下：
 
-| 属性      | 类型   | 说明         |
-| --------- | ------ | ------------ |
-| name      | string | 姓名         |
-| clazz     | string | 班级         |
-| school-id | string | 学号         |
-| admin     | bool   | 是否为管理员 |
-| openid    | string | 用户的openid |
+| 属性           | 类型      | 说明                    |
+| -------------- | --------- | ----------------------- |
+| name           | string    | 姓名                    |
+| clazz          | string    | 班级                    |
+| school-id      | string    | 学号                    |
+| admin          | bool      | 是否为管理员            |
+| openid         | string    | 用户的openid            |
+| all-privileges | List[str] | 用户具有的所有Scope列表 |
 
 
 
@@ -154,11 +157,17 @@ wx.request({
 
 **请求参数：** 无
 
-**返回值：** 附加错误信息的`UserProfile`对象。
+**返回值：** `UserProfile`对象，附加错误信息，同时附加`privileges`属性。
+
+* `privileges`，类型`List[str]`，描述了当前`Session`或`Token`所具有的权限，可能与`all-privileges`不同。
 
 
 
-### 获取他人档案
+## 用户管理
+
+### 用户基本信息管理
+
+#### 获取他人档案
 
 **API**: `GET /profile/<open-id>/`
 
@@ -172,7 +181,123 @@ wx.request({
 
 
 
-### 成为管理员
+#### 获取用户列表
+
+**API：** `GET /user/?clazz=<class>&p=<page>`
+
+**Scope:** ["profile admin"]
+
+**Args：** 
+
+| 属性  | 类型   | 说明                     |
+| ----- | ------ | ------------------------ |
+| clazz | string | 根据班级筛选，默认不筛选 |
+| p     | int    | 页数，默认为1            |
+
+返回用户数可能非常多，进行分页，每页最多30个用户。
+
+**返回值：**
+
+| 属性     | 类型       | 说明                                      |
+| -------- | ---------- | ----------------------------------------- |
+| code     | int        | 错误码                                    |
+| errmsg   | string     | 错误信息                                  |
+| profiles | Json Array | 用户档案列表，包含多个`UserProfile`对象。 |
+
+
+
+#### 解绑用户
+
+**API：** `delete /user/<openid>/`
+
+**Des：** 删除该用户的绑定关系。
+
+**Scope:** ["profile admin"]
+
+**Args：** 
+
+| 属性   | 类型   | 说明         |
+| ------ | ------ | ------------ |
+| openid | string | 用户的OpenID |
+
+**返回值：**
+
+| 属性   | 类型   | 说明     |
+| ------ | ------ | -------- |
+| code   | int    | 错误码   |
+| errmsg | string | 错误信息 |
+
+**错误码：**
+
+| code | errmsg     |
+| ---- | ---------- |
+| 301  | 用户不存在 |
+
+
+
+### 用户权限(Scope)管理
+
+#### 查询指定用户具有的所有Scope
+
+**API：** `GET /user/<openid>/scope/`
+
+**Scope:** ["profile scopeAdmin"]
+
+**返回值：** Json Object，有`scopes`属性，类型为`List[str]`，表示用户的所有权限；同时附加错误信息。
+
+**错误码：**
+
+| code | errmsg     |
+| ---- | ---------- |
+| 301  | 用户不存在 |
+
+
+
+#### 赋予用户指定Scope权限
+
+**API：** `POST /user/<openid>/scope/`
+
+**Scope:** ["profile scopeAdmin"]
+
+**POST Payload：** Json Object, 包含`scope`字段，属性为`str`，表示要添加的`Scope`名称。
+
+**返回值：** Json Object，包含`scopes`字段，属性为`List[str]`，表示修改后用户具有的所有权限。
+
+**错误码：**
+
+| code | errmsg               |
+| ---- | -------------------- |
+| 301  | 用户不存在           |
+| 421  | 用户已经具有这个权限 |
+| 411  | 不存在这个Scope      |
+
+
+
+#### 撤销用户权限
+
+**API：** `DELETE /user/<openid>/scope/<scope>/`
+
+**Scope:** ["profile scopeAdmin"]
+
+**返回值：** Json Object，包含`scopes`字段。
+
+**错误码：**
+
+| code | errmsg             |
+| ---- | ------------------ |
+| 301  | 用户不存在         |
+| 422  | 用户不具备指定权限 |
+
+
+
+
+
+
+### 原管理员权限管理
+
+> 这一部分API较为老旧了，为兼容性进行保留，以后请使用`用户Scope管理`部分API
+
+#### 成为管理员
 
 **Des:** 申请当前用户成为管理员
 
@@ -194,7 +319,7 @@ wx.request({
 
 
 
-### 管理员请求列表
+#### 管理员请求列表
 
 **API:** `GET /admin/request/`
 
@@ -228,7 +353,7 @@ AdminReq属性：
 
 
 
-### 审核管理员
+#### 审核管理员
 
 **Des:** 决定某用户是否通过管理员审核。
 
@@ -252,7 +377,7 @@ AdminReq属性：
 
 
 
-### 获取管理员列表
+#### 获取管理员列表
 
 **API：** `GET /admin/`
 
@@ -268,7 +393,7 @@ AdminReq属性：
 
 
 
-### 删除管理员
+#### 删除管理员
 
 **API:** `DELETE /admin/<open-id>/`
 
@@ -285,56 +410,3 @@ AdminReq属性：
 
 
 
-
-
-### 获取用户列表
-
-**API：** `GET /user/?clazz=<class>&p=<page>`
-
-**Scope:** ["profile admin"]
-
-**Args：** 
-
-| 属性  | 类型   | 说明                     |
-| ----- | ------ | ------------------------ |
-| clazz | string | 根据班级筛选，默认不筛选 |
-| p     | int    | 页数，默认为1            |
-
-返回用户数可能非常多，进行分页，每页最多30个用户。
-
-**返回值：**
-
-| 属性     | 类型       | 说明                                      |
-| -------- | ---------- | ----------------------------------------- |
-| code     | int        | 错误码                                    |
-| errmsg   | string     | 错误信息                                  |
-| profiles | Json Array | 用户档案列表，包含多个`UserProfile`对象。 |
-
-
-
-### 解绑用户
-
-**API：** `delete /user/<openid>/`
-
-**Des：** 删除该用户的绑定关系。
-
-**Scope:** ["profile admin"]
-
-**Args：** 
-
-| 属性   | 类型   | 说明         |
-| ------ | ------ | ------------ |
-| openid | string | 用户的OpenID |
-
-**返回值：**
-
-| 属性   | 类型   | 说明     |
-| ------ | ------ | -------- |
-| code   | int    | 错误码   |
-| errmsg | string | 错误信息 |
-
-**错误码：**
-
-| code | errmsg     |
-| ---- | ---------- |
-| 301  | 用户不存在 |
