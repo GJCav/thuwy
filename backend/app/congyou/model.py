@@ -8,9 +8,14 @@ from sqlalchemy import BIGINT, INTEGER, TEXT, VARCHAR, JSON, ForeignKey, func
 from app.models import WECHAT_OPENID, SNOWFLAKE_ID
 from sqlalchemy.orm import relationship
 
-first_total = 1
-second_total = 2
+import time
+import datetime
+import app.timetools as Timetools
 
+import random
+
+oo = 1000000000
+wish_total = [0, 1, 2, oo]
 
 class Lecture(db.Model):
     __tablename__ = "lecture"
@@ -73,21 +78,26 @@ class Lecture(db.Model):
 
     # 更新状态
     def updatestate(self) :
-        # TODO 
-        #计算并判断当前应该是什么状态
-        # pre_state = self.state
-        # self.state = now_state
-        # db.session.commit()
-        return 
+        pre_state = self.state
+        if pre_state == 1 and Timetools.now() > self.deadline :
+            self.state = 2
+        elif pre_state == 3 and Timetools.now() > self.holding_time :
+            self.state = 4
     
     # 抽签
     def updatedraw(self) :
-        # TODO
-        #计算并判断是否需要抽签
-        #抽签
-        #更改Lecture_enrollment的状态
-        # db.sessiong.commit()
-        return 
+        self.updatestate()
+        if (self.state == 2) :
+            self.state = 3
+
+            random.shuffle(self.lecture_enrollment)
+            self.lecture_enrollment.sort(key = takeWish)
+
+            for i in range(self.total, len(self.lecture_enrollment)) :
+                e = self.lecture_enrollment[i]
+                e.state = 3
+
+        db.session.commit()
 
 
 class Lecture_enrollment(db.Model):
@@ -113,6 +123,8 @@ class Lecture_enrollment(db.Model):
             "lecture" : self.lecture.toDictNoDetail()
         }
 
+def takeWish(enrollment : Lecture_enrollment) :
+    return enrollment.wish
 
 def getLectureWishCount(wish: int, lecture_id: int) -> int:
     a = (
@@ -126,15 +138,25 @@ def getLectureWishCount(wish: int, lecture_id: int) -> int:
     )
     return int(a)
 
-def getUserWishCount(wish: int, user_id: int) -> int:
+def firstDayOfMonth() :
+    today = datetime.date.today()
+    fd = datetime.datetime(today.year, today.month, 1)
+    tp = fd.timetuple()
+    stamp = time.mktime(tp)
+    return stamp * 1000
+
+def getUserWishCount(wish: int, user_id) -> int:
     a = (
         db.session.query(func.count("*"))
         .select_from(Lecture_enrollment)
         .filter(
-            Lecture_enrollment.user_id == int(user_id),
-            Lecture_enrollment.wish == int(wish),
-            # Lecture_enrollment.enrollment_time >= firstDayOfMonth() # TODO 判断一下报名时间在本月1日之后
+            Lecture_enrollment.user_id == user_id,
+            Lecture_enrollment.wish == wish,
+            Lecture_enrollment.enrollment_time >= firstDayOfMonth()
         )
         .scalar()
     )
     return int(a)
+
+def getWishRemain(wish : int, user_id) -> int :
+    return wish_total[wish] - getUserWishCount(wish, user_id)

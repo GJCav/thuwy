@@ -12,6 +12,10 @@ from .errcode import *
 
 ######################################## TODO 定时更新或多线程操作
 
+
+def goodTimeSpace(deadline: int, holding_time: int) :
+    return holding_time >= Timetools.hoursAfter(deadline, 2)
+
 @congyouRouter.route("/lecture/", methods=["GET", "POST"])
 @requireScope(["profile", "congyou profile"])
 def lectureList():
@@ -73,6 +77,9 @@ def lectureList():
                 reqJson, ["deadline", "holding_time"]
             ))):
             return CODE_ARG_TYPE_ERR
+        
+        if not goodTimeSpace(reqJson["deadline"], reqJson["holding_time"]) :
+            return CODE_ARG_INVALID
 
         lecture = Lecture()
         try:
@@ -149,6 +156,10 @@ def lectureDetail(lectureId: int):
                 lecture.holding_time = reqJson["holding_time"]
         except:
             return CODE_ARG_TYPE_ERR
+        
+        if not goodTimeSpace(lecture.deadline, lecture.holding_time) :
+            db.session.rollback()
+            return CODE_ARG_INVALID
 
         try:
             db.session.commit()
@@ -167,9 +178,8 @@ def lectureDetail(lectureId: int):
             return CODE_DATABASE_ERROR
 
 def not_a_wish(wish) :
-    return wish >= 1 and wish <= 3
+    return wish < 1 or wish > 3
 
-######################################## TODO 判断一下志愿数量
 @congyouRouter.route("/lecture_enrollment/", methods=["GET", "POST"])
 @requireScope(["profile"])
 def lectureEnrollmentList():
@@ -183,10 +193,13 @@ def lectureEnrollmentList():
         if not CheckArgs.areInt(
             reqJson, ["lecture_id", "wish"]):
             return CODE_ARG_TYPE_ERR
-        if not not_a_wish(reqJson["wish"]) :
-            return CODE_ARG_TYPE_ERR
         
-        # TODO 判断一下志愿数量
+        wish = reqJson["wish"]
+        if not_a_wish(wish) :
+            return CODE_ARG_INVALID
+        
+        if getWishRemain(wish, g.openid) < 1 :
+            return CODE_WISH_NOT_ENOUGH[wish]
 
         lecture_id = reqJson["lecture_id"]
         
@@ -207,10 +220,10 @@ def lectureEnrollmentList():
         enrollment = Lecture_enrollment()
         enrollment.lecture_id = lecture_id
         enrollment.user_id = g.openid
-        enrollment.wish = reqJson["wish"]
+        enrollment.wish = wish
         enrollment.state = 2
         enrollment.delete = 0
-        enrollment.enrollment_time = Timetools.today() ###TODO 最好变成现在有时分秒的时间
+        enrollment.enrollment_time = Timetools.now()
 
         try:
             db.session.add(enrollment)
@@ -298,14 +311,16 @@ def lectureEnrollmentModify(enrollmentId: int):
             return CODE_ARG_MISSING
         if not CheckArgs.isInt(reqJson["wish"]) :
             return CODE_ARG_TYPE_ERR
-        if not_a_wish(reqJson["wish"]) :
-            return CODE_ARG_TYPE_ERR
         
-        ###TODO 判断一下志愿数量
+        wish = reqJson["wish"]
+        if not_a_wish(wish) :
+            return CODE_ARG_INVALID
+        
+        if getWishRemain(wish, g.openid) < 1 :
+            return CODE_WISH_NOT_ENOUGH[wish]
 
-        enrollment.wish = reqJson["wish"]
-
-        enrollment.enrollment_time = Timetools.today() ###TODO 最好变成现在有时分秒的时间
+        enrollment.wish = wish
+        enrollment.enrollment_time = Timetools.now()
 
         try :
             db.session.commit()
@@ -326,8 +341,8 @@ def lectureEnrollmentModify(enrollmentId: int):
 
 @congyouRouter.route("/wish_remain/", methods=["GET"])
 @requireScope(["profile"])
-def userWish():  
-    ret = {"first": first_total - getUserWishCount(1, g.openid()), 
-            "second": second_total - getUserWishCount(2, g.openid())}
+def userWish():
+    ret = {"first": getWishRemain(1, g.openid), 
+            "second": getWishRemain(2, g.openid)}
     ret.update(CODE_SUCCESS)
     return ret
