@@ -18,7 +18,7 @@
 					<text v-else class="selected-area placeholder">{{placeholder}}</text>
 					<view v-show="clearIcon && !readonly && inputSelected.length" class="icon-clear"
 						@click.stop="clear">
-						<uni-icons type="clear" color="#e1e1e1" size="14"></uni-icons>
+						<uni-icons type="clear" color="#c0c4cc" size="15"></uni-icons>
 					</view>
 					<view class="arrow-area" v-if="(!clearIcon || !inputSelected.length) && !readonly ">
 						<view class="input-arrow"></view>

@@ -10,10 +10,10 @@
 					<uni-easyinput v-model="data.name" placeholder="请输入姓名"></uni-easyinput>
 				</uni-forms-item>
 				<uni-forms-item label="学号" required name="id">
-					<uni-easyinput v-model="data.id" placeholder="请输入学号"></uni-easyinput>
+					<uni-easyinput v-model="data.id" placeholder="请输入学号" type="number"></uni-easyinput>
 				</uni-forms-item>
 				<uni-forms-item :label="class_label" required name="class">
-					<uni-data-picker v-model="data.class" :localdata="class_option" :popup-title="class_title"></uni-data-picker>
+					<uni-data-picker ref="child" v-model="data.class" :localdata="class_option" :popup-title="class_title"></uni-data-picker>
 				</uni-forms-item>
 			</uni-forms>
 			<button @click="admitBind()">提交</button>
@@ -52,7 +52,7 @@
 					class: {
 						rules: [{
 							required: true,
-							errorMessage: '请输入内容'
+							errorMessage: '请选择内容'
 						}]
 					}
 				},
@@ -191,10 +191,11 @@
 		methods: {
 			// 身份选择转变
 			changeIdentity(){
-				this.data.class=''
+				this.$refs.child.clear()
 			},
 			// 提交绑定信息
 			admitBind() {
+				console.log(this.data)
 				this.$refs.bindform.validate().then(res => {
 					return uni.request({
 						header: {
