@@ -13,7 +13,7 @@
 		</view>
 		<!-- 功能按钮 -->
 		<view class="row-container" style="flex-wrap: wrap;justify-content: space-between;padding:50rpx 10%;">
-			<view class="col-container" style="width: 270rpx;" v-for="(item,index) in button_list" :key="index">
+			<view class="col-container" style="width: 270rpx;" v-for="(item,index) in button_list" :key="index" @click="goDetail(index)">
 				<image :src="item.src" class="button-icon"></image>
 				<text class="button-text">{{item.text}}</text>
 			</view>
@@ -54,8 +54,14 @@
 
 		},
 		methods: {
-			swiperChange(event) {
-				this.current = event.detail.current;
+			swiperChange(e) {
+				this.current = e.detail.current;
+			},
+			goDetail(e){
+				let urls=['../../yuyue/index/index','../../dayi/index/index','../../congyou/index/index']
+				uni.navigateTo({
+					url:urls[e]
+				})
 			}
 		}
 	}
