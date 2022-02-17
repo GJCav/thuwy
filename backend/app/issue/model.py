@@ -3,11 +3,11 @@ from .utils import _am_admin
 
 from app.models import db
 from app.models import WECHAT_OPENID
+from app import timetools
 
 from flask import g
 import sqlalchemy
 
-from datetime import datetime
 from typing import Any
 
 
@@ -71,14 +71,14 @@ class Issue(db.Model):
     date = db.Column(
         "date",
         db.BIGINT,
-        default=lambda: datetime.now().timestamp(),
+        default=lambda: timetools.now(),
         doc="creation time stored in `timestamp` form",
     )
     last_modified_at = db.Column(
         "last_modified_at",
         db.BIGINT,
         doc="date modified sotred in `timestamp` form",
-        onupdate=lambda: datetime.now().timestamp(),
+        onupdate=lambda: timetools.now(),
     )
     reply_to = db.Column("reply_to", db.Integer, doc="ID of the Issue replying to")
     root_id = db.Column(
@@ -140,6 +140,18 @@ class Issue(db.Model):
         return Issue.valid_criteria() & (
             sqlalchemy.true() if _am_admin() else Issue.author_criteria()
         )
+
+    @property
+    def is_root(self) -> bool:
+        return not self.reply_to
+
+    @staticmethod
+    def root_criteria():
+        return Issue.reply_to.is_(None)
+
+    @staticmethod
+    def not_root_criteria():
+        return Issue.reply_to.is_not(None)
 
     @property
     def overview(self) -> dict[str, Any]:

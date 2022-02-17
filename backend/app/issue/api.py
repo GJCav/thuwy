@@ -2,7 +2,7 @@ from . import issueRouter
 from .errcode import *
 from .model import db, IssueTagMeta, Issue
 from .types import Visibility
-from .utils import _try_modify_visibility
+from .utils import _split, _try_modify_visibility
 
 from app.auth import requireScope
 from app.comerrs import *
@@ -39,19 +39,19 @@ def issueSearchOverview():
     page_num = request.args.get(key="page_num", default=1, type=int)
     page_num -= 1
     criteria = sqlalchemy.true()
-    reply_to = request.args.get(key="reply_to", default=None, type=int)
-    if reply_to:
-        criteria &= Issue.reply_to == reply_to
+    # reply_to = request.args.get(key="reply_to", default=None, type=int)
+    # if reply_to:
+    #     criteria &= Issue.reply_to == reply_to
     root_id = request.args.get(key="root_id", default=None, type=int)
     if root_id:
         criteria &= Issue.root_id == root_id
     authors = request.args.get(key="authors", default="", type=str)
     if authors:
         author_or_criteria = sqlalchemy.false()
-        authors_grouped = authors.split(";")
+        authors_grouped = _split(authors, ";")
         for author_group in authors_grouped:
             author_and_criteria = sqlalchemy.true()
-            author_list = author_group.split(" ")
+            author_list = _split(author_group, " ")
             for author in author_list:
                 author_and_criteria &= Issue.author == author
             author_or_criteria |= author_and_criteria
@@ -63,10 +63,8 @@ def issueSearchOverview():
         return CODE_ARG_INVALID
     criteria &= Issue.visibility == visibility
     tags = request.args.get(key="tags", default="", type=str)
-    tags_grouped = tags.split(";") if tags else []
-    tag_lists = [
-        tag_group.split(" ") if tag_group else [] for tag_group in tags_grouped
-    ]
+    tags_grouped = _split(tags, ";")
+    tag_lists = [_split(tag_group, " ") for tag_group in tags_grouped]
     if tag_lists:
         tag_or_criteria = sqlalchemy.false()
         for tag_list in tag_lists:
@@ -81,9 +79,14 @@ def issueSearchOverview():
     end_time = request.args.get(key="end_time", default=None, type=int)
     if end_time:
         criteria &= Issue.last_modified_at < end_time
-    issues = db.session.query(Issue).filter(Issue.visible_criteria()).filter(criteria)
+    issues = (
+        db.session.query(Issue)
+        .filter(Issue.visible_criteria())
+        .filter(Issue.root_criteria())
+        .filter(criteria)
+    )
     sort_by = request.args.get(key="sort_by", default="last_modified_at", type=str)
-    sort_by = sort_by.split(";") if sort_by else []
+    sort_by = _split(sort_by, ";")
     try:
         for by in sort_by:
             issues = issues.order_by(
@@ -109,15 +112,18 @@ def issueSearchOverview():
 def issueSearchDetail(id: int):
     """Search for all issues related with the specific issue."""
     current_issue: Issue = db.session.get(Issue, {"id": id})
-    if (not current_issue) or (not current_issue.visible):
+    if not (current_issue and current_issue.visible):
         return CODE_ISSUE_NOT_FOUND
-    issues = (
+    issues: list[Issue] = (
         db.session.query(Issue)
         .filter_by(root_id=current_issue.root_id)
         .filter(Issue.visible_criteria())
-        .order_by(sqlalchemy.desc(Issue.date), sqlalchemy.desc(Issue.id))
+        .order_by(sqlalchemy.asc(Issue.date), sqlalchemy.asc(Issue.id))
         .all()
     )
+    root_issue: Issue = db.session.get(Issue, {"id": current_issue.root_id})
+    if root_issue and root_issue.visible:
+        issues.insert(0, root_issue)
     response = CODE_SUCCESS.copy()
     response["issues"] = [issue.detail for issue in issues]
     return response
@@ -131,7 +137,8 @@ def issueNew():
     payload: dict[str, Any] = request.get_json()
     title: str = payload.get("title", "")
     visibility: str = payload.get("visibility", Visibility.PUBLIC)
-    tags: list[str] = payload.get("tags", "").split(";")
+    tags: str = payload.get("tags", "")
+    tag_list: list[str] = _split(tags, ";")
     reply_to: int = payload.get("reply_to", None)
     # check args
     try:
@@ -143,14 +150,14 @@ def issueNew():
     new_issue.title = title
     new_issue.author = g.openid
     new_issue.visibility = visibility
-    new_issue.content = payload("content", {})
+    new_issue.content = payload.get("content", {})
     # TODO @liblaf attachments
     new_issue.tags = (
-        db.session.query(IssueTagMeta).filter(IssueTagMeta.name.in_(tags)).all()
+        db.session.query(IssueTagMeta).filter(IssueTagMeta.name.in_(tag_list)).all()
     )
     db.session.add(new_issue)
     db.session.commit()
-    new_issue.reply_to = reply_to or new_issue.id
+    new_issue.reply_to = reply_to
     db.session.commit()
     response = CODE_SUCCESS.copy()
     response["issue_id"] = new_issue.id
@@ -163,27 +170,32 @@ def issueEdit(id: int):
     """Edit an existing issue."""
     # find target issue
     issue: Issue = db.session.get(Issue, {"id": id})
-    if (not issue) or (not issue.visible):
+    if not (issue and issue.visible):
         return CODE_ISSUE_NOT_FOUND
     if not issue.editable:
         return CODE_ACCESS_DENIED
     # extract args
     payload: dict[str, Any] = request.get_json()
-    title: str = payload.get("title", issue.title)
-    visibility: str = payload.get("visibility", issue.visibility)
-    tags: list[str] = payload.get("tags", "").split(";")
-    content: dict = payload.get("contect", {})
+    title: str = payload.get("title", None)
+    visibility: str = payload.get("visibility", None)
+    tags: str = payload.get("tags", None)
+    content: dict = payload.get("content", None)
     # check args
-    try:
-        visibility = _try_modify_visibility(visibility)
-    except:
-        return CODE_ARG_INVALID
-    issue.title = title
-    issue.visibility = visibility
-    issue.tags = (
-        db.session.query(IssueTagMeta).filter(IssueTagMeta.name.in_(tags)).all()
-    )
-    issue.content = payload.get("content", issue.content)
+    if visibility:
+        try:
+            visibility = _try_modify_visibility(visibility)
+        except:
+            return CODE_ARG_INVALID
+    # update issue
+    issue.title = title or issue.title
+    issue.visibility = visibility or issue.visibility
+    if tags:
+        tag_list: list[str] = _split(tags)
+        issue.tags = (
+            db.session.query(IssueTagMeta).filter(IssueTagMeta.name.in_(tag_list)).all()
+        )
+    issue.content = content or issue.content
+    db.session.commit()
     response = CODE_SUCCESS
     return response
 
@@ -194,7 +206,7 @@ def issueDelete(id: int):
     """Delete an issue."""
     # find target issue
     issue: Issue = db.session.query(Issue).get({"id": id})
-    if (not issue) or (not issue.visible):
+    if not (issue and issue.visible):
         return CODE_ISSUE_NOT_FOUND
     if not issue.editable:
         return CODE_ACCESS_DENIED
