@@ -10,33 +10,7 @@ from .model import *
 from . import congyouRouter
 from .errcode import *
 
-SAMPLE_LECTURE = {
-    "lecture_id": 123,
-    "user_id": 456,
-    "title": "Title",
-    "theme": "asd",
-    "state": 1,
-    "visible": 1,
-    "total": 789,
-    "first": 12,
-    "second": 34,
-    "third": 56,
-    "subject": "qwe",
-    "teacher": "fgh",
-    "brief_intro": "jkl",
-    "detail_intro": None,
-    "deadline": 202202152359,
-}
-
-SAMPLE_ENROLLMENT = {
-    "enrollment_id": 987,
-    "lecture_id": 123,
-    "user_id": 765,
-    "wish": 1,
-    "state": 2,
-    "lecture": SAMPLE_LECTURE,
-}
-
+######################################## TODO 定时更新或多线程操作
 
 @congyouRouter.route("/lecture/", methods=["GET", "POST"])
 @requireScope(["profile", "congyou profile"])
@@ -69,6 +43,10 @@ def lectureList():
 
         lectureCount = qry.count()
         lectures = qry.limit(20).offset(20 * page).all()
+
+        for e in lectures :
+            e.updatestate()
+
         lectures = [e.toDictNoDetail() for e in lectures]
 
         ret = {
@@ -135,6 +113,9 @@ def lectureDetail(lectureId: int):
     lecture: Lecture = dataLecture.one_or_none()
     if not lecture:
         return CODE_LECTURE_NOT_FOUND
+
+    lecture.updatestate()
+    dataLecture = db.session.query(Lecture).filter(Lecture.lecture_id == lectureId)
 
     if request.method == "GET" and challengeScope(["profile"]):
         ret = {"lecture": lecture.toDict()}
@@ -204,10 +185,12 @@ def lectureEnrollmentList():
             return CODE_ARG_TYPE_ERR
         if not not_a_wish(reqJson["wish"]) :
             return CODE_ARG_TYPE_ERR
+        
+        # TODO 判断一下志愿数量
 
         lecture_id = reqJson["lecture_id"]
         
-        lecture = (
+        lecture : Lecture = (
             db.session.query(Lecture)
             .filter(Lecture.lecture_id == lecture_id)
             .one_or_none()
@@ -215,6 +198,9 @@ def lectureEnrollmentList():
 
         if not lecture :
             return CODE_LECTURE_NOT_FOUND
+
+        lecture.updatestate()
+
         if lecture.state != 1 :
             return CODE_LECTURE_CANT_ENROLLMENT
 
@@ -224,7 +210,7 @@ def lectureEnrollmentList():
         enrollment.wish = reqJson["wish"]
         enrollment.state = 2
         enrollment.delete = 0
-        enrollment.enrollment_time = Timetools.today()
+        enrollment.enrollment_time = Timetools.today() ###TODO 最好变成现在的时间
 
         try:
             db.session.add(enrollment)
@@ -265,7 +251,11 @@ def lectureEnrollmentList():
                 qry = qry.filter(Lecture.state == state)
 
         enrollmentCount = qry.count()
-        enrollments = qry.limit(20).offset(20 * page).all()
+        enrollments : List["Lecture_enrollment"] = qry.limit(20).offset(20 * page).all()
+
+        for e in enrollments :
+            e.lecture.updatestate()
+
         enrollments = [e.toDict() for e in enrollments]
 
         ret = {
@@ -295,6 +285,9 @@ def lectureEnrollmentModify(enrollmentId: int):
 
     if request.method == "POST":
         lecture = enrollment.lecture
+        
+        lecture.updatestate()
+
         if lecture.state != 1 :
             return CODE_LECTURE_CANT_ENROLLMENT
 
@@ -307,10 +300,12 @@ def lectureEnrollmentModify(enrollmentId: int):
             return CODE_ARG_TYPE_ERR
         if not_a_wish(reqJson["wish"]) :
             return CODE_ARG_TYPE_ERR
+        
+        ###TODO 判断一下志愿数量
 
         enrollment.wish = reqJson["wish"]
 
-        enrollment.enrollment_time = Timetools.today()
+        enrollment.enrollment_time = Timetools.today() ###TODO 最好变成现在的时间
 
         try :
             db.session.commit()
@@ -331,7 +326,8 @@ def lectureEnrollmentModify(enrollmentId: int):
 
 @congyouRouter.route("/wish_remain/", methods=["GET"])
 @requireScope(["profile"])
-def userWish(id: int):  ######################################## TODO
-    ret = {"first": 1, "second": 2}
+def userWish():  
+    ret = {"first": first_total - getUserWishCount(1, g.openid()), 
+            "second": second_total - getUserWishCount(2, g.openid())}
     ret.update(CODE_SUCCESS)
     return ret

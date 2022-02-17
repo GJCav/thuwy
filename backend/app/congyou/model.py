@@ -8,8 +8,8 @@ from sqlalchemy import BIGINT, INTEGER, TEXT, VARCHAR, JSON, ForeignKey, func
 from app.models import WECHAT_OPENID, SNOWFLAKE_ID
 from sqlalchemy.orm import relationship
 
-first_total = 5
-second_total = 10
+first_total = 1
+second_total = 2
 
 
 class Lecture(db.Model):
@@ -71,6 +71,24 @@ class Lecture(db.Model):
             "holding_time": self.holding_time,
         }
 
+    # 更新状态
+    def updatestate(self) :
+        # TODO 
+        #计算并判断当前应该是什么状态
+        # pre_state = self.state
+        # self.state = now_state
+        # db.session.commit()
+        return 
+    
+    # 抽签
+    def updatedraw(self) :
+        # TODO
+        #计算并判断是否需要抽签
+        #抽签
+        #更改Lecture_enrollment的状态
+        # db.sessiong.commit()
+        return 
+
 
 class Lecture_enrollment(db.Model):
     __tablename__ = "lecture_enrollment"
@@ -114,7 +132,8 @@ def getUserWishCount(wish: int, user_id: int) -> int:
         .select_from(Lecture_enrollment)
         .filter(
             Lecture_enrollment.user_id == int(user_id),
-            Lecture_enrollment.wish == int(wish)
+            Lecture_enrollment.wish == int(wish),
+            # Lecture_enrollment.enrollment_time >= firstDayOfMonth() # TODO 判断一下报名时间在本月1日之后
         )
         .scalar()
     )
