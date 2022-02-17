@@ -1,7 +1,7 @@
 import os
 import datetime
 
-UNIX_USERNAME = "liblaf"
+UNIX_USERNAME = "jcav"
 DB_UNIX_SOCK = r"/run/mysqld/mysqld.sock"
 
 
@@ -25,6 +25,7 @@ class DevelopmentConfig(Config):
 
     def set(app):
         app.secret_key = "dev ----"
+
 
 
 class ProductionConfig(Config):
