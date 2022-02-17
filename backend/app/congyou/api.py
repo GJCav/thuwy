@@ -331,7 +331,8 @@ def lectureEnrollmentModify(enrollmentId: int):
 
     elif request.method == "DELETE":
         try:
-            dataEnrollment.delete()
+            dataEnrollment.delete() # 这样删除后不消耗用户志愿
+            # enrollment.delete = 1 # 这样删除后消耗用户志愿
             db.session.commit()
             return CODE_SUCCESS
         except:
