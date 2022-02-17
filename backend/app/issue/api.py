@@ -28,14 +28,17 @@ SAMPLE_ISSUE = {
     "content": {},
 }
 
-def _get_or_insert_tags(tag_list:list[str]):
+
+def _get_or_insert_tags(tag_list: list[str]):
     tag_meta_list = []
     for tag in tag_list:
-        tag_meta = db.session.get(IssueTagMeta, {'name':tag})
+        tag_meta = db.session.get(IssueTagMeta, {"name": tag})
         if not tag_meta:
             tag_meta = IssueTagMeta()
             tag_meta.name = tag
             db.session.add(tag_meta)
+        if not tag_meta.valid:
+            tag_meta.delete = False
         tag_meta_list.append(tag_meta)
     db.session.commit()
 
@@ -227,8 +230,10 @@ def issueDelete(id: int):
 def issueTagSearchOverview():
     """Search for all tags which contain specific keywords"""
     tags = request.args.get("tags", "")
-    result = db.session.query(IssueTagMeta).filter(
-        IssueTagMeta.name.ilike(f"%{'%'.join(tags.split())}%")
+    result = (
+        db.session.query(IssueTagMeta)
+        .filter(IssueTagMeta.name.ilike(f"%{'%'.join(tags.split())}%"))
+        .filter(IssueTagMeta.valid_criteria())
     )
     response = CODE_SUCCESS.copy()
     response["tags"] = result.all()
