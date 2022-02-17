@@ -6,11 +6,11 @@
 >
 > 置顶可通过设置 `"#top"` Tag.
 
-| Status   | 说明         |
-| -------- | ------------ |
-| `open`   | 待回答       |
-| `closed` | 已解决       |
-| `stale`  | 该回答已过时 |
+| Status ( under development ) | 说明         |
+| ---------------------------- | ------------ |
+| `open`                       | 待回答       |
+| `closed`                     | 已解决       |
+| `stale`                      | 该回答已过时 |
 
 | Visibility  | 说明                 |
 | ----------- | -------------------- |
@@ -88,9 +88,9 @@
 
 ```python
 if issue["visibility"] == "public":
-  requireScope(["profile"])
+    requireScope(["profile"])
 else:
-  requireScope(["profile admin"]) || 是作者
+    requireScope(["profile admin"]) or am_author()
 ```
 
 **API:** `GET /issue/<id>/`
@@ -111,7 +111,7 @@ else:
 
 ### 提出新答疑
 
-**Des:** 发送一个新提出的 Issue 的信息 ( 如标题, 内容, 附图片 ), 返回新 Issue 的序号
+**Des:** 发送一个新提出的 Issue 的信息 ( 如标题, 内容, 附图片 ), 返回新 Issue 的序号. 普通用户尝试将 `visibility` 设为 `"public"` 时将会降为 `"protected"`.
 
 **Scope:** `["profile"]`
 
@@ -125,7 +125,7 @@ else:
 | `tags`        | `string`     | `""`       | Tag 列表, 以半角 `';'` 分隔, 不含空白字符, eg. `"教务;体育;"` |
 | `reply_to`    | `int`        | `None`     | 该 Issue 所回复的 Issue 的 ID, 若为 `None` 表示新提问         |
 | `visibility`  | `string`     | `"public"` | 是否公开, eg. `"private"`                                     |
-| `content`     | `Json`       | `"{}"`     | 详细内容                                                      |
+| `content`     | `Json`       | `{}`       | 详细内容                                                      |
 | `attachments` | `Json Array` | `[]`       | ( reserved for future use )                                   |
 
 **Response:**
@@ -138,7 +138,7 @@ else:
 
 ### 修改问题状态
 
-**Des:** 发送一系列参数 (包括问题序号, 问题的回答, 问题所加标签, 问答是否能被所有人看见), 返回是否修改成功. 尝试修改 `id`, `author`, `reply_to`, `root_id`, `date`, `last_modified_at` 将被驳回.
+**Des:** 发送一系列参数 (包括问题序号, 问题的回答, 问题所加标签, 问答是否能被所有人看见), 返回是否修改成功. 尝试修改 `id`, `author`, `reply_to`, `root_id`, `date`, `last_modified_at` 将被忽略. 普通用户尝试将 `visibility` 设为 `"public"` 时将会降为 `"protected"`.
 
 **Scope:**
 
@@ -248,7 +248,7 @@ else:
 
 **Scope:** `["profile dayi", "profile admin"]`
 
-**API:** `DELETE /issue/tag/<name>`
+**API:** `DELETE /issue/tag/<name>/`
 
 **Args:**
 
