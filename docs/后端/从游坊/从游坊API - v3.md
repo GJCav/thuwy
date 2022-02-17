@@ -23,6 +23,8 @@
 | deadline       | BIGINT       | 报名截止时间                        |
 | holding_time   | BIGINT       | 举办时间                           |
 
+**注：holding_time和deadline之间至少间隔2小时**
+
 ### 获取从游坊列表
 
 **API:** `GET /lecture/?p=<page>&subject=<subject>&state=<state> `
