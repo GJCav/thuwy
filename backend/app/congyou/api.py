@@ -210,7 +210,7 @@ def lectureEnrollmentList():
         enrollment.wish = reqJson["wish"]
         enrollment.state = 2
         enrollment.delete = 0
-        enrollment.enrollment_time = Timetools.today() ###TODO 最好变成现在的时间
+        enrollment.enrollment_time = Timetools.today() ###TODO 最好变成现在有时分秒的时间
 
         try:
             db.session.add(enrollment)
@@ -305,7 +305,7 @@ def lectureEnrollmentModify(enrollmentId: int):
 
         enrollment.wish = reqJson["wish"]
 
-        enrollment.enrollment_time = Timetools.today() ###TODO 最好变成现在的时间
+        enrollment.enrollment_time = Timetools.today() ###TODO 最好变成现在有时分秒的时间
 
         try :
             db.session.commit()
