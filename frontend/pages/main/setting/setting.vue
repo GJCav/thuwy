@@ -14,7 +14,7 @@
 					<image class="avatar" src="../../../static/setting/avatar_default.png"></image>
 					<view class="identity-container">
 						<!-- 身份信息 -->
-						<text class="nickname">{{nickname}}</text>
+						<text class="nickname"><open-data type="userNickName"></open-data></text>
 						<view class="authorities-view">
 							<!-- 权限和id，flex布局 -->
 							<view v-for="(item, ind) in authorities" :key="item.index" class="authority-container"
@@ -69,6 +69,7 @@
 </template>
 
 <script>
+	const app=getApp()
 	export default {
 		data() {
 			return {
@@ -100,6 +101,15 @@
 		},
 		onLoad() {
 			let that = this;
+			uni.getUserProfile({
+			    desc: '展示用户信息',
+				success(res) {
+					console.log(res)
+				},
+				fail(res){
+					console.log(res)
+				}
+			})
 			uni.getSystemInfo({
 				success(res) {
 					that.windowHeight = res.windowHeight;
@@ -126,7 +136,7 @@
 			onTouchEnd(e) {
 				this.isFocusOff = true;
 			}
-		}
+		},
 	}
 </script>
 

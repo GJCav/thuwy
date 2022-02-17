@@ -52,7 +52,7 @@
 
 	.decoration {
 		width: 10rpx;
-		height: 32rpx;
+		height: 36rpx;
 		margin-right: 20rpx;
 		border-radius: 20rpx;
 		background-color: var(--color);
@@ -69,7 +69,8 @@
 	}
 
 	.sub {
-		font-size: 28rpx;
+		font-size: 25rpx;
+		font-weight: normal;
 		color: #999999;
 		line-height: 36rpx;
 	}
