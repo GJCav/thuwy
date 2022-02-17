@@ -28,6 +28,17 @@ SAMPLE_ISSUE = {
     "content": {},
 }
 
+def _get_or_insert_tags(tag_list:list[str]):
+    tag_meta_list = []
+    for tag in tag_list:
+        tag_meta = db.session.get(IssueTagMeta, {'name':tag})
+        if not tag_meta:
+            tag_meta = IssueTagMeta()
+            tag_meta.name = tag
+            db.session.add(tag_meta)
+        tag_meta_list.append(tag_meta)
+    db.session.commit()
+
 
 @issueRouter.route("/issue/", methods=["GET"])
 @requireScope(["profile"])
@@ -81,9 +92,9 @@ def issueSearchOverview():
         criteria &= Issue.last_modified_at < end_time
     issues = (
         db.session.query(Issue)
-        .filter(Issue.visible_criteria())
-        .filter(Issue.root_criteria())
         .filter(criteria)
+        .filter(Issue.root_criteria())
+        .filter(Issue.visible_criteria())
     )
     sort_by = request.args.get(key="sort_by", default="last_modified_at", type=str)
     sort_by = _split(sort_by, ";")
@@ -152,9 +163,7 @@ def issueNew():
     new_issue.visibility = visibility
     new_issue.content = payload.get("content", {})
     # TODO @liblaf attachments
-    new_issue.tags = (
-        db.session.query(IssueTagMeta).filter(IssueTagMeta.name.in_(tag_list)).all()
-    )
+    new_issue.tags = _get_or_insert_tags(tag_list)
     db.session.add(new_issue)
     db.session.commit()
     new_issue.reply_to = reply_to
@@ -191,9 +200,7 @@ def issueEdit(id: int):
     issue.visibility = visibility or issue.visibility
     if tags:
         tag_list: list[str] = _split(tags)
-        issue.tags = (
-            db.session.query(IssueTagMeta).filter(IssueTagMeta.name.in_(tag_list)).all()
-        )
+        issue.tags = _get_or_insert_tags(_split(tag_list))
     issue.content = content or issue.content
     db.session.commit()
     response = CODE_SUCCESS
