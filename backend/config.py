@@ -1,7 +1,7 @@
 import os
 import datetime
 
-UNIX_USERNAME = "zel"
+UNIX_USERNAME = "zyx"
 DB_UNIX_SOCK = r"/run/mysqld/mysqld.sock"
 
 
@@ -19,7 +19,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = (
-        "mysql+pymysql://%s@/thuwy_zel?unix_socket=%s&charset=utf8mb4"
+        "mysql+pymysql://%s@/thuwy_zyx?unix_socket=%s&charset=utf8mb4"
         % (UNIX_USERNAME, DB_UNIX_SOCK)
     )
 
