@@ -6,14 +6,14 @@
 
 | 字段名             | 类型                                                                | 说明                                                      |
 | ------------------ | ------------------------------------------------------------------- | --------------------------------------------------------- |
-| `id `              | `SNOWFLAKE_ID`                                                      | 答疑 ID                                                   |
+| `id `              | `Integer`                                                           | 答疑 ID                                                   |
 | `delete`           | `Boolean`                                                           | 是否移入回收站                                            |
 | `title`            | `VARCHAR(80)`                                                       | 标题                                                      |
 | `author`           | `WECHAT_OPENID`                                                     | 作者的 `open-id`                                          |
 | `date`             | `BIGINT`                                                            | 发布时间                                                  |
 | `last_modified_at` | `BIGINT`                                                            | 最后修改时间                                              |
-| `reply_to`         | `SNOWFLAKE_ID`                                                      | 该 Issue 回复的 Issue 的 ID                               |
-| `root_id`          | `SNOWFLAKE_ID`                                                      | 该 Issue 回复的 Issue 回复的 Issue ... 回复的 Issue 的 ID |
+| `reply_to`         | `Integer`                                                           | 该 Issue 回复的 Issue 的 ID                               |
+| `root_id`          | `Integer`                                                           | 该 Issue 回复的 Issue 回复的 Issue ... 回复的 Issue 的 ID |
 | `tags`             | `relationship(IssueTagMeta, secondary=qaq_tag, backref=qaqs)`       | 标签, eg. `["#Top", "#visibility:user_public", "GPA"]`    |
 | `content`          | `JSON`                                                              | 详细内容                                                  |
 | `attachments`      | `Array(VARCHAR(1024))`                                              | 附件路径 (reserved for future use)                        |
@@ -24,10 +24,10 @@
 
 表名: `issue_tag`
 
-| 字段名     | 类型                                          | 说明    |
-| ---------- | --------------------------------------------- | ------- |
-| `issue_id` | `SNOWFLAKE_ID, ForeignKey(issue.id)`          | 答疑 ID |
-| `tag_id`   | `SNOWFLAKE_ID, ForeignKey(issue_tag_meta.id)` | Tag ID  |
+| 字段名     | 类型                                     | 说明    |
+| ---------- | ---------------------------------------- | ------- |
+| `issue_id` | `Integer, ForeignKey(issue.id)`          | 答疑 ID |
+| `tag_id`   | `Integer, ForeignKey(issue_tag_meta.id)` | Tag ID  |
 
 ## Tag 详情表
 

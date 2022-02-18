@@ -8,6 +8,14 @@ from sqlalchemy import BIGINT, INTEGER, TEXT, VARCHAR, JSON, ForeignKey, func
 from app.models import WECHAT_OPENID, SNOWFLAKE_ID
 from sqlalchemy.orm import relationship
 
+import time
+import datetime
+import app.timetools as Timetools
+
+import random
+
+oo = 1000000000
+wish_total = [0, 1, 2, oo]
 
 class Lecture(db.Model):
     __tablename__ = "lecture"
@@ -38,9 +46,9 @@ class Lecture(db.Model):
             "state": self.state,
             "visible": self.visible,
             "total": self.total,
-            "first": getWishCount(1, self.lecture_id),
-            "second": getWishCount(2, self.lecture_id),
-            "third": getWishCount(3, self.lecture_id),
+            "first": getLectureWishCount(1, self.lecture_id),
+            "second": getLectureWishCount(2, self.lecture_id),
+            "third": getLectureWishCount(3, self.lecture_id),
             "subject": self.subject,
             "teacher": self.teacher,
             "brief_intro": self.brief_intro,
@@ -58,15 +66,38 @@ class Lecture(db.Model):
             "state": self.state,
             "visible": self.visible,
             "total": self.total,
-            "first": getWishCount(1, self.lecture_id),
-            "second": getWishCount(2, self.lecture_id),
-            "third": getWishCount(3, self.lecture_id),
+            "first": getLectureWishCount(1, self.lecture_id),
+            "second": getLectureWishCount(2, self.lecture_id),
+            "third": getLectureWishCount(3, self.lecture_id),
             "subject": self.subject,
             "teacher": self.teacher,
             "brief_intro": self.brief_intro,
             "deadline": self.deadline,
             "holding_time": self.holding_time,
         }
+
+    # 更新状态
+    def updatestate(self) :
+        pre_state = self.state
+        if pre_state == 1 and Timetools.now() > self.deadline :
+            self.state = 2
+        elif pre_state == 3 and Timetools.now() > self.holding_time :
+            self.state = 4
+    
+    # 抽签
+    def updatedraw(self) :
+        self.updatestate()
+        if (self.state == 2) :
+            self.state = 3
+
+            random.shuffle(self.lecture_enrollment)
+            self.lecture_enrollment.sort(key = takeWish)
+
+            for i in range(self.total, len(self.lecture_enrollment)) :
+                e = self.lecture_enrollment[i]
+                e.state = 3
+
+        db.session.commit()
 
 
 class Lecture_enrollment(db.Model):
@@ -77,11 +108,25 @@ class Lecture_enrollment(db.Model):
     wish = db.Column(INTEGER)
     state = db.Column(INTEGER)
     delete = db.Column(INTEGER)
+    enrollment_time = db.Column(BIGINT)
 
     lecture: Lecture = relationship("Lecture", back_populates="lecture_enrollment")
 
+    def toDict(self) -> dict :
+        return {
+            "enrollment_id" : self.enrollment_id, 
+            "lecture_id" : self.lecture_id, 
+            "user_id" : self.user_id, 
+            "wish" : self.wish, 
+            "state" : self.state, 
+            "enrollment_time" : self.enrollment_time, 
+            "lecture" : self.lecture.toDictNoDetail()
+        }
 
-def getWishCount(wish: int, lecture_id: int) -> int:
+def takeWish(enrollment : Lecture_enrollment) :
+    return enrollment.wish
+
+def getLectureWishCount(wish: int, lecture_id: int) -> int:
     a = (
         db.session.query(func.count("*"))
         .select_from(Lecture_enrollment)
@@ -92,3 +137,26 @@ def getWishCount(wish: int, lecture_id: int) -> int:
         .scalar()
     )
     return int(a)
+
+def firstDayOfMonth() :
+    today = datetime.date.today()
+    fd = datetime.datetime(today.year, today.month, 1)
+    tp = fd.timetuple()
+    stamp = time.mktime(tp)
+    return stamp * 1000
+
+def getUserWishCount(wish: int, user_id) -> int:
+    a = (
+        db.session.query(func.count("*"))
+        .select_from(Lecture_enrollment)
+        .filter(
+            Lecture_enrollment.user_id == user_id,
+            Lecture_enrollment.wish == wish,
+            Lecture_enrollment.enrollment_time >= firstDayOfMonth()
+        )
+        .scalar()
+    )
+    return int(a)
+
+def getWishRemain(wish : int, user_id) -> int :
+    return wish_total[wish] - getUserWishCount(wish, user_id)
