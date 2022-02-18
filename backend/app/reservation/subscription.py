@@ -9,8 +9,10 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 
-from model import Reservation, User, Item, RsvState
-from secret import WX_APP_ID, WX_APP_SECRET, SUBSC_TPL_ID
+from app.reservation.model import Reservation, RsvState
+from app.auth.model import User
+from app.item.model import Item
+from app.reservation.secret import WX_APP_ID, WX_APP_SECRET, SUBSC_TPL_ID
 
 SHA_TZ = timezone(timedelta(hours=8), name='Asia/Shanghai',)
 
@@ -19,11 +21,11 @@ def currentTime():
     utc_now = datetime.utcnow().replace(tzinfo=timezone.utc)
     return utc_now.astimezone(SHA_TZ)
 
-class AccessToken(db.Model):
-    __tablename__ = "access_token"
+# class AccessToken(db.Model):
+#     __tablename__ = "access_token"
 
-    token = db.Column(VARCHAR(512), nullable=False)
-    expiryTime = db.Column(DATETIME, nullable=False)
+#     token = db.Column(VARCHAR(512), nullable=False)
+#     expiryTime = db.Column(DATETIME, nullable=False)
 
 class _ATManager():
     def __init__(self, appID, appSecret):
