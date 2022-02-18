@@ -5,6 +5,10 @@
 			"name": "main-state", //模式名称
 			"path": "pages/main/state/state", //启动页面，必选
 			"query": "" //启动参数，在页面的onLoad函数里面得到
+		},{
+			"name": "main-bind", //模式名称
+			"path": "pages/main/bind/bind", //启动页面，必选
+			"query": "" //启动参数，在页面的onLoad函数里面得到
 		}]
 	},
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
@@ -13,18 +17,43 @@
 			"style": {
 				"navigationBarTitleText": "微未央"
 			}
-		}, {
+		},{
 			"path": "pages/main/state/state",
 			"style": {
-				"navigationBarTitleText": "事项状态"
+				"navigationBarTitleText": "事项状态",
+				"enablePullDownRefresh": true
 			}
-		}, {
+		},{
 			"path": "pages/main/setting/setting",
 			"style": {
 				"navigationStyle": "custom"
 			}
-		}
-	],
+		},{
+            "path" : "pages/main/bind/bind",
+            "style": {
+                "navigationBarTitleText": "绑定信息"
+            }
+            
+        },{
+            "path" : "pages/congyou/index/index",
+            "style": {
+                "navigationBarTitleText": "从游坊",
+                "enablePullDownRefresh": true
+            }
+        },{
+            "path" : "pages/dayi/index/index",
+            "style": {
+                "navigationBarTitleText": "教务答疑",
+                "enablePullDownRefresh": true
+            }
+        },{
+            "path" : "pages/yuyue/index/index",
+            "style": {
+                "navigationBarTitleText": "预约服务",
+                "enablePullDownRefresh": true
+            }
+        }
+    ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarBackgroundColor": "#F0F0F0",
