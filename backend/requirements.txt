@@ -1,7 +1,11 @@
-requests==2.27.1
-pytest==6.2.5
-SQLAlchemy==1.4.31
-Flask==2.0.2
-Flask-APScheduler==1.12.3
+alembic==1.7.6
+APScheduler==3.8.1
+attr==0.3.1
+eventlet==0.33.0
+Flask==2.0.3
+Flask_APScheduler==1.12.3
+Flask_Migrate==3.1.0
 Flask_SQLAlchemy==2.5.1
-PyMySQL==1.0.2
+pytest==7.0.1
+requests==2.27.1
+SQLAlchemy==1.4.31
