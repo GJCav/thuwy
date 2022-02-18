@@ -19,7 +19,7 @@ import app.snowflake as Snowflake
 from config import userSysName
 
 from app.reservation.email import sendEmailByTHUWY, MANAGER_NAMES, MANAGER_EMAILS
-from app.reservation.subscribtion import sendRsvSubscMsg
+from app.reservation.subscription import sendRsvSubscMsg
 
 @rsvRouter.route("/reservation/")
 @requireScope(["profile admin"])

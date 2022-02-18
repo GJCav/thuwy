@@ -1,3 +1,4 @@
+from os import access
 import requests
 import json
 from flask_sqlalchemy import SQLAlchemy
@@ -9,19 +10,14 @@ from datetime import timedelta
 from datetime import timezone
 
 from model import Reservation, User, Item, RsvState
+from secret import WX_APP_ID, WX_APP_SECRET, SUBSC_TPL_ID
 
 SHA_TZ = timezone(timedelta(hours=8), name='Asia/Shanghai',)
-
-WX_APP_ID = "wx7bfe035eee90419b"
-WX_APP_SECRET = "acb9466badcaa126dd32b23cefb0d39a"
-
-SUBSC_TPL_ID = "OhunxpyOwQzlDVCt9vJ_4xJqU584efDAJFXNTXj-tQg"
 
 def currentTime():
     # 返回北京时间
     utc_now = datetime.utcnow().replace(tzinfo=timezone.utc)
     return utc_now.astimezone(SHA_TZ)
-
 
 class AccessToken(db.Model):
     __tablename__ = "access_token"
@@ -133,8 +129,9 @@ def sendRsvSubscMsg(rsv:Reservation):
         }   # 预约备注
     }
 
+    accessToken = _ATManager(WX_APP_ID, WX_APP_SECRET).getAccessToken()   # 获取accessToken
     postData = json.dump(postData)
-    url = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=获取到的access_token"
+    url = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=%s" % accessToken
     res = requests.post(url, data=postData)
 
     return res

@@ -3,12 +3,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
 from email.utils import formataddr
-import sys
-from tempfile import template
 import datetime
 
-MANAGER_EMAILS = ["2995441811@qq.com"]  # 测试邮箱
-MANAGER_NAMES = ["陈立庚老师"]
+from secret import MANAGER_NAMES, MANAGER_EMAILS
 
 def sendEmailByTHUWY(receiverNum, mailReceiverNames:list, mailReceiverAddrs:list) -> dict:
     """
