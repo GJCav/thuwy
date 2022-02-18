@@ -2,8 +2,10 @@ from .types import Visibility
 
 from flask import g
 
+from typing import List
 
-def _split(string: str, sep: str = ";") -> list[str]:
+
+def _split(string: str, sep: str = ";") -> List[str]:
     return string.split(sep) if string else []
 
 

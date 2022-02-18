@@ -11,7 +11,7 @@ from flask import request
 from flask import g
 import sqlalchemy
 
-from typing import Any
+from typing import Any, Dict, List
 
 
 SAMPLE_ISSUE = {
@@ -29,7 +29,7 @@ SAMPLE_ISSUE = {
 }
 
 
-def _get_or_insert_tags(tag_list: list[str]):
+def _get_or_insert_tags(tag_list: List[str]):
     tag_meta_list = []
     for tag in tag_list:
         tag_meta = db.session.get(IssueTagMeta, {"name": tag})
@@ -152,7 +152,7 @@ def issueNew():
     title: str = payload.get("title", "")
     visibility: str = payload.get("visibility", Visibility.PUBLIC)
     tags: str = payload.get("tags", "")
-    tag_list: list[str] = _split(tags, ";")
+    tag_list: List[str] = _split(tags, ";")
     reply_to: int = payload.get("reply_to", None)
     # check args
     try:
@@ -202,7 +202,7 @@ def issueEdit(id: int):
     issue.title = title or issue.title
     issue.visibility = visibility or issue.visibility
     if tags:
-        tag_list: list[str] = _split(tags)
+        tag_list: List[str] = _split(tags)
         issue.tags = _get_or_insert_tags(_split(tag_list))
     issue.content = content or issue.content
     db.session.commit()
