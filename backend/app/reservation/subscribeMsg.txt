@@ -1,0 +1,14 @@
+# 预约人
+# {{name1.DATA}}
+
+# 预约时间
+# {{date3.DATA}}
+
+# 预约项目
+# {{thing13.DATA}}
+
+# 预约状态
+# {{phrase14.DATA}}
+
+# 备注
+# {{thing7.DATA}}
