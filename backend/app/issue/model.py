@@ -8,7 +8,7 @@ from app import timetools
 from flask import g
 import sqlalchemy
 
-from typing import Any
+from typing import Any, Dict
 
 
 # Common parameters when construct a new `Column` object:
@@ -52,7 +52,7 @@ class IssueTagMeta(db.Model):
         return IssueTagMeta.delete == (not validity)
 
     @property
-    def detail(self) -> dict[str, Any]:
+    def detail(self) -> Dict[str, Any]:
         return {"name": self.name, "description": self.description}
 
 
@@ -154,7 +154,7 @@ class Issue(db.Model):
         return Issue.reply_to.is_not(None)
 
     @property
-    def overview(self) -> dict[str, Any]:
+    def overview(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "title": self.title,
@@ -168,5 +168,5 @@ class Issue(db.Model):
         }
 
     @property
-    def detail(self) -> dict[str, Any]:
+    def detail(self) -> Dict[str, Any]:
         return self.overview.update({"content": self.content})
