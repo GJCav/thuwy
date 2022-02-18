@@ -11,7 +11,7 @@ from sqlalchemy import Column
 
 app = Flask("test server")
 
-UNIX_USERNAME = "zyx"
+UNIX_USERNAME = "zel"
 DB_UNIX_SOCK = r"/run/mysqld/mysqld.sock"
 
 class Config:
@@ -28,7 +28,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = (
-        "mysql+pymysql://%s@/thuwy_zyx?unix_socket=%s&charset=utf8mb4"
+        "mysql+pymysql://%s@/thuwy_zel?unix_socket=%s&charset=utf8mb4"
         % (UNIX_USERNAME, DB_UNIX_SOCK)
     )
 
