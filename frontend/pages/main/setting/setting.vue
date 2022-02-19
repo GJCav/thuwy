@@ -4,9 +4,9 @@
 		<!-- 页面总view -->
 		<movable-area class="col-container" style="height: 100%;position: absolute; top:0rpx;">
 			<!-- 除了背景图和底部按钮之外的所有部分,使用flex布局 -->
-			<movable-view out-of-bounds direction="vertical" y="150rpx" class="col-container main-view">
+			<movable-view out-of-bounds direction="vertical" y="150rpx" class="main-view">
 				<!-- 放置头像和身份信息tag的view -->
-				<view class="row-container" style="padding:30rpx; margin-top: -400rpx;align-items: flex-end; ">
+				<view class="row-container" style="padding:30rpx;margin-top: -20rpx;align-items: flex-end; ">
 					<image class="avatar" :src="avatarurl"></image>
 					<!-- 身份信息 -->
 					<view class="identity-container">
@@ -51,7 +51,7 @@
 			</movable-view>
 			<!-- 底部按钮及版本号 -->
 			<view class="col-container" style="position: absolute;bottom: 0;">
-				<weiyang-button style="z-index: 10;" bgcolor="#0087A9" hovercolor="#00657f" @click='logIn'>
+				<weiyang-button style="z-index: 10;" bgcolor="#0087A9" hovercolor="#00657f">
 					<view class="button-text">登录</view>
 				</weiyang-button>
 				<view class="col-container" style="font:300 20rpx sans-serif;margin: 17rpx;">
@@ -109,6 +109,10 @@
 
 <style>
 	.main-view {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	
 		z-index: 10;
 		width: 100%;
 		height: calc(100% - 150rpx);
@@ -138,7 +142,7 @@
 	}
 	/* 用户昵称 */
 	.nickname {
-		margin: 5rpx 0;
+		margin: 10rpx 0;
 		font: 800 60rpx/70rpx sans-serif;
 		text-shadow:
 			2rpx 2rpx 0rpx #FFFFFF,
