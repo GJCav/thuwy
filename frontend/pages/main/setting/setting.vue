@@ -6,7 +6,7 @@
 			<!-- 除了背景图和底部按钮之外的所有部分,使用flex布局 -->
 			<movable-view out-of-bounds direction="vertical" y="150rpx" class="col-container main-view">
 				<!-- 放置头像和身份信息tag的view -->
-				<view class="row-container" style="padding:30rpx;margin-top: -400rpx;align-items: flex-end;">
+				<view class="row-container" style="padding:30rpx; margin-top: -400rpx;align-items: flex-end; ">
 					<image class="avatar" :src="avatarurl"></image>
 					<!-- 身份信息 -->
 					<view class="identity-container">
@@ -77,8 +77,8 @@
 			}
 		},
 		computed:{
-			authorities(){
-				if(this.login){
+			authorities() {
+				if(this.login) {
 					let list=[['学生','#0087A9'],['教务','#008C0E'],['从游坊管理员','#6C3974'],['预约管理员','#0092A6'],['小程序管理员','#EF5DA8']]
 					let ans=[]
 					// 根据具体逻辑给ans增加项目
@@ -133,6 +133,8 @@
 		border: 10rpx solid #660874;
 		border-radius: 50%;
 		box-sizing: border-box;
+		
+		flex-shrink: 0;
 	}
 	/* 用户昵称 */
 	.nickname {

@@ -102,12 +102,12 @@
 		}
 
 		transform: scale(1);
-		transition: transform $duration/2;
+		transition: transform calc($duration/2);
 		transition-timing-function: ease-in-out;
 	}
 
 	.buttons-hover {
-		transform: scale(0.99);
+		transform: scale(0.98);
 		animation: ripple $duration linear forwards;
 	}
 </style>
