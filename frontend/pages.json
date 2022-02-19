@@ -52,6 +52,13 @@
                 "navigationBarTitleText": "预约服务",
                 "enablePullDownRefresh": true
             }
+        },{
+            "path" : "pages/congyou/info/info",
+            "style": {
+                "navigationBarTitleText": "修改活动信息"
+            }
+        },{
+            "path" : "pages/congyou/detail/detail"
         }
     ],
 	"globalStyle": {

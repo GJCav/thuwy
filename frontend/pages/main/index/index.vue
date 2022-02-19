@@ -9,11 +9,13 @@
 			</swiper-item>
 		</swiper>
 		<view class="row-container">
-			<view :class="current==index?'indicator-dot-active':'indicator-dot'" v-for="(item,index) in carousel_list" :key="index"></view>
+			<view :class="current==index?'indicator-dot-active':'indicator-dot'" v-for="(item,index) in carousel_list"
+				:key="index"></view>
 		</view>
 		<!-- 功能按钮 -->
 		<view class="row-container" style="flex-wrap: wrap;justify-content: space-between;padding:50rpx 10%;">
-			<view class="col-container" style="width: 270rpx;" v-for="(item,index) in button_list" :key="index" @click="goDetail(index)">
+			<view class="col-container" style="width: 270rpx;" v-for="(item,index) in button_list" :key="index"
+				@click="goDetail(index)">
 				<image :src="item.src" class="button-icon"></image>
 				<text class="button-text">{{item.text}}</text>
 			</view>
@@ -24,6 +26,7 @@
 </template>
 
 <script>
+	const app = getApp()
 	export default {
 		data() {
 			return {
@@ -57,11 +60,20 @@
 			swiperChange(e) {
 				this.current = e.detail.current;
 			},
-			goDetail(e){
-				let urls=['../../yuyue/index/index','../../dayi/index/index','../../congyou/index/index']
-				uni.navigateTo({
-					url:urls[e]
-				})
+			goDetail(e) {
+				if (app.globalData.login) {
+					let privileges=app.globalData.profile.privileges
+					let urls = [
+						'../../yuyue/index/index?admin=' + privileges.includes('admin'),
+						'../../dayi/index/index?admin=' + privileges.includes('dayi'),
+						'../../congyou/index/index?admin=' + privileges.includes('congyou')
+					]
+					uni.navigateTo({
+						url: urls[e]
+					})
+				} else {
+					// 提示未登录
+				}
 			}
 		}
 	}

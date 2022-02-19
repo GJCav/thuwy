@@ -47,7 +47,7 @@
 							name: res.data.name,
 							class: res.data.clazz,
 							id: res.data['school-id'],
-							privilege: res.data.privileges
+							privileges: res.data.privileges
 						}
 						console.log(that.globalData.profile)
 					} else {
