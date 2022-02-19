@@ -1,17 +1,25 @@
 <template>
 	<view>
-		<view class="img-container"
+		<!-- <view class="img-container"
 			style="background-image: linear-gradient(rgba(255,255,255,0.2) 95%, rgba(255,255,255,1)), url(static/setting/background_pic.png)">
-		</view>
+		</view> -->
+		<image
+			src="../../../static/main/setting/background.png"
+			style="width: 100%; height: 400rpx; opacity: 0.85;"
+		/>
+		<image
+			src="../../../static/main/setting/background.png"
+			style="margin-top: -10rpx;width: 100%; height: 100rpx; opacity: 0.85; object-fit:cover;transform: rotateX(180deg);"
+		/>
 		<movable-area
-			style="position: absolute; top:50rpx; width: 100%; height: calc(100% - 50rpx); display: flex; flex-direction: column;">
+			style="position: absolute; top:0rpx; width: 100%; height: calc(100%); display: flex; flex-direction: column;">
 			<!-- 页面总view -->
 			<movable-view out-of-bounds direction="vertical" y="150rpx"
 				style="height: calc(100% - 150rpx);" class="main-view">
 				<!-- 除了背景图和底部按钮之外的所有部分,使用flex布局 -->
 				<view style="display: flex;flex-flow: row wrap;align-content: flex-start;">
 					<!-- 放置头像和身份信息tag的view -->
-					<image class="avatar" src="../../../static/setting/avatar_default.png"></image>
+					<image class="avatar" src="../../../static/main/setting/avatar.png"></image>
 					<view class="identity-container">
 						<!-- 身份信息 -->
 						<text class="nickname"><open-data type="userNickName"></open-data></text>
@@ -29,39 +37,53 @@
 						</view>
 					</view>
 				</view>
-				<button-animation class="unauthorizedinfo-container" style="margin-left: 30rpx;" bgcolor="#FFD5D5" hovercolor="#ffc4c4">
+				<weiyang-button class="unauthorizedinfo-container" style="margin-left: 30rpx;" bgcolor="#FFD5D5" hovercolor="#ffc4c4">
 					<!-- 账号绑定 -->
 					<view class="unauthorizedinfo-container flex-row">
-						<image style="width: 75rpx; height: 75rpx;" src="../../../static/setting/Warning.svg"></image>
+						<image
+							style="width: 75rpx; height: 75rpx;"
+							src="../../../static/common/warning.svg" 
+						/>
 						<text class="warning-text">账号未绑定，点击此处进行绑定</text>
-						<image style="width: 15rpx;margin-top: 6rpx;margin-left: 15rpx;"
-							src="../../../static/setting/Arrow.svg"></image>
+						<image
+							style="width: 15rpx;margin-top: 6rpx;margin-left: 15rpx;"
+							src="../../../static/main/setting/Arrow.svg" 
+						/>
 					</view>
-				</button-animation>
+				</weiyang-button>
 				<view class="operations-container">
 					<!-- 操作按钮的容器 -->
-					<button-animation class="operation" style="margin-left: 15rpx;" bgcolor="transparent" hovercolor="#c8c8c8">
+					<weiyang-button class="operation" style="margin-left: 15rpx;" bgcolor="transparent" hovercolor="#c8c8c8" hasShadow="true">
 						<view class="operation flex-column">
-							<image class="operation-icon" src="../../../static/setting/feedback.svg"></image>
+							<image 
+								class="operation-icon"
+								src="../../../static/main/setting/option_feedback.svg"
+							/>
 							<text class="operation-text">反馈&建议</text>
 						</view>
-					</button-animation>
+					</weiyang-button>
 					<view class="dividing-lines"></view>
-					<button-animation class="operation" style="margin-left: 15rpx;" bgcolor="transparent" hovercolor="#c8c8c8">
+					<weiyang-button class="operation" style="margin-left: 15rpx;" bgcolor="transparent" hovercolor="#c8c8c8">
 						<view class="operation flex-column">
-							<image class="operation-icon" src="../../../static/setting/scan_to_sign_in.svg"></image>
+							<image
+								class="operation-icon"
+								src="../../../static/main/setting/option_scan.svg"
+							/>
 							<text class="operation-text">扫码登录</text>
 						</view>
-					</button-animation>
+					</weiyang-button>
 					<view class="dividing-lines"></view>
 				</view>
 			</movable-view>
 			<view style="flex-grow: 1;"></view>
-			<button-animation style="z-index: 100;" class="log-off flex-row" bgcolor="#0087A9" hovercolor="#00657f"><view class="button-text">退出登录</view></button-animation>
+			<weiyang-button style="z-index: 100;" class="log-off flex-row" bgcolor="#0087A9" hovercolor="#00657f">
+				<view class="button-text">退出登录</view>
+			</weiyang-button>
 			<view style="margin-left: 322rpx; margin-top: 0rpx">
 				<text
-					style="font-family: Roboto;font-style: normal;font-weight: 300;font-size: 18rpx;color: #000000;">Version:
-					{{version}}</text>
+					style="font-family: Roboto;font-style: normal;font-weight: 300;font-size: 18rpx;color: #000000;">
+					Version: {{version}}
+				</text>
 			</view>
 		</movable-area>
 		<weiyang-background></weiyang-background>
@@ -221,10 +243,10 @@
 
 		color: #000;
 		text-shadow:
-			2rpx 0rpx 0rpx #FFFFFF,
-			-2rpx 0rpx 0rpx #FFFFFF,
-			0rpx 2rpx 0rpx #FFFFFF,
-			0rpx -2rpx 0rpx #FFFFFF;
+			2rpx 2rpx 0rpx #FFFFFF,
+			-2rpx -2rpx 0rpx #FFFFFF,
+			-2rpx 2rpx 0rpx #FFFFFF,
+			2rpx -2rpx 0rpx #FFFFFF;
 	}
 
 	.student-auth {

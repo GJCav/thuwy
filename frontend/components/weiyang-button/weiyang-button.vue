@@ -3,9 +3,9 @@
 		<view
 			class="buttons"
 			hover-class="buttons-hover"
-			:style="{ '--bg-color':bgcolor , '--hover-color':hovercolor , '--duration':duration + 'ms'}"
-			hover-stay-time="200"
-			>
+			:style="{ '--bg-color':bgcolor,'--hover-color':hovercolor,'--duration':duration+'ms','--has-shadow':hasShadow }"
+			hover-stay-time="80"
+		>
 			<!-- 使用view而不是button的原因：使用button会有一个去不掉的难看的框 -->
 			<slot></slot>
 		</view>
@@ -14,7 +14,7 @@
 
 <script>
 	export default {
-		name: "button-animation",
+		name: "weiyang-button",
 		data() {
 			return {
 				
@@ -29,13 +29,17 @@
 			},
 			duration: {
 				type: Number,
-				default: 250
+				default: 80
+			},
+			hasShadow: {
+				type: Boolean,
+				default: false
 			}
 		}
 	}
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 	@keyframes ripple {
 		0%{
 			background-image: radial-gradient(circle at center, var(--hover-color) 20%,  var(--bg-color));
@@ -77,23 +81,24 @@
 		}
 	}
 	
-	
+	$duration: var(--duration);
 	.buttons {
 		border-radius: 30rpx;
 		
 		outline:0 none !important; 
 		border: none;
 		background: var(--bg-color);
-		box-shadow: 0 3rpx 8rpx rgba(0, 0, 0, 0.3); /* black with 30% opacity */
-		
+		@if var(--has-shadow)==true {
+			box-shadow: 0 3rpx 8rpx rgba(0, 0, 0, 0.3); /* black with 30% opacity */
+		}
 		
 		transform: scale(1);
-		transition: transform var(--duration);
+		transition: transform $duration/2;
 		transition-timing-function: ease-in-out;
 	}
 
 	.buttons-hover {
-		transform: scale(0.98);
-		animation: ripple var(--duration) linear forwards;
+		transform: scale(0.99);
+		animation: ripple $duration linear forwards;
 	}
 </style>
