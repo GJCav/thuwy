@@ -12,6 +12,7 @@
 </template>
 
 <script>
+	const app=getApp()
 	export default {
 		data() {
 			return {

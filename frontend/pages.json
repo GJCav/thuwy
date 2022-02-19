@@ -9,6 +9,10 @@
 			"name": "main-bind", //模式名称
 			"path": "pages/main/bind/bind", //启动页面，必选
 			"query": "" //启动参数，在页面的onLoad函数里面得到
+		},{
+			"name": "main-setting", //模式名称
+			"path": "pages/main/setting/setting", //启动页面，必选
+			"query": "" //启动参数，在页面的onLoad函数里面得到
 		}]
 	},
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages

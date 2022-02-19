@@ -150,7 +150,7 @@
 		font-weight: 900;
 		font-size: 36rpx;
 		color: #000000;
-		text-shadow: #FFFFFF 2rpx 2rpx 0, #FFFFFF -2rpx -2rpx 0;
+		text-shadow: #FFFFFF 2rpx 2rpx 0, #FFFFFF -2rpx -2rpx 0,#FFFFFF 2rpx -2rpx 0,#FFFFFF -2rpx 2rpx 0;
 
 	}
 
