@@ -52,7 +52,6 @@
 			uni.request({
 				url: that.globalData.url.backend + '/testaccount/super_admin/'
 			}).then(res => {
-				that.globalData.login = true;
 				uni.setStorage({ // 将得到的openid存储到缓存里面方便后面调用
 					key: "cookie",
 					data: res.cookies[0]
@@ -73,6 +72,7 @@
 							privileges: res.data.privileges
 						}
 						console.log(that.globalData.profile)
+						that.globalData.login = true;
 					} else {
 						throw res
 					}
@@ -84,7 +84,6 @@
 		globalData: {
 			login: false, // 是否完成登录
 			profile: null, // 用户账号信息
-			wxprofile: null, // 用户微信信息
 			url: {
 				// backend: 'https://api.thuwy.top', // 后端地址
 				// picture: 'https://https://static.thuwy.top', // 图片站地址

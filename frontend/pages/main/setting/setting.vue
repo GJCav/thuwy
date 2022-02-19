@@ -32,7 +32,7 @@
 				<!-- 操作按钮的容器 -->
 				<view class="operations-container">
 					<weiyang-button class="operation" style="margin-left: 15rpx;" bgcolor="transparent"
-						hovercolor="#c8c8c8" hasShadow="true">
+						hovercolor="#c8c8c8" :hasShadow="true">
 						<view class="operation col-container">
 							<image class="operation-icon" src="../../../static/main/setting/option_feedback.svg" />
 							<text class="operation-text">反馈&建议</text>
@@ -99,8 +99,7 @@
 		onLoad() {
 			if(app.globalData.login){
 				this.id=app.globalData.profile.id
-				// this.nickname=app.globalData.wxprofile.nickname
-				// this.avatarurl=app.globalData.wxprofile.avatarurl
+				this.nickname=app.globalData.profile.name
 			} else{
 				
 			}
