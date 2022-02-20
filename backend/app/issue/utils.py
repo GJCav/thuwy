@@ -6,7 +6,9 @@ from typing import List
 
 
 def _split(string: str, sep: str = ";") -> List[str]:
-    return string.split(sep) if string else []
+    arr = string.split(sep)
+    filter(lambda x: x, arr)
+    return list(arr)
 
 
 def _am_admin() -> bool:
