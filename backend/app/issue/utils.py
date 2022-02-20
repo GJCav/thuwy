@@ -7,7 +7,7 @@ from typing import List
 
 def _split(string: str, sep: str = ";") -> List[str]:
     arr = string.split(sep)
-    filter(lambda x: x, arr)
+    arr = filter(lambda x: x, arr)
     return list(arr)
 
 
