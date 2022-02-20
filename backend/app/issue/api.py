@@ -1,4 +1,3 @@
-from re import T
 from . import issueRouter
 from .errcode import *
 from .model import db, IssueTagMeta, Issue
