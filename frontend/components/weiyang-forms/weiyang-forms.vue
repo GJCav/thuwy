@@ -18,8 +18,8 @@
 				</view>
 			</uni-forms>
 			<view class="row-container" style="justify-content:flex-end;margin:-25rpx 0 100rpx">
-				<weiyang-button type="green" v-if="data.length<num" @click="addPart(index)">新增</weiyang-button>
-				<weiyang-button type="red" v-if="data.length>1" @click="delPart(index)">删去</weiyang-button>
+				<weiyang-button type="green" v-if="data.length<num" @click="addPart(index)">新增节</weiyang-button>
+				<weiyang-button type="red" v-if="data.length>1" @click="delPart(index)">删除节</weiyang-button>
 			</view>
 		</template>
 	</view>
@@ -39,11 +39,11 @@
 		props: {
 			title: {
 				type: Array,
-				default: ['标题', '请输入标题']
+				default: ['节标题', '请输入节标题']
 			},
 			content: {
 				type: Array,
-				default: ['正文', '请输入正文']
+				default: ['节正文', '请输入节正文']
 			},
 			color: {
 				type: String,

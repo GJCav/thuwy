@@ -16,7 +16,7 @@
 					</uni-forms-item>
 					<uni-forms-item :label="class_label" required name="class">
 						<uni-data-picker ref="child" v-model="data.class" :localdata="class_option"
-							:popup-title="class_title"></uni-data-picker>
+							:placeholder="class_title"></uni-data-picker>
 					</uni-forms-item>
 				</uni-forms>
 			</view>
