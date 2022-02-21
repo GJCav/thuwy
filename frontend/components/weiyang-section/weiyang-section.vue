@@ -7,9 +7,7 @@
 				<text v-if="subtitle" class="sub">{{subtitle}}</text>
 			</view>
 		</view>
-		<view style="padding:0 30rpx">
-			<slot/>
-		</view>
+		<slot/>
 	</view>
 </template>
 

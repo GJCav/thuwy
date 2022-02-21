@@ -1,22 +1,30 @@
 <template>
 	<view>
 		<weiyang-section title="身份信息绑定" subtitle="请仔细填写以下内容">
-			<uni-forms ref="bindform" :modelValue="data" :rules="rules">
-				<uni-forms-item label="身份" required name="admin">
-					<uni-data-checkbox v-model="data.admin" :localdata="identity" selectedColor="#0087A9" @change="changeIdentity()">
-					</uni-data-checkbox>
-				</uni-forms-item>
-				<uni-forms-item label="姓名" required name="name">
-					<uni-easyinput v-model="data.name" placeholder="请输入姓名"></uni-easyinput>
-				</uni-forms-item>
-				<uni-forms-item label="学号" required name="id">
-					<uni-easyinput v-model="data.id" placeholder="请输入学号" type="number"></uni-easyinput>
-				</uni-forms-item>
-				<uni-forms-item :label="class_label" required name="class">
-					<uni-data-picker ref="child" v-model="data.class" :localdata="class_option" :popup-title="class_title"></uni-data-picker>
-				</uni-forms-item>
-			</uni-forms>
-			<button @click="admitBind()">提交</button>
+			<view style="padding: 30rpx;">
+				<uni-forms ref="bindform" :modelValue="data" :rules="rules">
+					<uni-forms-item label="身份" required name="admin">
+						<uni-data-checkbox v-model="data.admin" :localdata="identity" selectedColor="#0087A9"
+							@change="changeIdentity()">
+						</uni-data-checkbox>
+					</uni-forms-item>
+					<uni-forms-item label="姓名" required name="name">
+						<uni-easyinput v-model="data.name" placeholder="请输入姓名"></uni-easyinput>
+					</uni-forms-item>
+					<uni-forms-item label="学号" required name="id">
+						<uni-easyinput v-model="data.id" placeholder="请输入学号" type="number"></uni-easyinput>
+					</uni-forms-item>
+					<uni-forms-item :label="class_label" required name="class">
+						<uni-data-picker ref="child" v-model="data.class" :localdata="class_option"
+							:popup-title="class_title"></uni-data-picker>
+					</uni-forms-item>
+				</uni-forms>
+			</view>
+			<view class="submitbar">
+				<weiyang-button @click="admitBind()">
+					<view style="margin: 10rpx;">提交</view>
+				</weiyang-button>
+			</view>
 		</weiyang-section>
 	</view>
 </template>
@@ -190,7 +198,7 @@
 		},
 		methods: {
 			// 身份选择转变
-			changeIdentity(){
+			changeIdentity() {
 				this.$refs.child.clear()
 			},
 			// 提交绑定信息
@@ -223,5 +231,13 @@
 </script>
 
 <style>
-
+	.submitbar {
+		width: 90%;
+		padding: 5%;
+		background-color: #F3F3F3;
+		
+		position: fixed;
+		bottom: 0;
+		z-index: 10;
+	}
 </style>

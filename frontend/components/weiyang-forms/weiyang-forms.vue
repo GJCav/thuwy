@@ -17,25 +17,33 @@
 					</view>
 				</view>
 			</uni-forms>
-			<button v-if="index!=0" @click="delPart($event)" :data-index='index'>删去</button>
+			<view class="row-container" style="justify-content:flex-end;margin:-25rpx 0 100rpx">
+				<weiyang-button type="green" v-if="data.length<num" @click="addPart(index)">新增</weiyang-button>
+				<weiyang-button type="red" v-if="data.length>1" @click="delPart(index)">删去</weiyang-button>
+			</view>
 		</template>
-			<button v-if="data.length<num" @click="addPart">新增</button>
-			<button @click="submit()">提交</button>
+	</view>
+	<!-- 占位view -->
+	<view style="height:60rpx;"></view>
+	<view class="submitbar">
+		<weiyang-button @click="submit">
+			<view style="margin: 10rpx;">提交</view>
+		</weiyang-button>
 	</view>
 </template>
 
 <script>
 	export default {
 		name: 'weiyang-forms',
-		emits:['submit'],
+		emits: ['submit'],
 		props: {
 			title: {
 				type: Array,
-				default: ['标题','请输入标题']
+				default: ['标题', '请输入标题']
 			},
 			content: {
 				type: Array,
-				default: ['正文','请输入正文']
+				default: ['正文', '请输入正文']
 			},
 			color: {
 				type: String,
@@ -45,9 +53,9 @@
 				type: Number,
 				default: 5
 			},
-			group:{
+			group: {
 				type: Array,
-				default:[{
+				default: [{
 					title: '',
 					content: '',
 					picurls: []
@@ -59,50 +67,49 @@
 				// 基础表单数据
 				data: this.group,
 				// 表单验证规则
-				rules:{
+				rules: {
 					title: {
 						rules: [{
-					        required: this.title[0] && true,
-					        errorMessage: '请输入内容',
-							},{
-					        maxLength: 5,
-					        errorMessage: '至多输入 {maxLength} 个字符',
-					    }]
+							required: this.title[0] && true,
+							errorMessage: '请输入内容',
+						}, {
+							maxLength: 5,
+							errorMessage: '至多输入 {maxLength} 个字符',
+						}]
 					},
 					content: {
-					    rules: [{
-					        required: this.content[0] && true,
-					        errorMessage: '请输入内容',
-					    }]
+						rules: [{
+							required: this.content[0] && true,
+							errorMessage: '请输入内容',
+						}]
 					}
 				}
 			}
 		},
 		methods: {
 			// 新增段落节相关
-			addPart(e){
-				this.data.push({
+			addPart(e) {
+				this.data.splice(e + 1, 0, {
 					title: '',
 					content: '',
 					picurls: []
 				})
 			},
-			delPart(e){
-				let i=e.target.dataset.index
-				this.data.splice(i,i)
+			delPart(e) {
+				this.data.splice(e, 1)
 			},
 			// 提交信息
-			submit(){
-				let length=this.data.length
-				let ans=[]
-				for(let i=0;i<length;i++){
+			submit() {
+				let length = this.data.length
+				let ans = []
+				for (let i = 0; i < length; i++) {
 					ans.push(this.$refs.form[i].validate())
-					console.log(this.$refs.pic[0].files[0].name,this.$refs.pic[0].files[0].url)
+					console.log(this.$refs.pic[i].files)
 				}
-				Promise.all(ans).then(res=>{
-				    this.$emit('submit',this.data)
-				}).catch(err =>{
-				    console.log('表单错误信息：', err);
+				Promise.all(ans).then(res => {
+					this.$emit('submit', this.data)
+				}).catch(err => {
+					console.log('表单错误信息：', err);
 				})
 
 			},
@@ -110,6 +117,14 @@
 	}
 </script>
 
-<style>
-	
+<style scoped>
+	.submitbar {
+		width: 90%;
+		padding: 5%;
+		background-color: #F3F3F3;
+		
+		position: fixed;
+		bottom: 0;
+		z-index: 10;
+	}
 </style>
