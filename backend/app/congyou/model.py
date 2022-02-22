@@ -94,6 +94,8 @@ class Lecture(db.Model):
             self.lecture_enrollment.sort(key = takeWish)
 
             for i in range(self.total, len(self.lecture_enrollment)) :
+                if self.lecture_enrollment[i].delete :
+                    break
                 e = self.lecture_enrollment[i]
                 e.state = 3
 
@@ -124,7 +126,7 @@ class Lecture_enrollment(db.Model):
         }
 
 def takeWish(enrollment : Lecture_enrollment) :
-    return enrollment.wish
+    return enrollment.delete * 10 + enrollment.wish
 
 def getLectureWishCount(wish: int, lecture_id: int) -> int:
     a = (

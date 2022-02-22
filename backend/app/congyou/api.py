@@ -10,9 +10,6 @@ from .model import *
 from . import congyouRouter
 from .errcode import *
 
-######################################## TODO 定时更新或多线程操作
-
-
 def goodTimeSpace(deadline: int, holding_time: int) :
     return holding_time >= Timetools.hoursAfter(deadline, 2)
 
