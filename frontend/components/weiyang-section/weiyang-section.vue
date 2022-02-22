@@ -7,9 +7,7 @@
 				<text v-if="subtitle" class="sub">{{subtitle}}</text>
 			</view>
 		</view>
-		<view style="padding:0 30rpx">
-			<slot/>
-		</view>
+		<slot/>
 	</view>
 </template>
 
@@ -52,7 +50,7 @@
 
 	.decoration {
 		width: 10rpx;
-		height: 36rpx;
+		height: 42rpx;
 		margin-right: 20rpx;
 		border-radius: 20rpx;
 		background-color: var(--color);
@@ -64,12 +62,12 @@
 	}
 
 	.title {
-		font-size: 36rpx;
+		font-size: 40rpx;
 		color: #333333;
 	}
 
 	.sub {
-		font-size: 25rpx;
+		font-size: 28rpx;
 		font-weight: normal;
 		color: #999999;
 		line-height: 36rpx;

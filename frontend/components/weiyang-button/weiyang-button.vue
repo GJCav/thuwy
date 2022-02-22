@@ -1,9 +1,7 @@
 <template>
-	<view>
-		<view class="buttons" hover-class="buttons-hover" :style="parameter" hover-stay-time="80" @click="pressButton">
-			<!-- 使用view而不是button的原因：使用button会有一个去不掉的难看的框 -->
-			<slot></slot>
-		</view>
+	<view class="buttons" hover-class="buttons-hover" :style="parameter" hover-stay-time="80" @click="pressButton">
+		<!-- 使用view而不是button的原因：使用button会有一个去不掉的难看的框 -->
+		<slot />
 	</view>
 </template>
 
@@ -11,21 +9,20 @@
 	export default {
 		name: "weiyang-button",
 		data() {
-			return {
-				parameter: {
-					'--bg-color': this.bgcolor,
-					'--hover-color': this.hovercolor,
-					'--duration': this.duration + 'ms',
-					'--has-shadow': this.hasShadow
-				}
-			};
+			return {}
 		},
 		props: {
+			type: { // 内置样式
+				type: String,
+				default: 'normal'
+			},
 			bgcolor: {
 				type: String,
+				default: '#0087A9'
 			},
 			hovercolor: {
 				type: String,
+				default: '#00657F'
 			},
 			duration: {
 				type: Number,
@@ -34,6 +31,31 @@
 			hasShadow: {
 				type: Boolean,
 				default: false
+			}
+		},
+		computed: {
+			parameter() {
+				let parameter = {
+					'--bg-color': this.bgcolor,
+					'--hover-color': this.hovercolor,
+					'--duration': this.duration + 'ms',
+					'--has-shadow': this.hasShadow
+				}
+				switch (this.type) {
+					case 'green':
+						parameter['--bg-color'] = '#00BF00'
+						parameter['--hover-color'] = '#008C00'
+						break;
+					case 'red':
+						parameter['--bg-color'] = '#EB3341'
+						parameter['--hover-color'] = '#B82834'
+						break
+					case 'blue':
+						parameter['--bg-color'] = '#009FFF'
+						parameter['--hover-color'] = '#007ECC'
+						break
+				}
+				return parameter
 			}
 		},
 		emits: ['click'],
@@ -91,9 +113,13 @@
 	$duration: var(--duration);
 
 	.buttons {
+		margin: 0 10rpx;
+		padding: 10rpx 20rpx;
 		border-radius: 30rpx;
 
+		color: #FFFFFF;
 		text-align: center;
+		font: 600 36rpx sans-serif;
 		background: var(--bg-color);
 
 		@if var(--has-shadow)==true {

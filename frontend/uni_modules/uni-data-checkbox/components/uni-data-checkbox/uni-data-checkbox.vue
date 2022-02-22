@@ -21,7 +21,6 @@
 				</label>
 			</checkbox-group>
 			<radio-group v-else class="checklist-group" :class="{'is-list':mode==='list','is-wrap':wrap}" @change="chagne">
-				<!-- -->
 				<label class="checklist-box" :class="['is--'+mode,item.selected?'is-checked':'',(disabled || !!item.disabled)?'is-disable':'',index!==0&&mode==='list'?'is-list-border':'']"
 				 :style="item.styleBackgroud" v-for="(item,index) in dataList" :key="index">
 					<radio class="hidden" hidden :disabled="disabled || item.disabled" :value="item[map.value]+''" :checked="item.selected" />

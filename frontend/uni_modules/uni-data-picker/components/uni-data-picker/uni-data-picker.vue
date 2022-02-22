@@ -359,6 +359,7 @@
 	}
 
 	.placeholder {
+		margin-left: 12rpx;
 		color: grey;
 	}
 
