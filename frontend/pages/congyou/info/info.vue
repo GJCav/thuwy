@@ -10,7 +10,7 @@
 					<uni-forms-item label="活动主题" required name="theme">
 						<uni-easyinput v-model="basic_data.theme" placeholder="请输入活动主题" trim="both" />
 					</uni-forms-item>
-					<uni-forms-item label="主讲老师" required name="total">
+					<uni-forms-item label="主讲老师" required name="teacher">
 						<uni-easyinput v-model="basic_data.teacher" placeholder="请输入老师姓名" />
 					</uni-forms-item>
 					<view style="margin:-10px 0 20px;">
@@ -22,12 +22,12 @@
 					<uni-forms-item label="人数容量" required name="total">
 						<uni-easyinput type="number" v-model="basic_data.total" placeholder="请输入人数容量" />
 					</uni-forms-item>
+					<uni-forms-item label="活动地点" required name="position">
+						<uni-easyinput v-model="basic_data.position" placeholder="请输入活动地点" />
+					</uni-forms-item>
 					<uni-forms-item label="衔接方向" required name="subject">
 						<uni-data-picker v-model="basic_data.subject" :localdata="subject_option" placeholder="请选择衔接方向">
 						</uni-data-picker>
-					</uni-forms-item>
-					<uni-forms-item label="活动地点" required name="total">
-						<uni-easyinput v-model="basic_data.position" placeholder="请输入活动地点" />
 					</uni-forms-item>
 					<uni-forms-item label="报名截止" required name="deadline">
 						<uni-datetime-picker type="datetime" return-type="timestamp" v-model="basic_data.deadline"
@@ -159,7 +159,11 @@
 		},
 		methods: {
 			submit(e) {
-				this.basic_data['detail-intro']=e
+				this.$refs.basic_form.validate().then(res=>{
+					this.basic_data['detail-intro']=e
+				}).catch(res=>{
+					console.log(res)
+				})
 				console.log(this.basic_data)
 			}
 		},
@@ -183,6 +187,6 @@
 		width: 100%;
 		text-align: center;
 		font: bold 36rpx sans-serif;
-		margin: -20rpx 0 20rpx;
+		margin: -15rpx 0 20rpx;
 	}
 </style>
