@@ -11,12 +11,12 @@ from . import congyouRouter
 from .errcode import *
 
 def goodTimeSpace(deadline: int, holding_time: int) :
-    return holding_time >= Timetools.hoursAfter(deadline, 2)
+    return deadline > Timetools.daysAfter(2) and holding_time >= Timetools.daysAfter(2, deadline) 
 
 @congyouRouter.route("/lecture/", methods=["GET", "POST"])
 @requireScope(["profile", "congyou profile"])
 def lectureList():
-    if request.method == "GET" and challengeScope(["profile"]):
+    if request.method == "GET" and challengeScope(["profile"]):  # 获取从游坊列表
         page = request.args.get("p", "1")
         try:
             page = int(page)
@@ -40,13 +40,17 @@ def lectureList():
         if "state" in request.args:
             state = request.args.get("state", None, int)
             if state:
-                qry = qry.filter(Lecture.state == state)
+                if state == 1 :
+                    qry = qry.filter(Lecture.drawn == 0, Lecture.deadline > Timetools.now())
+                elif state == 2 :
+                    qry = qry.filter(Lecture.drawn == 0, Lecture.deadline <= Timetools.now())
+                elif state == 3 :
+                    qry = qry.filter(Lecture.drawn == 1, Lecture.holding_time > Timetools.now())
+                elif state == 4 :
+                    qry = qry.filter(Lecture.drawn == 1, Lecture.holding_time <= Timetools.now())
 
         lectureCount = qry.count()
         lectures = qry.limit(20).offset(20 * page).all()
-
-        for e in lectures :
-            e.updatestate()
 
         lectures = [e.toDictNoDetail() for e in lectures]
 
@@ -58,16 +62,16 @@ def lectureList():
         ret.update(CODE_SUCCESS)
         return ret
 
-    elif request.method == "POST" and challengeScope(["profile congyou"]):
+    elif request.method == "POST" and challengeScope(["profile congyou"]): # 添加从游坊
         reqJson = request.json
         if reqJson == None:
             return CODE_ARG_INVALID
         if not CheckArgs.hasAttrs(
-            reqJson, ["title", "theme", "total", "subject", "teacher", "brief-intro", "detail-intro", "deadline", "holding_time"]):
+            reqJson, ["title", "theme", "position", "total", "subject", "teacher", "brief-intro", "detail-intro", "deadline", "holding_time"]):
             return CODE_ARG_MISSING
         if ((
             not CheckArgs.areStr(
-                reqJson, ["title", "theme", "subject", "teacher", "brief-intro"]
+                reqJson, ["title", "theme", "position", "subject", "teacher", "brief-intro"]
             ))or (not CheckArgs.areInt(
                 reqJson, ["total"]
             ))or (not CheckArgs.areUint64(
@@ -81,9 +85,9 @@ def lectureList():
         lecture = Lecture()
         try:
             lecture.user_id = g.openid
+            lecture.position = reqJson["position"]
             lecture.title = reqJson["title"]
             lecture.theme = reqJson["theme"]
-            lecture.state = 1
             lecture.visible = 1
             lecture.total = reqJson["total"]
             lecture.subject = reqJson["subject"]
@@ -118,21 +122,25 @@ def lectureDetail(lectureId: int):
     if not lecture:
         return CODE_LECTURE_NOT_FOUND
 
-    lecture.updatestate()
     dataLecture = db.session.query(Lecture).filter(Lecture.lecture_id == lectureId)
 
-    if request.method == "GET" and challengeScope(["profile"]):
+    if request.method == "GET" and challengeScope(["profile"]): # 获取从游坊详细信息
         ret = {"lecture": lecture.toDict()}
         ret.update(CODE_SUCCESS)
         return ret
 
-    elif request.method == "POST" and challengeScope(["profile congyou"]):
+    elif request.method == "POST" and challengeScope(["profile congyou"]): # 修改从游坊        
+        if lecture.getstate() != 1 :
+            return CODE_LECTURE_DRAWING    
+
         reqJson = request.json
         try:
             if "theme" in reqJson:
                 lecture.theme = str(reqJson["theme"])
             if "title" in reqJson:
                 lecture.title = str(reqJson["title"])
+            if "position" in reqJson :
+                lecture.position = str(reqJson["position"])
             if "total" in reqJson:
                 lecture.total = int(reqJson["total"])
             if "subject" in reqJson:
@@ -165,7 +173,10 @@ def lectureDetail(lectureId: int):
             db.session.rollback()
             return CODE_DATABASE_ERROR
 
-    elif request.method == "DELETE" and challengeScope(["profile congyou"]):
+    elif request.method == "DELETE" and challengeScope(["profile congyou"]): # 删除从游坊
+        if lecture.getstate() != 1 :
+            return CODE_LECTURE_DRAWING    
+
         try:
             dataLecture.delete()
             db.session.commit()
@@ -180,7 +191,7 @@ def not_a_wish(wish) :
 @congyouRouter.route("/lecture_enrollment/", methods=["GET", "POST"])
 @requireScope(["profile"])
 def lectureEnrollmentList():
-    if request.method == "POST":  
+    if request.method == "POST":  # 普通用户报名从游坊
         reqJson = request.json
         if reqJson == None :
             return CODE_ARG_INVALID
@@ -207,19 +218,15 @@ def lectureEnrollmentList():
         )
 
         if not lecture :
-            return CODE_LECTURE_NOT_FOUND
+            return CODE_LECTURE_DRAWING
 
-        lecture.updatestate()
-
-        if lecture.state != 1 :
+        if lecture.getstate() != 1 :
             return CODE_LECTURE_CANT_ENROLLMENT
 
         enrollment = Lecture_enrollment()
         enrollment.lecture_id = lecture_id
         enrollment.user_id = g.openid
         enrollment.wish = wish
-        enrollment.state = 2
-        enrollment.delete = 0
         enrollment.enrollment_time = Timetools.now()
 
         try:
@@ -233,7 +240,7 @@ def lectureEnrollmentList():
         ret.update(CODE_SUCCESS)
         return ret
 
-    elif request.method == "GET": 
+    elif request.method == "GET":  # 用户获取自己报名的从游坊
         page = request.args.get("p", "1")
         try:
             page = int(page)
@@ -258,13 +265,17 @@ def lectureEnrollmentList():
         if "state" in request.args:
             state = request.args.get("state", None, int)
             if state:
-                qry = qry.filter(Lecture.state == state)
+                if state == 1 :
+                    qry = qry.filter(Lecture.drawn == 0)
+                elif state == 2 :
+                    qry = qry.filter(Lecture_enrollment.lottery == 0)
+                elif state == 3 :
+                    qry = qry.filter(Lecture_enrollment.lottery == 1)
+                elif state == 4 :
+                    qry = qry.filter(Lecture_enrollment.delete == 1)
 
         enrollmentCount = qry.count()
         enrollments : List["Lecture_enrollment"] = qry.limit(20).offset(20 * page).all()
-
-        for e in enrollments :
-            e.lecture.updatestate()
 
         enrollments = [e.toDict() for e in enrollments]
 
@@ -293,12 +304,10 @@ def lectureEnrollmentModify(enrollmentId: int):
     if enrollment.user_id != g.openid :
         return CODE_ACCESS_DENIED
 
-    if request.method == "POST":
-        lecture = enrollment.lecture
-        
-        lecture.updatestate()
+    lecture = enrollment.lecture
 
-        if lecture.state != 1 :
+    if request.method == "POST":  # 普通用户修改报名的从游坊
+        if lecture.getstate() != 1 :
             return CODE_LECTURE_CANT_ENROLLMENT
 
         reqJson = request.json
@@ -326,12 +335,22 @@ def lectureEnrollmentModify(enrollmentId: int):
             db.session.rollback()
             return CODE_DATABASE_ERROR
 
-    elif request.method == "DELETE":
+    elif request.method == "DELETE": # 普通用户取消报名
         try:
-            dataEnrollment.delete() # 这样删除后不消耗用户志愿
-            # enrollment.delete = 1 # 这样删除后消耗用户志愿
-            db.session.commit()
-            return CODE_SUCCESS
+            if lecture.getstate() == 1 or (lecture.getstate() == 3 and enrollment.lottery == 0) :
+                dataEnrollment.delete() # 这样删除后不消耗用户志愿
+                db.session.commit()
+                return CODE_SUCCESS
+            elif lecture.getstate() == 2 :
+                db.session.rollback()
+                return CODE_LECTURE_DRAWING
+            elif lecture.getstate() == 3 and enrollment.lottery == 1 : 
+                enrollment.delete = 1 # 这样删除后消耗用户志愿
+                db.session.commit()
+                return CODE_SUCCESS
+            elif lecture.getstate() == 4 :
+                db.session.rollback()
+                return CODE_LECTURE_FINISH
         except:
             db.session.rollback()
             return CODE_DATABASE_ERROR
@@ -339,7 +358,7 @@ def lectureEnrollmentModify(enrollmentId: int):
 
 @congyouRouter.route("/wish_remain/", methods=["GET"])
 @requireScope(["profile"])
-def userWish():
+def userWish(): # 用户获取自己还剩多少志愿
     ret = {"first": getWishRemain(1, g.openid), 
             "second": getWishRemain(2, g.openid)}
     ret.update(CODE_SUCCESS)
