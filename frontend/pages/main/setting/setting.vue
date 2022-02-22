@@ -22,13 +22,16 @@
 					</view>
 				</view>
 				<!-- 账号绑定 -->
-				<weiyang-button class="unauthorizedinfo-container" bgcolor="#FFD5D5" hovercolor="#ffc4c4">
-					<view class="row-container" style="height: 120rpx;">
-						<image style="width: 75rpx; height: 75rpx;" src="../../../static/common/warning.svg" />
-						<text class="warning-text">账号未绑定，点击此处进行绑定</text>
-						<image style="width:15rpx;margin-left:15rpx;" src="../../../static/main/setting/Arrow.svg" />
-					</view>
-				</weiyang-button>
+				<navigator url="../bind/bind" v-if="!hasBind">
+					<weiyang-button class="unauthorizedinfo-container" bgcolor="#FFD5D5" hovercolor="#ffc4c4">
+						<view class="row-container" style="height: 120rpx;">
+							<image style="width: 75rpx; height: 75rpx;" src="../../../static/common/warning.svg" />
+							<text class="warning-text">账号未绑定，点击此处进行绑定</text>
+							<image style="width:15rpx;margin-left:15rpx;"
+								src="../../../static/main/setting/Arrow.svg" />
+						</view>
+					</weiyang-button>
+				</navigator>
 				<!-- 操作按钮的容器 -->
 				<view class="operations-container">
 					<weiyang-button bgcolor="transparent" hovercolor="#c8c8c8">
@@ -36,7 +39,7 @@
 						<view class="operation-text">反馈&建议</view>
 					</weiyang-button>
 					<view class="dividing-lines"></view>
-					<weiyang-button bgcolor="transparent" hovercolor="#c8c8c8">
+					<weiyang-button bgcolor="transparent" hovercolor="#c8c8c8" @click="scanQR()">
 						<image class="operation-icon" src="../../../static/main/setting/option_scan.svg" />
 						<view class="operation-text">扫码登录</view>
 					</weiyang-button>
@@ -47,9 +50,9 @@
 			</movable-view>
 		</movable-area>
 		<!-- 底部按钮及版本号 -->
-		<view class="col-container" style="position: absolute;bottom: 0;">
-			<weiyang-button bgcolor="#0087A9" hovercolor="#00657f">
-				<view class="button-text">登录</view>
+		<view class="col-container" style="z-index:100 ;position: absolute;bottom: 0;">
+			<weiyang-button bgcolor="#0087A9" hovercolor="#00657f" @click="onClickLog">
+				<view class="button-text">{{loginButtonText}}</view>
 			</weiyang-button>
 			<view class="col-container" style="font:300 20rpx sans-serif;margin: 17rpx;">
 				Version: {{version}}
@@ -65,11 +68,12 @@
 	export default {
 		data() {
 			return {
-				login: false,
 				nickname: '未小羊',
 				avatarurl: '../../../static/main/setting/avatar.png',
 				id: 0,
 				version: "2.0.0",
+				loginButtonText: "登录",
+				hasBind: false,
 			}
 		},
 		computed: {
@@ -84,6 +88,27 @@
 					]
 					let ans = []
 					// 根据具体逻辑给ans增加项目
+					if (app.globalData.profile.clazz === "未央教务") {
+						ans.append(list[1]);
+					}
+					else {
+						ans.append(list[0]);
+					}
+					let isAdmin = app.globalData.profile.all-privileges.indexOf('admin'); //借用管理员
+					let isCongyou_admin = app.globalData.profile.all-privileges.indexOf('congyou');//从游管理员
+					if (isAdmin && isCongyou_admin) {
+						//小程序管理员
+						ans.append(list[4]);
+					} else {
+						if (isAdmin) {
+							//借用管理员
+							ans.append(list[3]);
+						}
+						if (isCongyou_admin) {
+							//从游管理员
+							ans.append(list[2]);
+						}
+					}
 					return ans
 				} else {
 					return [
@@ -92,76 +117,162 @@
 				}
 			}
 		},
+		onShow() {
+			console.log("登录: " + app.globalData.login);
+			if (app.globalData.login) {
+				this.id = app.globalData.profile.id || 'NaN';
+				this.nickname = app.globalData.profile.name || '未绑定';
+				this.loginButtonText = "退出登录";
+			} else {
+				this.loginButtonText = "登录";
+			}
+			this.hasBind = (app.globalData.profile.id!=null);
+			console.log("绑定: " + this.hasBind);
+		},
+
 		methods: {
-			logOut(e) {
-				console.log(e)
+			logOut() {
+				// uni.clearStorage();
+				app.globalData.login = false;
+				app.globalData.profile = null;
+				app.globalData.logincode = null;
+				uni.reLaunch({
+					url: "../index/index",
+				});
+				uni.showToast({
+					title: '登出成功',
+					icon: 'success',
+					duration: 1500,
+					mask: true
+				});
 			},
-			logIn(e) {
-				console.log(e)
+			logIn() {
+				let that = app;
+				uni.login()
+				.then(res => { // 获取openID
+					that.globalData.logincode = res.code;
+					// console.log(that.globalData.logincode);
+					return uni.request({ // 发送 res.code 到后台换取 openId, sessionKey, unionId
+						url: that.globalData.url.backend + '/login/',
+						method: 'POST',
+						data: {
+							code: res.code
+						}
+					})
+				})
+				.then(res => { // 储存openID并请求用户信息
+					if (res.data.code == 0) {
+						uni.setStorage({ // 将得到的openid存储到缓存里面方便后面调用
+							key: "cookie",
+							data: res.cookies[0]
+						})
+						// console.log(res.cookies);
+						// console.log("step two finished");
+						return uni.request({
+							url: that.globalData.url.backend + '/profile/',
+							method: 'GET',
+							header: {
+								'content-type': 'application/json; charset=utf-8',
+								'cookie': res.cookies[0]
+							},
+						})
+					} else {
+						throw res
+					}
+				})
+				.then(res => { // 储存用户信息
+					if (res.data.code == 0) {
+						that.globalData.profile = {
+							name: res.data.name,
+							class: res.data.clazz,
+							id: res.data['school-id'],
+							privileges: res.data.privileges
+						}
+						console.log(that.globalData.profile)
+						that.globalData.login = true;
+						// console.log(that.globalData.login);
+						uni.showToast({
+							title: '登录成功',
+							icon: 'success',
+							duration: 1500,
+							mask: true
+						});
+					} else {
+						throw res
+					}
+				})
+				.catch(err => {
+					console.log(err)
+				});
+				uni.reLaunch({
+					url: "../index/index",
+				});
+			},
+			
+			onClickLog(e) {
+				//点击登录或者退出登录按钮
+				if (app.globalData.login) {
+					this.logOut();
+				}
+				else {
+					this.logIn();
+				}
 			},
 			scanQR() {
-				// wx.scanCode({
-				//   onlyFromCamera: true,
-				//   scanType: ['qrCode'],
-				//   success: res => {
-				//     wx.login().then(loginRes => {
-				//       wx.showModal({
-				//         title: '登录网页端',
-				//         content: '是否确认登录？',
-				//         success(modelRes) {
-				//           if (modelRes.confirm) {
-				//             wx.request({
-				//               url: `${app.globalData.webBackendUrl}/weblogin`,
-				//               method: 'POST',
-				//               dataType: 'json',
-				//               data: {
-				//                 requestId: res.result,
-				//                 credential: loginRes.code
-				//               },
-				//               success: ({
-				//                 data
-				//               }) => {
-				//                 if (data.code === 0) {
-				//                   wx.showToast({
-				//                     title: '登录成功',
-				//                     icon: 'success',
-				//                     duration: 1500,
-				//                     mask:true
-				//                   });
-				//                 } else {
-				//                   wx.showToast({
-				//                     title: data.msg,
-				//                     icon: 'error',
-				//                     duration: 1500,
-				//                     mask:true
-				//                   });
-				//                 }
-				//               },
-				//               fail: (res) => {
-				//                console.log(res)
-				//                 wx.showToast({
-				//                   title: '拉取信息失败',
-				//                   icon: 'error',
-				//                   duration: 1500,
-				//                   mask:true
-				//                 });
-				//               }
-				//             });
-				//           }
-				//         }
-				//       });
-				//     });
-				//   }
-				// });
+				// ISSUE: 无法拉取信息
+				uni.scanCode({
+					onlyFromCamera: true,
+					scanType: ['qrCode'],
+					success: res => {
+						//TODO: 如果没有登录，直接不让用户点扫码这个按钮
+						uni.showModal({
+							title: '登录网页端',
+							content: '是否确认登录？',
+							success(modelRes) {
+								if (modelRes.confirm) {
+									uni.request({
+										url: `${app.globalData.url.backend}/weblogin`,
+										method: 'POST',
+										dataType: 'json',
+										data: {
+											requestedId: res.result,
+											redential: app.globalData.logincode,
+										},
+										success: ({ data }) => {
+											if (data.code === 0) {
+												uni.showToast({
+													title: '登录成功',
+													icon: 'success',
+													duration: 1500,
+													mask: true
+												});
+											} else {
+												uni.showToast({
+													title: data.msg,
+													icon: 'error',
+													duration: 1500,
+													mask: true
+												});
+											}
+										},
+										fail: (res) => {
+											console.log('扫码登录失败错误：');
+											console.log(res);
+											uni.showToast({
+												title: '拉取信息失败',
+												icon: 'error',
+												duration: 1500,
+												mask: true
+											});
+										}
+									});
+								}
+							}
+						})
+					}
+				});
 			}
-		},
-		onLoad() {
-			if (app.globalData.login) {
-				this.id = app.globalData.profile.id
-				this.nickname = app.globalData.profile.name
-			} else {
 
-			}
 		},
 	}
 </script>

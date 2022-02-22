@@ -84,6 +84,7 @@
 		globalData: {
 			login: false, // 是否完成登录
 			profile: null, // 用户账号信息
+			logincode: null, //登录操作返回的code值
 			url: {
 				// backend: 'https://api.thuwy.top', // 后端地址
 				// picture: 'https://https://static.thuwy.top', // 图片站地址

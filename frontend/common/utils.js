@@ -48,3 +48,6 @@ const login(that){
 		console.log(err)
 	})
 }
+module.exports = {
+	login: login,
+}

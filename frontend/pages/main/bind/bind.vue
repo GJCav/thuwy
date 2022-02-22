@@ -208,7 +208,7 @@
 					return uni.request({
 						header: {
 							'content-type': 'application/json; charset=utf-8',
-							'cookie': wx.getStorageSync('cookie')
+							'cookie': uni.getStorageSync('cookie')
 						},
 						url: app.globalData.url.backend + '/bind/',
 						method: 'POST',
@@ -219,7 +219,7 @@
 						}
 					})
 				}).then(res => {
-					console.log(res)
+					console.log(res);
 					app.globalData.profile={
 						id: this.data.id,
 						name: this.data.name,
