@@ -42,10 +42,11 @@ def _get_or_insert_tags(tag_list: List[str]):
             tag_meta = IssueTagMeta()
             tag_meta.name = tag
             db.session.add(tag_meta)
-        if not tag_meta.valid:
+        elif not tag_meta.valid:
             tag_meta.delete = False
         tag_meta_list.append(tag_meta)
     db.session.commit()
+    return tag_meta_list
 
 
 @issueRouter.route("/issue/", methods=["GET"])
