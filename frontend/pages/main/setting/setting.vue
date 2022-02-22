@@ -50,7 +50,7 @@
 			</movable-view>
 		</movable-area>
 		<!-- 底部按钮及版本号 -->
-		<view class="col-container" style="position: absolute;bottom: 0;">
+		<view class="col-container" style="z-index:100 ;position: absolute;bottom: 0;">
 			<weiyang-button bgcolor="#0087A9" hovercolor="#00657f">
 				<view class="button-text">登录</view>
 			</weiyang-button>
@@ -95,12 +95,21 @@
 				}
 			}
 		},
+		onLoad() {
+			if (app.globalData.login) {
+				this.id = app.globalData.profile.id
+				this.nickname = app.globalData.profile.name
+			} else {
+
+			}
+		},
+		
 		methods: {
-			logOut(e) {
-				console.log(e)
+			logOut(e){
+				console.log(e);
 			},
-			logIn(e) {
-				console.log(e)
+			logIn(e){
+				console.log(e);
 			},
 			scanQR() {
 				// wx.scanCode({
@@ -157,104 +166,7 @@
 				//   }
 				// });
 			}
-		},
-		onLoad() {
-			if (app.globalData.login) {
-				this.id = app.globalData.profile.id
-				this.nickname = app.globalData.profile.name
-			} else {
-
-			}
-		},
-		
-		methods: {
-			logOut(e){
-				console.log(e);
-			},
-			logIn(e){
-				console.log(e);
-			}
-			// async function getUserAuthorities() {
-			// 	//获取用户权限
-				
-			// 	// 正式代码
-				
-			// 	uni.login().then(res => { // 获取openID
-			// 		return uni.request({ // 发送 res.code 到后台换取 openId, sessionKey, unionId
-			// 			url: that.globalData.url.backend + '/login/',
-			// 			method: 'POST',
-			// 			data: {
-			// 				code: res.code
-			// 			}
-			// 		})
-			// 	}).then(res => { // 储存openID并请求用户信息
-			// 		if (res.data.code == 0) {
-			// 			uni.setStorage({ // 将得到的openid存储到缓存里面方便后面调用
-			// 				key: "cookie",
-			// 				data: res.cookies[0]
-			// 			})
-			// 			console.log(res.cookies)
-			// 			return uni.request({
-			// 				url: that.globalData.url.backend + '/profile/',
-			// 				method: 'GET',
-			// 				header: {
-			// 					'content-type': 'application/json; charset=utf-8',
-			// 					'cookie': res.cookies[0]
-			// 				},
-			// 			})
-			// 		} else {
-			// 			throw res
-			// 		}
-			// 	}).then(res => { // 储存用户信息
-			// 		if (res.data.code == 0) {
-			// 			that.globalData.profile = {
-			// 				name: res.data.name,
-			// 				class: res.data.clazz,
-			// 				id: res.data['school-id'],
-			// 				privileges: res.data.privileges
-			// 			}
-			// 			console.log(that.globalData.profile)
-			// 			that.globalData.login = true;
-			// 		} else {
-			// 			throw res
-			// 		}
-			// 	}).catch(err => {
-			// 		console.log(err)
-			// 	})
-				
-			// 	// 开发代码
-			// 	uni.request({
-			// 		url: that.globalData.url.backend + '/testaccount/super_admin/'
-			// 	}).then(res => {
-			// 		uni.setStorage({ // 将得到的openid存储到缓存里面方便后面调用
-			// 			key: "cookie",
-			// 			data: res.cookies[0]
-			// 		})
-			// 		uni.request({
-			// 			url: that.globalData.url.backend + '/profile/',
-			// 			method: 'GET',
-			// 			header: {
-			// 				'content-type': 'application/json; charset=utf-8',
-			// 				'cookie': wx.getStorageSync('cookie')
-			// 			},
-			// 		}).then(res => {
-			// 			if (res.data.code == 0) {
-			// 				that.globalData.profile = {
-			// 					name: res.data.name,
-			// 					class: res.data.clazz,
-			// 					id: res.data['school-id'],
-			// 					privileges: res.data.privileges
-			// 				}
-			// 				console.log(that.globalData.profile)
-			// 				that.globalData.login = true;
-			// 			} else {
-			// 				throw res
-			// 			}
-			// 		}).catch(res=>{
-			// 			console.log(res)
-			// 		})
-			// 	})
-			// 	})
+	
 		},
 	}
 </script>
