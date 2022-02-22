@@ -208,7 +208,7 @@
 					return uni.request({
 						header: {
 							'content-type': 'application/json; charset=utf-8',
-							'cookie': wx.getStorageSync('cookie')
+							'cookie': uni.getStorageSync('cookie')
 						},
 						url: app.globalData.url.backend + '/bind/',
 						method: 'POST',
@@ -219,17 +219,13 @@
 						}
 					})
 				}).then(res => {
-					console.log(res)
-<<<<<<< HEAD
-					uni.navigateBack();
-=======
+					console.log(res);
 					app.globalData.profile={
 						id: this.data.id,
 						name: this.data.name,
 						class: this.data.class,
 						privileges: ['prfile']
 					}
->>>>>>> 43411c32477ddf1678a28c3b91e71cc4052389cd
 					// 提示绑定成功，返回上一页，刷新
 				}).catch(res => {
 					console.log(res)
