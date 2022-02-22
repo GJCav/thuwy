@@ -2,7 +2,7 @@ from . import issueRouter
 from .errcode import *
 from .model import db, IssueTagMeta, Issue
 from .types import Visibility
-from .utils import _split, _try_modify_visibility
+from .utils import _am_admin, _split, _try_modify_visibility
 
 from app.auth import requireScope
 from app.comerrs import *
@@ -32,15 +32,21 @@ SAMPLE_ISSUE = {
 def _get_or_insert_tags(tag_list: List[str]):
     tag_meta_list = []
     for tag in tag_list:
+        if tag == "#top":
+            if _am_admin():
+                pass
+            else:
+                continue
         tag_meta = db.session.get(IssueTagMeta, {"name": tag})
         if not tag_meta:
             tag_meta = IssueTagMeta()
             tag_meta.name = tag
             db.session.add(tag_meta)
-        if not tag_meta.valid:
+        elif not tag_meta.valid:
             tag_meta.delete = False
         tag_meta_list.append(tag_meta)
     db.session.commit()
+    return tag_meta_list
 
 
 @issueRouter.route("/issue/", methods=["GET"])
@@ -103,43 +109,39 @@ def issueSearchOverview():
     sort_by = _split(sort_by, ";")
     try:
         for by in sort_by:
-            issues = issues.order_by(
-                sqlalchemy.desc(
-                    {
-                        "date": Issue.date,
-                        "id": Issue.id,
-                        "last_modified_at": Issue.last_modified_at,
-                    }[by]
-                )
-            )
+            issues = issues.order_by(sqlalchemy.desc(eval(f"Issue.{by}")))
     except:
         return CODE_ARG_INVALID
     response = CODE_SUCCESS.copy()
     response["count"] = issues.count()
-    issues = issues.all()
-    response["issues"] = [issue.overview for issue in issues]
+    issues: List[Dict[str, Any]] = [issue.overview for issue in issues.all()]
+    issues.sort(key=lambda issue: "#top" in issue["tags"], reverse=True)
+    response["issues"] = issues
     return response
 
 
 @issueRouter.route("/issue/<int:id>/", methods=["GET"])
 @requireScope(["profile"])
-def issueSearchDetail(id: int):
+def issueQueryDetail(id: int):
     """Search for all issues related with the specific issue."""
     current_issue: Issue = db.session.get(Issue, {"id": id})
     if not (current_issue and current_issue.visible):
         return CODE_ISSUE_NOT_FOUND
+    root_id = current_issue.id if current_issue.is_root else current_issue.root_id
     issues: list[Issue] = (
         db.session.query(Issue)
-        .filter_by(root_id=current_issue.root_id)
+        .filter_by(root_id=root_id)
         .filter(Issue.visible_criteria())
         .order_by(sqlalchemy.asc(Issue.date), sqlalchemy.asc(Issue.id))
         .all()
     )
-    root_issue: Issue = db.session.get(Issue, {"id": current_issue.root_id})
+    root_issue: Issue = db.session.get(Issue, {"id": root_id})
     if root_issue and root_issue.visible:
         issues.insert(0, root_issue)
     response = CODE_SUCCESS.copy()
-    response["issues"] = [issue.detail for issue in issues]
+    issues: List[Dict[str, Any]] = [issue.detail for issue in issues]
+    issues.sort(key=lambda issue: "#top" in issue["tags"], reverse=True)
+    response["issues"] = issues
     return response
 
 
