@@ -212,6 +212,7 @@
 					})
 				}).then(res => {
 					console.log(res)
+					uni.navigateBack();
 					// 提示绑定成功，返回上一页，刷新
 				}).catch(res => {
 					console.log(res)

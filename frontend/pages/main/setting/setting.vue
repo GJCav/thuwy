@@ -22,12 +22,14 @@
 				</view>
 				<!-- 账号绑定 -->
 				<weiyang-button class="unauthorizedinfo-container" bgcolor="#FFD5D5" hovercolor="#ffc4c4">
-					<view class="unauthorizedinfo-container row-container">
-						<image style="width: 75rpx; height: 75rpx;" src="../../../static/common/warning.svg" />
-						<text class="warning-text">账号未绑定，点击此处进行绑定</text>
-						<image style="width: 15rpx;margin-top: 6rpx;margin-left: 15rpx;"
-							src="../../../static/main/setting/Arrow.svg" />
-					</view>
+					<navigator url="../bind/bind">
+						<view class="unauthorizedinfo-container row-container">
+							<image style="width: 75rpx; height: 75rpx;" src="../../../static/common/warning.svg" />
+							<text class="warning-text">账号未绑定，点击此处进行绑定</text>
+							<image style="width: 15rpx;margin-top: 6rpx;margin-left: 15rpx;"
+								src="../../../static/main/setting/Arrow.svg" />
+						</view>
+					</navigator>
 				</weiyang-button>
 				<!-- 操作按钮的容器 -->
 				<view class="operations-container">
@@ -79,23 +81,25 @@
 		computed:{
 			authorities() {
 				if(this.login) {
-					let list=[['学生','#0087A9'],['教务','#008C0E'],['从游坊管理员','#6C3974'],['预约管理员','#0092A6'],['小程序管理员','#EF5DA8']]
-					let ans=[]
+					let list=[['学生','#0087A9'],['教务','#008C0E'],['从游坊管理员','#6C3974'],['预约管理员','#0092A6'],['小程序管理员','#EF5DA8']];
+					const myAuthorities = app.globalData.profile.all-privileges;
+					console.log(myAuthorities);
+					for (authority in myAuthorites) {
+						// switch (authority) {
+						// 	case: 'admin'; break;
+						// 	// TODO:...
+						// }
+					}
+					let ans=[];
 					// 根据具体逻辑给ans增加项目
-					return ans
+					// TODO: add logic
+					return ans;
 				} else{
-					return [['游客','black']]
+					return [['游客','black']];
 				}
 			}
 		},
-		methods: {
-			logOut(e){
-				console.log(e)
-			},
-			logIn(e){
-				console.log(e)
-			}
-		},
+		
 		onLoad() {
 			if(app.globalData.login){
 				this.id=app.globalData.profile.id
@@ -103,6 +107,96 @@
 			} else{
 				
 			}
+		},
+		
+		methods: {
+			logOut(e){
+				console.log(e);
+			},
+			logIn(e){
+				console.log(e);
+			}
+			// async function getUserAuthorities() {
+			// 	//获取用户权限
+				
+			// 	// 正式代码
+				
+			// 	uni.login().then(res => { // 获取openID
+			// 		return uni.request({ // 发送 res.code 到后台换取 openId, sessionKey, unionId
+			// 			url: that.globalData.url.backend + '/login/',
+			// 			method: 'POST',
+			// 			data: {
+			// 				code: res.code
+			// 			}
+			// 		})
+			// 	}).then(res => { // 储存openID并请求用户信息
+			// 		if (res.data.code == 0) {
+			// 			uni.setStorage({ // 将得到的openid存储到缓存里面方便后面调用
+			// 				key: "cookie",
+			// 				data: res.cookies[0]
+			// 			})
+			// 			console.log(res.cookies)
+			// 			return uni.request({
+			// 				url: that.globalData.url.backend + '/profile/',
+			// 				method: 'GET',
+			// 				header: {
+			// 					'content-type': 'application/json; charset=utf-8',
+			// 					'cookie': res.cookies[0]
+			// 				},
+			// 			})
+			// 		} else {
+			// 			throw res
+			// 		}
+			// 	}).then(res => { // 储存用户信息
+			// 		if (res.data.code == 0) {
+			// 			that.globalData.profile = {
+			// 				name: res.data.name,
+			// 				class: res.data.clazz,
+			// 				id: res.data['school-id'],
+			// 				privileges: res.data.privileges
+			// 			}
+			// 			console.log(that.globalData.profile)
+			// 			that.globalData.login = true;
+			// 		} else {
+			// 			throw res
+			// 		}
+			// 	}).catch(err => {
+			// 		console.log(err)
+			// 	})
+				
+			// 	// 开发代码
+			// 	uni.request({
+			// 		url: that.globalData.url.backend + '/testaccount/super_admin/'
+			// 	}).then(res => {
+			// 		uni.setStorage({ // 将得到的openid存储到缓存里面方便后面调用
+			// 			key: "cookie",
+			// 			data: res.cookies[0]
+			// 		})
+			// 		uni.request({
+			// 			url: that.globalData.url.backend + '/profile/',
+			// 			method: 'GET',
+			// 			header: {
+			// 				'content-type': 'application/json; charset=utf-8',
+			// 				'cookie': wx.getStorageSync('cookie')
+			// 			},
+			// 		}).then(res => {
+			// 			if (res.data.code == 0) {
+			// 				that.globalData.profile = {
+			// 					name: res.data.name,
+			// 					class: res.data.clazz,
+			// 					id: res.data['school-id'],
+			// 					privileges: res.data.privileges
+			// 				}
+			// 				console.log(that.globalData.profile)
+			// 				that.globalData.login = true;
+			// 			} else {
+			// 				throw res
+			// 			}
+			// 		}).catch(res=>{
+			// 			console.log(res)
+			// 		})
+			// 	})
+			// 	})
 		},
 	}
 </script>
