@@ -1,12 +1,14 @@
 
 localTest = "http://127.0.0.1:8989/"
-remoteTest = "http://api.weiyang.grw20.cn/"
+remoteTest = "https://dev-api.thuwy.top/"
 baseUrl = localTest
 
-# headers = {"cookie": testCookieStr}
-headers = {"cookie": ""}
+# cookieStr 是以前的测试脚本需要使用的，这里保留一下
+cookieStr = """"""
+headers = {"cookie": cookieStr}
 
 import requests as R
+import functools
 
 class UseAccount:
     def __init__(self, openid: str) -> None:
@@ -26,10 +28,11 @@ class UseAccount:
 
     def __exit__(self, *args):
         global headers
-        headers = {}
+        headers = {"cookie": cookieStr}
 
 
 def _wrap(inner):
+    @functools.wraps(inner)
     def withHeader(*args, **kwargs):
         return inner(headers=headers, *args, **kwargs)
 
