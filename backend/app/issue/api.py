@@ -127,14 +127,15 @@ def issueQueryDetail(id: int):
     current_issue: Issue = db.session.get(Issue, {"id": id})
     if not (current_issue and current_issue.visible):
         return CODE_ISSUE_NOT_FOUND
+    root_id = current_issue.id if current_issue.is_root else current_issue.root_id
     issues: list[Issue] = (
         db.session.query(Issue)
-        .filter_by(root_id=current_issue.root_id)
+        .filter_by(root_id=root_id)
         .filter(Issue.visible_criteria())
         .order_by(sqlalchemy.asc(Issue.date), sqlalchemy.asc(Issue.id))
         .all()
     )
-    root_issue: Issue = db.session.get(Issue, {"id": current_issue.root_id})
+    root_issue: Issue = db.session.get(Issue, {"id": root_id})
     if root_issue and root_issue.visible:
         issues.insert(0, root_issue)
     response = CODE_SUCCESS.copy()
