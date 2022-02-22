@@ -17,8 +17,8 @@ def _am_admin() -> bool:
     return challengeScope(["profile admin", "profile dayi"])
 
 
-def _try_modify_visibility(visibility: str, author: str = None) -> Visibility:
-    author = author or g.openid
+def _try_modify_visibility(visibility: str) -> Visibility:
+    visibility = Visibility(visibility)
     if visibility == Visibility.PUBLIC:
         if _am_admin():
             return Visibility.PUBLIC
