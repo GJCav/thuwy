@@ -98,6 +98,61 @@
 			},
 			logIn(e) {
 				console.log(e)
+			},
+			scanQR() {
+				// wx.scanCode({
+				//   onlyFromCamera: true,
+				//   scanType: ['qrCode'],
+				//   success: res => {
+				//     wx.login().then(loginRes => {
+				//       wx.showModal({
+				//         title: '登录网页端',
+				//         content: '是否确认登录？',
+				//         success(modelRes) {
+				//           if (modelRes.confirm) {
+				//             wx.request({
+				//               url: `${app.globalData.webBackendUrl}/weblogin`,
+				//               method: 'POST',
+				//               dataType: 'json',
+				//               data: {
+				//                 requestId: res.result,
+				//                 credential: loginRes.code
+				//               },
+				//               success: ({
+				//                 data
+				//               }) => {
+				//                 if (data.code === 0) {
+				//                   wx.showToast({
+				//                     title: '登录成功',
+				//                     icon: 'success',
+				//                     duration: 1500,
+				//                     mask:true
+				//                   });
+				//                 } else {
+				//                   wx.showToast({
+				//                     title: data.msg,
+				//                     icon: 'error',
+				//                     duration: 1500,
+				//                     mask:true
+				//                   });
+				//                 }
+				//               },
+				//               fail: (res) => {
+				//                console.log(res)
+				//                 wx.showToast({
+				//                   title: '拉取信息失败',
+				//                   icon: 'error',
+				//                   duration: 1500,
+				//                   mask:true
+				//                 });
+				//               }
+				//             });
+				//           }
+				//         }
+				//       });
+				//     });
+				//   }
+				// });
 			}
 		},
 		onLoad() {
@@ -133,6 +188,7 @@
 		flex-direction: column;
 		justify-content: flex-end;
 	}
+
 	/* 头像框 */
 	.avatar {
 		width: 300rpx;
@@ -144,6 +200,7 @@
 
 		flex-shrink: 0;
 	}
+
 	/* 用户昵称 */
 	.nickname {
 		margin: 10rpx 0;
@@ -154,6 +211,7 @@
 			-2rpx 2rpx 0rpx #FFFFFF,
 			2rpx -2rpx 0rpx #FFFFFF;
 	}
+
 	/* 权限文字的样式 */
 	.authority-text {
 		margin: 10rpx 5rpx;
@@ -169,6 +227,7 @@
 		width: 710rpx;
 		height: 140rpx;
 	}
+
 	.warning-text {
 		margin-left: 23rpx;
 
@@ -190,15 +249,18 @@
 		align-items: center;
 		justify-content: space-evenly;
 	}
+
 	.dividing-lines {
 		width: 0rpx;
 		height: 180rpx;
 		border: 1rpx solid #CCCCCC;
 	}
+
 	.operation-icon {
 		width: 150rpx;
 		height: 150rpx;
 	}
+
 	.operation-text {
 		color: #000000;
 		font: 30rpx sans-serif;

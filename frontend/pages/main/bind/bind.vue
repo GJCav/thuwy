@@ -220,6 +220,12 @@
 					})
 				}).then(res => {
 					console.log(res)
+					app.globalData.profile={
+						id: this.data.id,
+						name: this.data.name,
+						class: this.data.class,
+						privileges: ['prfile']
+					}
 					// 提示绑定成功，返回上一页，刷新
 				}).catch(res => {
 					console.log(res)

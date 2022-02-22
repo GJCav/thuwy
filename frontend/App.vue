@@ -91,7 +91,6 @@
 				backend: 'https://dev-api.thuwy.top', // 开发后端地址
 				picture: 'https://dev-static.thuwy.top', // 开发图片站地址
 				website: 'https://dev-web.thuwy.top/api' // 开发网页后端地址
-
 			}
 		}
 	}

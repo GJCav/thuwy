@@ -3,7 +3,7 @@
 		<weiyang-section color="#5800A6" :title="title" subtitle="请完整填写以下信息">
 			<weiyang-forms color="#5800A6" @submit="submit">
 				<view class="paragraphs">活动基本信息</view>
-				<uni-forms ref="basicform" :modelValue="basic_data" :rules="rules">
+				<uni-forms ref="basic_form" :modelValue="basic_data" :rules="basic_rules">
 					<uni-forms-item label="活动名称" required name="title">
 						<uni-easyinput v-model="basic_data.title" placeholder="请输入活动名称" trim="both" />
 					</uni-forms-item>
@@ -25,6 +25,9 @@
 					<uni-forms-item label="衔接方向" required name="subject">
 						<uni-data-picker v-model="basic_data.subject" :localdata="subject_option" placeholder="请选择衔接方向">
 						</uni-data-picker>
+					</uni-forms-item>
+					<uni-forms-item label="活动地点" required name="total">
+						<uni-easyinput v-model="basic_data.position" placeholder="请输入活动地点" />
 					</uni-forms-item>
 					<uni-forms-item label="报名截止" required name="deadline">
 						<uni-datetime-picker type="datetime" return-type="timestamp" v-model="basic_data.deadline"
@@ -52,6 +55,7 @@
 					subject: '',
 					total: 0,
 					teacher: '',
+					position:'',
 					deadline: '',
 					holding_time: '',
 					'detail-intro': {}
@@ -95,7 +99,57 @@
 				}, {
 					text: "软件工程",
 					value: "软件工程"
-				}]
+				}],
+				basic_rules:{
+					title: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入内容'
+						}]
+					},
+					theme: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入内容'
+						}]
+					},
+					subject: {
+						rules: [{
+							required: true,
+							errorMessage: '请选择内容'
+						}]
+					},
+					total: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入内容'
+						}]
+					},
+					position: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入内容'
+						}]
+					},
+					teacher: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入内容'
+						}]
+					},
+					deadline: {
+						rules: [{
+							required: true,
+							errorMessage: '请选择时间'
+						}]
+					},
+					holding_time: {
+						rules: [{
+							required: true,
+							errorMessage: '请选择时间'
+						}]
+					}
+				}
 			}
 		},
 		computed: {
