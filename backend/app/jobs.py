@@ -68,7 +68,7 @@ def autoComplete():
         except:
             traceback.print_exc()
 
-@scheduler.task('interval', hours = 1, misfire_grace_time = 3600)
+@scheduler.task('cron', hour = '0')
 def updateCongyou() :
     with app.app_context():
         lectures = db.session.query(Lecture).all()
