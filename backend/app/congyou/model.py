@@ -16,7 +16,7 @@ import app.timetools as Timetools
 import random
 
 oo = 1000000000
-wish_total = [0, 1, 2, oo]
+wish_total = [0, 1, 2, oo, oo]
 
 class Lecture(db.Model):
     __tablename__ = "lecture"
@@ -120,7 +120,7 @@ class Lecture_enrollment(db.Model):
     wish = db.Column(INTEGER)
     lottery = db.Column(INTEGER, default = 1) # 初始值设为1，在之后计算志愿时更容易
     delete = db.Column(INTEGER, default = 0)
-    enrollment_time = db.Column(BIGINT)
+    enrollment_time = db.Column(BIGINT, default = lambda: Timetools.now())
 
     lecture: Lecture = relationship("Lecture", back_populates="lecture_enrollment")
 
