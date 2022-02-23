@@ -13,7 +13,7 @@
 						<!-- 昵称 -->
 						<text class="nickname">{{nickname}}</text>
 						<!-- 权限tag -->
-						<view style="display: flex;">
+						<view style="display:flex;">
 							<view v-for="(item, index) in authorities" :key="index" :style="{background:item[1]}"
 								class="authority-text">{{item[0]}}</view>
 						</view>
@@ -22,16 +22,14 @@
 					</view>
 				</view>
 				<!-- 账号绑定 -->
-				<navigator url="../bind/bind" v-if="!hasBind">
-					<weiyang-button class="unauthorizedinfo-container" bgcolor="#FFD5D5" hovercolor="#ffc4c4">
-						<view class="row-container" style="height: 120rpx;">
-							<image style="width: 75rpx; height: 75rpx;" src="../../../static/common/warning.svg" />
-							<text class="warning-text">账号未绑定，点击此处进行绑定</text>
-							<image style="width:15rpx;margin-left:15rpx;"
-								src="../../../static/main/setting/Arrow.svg" />
-						</view>
-					</weiyang-button>
-				</navigator>
+				<weiyang-button class="unauthorizedinfo-container" bgcolor="#FFD5D5" hovercolor="#ffc4c4"
+					@click="bindInfo" v-if="!hasBind">
+					<view class="row-container" style="height: 120rpx;">
+						<image style="width: 75rpx; height: 75rpx;" src="../../../static/common/warning.svg" />
+						<text class="warning-text">账号未绑定，点击此处进行绑定</text>
+						<image style="width:15rpx;margin-left:15rpx;" src="../../../static/main/setting/Arrow.svg" />
+					</view>
+				</weiyang-button>
 				<!-- 操作按钮的容器 -->
 				<view class="operations-container">
 					<weiyang-button bgcolor="transparent" hovercolor="#c8c8c8">
@@ -79,7 +77,7 @@
 		
 		computed: {
 			authorities() {
-				if (this.login) {
+				if (app.globalData.login) {
 					let list = [
 						['学生', '#0087A9'],
 						['教务', '#008C0E'],
@@ -90,25 +88,23 @@
 					let ans = []
 					// 根据具体逻辑给ans增加项目
 					if (app.globalData.profile.clazz === "未央教务") {
-						ans.append(list[1]);
+						ans.push(list[1]);
+					} else {
+						ans.push(list[0]);
 					}
-					else {
-						ans.append(list[0]);
-						console.log("学生!!");
-					}
-					let isAdmin = app.globalData.profile.all-privileges.indexOf('admin'); //借用管理员
-					let isCongyou_admin = app.globalData.profile.all-privileges.indexOf('congyou');//从游管理员
+					let isAdmin = app.globalData.profile.privileges.indexOf('admin'); //借用管理员
+					let isCongyou_admin = app.globalData.profile.privileges.indexOf('congyou'); //从游管理员
 					if (isAdmin && isCongyou_admin) {
 						//小程序管理员
-						ans.append(list[4]);
+						ans.push(list[4]);
 					} else {
 						if (isAdmin) {
 							//借用管理员
-							ans.append(list[3]);
+							ans.push(list[3]);
 						}
 						if (isCongyou_admin) {
 							//从游管理员
-							ans.append(list[2]);
+							ans.push(list[2]);
 						}
 					}
 					return ans
@@ -128,98 +124,45 @@
 			} else {
 				this.loginButtonText = "登录";
 			}
-			this.hasBind = (app.globalData.profile.id!=null);
+			this.hasBind = app.globalData.bind;
 			console.log("绑定: " + this.hasBind);
 		},
-
 		methods: {
 			logOut() {
 				// uni.clearStorage();
 				app.globalData.login = false;
+				app.globalData.bind = false;
 				app.globalData.profile = null;
-				app.globalData.logincode = null;
-				uni.reLaunch({
-					url: "../index/index",
-				});
 				uni.showToast({
 					title: '登出成功',
 					icon: 'success',
-					duration: 1500,
 					mask: true
+				});
+				uni.reLaunch({
+					url: "../setting/setting",
 				});
 			},
 			logIn() {
-				let that = app;
-				uni.login()
-				.then(res => { // 获取openID
-					that.globalData.logincode = res.code;
-					// console.log(that.globalData.logincode);
-					return uni.request({ // 发送 res.code 到后台换取 openId, sessionKey, unionId
-						url: that.globalData.url.backend + '/login/',
-						method: 'POST',
-						data: {
-							code: res.code
-						}
-					})
-				})
-				.then(res => { // 储存openID并请求用户信息
-					if (res.data.code == 0) {
-						uni.setStorage({ // 将得到的openid存储到缓存里面方便后面调用
-							key: "cookie",
-							data: res.cookies[0]
-						})
-						// console.log(res.cookies);
-						// console.log("step two finished");
-						return uni.request({
-							url: that.globalData.url.backend + '/profile/',
-							method: 'GET',
-							header: {
-								'content-type': 'application/json; charset=utf-8',
-								'cookie': res.cookies[0]
-							},
-						})
-					} else {
-						throw res
-					}
-				})
-				.then(res => { // 储存用户信息
-					if (res.data.code == 0) {
-						that.globalData.profile = {
-							name: res.data.name,
-							class: res.data.clazz,
-							id: res.data['school-id'],
-							privileges: res.data.privileges
-						}
-						console.log(that.globalData.profile)
-						that.globalData.login = true;
-						// console.log(that.globalData.login);
-						uni.showToast({
-							title: '登录成功',
-							icon: 'success',
-							duration: 1500,
-							mask: true
-						});
-					} else {
-						throw res
-					}
-				})
-				.catch(err => {
-					console.log(err)
-				});
+				utils.logIn(app)
 				uni.reLaunch({
 					url: "../index/index",
 				});
 			},
-			
+			// 绑定信息
+			bindInfo() {
+				uni.navigateTo({
+					url: '../bind/bind'
+				})
+			},
+			//点击登录或者退出登录按钮
 			onClickLog(e) {
-				//点击登录或者退出登录按钮
 				if (app.globalData.login) {
 					this.logOut();
-				}
-				else {
+				} else {
 					this.logIn();
 				}
 			},
+			// 扫描二维码
 			scanQR() {
 				// ISSUE: 无法拉取信息
 				uni.scanCode({
@@ -240,7 +183,9 @@
 											requestedId: res.result,
 											redential: app.globalData.logincode,
 										},
-										success: ({ data }) => {
+										success: ({
+											data
+										}) => {
 											if (data.code === 0) {
 												uni.showToast({
 													title: '登录成功',
@@ -330,6 +275,7 @@
 		margin: 10rpx 5rpx;
 		padding: 5rpx 10rpx;
 		border-radius: 15rpx;
+		
 		color: #FFFFFF;
 		font: 900 30rpx sans-serif;
 	}

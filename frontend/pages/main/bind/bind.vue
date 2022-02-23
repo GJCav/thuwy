@@ -31,6 +31,7 @@
 
 <script>
 	const app = getApp()
+	import utils from '../../../common/utils.js'
 	export default {
 		data() {
 			return {
@@ -205,6 +206,11 @@
 			admitBind() {
 				console.log(this.data)
 				this.$refs.bindform.validate().then(res => {
+					console.log({
+						id: this.data.id,
+						name: this.data.name,
+						clazz: this.data.class
+					})
 					return uni.request({
 						header: {
 							'content-type': 'application/json; charset=utf-8',
@@ -219,18 +225,26 @@
 						}
 					})
 				}).then(res => {
-					console.log(res);
-					app.globalData.profile={
-						id: this.data.id,
-						name: this.data.name,
-						class: this.data.class,
-						privileges: ['profile']
+					if (res.data.code == 0){
+						app.globalData.profile = {
+							id: this.data.id,
+							name: this.data.name,
+							class: this.data.class,
+							privileges: ['profile']
+						}
+						uni.showToast({
+							title:'绑定成功',
+							icon:'success',
+							mask:true
+						})
+						settimeOut(uni.navigateBack(),1000)
 					}
-					// 提示绑定成功，返回上一页，刷新
+					else {
+						throw res
+					}
 				}).catch(res => {
-					console.log("fail!!!");
-					console.log(res)
-					// 提示绑定失败并显示原因
+					let msg = res.data ? res.data.errmsg : '表单填写有误'
+					utils.errInfo(res, msg)
 				})
 			}
 		}
@@ -242,7 +256,7 @@
 		width: 90%;
 		padding: 5%;
 		background-color: #F3F3F3;
-		
+
 		position: fixed;
 		bottom: 0;
 		z-index: 10;

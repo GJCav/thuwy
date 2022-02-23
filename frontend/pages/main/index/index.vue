@@ -27,6 +27,7 @@
 
 <script>
 	const app = getApp()
+	import utils from '../../../common/utils.js'
 	export default {
 		data() {
 			return {
@@ -54,7 +55,8 @@
 			};
 		},
 		onLoad() {
-
+			// 正式代码
+			utils.logIn(app)
 		},
 		methods: {
 			swiperChange(e) {
@@ -62,7 +64,7 @@
 			},
 			goDetail(e) {
 				if (app.globalData.login) {
-					let privileges=app.globalData.profile.privileges
+					let privileges = app.globalData.profile.privileges
 					let urls = [
 						'../../yuyue/index/index?admin=' + privileges.includes('admin'),
 						'../../dayi/index/index?admin=' + privileges.includes('dayi'),
@@ -150,7 +152,7 @@
 		font-weight: 900;
 		font-size: 36rpx;
 		color: #000000;
-		text-shadow: #FFFFFF 2rpx 2rpx 0, #FFFFFF -2rpx -2rpx 0,#FFFFFF 2rpx -2rpx 0,#FFFFFF -2rpx 2rpx 0;
+		text-shadow: #FFFFFF 2rpx 2rpx 0, #FFFFFF -2rpx -2rpx 0, #FFFFFF 2rpx -2rpx 0, #FFFFFF -2rpx 2rpx 0;
 
 	}
 
