@@ -224,10 +224,11 @@
 						id: this.data.id,
 						name: this.data.name,
 						class: this.data.class,
-						privileges: ['prfile']
+						privileges: ['profile']
 					}
 					// 提示绑定成功，返回上一页，刷新
 				}).catch(res => {
+					console.log("fail!!!");
 					console.log(res)
 					// 提示绑定失败并显示原因
 				})
