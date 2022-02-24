@@ -248,7 +248,7 @@ def issueTagSearchOverview():
         .filter(IssueTagMeta.valid_criteria())
     )
     response = CODE_SUCCESS.copy()
-    response["tags"] = result.all()
+    response["tags"] = [tag_meta.name for tag_meta in result.all()]
     return response
 
 
