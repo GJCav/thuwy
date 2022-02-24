@@ -175,6 +175,12 @@ def issueNew():
     except:
         return CODE_ARG_INVALID
     new_issue.reply_to = reply_to
+    if reply_to:
+        parent: Issue = db.session.get(Issue, {"id": reply_to})
+        if parent and parent.visible:
+            new_issue.root_id = parent.id if parent.is_root else parent.root_id
+        else:
+            return CODE_ISSUE_NOT_FOUND
     db.session.commit()
     response = CODE_SUCCESS.copy()
     response["issue_id"] = new_issue.id
