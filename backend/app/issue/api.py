@@ -169,8 +169,11 @@ def issueNew():
     new_issue.content = payload.get("content", {})
     # TODO @liblaf attachments
     new_issue.tags = _get_or_insert_tags(tag_list)
-    db.session.add(new_issue)
-    db.session.commit()
+    try:
+        db.session.add(new_issue)
+        db.session.commit()
+    except:
+        return CODE_ARG_INVALID
     new_issue.reply_to = reply_to
     db.session.commit()
     response = CODE_SUCCESS.copy()
