@@ -74,6 +74,7 @@
 				hasBind: false,
 			}
 		},
+		
 		computed: {
 			authorities() {
 				if (app.globalData.login) {
@@ -82,7 +83,7 @@
 						['教务', '#008C0E'],
 						['从游坊管理员', '#6C3974'],
 						['预约管理员', '#0092A6'],
-						['小程序管理员', '#EF5DA8']
+						['小程序管理员', '#EF5DA8'],
 					]
 					let ans = []
 					// 根据具体逻辑给ans增加项目
@@ -93,7 +94,6 @@
 					}
 					let isAdmin = app.globalData.profile.privileges.indexOf('admin'); //借用管理员
 					let isCongyou_admin = app.globalData.profile.privileges.indexOf('congyou'); //从游管理员
-					
 					if (isAdmin && isCongyou_admin) {
 						//小程序管理员
 						ans.push(list[4]);

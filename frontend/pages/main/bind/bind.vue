@@ -230,7 +230,7 @@
 							id: this.data.id,
 							name: this.data.name,
 							class: this.data.class,
-							privileges: ['prfile']
+							privileges: ['profile']
 						}
 						uni.showToast({
 							title:'绑定成功',
