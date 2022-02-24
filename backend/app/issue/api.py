@@ -64,7 +64,7 @@ def issueSearchOverview():
     #     criteria &= Issue.reply_to == reply_to
     root_id = request.args.get(key="root_id", default=None, type=int)
     if root_id:
-        criteria &= Issue.root_id == root_id
+        criteria &= (Issue.root_id == root_id) | (Issue.id == root_id)
     authors = request.args.get(key="authors", default="", type=str)
     if authors:
         author_or_criteria = sqlalchemy.false()
@@ -85,6 +85,7 @@ def issueSearchOverview():
     tags = request.args.get(key="tags", default="", type=str)
     tags_grouped = _split(tags, ";")
     tag_lists = [_split(tag_group, " ") for tag_group in tags_grouped]
+    print(tag_lists)
     if tag_lists:
         tag_or_criteria = sqlalchemy.false()
         for tag_list in tag_lists:
