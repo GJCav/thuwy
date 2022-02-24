@@ -66,9 +66,9 @@ def issueSearchOverview():
     if root_id:
         criteria &= (Issue.root_id == root_id) | (Issue.id == root_id)
     authors = request.args.get(key="authors", default="", type=str)
-    if authors:
+    authors_grouped = _split(authors, ";")
+    if authors_grouped:
         author_or_criteria = sqlalchemy.false()
-        authors_grouped = _split(authors, ";")
         for author_group in authors_grouped:
             author_and_criteria = sqlalchemy.true()
             author_list = _split(author_group, " ")
@@ -76,20 +76,26 @@ def issueSearchOverview():
                 author_and_criteria &= Issue.author == author
             author_or_criteria |= author_and_criteria
         criteria &= author_or_criteria
-    visibility = request.args.get(key="visibility", default=Visibility.PUBLIC, type=str)
-    try:
-        visibility = Visibility(visibility)
-    except:
+    visibility = request.args.get(key="visibility", default="public", type=str)
+    if visibility == "public":
+        criteria &= (Issue.visibility == Visibility.PUBLIC) | (
+            Issue.visibility == Visibility.PROTECTED
+        )
+    elif visibility == "all":
+        if _am_admin():
+            pass
+        else:
+            return CODE_ACCESS_DENIED
+    else:
         return CODE_ARG_INVALID
-    criteria &= Issue.visibility == visibility
     tags = request.args.get(key="tags", default="", type=str)
     tags_grouped = _split(tags, ";")
-    tag_lists = [_split(tag_group, " ") for tag_group in tags_grouped]
-    print(tag_lists)
-    if tag_lists:
+    if tags_grouped:
         tag_or_criteria = sqlalchemy.false()
-        for tag_list in tag_lists:
+        for tag_group in tags_grouped:
             tag_and_criteria = sqlalchemy.true()
+            tag_list = _split(tag_group, " ")
+            print(tag_list)
             for tag in tag_list:
                 tag_and_criteria &= Issue.tags.any(IssueTagMeta.name == tag)
             tag_or_criteria |= tag_and_criteria
