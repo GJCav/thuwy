@@ -135,7 +135,7 @@ class Issue(db.Model):
 
     @property
     def editable(self) -> bool:
-        return self.visible and (_am_admin() or self.written_by)
+        return self.valid and (_am_admin() or self.written_by)
 
     @staticmethod
     def editable_criteria():

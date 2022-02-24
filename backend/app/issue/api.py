@@ -64,11 +64,11 @@ def issueSearchOverview():
     #     criteria &= Issue.reply_to == reply_to
     root_id = request.args.get(key="root_id", default=None, type=int)
     if root_id:
-        criteria &= Issue.root_id == root_id
+        criteria &= (Issue.root_id == root_id) | (Issue.id == root_id)
     authors = request.args.get(key="authors", default="", type=str)
-    if authors:
+    authors_grouped = _split(authors, ";")
+    if authors_grouped:
         author_or_criteria = sqlalchemy.false()
-        authors_grouped = _split(authors, ";")
         for author_group in authors_grouped:
             author_and_criteria = sqlalchemy.true()
             author_list = _split(author_group, " ")
@@ -76,19 +76,26 @@ def issueSearchOverview():
                 author_and_criteria &= Issue.author == author
             author_or_criteria |= author_and_criteria
         criteria &= author_or_criteria
-    visibility = request.args.get(key="visibility", default=Visibility.PUBLIC, type=str)
-    try:
-        visibility = Visibility(visibility)
-    except:
+    visibility = request.args.get(key="visibility", default="public", type=str)
+    if visibility == "public":
+        criteria &= (Issue.visibility == Visibility.PUBLIC) | (
+            Issue.visibility == Visibility.PROTECTED
+        )
+    elif visibility == "all":
+        if _am_admin():
+            pass
+        else:
+            return CODE_ACCESS_DENIED
+    else:
         return CODE_ARG_INVALID
-    criteria &= Issue.visibility == visibility
     tags = request.args.get(key="tags", default="", type=str)
     tags_grouped = _split(tags, ";")
-    tag_lists = [_split(tag_group, " ") for tag_group in tags_grouped]
-    if tag_lists:
+    if tags_grouped:
         tag_or_criteria = sqlalchemy.false()
-        for tag_list in tag_lists:
+        for tag_group in tags_grouped:
             tag_and_criteria = sqlalchemy.true()
+            tag_list = _split(tag_group, " ")
+            print(tag_list)
             for tag in tag_list:
                 tag_and_criteria &= Issue.tags.any(IssueTagMeta.name == tag)
             tag_or_criteria |= tag_and_criteria
@@ -169,9 +176,18 @@ def issueNew():
     new_issue.content = payload.get("content", {})
     # TODO @liblaf attachments
     new_issue.tags = _get_or_insert_tags(tag_list)
-    db.session.add(new_issue)
-    db.session.commit()
+    try:
+        db.session.add(new_issue)
+        db.session.commit()
+    except:
+        return CODE_ARG_INVALID
     new_issue.reply_to = reply_to
+    if reply_to:
+        parent: Issue = db.session.get(Issue, {"id": reply_to})
+        if parent and parent.visible:
+            new_issue.root_id = parent.id if parent.is_root else parent.root_id
+        else:
+            return CODE_ISSUE_NOT_FOUND
     db.session.commit()
     response = CODE_SUCCESS.copy()
     response["issue_id"] = new_issue.id
@@ -238,7 +254,7 @@ def issueTagSearchOverview():
         .filter(IssueTagMeta.valid_criteria())
     )
     response = CODE_SUCCESS.copy()
-    response["tags"] = result.all()
+    response["tags"] = [tag_meta.name for tag_meta in result.all()]
     return response
 
 
