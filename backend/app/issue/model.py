@@ -1,3 +1,4 @@
+from copy import deepcopy
 from .types import Visibility
 from .utils import _am_admin
 
@@ -7,6 +8,7 @@ from app import timetools
 
 from flask import g
 import sqlalchemy
+
 
 from typing import Any, Dict
 
@@ -133,7 +135,7 @@ class Issue(db.Model):
 
     @property
     def editable(self) -> bool:
-        return self.visible and (_am_admin() or self.written_by)
+        return self.valid and (_am_admin() or self.written_by)
 
     @staticmethod
     def editable_criteria():
@@ -169,4 +171,6 @@ class Issue(db.Model):
 
     @property
     def detail(self) -> Dict[str, Any]:
-        return self.overview.update({"content": self.content})
+        result = self.overview.copy()
+        result["content"] = self.content.copy()
+        return result

@@ -1,3 +1,4 @@
+from email.policy import default
 from itertools import count
 from select import select
 from typing import Any, Dict, List
@@ -15,21 +16,23 @@ import app.timetools as Timetools
 import random
 
 oo = 1000000000
-wish_total = [0, 1, 2, oo]
+wish_total = [0, 1, 2, oo, oo]
 
 class Lecture(db.Model):
     __tablename__ = "lecture"
     lecture_id = db.Column(INTEGER, primary_key=True, autoincrement=True)
     user_id = db.Column(WECHAT_OPENID)
+    position = db.Column(VARCHAR(50))
     title = db.Column(VARCHAR(50))
     theme = db.Column(VARCHAR(50))
-    state = db.Column(INTEGER)
+    drawn = db.Column(INTEGER, default = 0)
     visible = db.Column(INTEGER)
     total = db.Column(INTEGER)
     subject = db.Column(VARCHAR(50))
     teacher = db.Column(VARCHAR(50))
     brief_intro = db.Column(VARCHAR(255))
     detail_intro = db.Column(JSON)
+    publish_time = db.Column(BIGINT, default = lambda: Timetools.now())
     deadline = db.Column(BIGINT)
     holding_time = db.Column(BIGINT)
 
@@ -41,9 +44,10 @@ class Lecture(db.Model):
         return {
             "lecture_id": self.lecture_id,
             "user_id": self.user_id,
+            "position" : self.position, 
             "title": self.title,
             "theme": self.theme,
-            "state": self.state,
+            "state": self.getstate(),
             "visible": self.visible,
             "total": self.total,
             "first": getLectureWishCount(1, self.lecture_id),
@@ -53,6 +57,7 @@ class Lecture(db.Model):
             "teacher": self.teacher,
             "brief_intro": self.brief_intro,
             "detail_intro": self.detail_intro,
+            "publish_time" : self.publish_time, 
             "deadline": self.deadline,
             "holding_time": self.holding_time,
         }
@@ -61,9 +66,10 @@ class Lecture(db.Model):
         return {
             "lecture_id": self.lecture_id,
             "user_id": self.user_id,
+            "position" : self.position, 
             "title": self.title,
             "theme": self.theme,
-            "state": self.state,
+            "state": self.getstate(),
             "visible": self.visible,
             "total": self.total,
             "first": getLectureWishCount(1, self.lecture_id),
@@ -72,30 +78,36 @@ class Lecture(db.Model):
             "subject": self.subject,
             "teacher": self.teacher,
             "brief_intro": self.brief_intro,
+            "publish_time" : self.publish_time, 
             "deadline": self.deadline,
             "holding_time": self.holding_time,
         }
 
     # 更新状态
-    def updatestate(self) :
-        pre_state = self.state
-        if pre_state == 1 and Timetools.now() > self.deadline :
-            self.state = 2
-        elif pre_state == 3 and Timetools.now() > self.holding_time :
-            self.state = 4
+    def getstate(self) :
+        if self.drawn == 0 :
+            if Timetools.now() >= self.deadline :
+                return 2
+            else :
+                return 1
+        else : 
+            if Timetools.now() >= self.holding_time :
+                return 4
+            else :
+                return 3
     
     # 抽签
     def updatedraw(self) :
-        self.updatestate()
-        if (self.state == 2) :
-            self.state = 3
+        self.drawn = 1
 
-            random.shuffle(self.lecture_enrollment)
-            self.lecture_enrollment.sort(key = takeWish)
+        random.shuffle(self.lecture_enrollment)
+        self.lecture_enrollment.sort(key = takeWish)
 
-            for i in range(self.total, len(self.lecture_enrollment)) :
-                e = self.lecture_enrollment[i]
-                e.state = 3
+        for i in range(self.total, len(self.lecture_enrollment)) :
+            if self.lecture_enrollment[i].delete :
+                break
+            e = self.lecture_enrollment[i]
+            e.lottery = 0
 
         db.session.commit()
 
@@ -106,9 +118,9 @@ class Lecture_enrollment(db.Model):
     lecture_id = db.Column(INTEGER, ForeignKey("lecture.lecture_id"))
     user_id = db.Column(WECHAT_OPENID)
     wish = db.Column(INTEGER)
-    state = db.Column(INTEGER)
-    delete = db.Column(INTEGER)
-    enrollment_time = db.Column(BIGINT)
+    lottery = db.Column(INTEGER, default = 1) # 初始值设为1，在之后计算志愿时更容易
+    delete = db.Column(INTEGER, default = 0)
+    enrollment_time = db.Column(BIGINT, default = lambda: Timetools.now())
 
     lecture: Lecture = relationship("Lecture", back_populates="lecture_enrollment")
 
@@ -118,13 +130,20 @@ class Lecture_enrollment(db.Model):
             "lecture_id" : self.lecture_id, 
             "user_id" : self.user_id, 
             "wish" : self.wish, 
-            "state" : self.state, 
+            "state" : self.getstate(), 
             "enrollment_time" : self.enrollment_time, 
             "lecture" : self.lecture.toDictNoDetail()
         }
+    
+    def getstate(self) :
+        if self.delete == 1 :
+            return 4
+        elif self.lecture.drawn == 0 :
+            return 1
+        return self.lottery + 2
 
 def takeWish(enrollment : Lecture_enrollment) :
-    return enrollment.wish
+    return enrollment.delete * 10 + enrollment.wish
 
 def getLectureWishCount(wish: int, lecture_id: int) -> int:
     a = (
@@ -152,7 +171,8 @@ def getUserWishCount(wish: int, user_id) -> int:
         .filter(
             Lecture_enrollment.user_id == user_id,
             Lecture_enrollment.wish == wish,
-            Lecture_enrollment.enrollment_time >= firstDayOfMonth()
+            Lecture_enrollment.enrollment_time >= firstDayOfMonth(), 
+            Lecture_enrollment.lottery == 1
         )
         .scalar()
     )
