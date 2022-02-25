@@ -46,7 +46,6 @@
 						data: {
 							title: this.theme,
 							tags: res[0].title,
-							visibility: 'private',
 							content: {
 								text: res[0].content,
 								urls: res[0].picurls
@@ -61,7 +60,7 @@
 						icon:'success',
 						mask:true
 					})
-					setTimeout(uni.navigateBack(),1000)
+					setTimeout(uni.navigateBack,1000)
 				}).catch(err => {
 					utils.errInfo(err, '表单填写有误')
 				})
