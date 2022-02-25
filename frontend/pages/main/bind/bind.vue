@@ -237,7 +237,7 @@
 							icon:'success',
 							mask:true
 						})
-						settimeOut(uni.navigateBack(),1000)
+						setTimeout(uni.navigateBack,1000)
 					}
 					else {
 						throw res
