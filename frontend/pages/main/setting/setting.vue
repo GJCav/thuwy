@@ -1,7 +1,7 @@
 <template>
 	<view>
-		<image src="../../../static/main/setting/background.png" style="width: 100%; height: 400rpx; opacity: 0.85;" />
 		<!-- 页面总view -->
+		<image src="../../../static/main/setting/background.png" style="width: 100%; height: 400rpx; opacity: 0.85;" />
 		<movable-area class="col-container" style="height: 100%;position: absolute; top:0rpx;">
 			<!-- 除了背景图和底部按钮之外的所有部分,使用flex布局 -->
 			<movable-view out-of-bounds direction="vertical" y="150rpx" class="main-view">
