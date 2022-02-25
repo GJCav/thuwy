@@ -33,6 +33,7 @@
 </template>
 
 <script>
+	import utils from '../../common/utils.js'
 	export default {
 		name: 'weiyang-forms',
 		emits: ['submit'],
@@ -87,7 +88,7 @@
 			}
 		},
 		methods: {
-			// 新增段落节相关
+			// 新增段落节
 			addPart(e) {
 				this.data.splice(e + 1, 0, {
 					title: '',
@@ -95,23 +96,41 @@
 					picurls: []
 				})
 			},
+			// 删除段落节
 			delPart(e) {
 				this.data.splice(e, 1)
 			},
 			// 提交信息
-			submit() {
+			submit(e) {
+				this.$emit('submit', e)
+			},
+			submitAll() {
 				let length = this.data.length
-				let ans = []
+				let ans1 = []
+				// 验证表单
 				for (let i = 0; i < length; i++) {
-					ans.push(this.$refs.form[i].validate())
-					console.log(this.$refs.pic[i].files)
+					ans1.push(this.$refs.form[i].validate())
 				}
-				Promise.all(ans).then(res => {
-					this.$emit('submit', this.data)
-				}).catch(err => {
-					console.log('表单错误信息：', err);
+				return Promise.all(ans1).then(res => {
+					let ans2 = []
+					// 上传图片
+					for (let i = 0; i < length; i++) {
+						let ans3=[]
+						for (let j in this.$refs.pic[i].files) {
+							let what = this.$refs.pic[i].files[j]
+							ans3.push(utils.uploadPic(what.name,what.url))
+						}
+						ans2.push(Promise.all(ans3))
+					}
+					return Promise.all(ans2)
+				}).then(res=>{
+					for (let i = 0; i < length; i++) {
+						this.data[i].picurls=res[i]
+					}
+					return new Promise(resolve => {
+						resolve(this.data)
+					});
 				})
-
 			},
 		}
 	}
@@ -122,7 +141,7 @@
 		width: 90%;
 		padding: 5%;
 		background-color: #F3F3F3;
-		
+
 		position: fixed;
 		bottom: 0;
 		z-index: 10;

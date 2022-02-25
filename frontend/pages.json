@@ -67,6 +67,12 @@
             }
         },{
             "path" : "pages/congyou/detail/detail"
+        },{
+            "path" : "pages/dayi/info/info",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "新建答疑"
+            }
         }
     ],
 	"globalStyle": {

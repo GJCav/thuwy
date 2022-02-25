@@ -11,14 +11,14 @@
 			</view>
 		</uni-nav-bar>
 		<view class="col-container">
-		<weiyang-card></weiyang-card>	
+			<weiyang-card></weiyang-card>
 		</view>
 		<uni-fab v-if="admin" :popMenu="false" :pattern="{buttonColor:'#112C9A'}" @fabClick="addNew()"></uni-fab>
 	</view>
 </template>
 
 <script>
-	const app=getApp()
+	const app = getApp()
 	import utils from '../../../common/utils.js'
 	export default {
 		data() {
@@ -76,7 +76,9 @@
 				console.log(res)
 			},
 			addNew() {
-				
+				uni.navigateTo({
+					url: '../info/info?admin=' + this.admin
+				})
 			}
 		}
 	}
