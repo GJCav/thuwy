@@ -5,7 +5,7 @@ from email.header import Header
 from email.utils import formataddr
 import datetime
 
-from app.reservation.secret import MANAGER_NAMES, MANAGER_EMAILS
+from app.reservation.secret import MANAGER_NAMES, MANAGER_EMAILS, THUWY_EMAIL_LICENSE
 
 def sendEmailByTHUWY(receiverNum, mailReceiverNames:list, mailReceiverAddrs:list) -> dict:
     """
@@ -25,8 +25,8 @@ def sendEmailByTHUWY(receiverNum, mailReceiverNames:list, mailReceiverAddrs:list
     
     mailSenderName = "微未央信息通知" # 发件者名字
     mailSenderAddr = "info@thuwy.top" # 发送者邮箱地址
+    mailSenderLicense = THUWY_EMAIL_LICENSE # 发件者邮箱授权码
     mailSenderFMAddr = formataddr([mailSenderName, mailSenderAddr]) # 发件者的标准地址："name<xx@xx.xx>"
-    mailSenderLicense = "BzB7Ya7TFznGskF6" # 发件者邮箱授权码
 
     SMTPObj = smtplib.SMTP_SSL(smtpHost, 465)   # 设置发件者邮箱的域名和端口
     SMTPObj.set_debuglevel(1)   # 调试等级：1
