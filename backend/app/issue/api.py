@@ -92,7 +92,6 @@ def issueSearchOverview():
         for tag_group in tags_grouped:
             tag_and_criteria = sqlalchemy.true()
             tag_list = _split(tag_group, " ")
-            print(tag_list)
             for tag in tag_list:
                 tag_and_criteria &= Issue.tags.any(IssueTagMeta.name == tag)
             tag_or_criteria |= tag_and_criteria
