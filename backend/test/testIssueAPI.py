@@ -23,6 +23,13 @@ SAMPLE_ISSUE = {
 
 
 def test_search_overview():
+    with UseAccount("super_admin"):
+        payload = SAMPLE_ISSUE.copy()
+        payload["visibility"] = "public"
+        response = R.post(url=f"{test_issue_url}/", json=payload)
+        json = response.json()
+        id_admin = json["issue_id"]
+
     with UseAccount("normal_user"):
         payload = SAMPLE_ISSUE.copy()
         payload["visibility"] = "public"
@@ -46,6 +53,7 @@ def test_search_overview():
         assert id_public in ids
         assert id_protected in ids
         assert id_private in ids
+        assert id_admin not in ids
 
 
 def test_search_overview_by_authors():

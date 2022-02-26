@@ -65,7 +65,7 @@ def issueSearchOverview():
     root_id = request.args.get(key="root_id", default=None, type=int)
     if root_id:
         criteria &= (Issue.root_id == root_id) | (Issue.id == root_id)
-    authors = request.args.get(key="authors", default="", type=str)
+    authors = request.args.get(key="authors", default=g.openid, type=str)
     authors_grouped = _split(authors, ";")
     if authors_grouped:
         author_or_criteria = sqlalchemy.false()
