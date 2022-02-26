@@ -90,7 +90,7 @@
 if issue["visibility"] == "public":
     requireScope(["profile"])
 else:
-    requireScope(["profile admin"]) or am_author()
+    requireScope(["profile dayi"]) or _am_author()
 ```
 
 **API:** `GET /issue/<id>/`
@@ -149,10 +149,10 @@ else:
 **Scope:**
 
 ```python
-if 是作者:
+if _am_author():
   requireScope(["profile"])
 else:
-  requireScope(["profile dayi"], ["profile admin"])
+  requireScope(["profile dayi"])
 ```
 
 **API:** `POST /issue/<id>/`
@@ -189,10 +189,10 @@ else:
 **Scope:**
 
 ```python
-if 是作者:
+if _am_author():
   requireScope(["profile"])
 else:
-  requireScope(["profile teacher", "admin"])
+  requireScope(["profile dayi"])
 ```
 
 **API:** `DELETE /issue/<id>/`
@@ -264,7 +264,7 @@ else:
 
 **Des:** 发送 Tag 名称, 删除该 Tag
 
-**Scope:** `["profile dayi", "profile admin"]`
+**Scope:** `["profile dayi"]`
 
 **API:** `DELETE /issue/tag/<name>/`
 
