@@ -64,7 +64,7 @@
 | `sort_by`    | `string`                | `"last_modified_at"` | 排序依据, eg. `"date"`, `"id"`, `"popularity"` ( under development )                                         |
 | `reply_to`   | `int`                   | `None`               | ( filter ) 所回复 Issue 的 ID                                                                                |
 | `root_id`    | `int`                   | `None`               | ( filter ) 所回复 Issue 所回复的 Issue ... 所回复 Issue 的 ID                                                |
-| `authors`    | `string`                | `""`                 | ( filter ) 作者 ID, 置空表示筛选所有作者 ( TODO 支持传递类似 `"teacher"` 检索所有 `"teacher"` 发布的 Issue ) |
+| `authors`    | `string`                | 当前用户的 `openid`  | ( filter ) 作者 ID, 置空表示筛选所有作者 ( TODO 支持传递类似 `"teacher"` 检索所有 `"teacher"` 发布的 Issue ) |
 | `tags`       | `string`                | `""`                 | ( filter ) 按 Tag 筛选, 格式同 `keywords`                                                                    |
 | `visibility` | `string`                | `"all"`              | ( filter ) 根据可见性筛选, 对当前用户不可见的 `Issue` 将不会出现                                             |
 | `start_time` | `int64` ( `timestamp` ) | `0`                  | ( filter ) 开始时间                                                                                          |
