@@ -76,7 +76,7 @@ def issueSearchOverview():
                 author_and_criteria &= Issue.author == author
             author_or_criteria |= author_and_criteria
         criteria &= author_or_criteria
-    visibility = request.args.get(key="visibility", default="public", type=str)
+    visibility = request.args.get(key="visibility", default="all", type=str)
     if visibility == "all":
         pass
     else:
