@@ -65,7 +65,7 @@ def issueSearchOverview():
     root_id = request.args.get(key="root_id", default=None, type=int)
     if root_id:
         criteria &= (Issue.root_id == root_id) | (Issue.id == root_id)
-    authors = request.args.get(key="authors", default="", type=str)
+    authors = request.args.get(key="authors", default=g.openid, type=str)
     authors_grouped = _split(authors, ";")
     if authors_grouped:
         author_or_criteria = sqlalchemy.false()
@@ -76,18 +76,15 @@ def issueSearchOverview():
                 author_and_criteria &= Issue.author == author
             author_or_criteria |= author_and_criteria
         criteria &= author_or_criteria
-    visibility = request.args.get(key="visibility", default="public", type=str)
-    if visibility == "public":
-        criteria &= (Issue.visibility == Visibility.PUBLIC) | (
-            Issue.visibility == Visibility.PROTECTED
-        )
-    elif visibility == "all":
-        if _am_admin():
-            pass
-        else:
-            return CODE_ACCESS_DENIED
+    visibility = request.args.get(key="visibility", default="all", type=str)
+    if visibility == "all":
+        pass
     else:
-        return CODE_ARG_INVALID
+        try:
+            visibility = Visibility(visibility)
+            criteria &= Issue.visibility == visibility
+        except:
+            return CODE_ARG_INVALID
     tags = request.args.get(key="tags", default="", type=str)
     tags_grouped = _split(tags, ";")
     if tags_grouped:
@@ -95,7 +92,6 @@ def issueSearchOverview():
         for tag_group in tags_grouped:
             tag_and_criteria = sqlalchemy.true()
             tag_list = _split(tag_group, " ")
-            print(tag_list)
             for tag in tag_list:
                 tag_and_criteria &= Issue.tags.any(IssueTagMeta.name == tag)
             tag_or_criteria |= tag_and_criteria
@@ -272,7 +268,7 @@ def issueTagSearchDetail(name: str):
 
 
 @issueRouter.route("/issue/tag/<name>/", methods=["DELETE"])
-@requireScope(["profile admin", "profile dayi"])
+@requireScope(["profile dayi"])
 def issueTagDelete(name: str):
     """Delete tag named `name`."""
     tag_meta: IssueTagMeta = db.session.get(IssueTagMeta, {"name": name})

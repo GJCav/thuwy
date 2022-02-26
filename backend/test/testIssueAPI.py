@@ -1,5 +1,3 @@
-from ctypes.wintypes import tagSIZE
-from importlib.util import resolve_name
 import json
 from urllib import response
 from config4test import R, UseAccount, baseUrl
@@ -9,7 +7,6 @@ import sys
 sys.path.append("..")
 from app.comerrs import *
 from app.issue.errcode import *
-import app.checkargs as CheckArgs
 
 import pytest
 
@@ -23,6 +20,40 @@ SAMPLE_ISSUE = {
     "tags": ";".join(SAMPLE_TAGS) + ";",
     "content": {"text": "Sample text."},
 }
+
+
+def test_search_overview():
+    with UseAccount("super_admin"):
+        payload = SAMPLE_ISSUE.copy()
+        payload["visibility"] = "public"
+        response = R.post(url=f"{test_issue_url}/", json=payload)
+        json = response.json()
+        id_admin = json["issue_id"]
+
+    with UseAccount("normal_user"):
+        payload = SAMPLE_ISSUE.copy()
+        payload["visibility"] = "public"
+        response = R.post(url=f"{test_issue_url}/", json=payload)
+        json = response.json()
+        id_public = json["issue_id"]
+
+        payload["visibility"] = "protected"
+        response = R.post(url=f"{test_issue_url}/", json=payload)
+        json = response.json()
+        id_protected = json["issue_id"]
+
+        payload["visibility"] = "private"
+        response = R.post(url=f"{test_issue_url}/", json=payload)
+        json = response.json()
+        id_private = json["issue_id"]
+
+        response = R.get(url=f"{test_issue_url}/")
+        json = response.json()
+        ids = [issue["id"] for issue in json["issues"]]
+        assert id_public in ids
+        assert id_protected in ids
+        assert id_private in ids
+        assert id_admin not in ids
 
 
 def test_search_overview_by_authors():
@@ -119,6 +150,37 @@ def test_issue_tree_link():
         assert json["code"] == CODE_SUCCESS["code"]
         assert json["issues"][0]["id"] == root_id
         assert json["issues"][1]["id"] == child_id
+
+
+def test_edit_issue():
+    id = None
+    with UseAccount("super_admin"):
+        payload = SAMPLE_ISSUE.copy()
+        response = R.post(url=f"{test_issue_url}/", json=payload)
+        json = response.json()
+        id = json["issue_id"]
+
+    with UseAccount("normal_user"):
+        payload = {"visibility": "public"}
+        response = R.post(url=f"{test_issue_url}/{id}/", json=payload)
+        json = response.json()
+        assert json == CODE_ACCESS_DENIED
+
+    with UseAccount("normal_user"):
+        payload = SAMPLE_ISSUE.copy()
+        response = R.post(url=f"{test_issue_url}/", json=payload)
+        json = response.json()
+        id = json["issue_id"]
+
+    with UseAccount("super_admin"):
+        payload = {"visibility": "public"}
+        response = R.post(url=f"{test_issue_url}/{id}/", json=payload)
+        json = response.json()
+        assert json == CODE_SUCCESS
+
+        response = R.get(url=f"{test_issue_url}/{id}/")
+        json = response.json()
+        assert json["issues"][0]["visibility"] == "public"
 
 
 def test_delete_issue():

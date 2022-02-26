@@ -56,20 +56,20 @@
 
 **Parameters:**
 
-| 属性         | 类型                    | 缺省值               | 说明                                                                                                               |
-| ------------ | ----------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `page_size`  | `int`                   | `10`                 | 当前分页展示的数据条数, **最大** 为 10, 超过 10 将被覆盖为 10                                                      |
-| `page_num`   | `int`                   | `1`                  | 请求第几分页                                                                                                       |
-| `keywords`   | `string`                | `""`                 | 关键词, eg. `"教务 体育;生活 教务;"` 表示 ( 教务 且 体育 ) 或 ( 生活 且 教务 ) ( reserved for future use )         |
-| `sort_by`    | `string`                | `"last_modified_at"` | 排序依据, eg. `"date"`, `"id"`, `"popularity"` ( under development )                                               |
-| `reply_to`   | `int`                   | `None`               | ( filter ) 所回复 Issue 的 ID                                                                                      |
-| `root_id`    | `int`                   | `None`               | ( filter ) 所回复 Issue 所回复的 Issue ... 所回复 Issue 的 ID                                                      |
-| `authors`    | `string`                | `""`                 | ( filter ) 作者 ID, 置空表示筛选所有作者 ( TODO 支持传递类似 `"teacher"` 检索所有 `"teacher"` 发布的 Issue )       |
-| `tags`       | `string`                | `""`                 | ( filter ) 按 Tag 筛选, 格式同 `keywords`                                                                          |
-| `visibility` | `string`                | `"public"`           | ( filter ) `"public"` 表示返回审核后可公开或已经公开的提问. 若为 `"all"`，则额外要求 `"admin"` 或 `"teacher"` 权限 |
-| `start_time` | `int64` ( `timestamp` ) | `0`                  | ( filter ) 开始时间                                                                                                |
-| `end_time`   | `int64` ( `timestamp` ) | `(2 ** 63) - 1`      | ( filter ) 结束时间                                                                                                |
-|              |                         |                      | more filters under development                                                                                     |
+| 属性         | 类型                    | 缺省值               | 说明                                                                                                         |
+| ------------ | ----------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `page_size`  | `int`                   | `10`                 | 当前分页展示的数据条数, **最大** 为 10, 超过 10 将被覆盖为 10                                                |
+| `page_num`   | `int`                   | `1`                  | 请求第几分页                                                                                                 |
+| `keywords`   | `string`                | `""`                 | 关键词, eg. `"教务 体育;生活 教务;"` 表示 ( 教务 且 体育 ) 或 ( 生活 且 教务 ) ( reserved for future use )   |
+| `sort_by`    | `string`                | `"last_modified_at"` | 排序依据, eg. `"date"`, `"id"`, `"popularity"` ( under development )                                         |
+| `reply_to`   | `int`                   | `None`               | ( filter ) 所回复 Issue 的 ID                                                                                |
+| `root_id`    | `int`                   | `None`               | ( filter ) 所回复 Issue 所回复的 Issue ... 所回复 Issue 的 ID                                                |
+| `authors`    | `string`                | 当前用户的 `openid`  | ( filter ) 作者 ID, 置空表示筛选所有作者 ( TODO 支持传递类似 `"teacher"` 检索所有 `"teacher"` 发布的 Issue ) |
+| `tags`       | `string`                | `""`                 | ( filter ) 按 Tag 筛选, 格式同 `keywords`                                                                    |
+| `visibility` | `string`                | `"all"`              | ( filter ) 根据可见性筛选, 对当前用户不可见的 `Issue` 将不会出现                                             |
+| `start_time` | `int64` ( `timestamp` ) | `0`                  | ( filter ) 开始时间                                                                                          |
+| `end_time`   | `int64` ( `timestamp` ) | `(2 ** 63) - 1`      | ( filter ) 结束时间                                                                                          |
+|              |                         |                      | more filters under development                                                                               |
 
 **Response:**
 
@@ -90,7 +90,7 @@
 if issue["visibility"] == "public":
     requireScope(["profile"])
 else:
-    requireScope(["profile admin"]) or am_author()
+    requireScope(["profile dayi"]) or _am_author()
 ```
 
 **API:** `GET /issue/<id>/`
@@ -149,10 +149,10 @@ else:
 **Scope:**
 
 ```python
-if 是作者:
+if _am_author():
   requireScope(["profile"])
 else:
-  requireScope(["profile dayi"], ["profile admin"])
+  requireScope(["profile dayi"])
 ```
 
 **API:** `POST /issue/<id>/`
@@ -189,10 +189,10 @@ else:
 **Scope:**
 
 ```python
-if 是作者:
+if _am_author():
   requireScope(["profile"])
 else:
-  requireScope(["profile teacher", "admin"])
+  requireScope(["profile dayi"])
 ```
 
 **API:** `DELETE /issue/<id>/`
@@ -258,13 +258,13 @@ else:
 
 | code | errmsg        | 说明           |
 | ---- | ------------- | -------------- |
-| 101  | Tag not found | 未查询到 `Tag` |
+| 102  | Tag not found | 未查询到 `Tag` |
 
 ### 删除 Tag
 
 **Des:** 发送 Tag 名称, 删除该 Tag
 
-**Scope:** `["profile dayi", "profile admin"]`
+**Scope:** `["profile dayi"]`
 
 **API:** `DELETE /issue/tag/<name>/`
 
@@ -285,4 +285,4 @@ else:
 
 | code | errmsg        | 说明           |
 | ---- | ------------- | -------------- |
-| 101  | Tag not found | 未查询到 `Tag` |
+| 102  | Tag not found | 未查询到 `Tag` |
