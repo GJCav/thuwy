@@ -77,17 +77,14 @@ def issueSearchOverview():
             author_or_criteria |= author_and_criteria
         criteria &= author_or_criteria
     visibility = request.args.get(key="visibility", default="public", type=str)
-    if visibility == "public":
-        criteria &= (Issue.visibility == Visibility.PUBLIC) | (
-            Issue.visibility == Visibility.PROTECTED
-        )
-    elif visibility == "all":
-        if _am_admin():
-            pass
-        else:
-            return CODE_ACCESS_DENIED
+    if visibility == "all":
+        pass
     else:
-        return CODE_ARG_INVALID
+        try:
+            visibility = Visibility(visibility)
+            criteria &= Issue.visibility == visibility
+        except:
+            return CODE_ARG_INVALID
     tags = request.args.get(key="tags", default="", type=str)
     tags_grouped = _split(tags, ";")
     if tags_grouped:
@@ -272,7 +269,7 @@ def issueTagSearchDetail(name: str):
 
 
 @issueRouter.route("/issue/tag/<name>/", methods=["DELETE"])
-@requireScope(["profile admin", "profile dayi"])
+@requireScope(["profile dayi"])
 def issueTagDelete(name: str):
     """Delete tag named `name`."""
     tag_meta: IssueTagMeta = db.session.get(IssueTagMeta, {"name": name})
