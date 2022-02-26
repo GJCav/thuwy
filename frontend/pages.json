@@ -2,8 +2,8 @@
 	"condition": { //模式配置，仅开发期间生效
 		"current": 0, //当前激活的模式
 		"list": [{
-			"name": "main-state", //模式名称
-			"path": "pages/main/state/state", //启动页面，必选
+			"name": "main-test", //模式名称
+			"path": "pages/main/test/test", //启动页面，必选
 			"query": "" //启动参数，在页面的onLoad函数里面得到
 		},{
 			"name": "main-bind", //模式名称
@@ -77,15 +77,13 @@
             {
                 "navigationBarTitleText": "新建答疑"
             }
-        }
-        ,{
-            "path" : "pages/dayi/issue/issue",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
-            }
-            
+        },{
+            "path" : "pages/dayi/issue/issue"
+        },{
+            "path" : "pages/main/test/test",
+            "style" : {
+                "navigationBarTitleText": "测试效果"
+            }   
         }
     ],
 	"globalStyle": {

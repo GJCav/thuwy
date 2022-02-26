@@ -63,6 +63,7 @@
 
 <script>
 	const app = getApp()
+	import utils from '../../../common/utils.js'
 	export default {
 		data() {
 			return {
@@ -74,7 +75,6 @@
 				hasBind: false,
 			}
 		},
-		
 		computed: {
 			authorities() {
 				if (app.globalData.login) {
@@ -164,67 +164,53 @@
 			},
 			// 扫描二维码
 			scanQR() {
+				// TODO: 如果没有登录，直接不让用户点扫码这个按钮
 				// ISSUE: 无法拉取信息
 				uni.scanCode({
 					onlyFromCamera: true,
 					scanType: ['qrCode'],
-					success: res => {
-						//TODO: 如果没有登录，直接不让用户点扫码这个按钮
-						uni.showModal({
-							title: '登录网页端',
-							content: '是否确认登录？',
-							success(modelRes) {
-								if (modelRes.confirm) {
-									uni.request({
-										url: `${app.globalData.url.backend}/weblogin`,
-										method: 'POST',
-										dataType: 'json',
-										data: {
-											requestedId: res.result,
-											redential: app.globalData.logincode,
-										},
-										success: ({
-											data
-										}) => {
-											if (data.code === 0) {
-												uni.showToast({
-													title: '登录成功',
-													icon: 'success',
-													duration: 1500,
-													mask: true
-												});
-											} else {
-												uni.showToast({
-													title: data.msg,
-													icon: 'error',
-													duration: 1500,
-													mask: true
-												});
-											}
-										},
-										fail: (res) => {
-											console.log('扫码登录失败错误：');
-											console.log(res);
-											uni.showToast({
-												title: '拉取信息失败',
-												icon: 'error',
-												duration: 1500,
-												mask: true
-											});
-										}
-									});
-								}
-							}
+				}).then(res0 => {
+					return uni.showModal({
+						title: '登录网页端',
+						content: '是否确认登录？',
+					}).then(modelRes => {
+						if (modelRes.confirm) {
+							return uni.login().then(res => {
+								return uni.request({
+									url: `${app.globalData.url.website}/weblogin`,
+									method: 'POST',
+									dataType: 'json',
+									data: {
+										requestedId: res0.result,
+										redential: res.code,
+									},
+								});
+							})
+						} else {
+							throw '用户点击取消'
+						}
+					})
+				}).then(data => {
+					console.log(data)
+					if (data.code === 0) {
+						uni.showToast({
+							title: '登录成功',
+							icon: 'success',
+							mask: true
 						})
+					} else {
+						throw data
 					}
-				});
+				}).catch(err => {
+					utils.errInfo(err, '拉取信息失败')
+				})
 			}
 
 		},
 	}
 </script>
 
-<style>
+<style scoped>
 	.main-view {
 		display: flex;
 		flex-direction: column;
@@ -275,7 +261,7 @@
 		margin: 10rpx 5rpx;
 		padding: 5rpx 10rpx;
 		border-radius: 15rpx;
-		
+
 		color: #FFFFFF;
 		font: 900 30rpx sans-serif;
 	}

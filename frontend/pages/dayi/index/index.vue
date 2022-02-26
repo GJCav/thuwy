@@ -10,8 +10,9 @@
 					@confirm="searchRes" />
 			</view>
 		</uni-nav-bar>
-		<view class="col-container">
-			<weiyang-card></weiyang-card>
+		<view class="col-container" style="margin-bottom:10px;">
+			<weiyang-card v-for="item in whole_data" :key="item.id" :text="item.detail" :pattern="item.pattern" :url="issue_url+item.id">
+			</weiyang-card>
 		</view>
 		<uni-fab v-if="admin" :popMenu="false" :pattern="{buttonColor:'#112C9A'}" @fabClick="addNew()"></uni-fab>
 	</view>
@@ -42,20 +43,9 @@
 			}
 		},
 		computed: {
-			brief_data() {
-				var res = []
-				for (i = 0, len = this.whole_data.length; i < len; i++) {
-					let item = this.whole_data[i]
-					res.push({
-						title: '有关' + item.tags[0] + '的问题',
-						theme: '',
-						content: item.title,
-						info: utils.changeTime(item.date),
-						tag: item.status == 'open' ? '待解决' : '已解决'
-					})
-				}
-				return res
-			}
+			issue_url(){
+				return '../issue/issue?admin='+this.admin+'&id='
+			},
 		},
 		onLoad(e) {
 			uni.request({
@@ -67,7 +57,23 @@
 				method: 'GET',
 			}).then(res => {
 				console.log(res)
-				this.whole_data = res.data.issues
+				let raw_data = res.data.issues
+				let whole = []
+				for (let i = 0, len = raw_data.length; i < len; i++) {
+					let item = raw_data[i]
+					whole.push({
+						id: item.id,
+						pattern: item.status == 'open' ? 21 : 22,
+						detail: {
+							title: '有关' + item.tags[0] + '的问题',
+							theme: '',
+							content: item.title,
+							info: utils.changeTime(item.date),
+							tag: item.status == 'open' ? '待解决' : '已解决'
+						}
+					})
+				}
+				this.whole_data = whole
 			})
 			this.admin = e.admin
 		},

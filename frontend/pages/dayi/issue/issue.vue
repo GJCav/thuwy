@@ -106,6 +106,12 @@
 					return `${date.getFullYear()}年${date.getMonth()}月${date.getDate()}日 ${date.getHours()}:${date.getMinutes()}`;
 				}
 			},
+		},
+		onLoad(e) {
+			this.admin=e.admin
+			console.log(e.id)
+			// 根据e.id获取详细信息
+			
 		}
 	}
 </script>
