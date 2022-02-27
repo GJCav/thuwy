@@ -1,7 +1,7 @@
 import os
 import datetime
 
-UNIX_USERNAME = "zyx"
+UNIX_USERNAME = "jcav"
 DB_UNIX_SOCK = r"/run/mysqld/mysqld.sock"
 
 
@@ -19,7 +19,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = (
-        "mysql+pymysql://%s@/thuwy_zyx?unix_socket=%s&charset=utf8mb4"
+        "mysql+pymysql://%s@/thuwy_dev?unix_socket=%s&charset=utf8mb4"
         % (UNIX_USERNAME, DB_UNIX_SOCK)
     )
 
@@ -30,7 +30,7 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = (
-        "mysql+pymysql://%s@/thuwy_dev?unix_socket=%s&charset=utf8mb4"
+        "mysql+pymysql://%s@/thuwy?unix_socket=%s&charset=utf8mb4"
         % (UNIX_USERNAME, DB_UNIX_SOCK)
     )
 
