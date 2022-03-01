@@ -66,7 +66,7 @@
 		data() {
 			return {
 				// 基础表单数据
-				data: this.group,
+				data:this.group,
 				// 表单验证规则
 				rules: {
 					title: {
@@ -132,6 +132,18 @@
 					});
 				})
 			},
+		},
+		created(){
+			console.log("create")
+		},
+		beforeMount(){
+			console.log(this.group)
+		},
+		updated(){
+			console.log("update")
+		},
+		beforeDestroy(){
+			console.log("destroy")
 		}
 	}
 </script>

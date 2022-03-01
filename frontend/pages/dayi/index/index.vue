@@ -6,15 +6,17 @@
 			</block>
 			<view class="input-view">
 				<uni-icons class="input-uni-icon" type="search" size="18" color="#999" />
-				<input confirm-type="search" class="nav-bar-input" type="text" placeholder="输入搜索关键词 , 以空格隔开"
-					@confirm="searchRes" />
+				<input confirm-type="search" v-model="key" class="nav-bar-input" type="text"
+					placeholder="输入搜索关键词 , 以空格隔开" @confirm="searchRes" />
 			</view>
 		</uni-nav-bar>
 		<view class="col-container" style="margin-bottom:10px;">
-			<weiyang-card v-for="item in whole_data" :key="item.id" :text="item.detail" :pattern="item.pattern" :url="issue_url+item.id">
+			<weiyang-card v-for="item in whole_data" :key="item.id" :text="item.detail" :pattern="item.pattern"
+				:url="issue_url+item.id">
 			</weiyang-card>
 		</view>
 		<uni-fab v-if="admin" :popMenu="false" :pattern="{buttonColor:'#112C9A'}" @fabClick="addNew()"></uni-fab>
+		<uni-load-more v-if="whole_data.length>0" :status="load_more"></uni-load-more>
 	</view>
 </template>
 
@@ -25,6 +27,9 @@
 		data() {
 			return {
 				admin: false,
+				page: 1,
+				key: '',
+				load_more: 'more',
 				whole_data: []
 				// category:'',
 				// category_option:[{
@@ -43,44 +48,86 @@
 			}
 		},
 		computed: {
-			issue_url(){
-				return '../issue/issue?admin='+this.admin+'&id='
+			issue_url() {
+				return '../issue/issue?admin=' + this.admin + '&id='
 			},
 		},
 		onLoad(e) {
-			uni.request({
-				header: {
-					'content-type': 'application/json; charset=utf-8',
-					'cookie': wx.getStorageSync('cookie')
-				},
-				url: app.globalData.url.backend + '/issue/',
-				method: 'GET',
-			}).then(res => {
-				console.log(res)
-				let raw_data = res.data.issues
-				let whole = []
-				for (let i = 0, len = raw_data.length; i < len; i++) {
-					let item = raw_data[i]
-					whole.push({
-						id: item.id,
-						pattern: item.status == 'open' ? 21 : 22,
-						detail: {
-							title: '有关' + item.tags[0] + '的问题',
-							theme: '',
-							content: item.title,
-							info: utils.changeTime(item.date),
-							tag: item.status == 'open' ? '待解决' : '已解决'
-						}
-					})
-				}
-				this.whole_data = whole
-			})
 			this.admin = e.admin
 		},
+		onShow() {
+			this.refreshDate(1, this.key)
+		},
+		onPullDownRefresh() {
+			this.refreshDate(1, this.key)
+		},
+		onReachBottom() {
+			if (this.load_more != 'noMore') {
+				this.load_more = 'loading'
+				this.refreshDate(++this.page, this.key)
+			}
+		},
 		methods: {
-			searchRes(e) {
-				console.log(res)
+			// 获取数据
+			refreshDate(page, key) {
+				uni.showLoading({
+					title: '加载中',
+					mask: true
+				})
+				if (page == 1) {
+					this.page = 1
+					this.whole_data = []
+				}
+				uni.request({
+					header: {
+						'content-type': 'application/json; charset=utf-8',
+						'cookie': wx.getStorageSync('cookie')
+					},
+					url: app.globalData.url.backend + '/issue/',
+					method: 'GET',
+					data: {
+						page_num: page,
+						keywords: key || ''
+					}
+				}).then(res => {
+					console.log(res)
+					if (res.data.code == 0) {
+						let raw_data = res.data.issues
+						let whole = []
+						for (let i = 0, len = raw_data.length; i < len; i++) {
+							let item = raw_data[i]
+							whole.push({
+								id: item.id,
+								pattern: item.tags.indexOf('#closed') == -1 ? 21 : 22,
+								detail: {
+									title: '有关' + item.tags[0] + '的问题',
+									theme: '',
+									content: item.title,
+									info: utils.changeTime(item.date),
+									tag: item.tags.indexOf('#closed') == -1 ? '待解决' : '已解决'
+								}
+							})
+						}
+						if (whole.length > 0) {
+							this.whole_data = this.whole_data.concat(whole)
+							this.load_more = 'more'
+						} else {
+							this.load_more = 'noMore'
+						}
+						uni.hideLoading()
+					} else {
+						throw res
+					}
+				}).catch(err => {
+					utils.errInfo(err, '网络加载失败')
+				})
 			},
+			// 进行搜索
+			searchRes(e) {
+				console.log(this.key)
+				this.refreshDate(1, this.key)
+			},
+			// 转到创建页面
 			addNew() {
 				uni.navigateTo({
 					url: '../info/info?admin=' + this.admin

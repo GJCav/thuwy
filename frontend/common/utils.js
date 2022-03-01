@@ -161,8 +161,10 @@ function changeTime(stamp) {
 // 错误信息显示函数
 function errInfo(res, title) {
 	console.log(res)
+	var t = ''
+	if (res.data) t = res.data.errmsg
 	uni.showToast({
-		title: title,
+		title: t || title,
 		mask: true,
 		icon: 'error'
 	})

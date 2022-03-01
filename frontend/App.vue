@@ -48,4 +48,16 @@
 		flex-direction: row-reverse;
 		@include flex-container;
 	}
+	
+	// 底部按钮栏
+	.buttonbar{
+		@include flex-container;
+		width: 100%;
+		padding: 5%;
+		background-color: #F3F3F3;
+		
+		position: fixed;
+		bottom: 0;
+		z-index: 10;
+	}
 </style>
