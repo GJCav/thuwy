@@ -1,5 +1,5 @@
 
-localTest = "http://127.0.0.1:8989/"
+localTest = "http://127.0.0.1:5002/"
 remoteTest = "https://dev-api.thuwy.top/"
 baseUrl = localTest
 
