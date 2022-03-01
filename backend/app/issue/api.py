@@ -58,6 +58,8 @@ def issueSearchOverview():
         return CODE_ARG_INVALID
     page_num = request.args.get(key="page_num", default=1, type=int)
     page_num -= 1
+    if page_num < 0:
+        return CODE_ARG_INVALID
     criteria = sqlalchemy.true()
     # reply_to = request.args.get(key="reply_to", default=None, type=int)
     # if reply_to:
@@ -119,6 +121,11 @@ def issueSearchOverview():
     response["count"] = issues.count()
     issues: List[Dict[str, Any]] = [issue.overview for issue in issues.all()]
     issues.sort(key=lambda issue: "#top" in issue["tags"], reverse=True)
+    issues = issues[
+        min(len(issues), page_num * page_size) : min(
+            len(issues), (page_num + 1) * page_size
+        )
+    ]
     response["issues"] = issues
     return response
 
