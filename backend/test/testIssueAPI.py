@@ -56,6 +56,25 @@ def test_search_overview():
         assert id_admin not in ids
 
 
+def test_search_overview_pagination():
+    with UseAccount("normal_user"):
+        PAGE_SIZE = 10
+        NUM_OF_ISSUES = 20
+        for _ in range(NUM_OF_ISSUES):
+            payload = SAMPLE_ISSUE.copy()
+            response = R.post(url=f"{test_issue_url}/", json=payload)
+        response = R.get(
+            url=f"{test_issue_url}/", params={"page_size": PAGE_SIZE, "authors": ""}
+        )
+        json = response.json()
+        assert json["count"] >= NUM_OF_ISSUES
+        assert len(json["issues"]) == 10
+
+        response = R.get(url=f"{test_issue_url}/", params={"page_num": 7777777})
+        json = response.json()
+        assert len(json["issues"]) == 0
+
+
 def test_search_overview_by_authors():
     with UseAccount("normal_user"):
         payload = SAMPLE_ISSUE.copy()
