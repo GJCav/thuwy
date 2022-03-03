@@ -17,7 +17,7 @@
 				style="justify-content: flex-start; align-items: flex-start;padding-right: 50rpx; margin-top: 20rpx; ">
 				<!-- 每一个发言 -->
 				<image class="avatar" :src="avatarurl" />
-				<view style="max-width:75%;">
+				<view class="bubble-class">
 					<view class="comment-text" style="margin:0 30rpx;">
 						{{timeDistance(bubble.date)}}
 						<!-- <text style="margin-left: 10rpx;">最后更新于{{timeString(bubble.last_modified_at)}}</text> -->
@@ -140,8 +140,6 @@
 		font-size: 25rpx;
 		font-weight: 400;
 		color: #777777;
-
-		flex-shrink: 0;
 	}
 
 	.title {
@@ -161,7 +159,11 @@
 		margin-left: 10rpx;
 		padding-left: 10rpx;
 	}
-
+	.bubble-class{
+		max-width:75%;
+		align-items: inherit;
+		justify-content:inherit;
+	}
 	.bubble-teacher {
 		position: relative;
 		margin-left: 30rpx;

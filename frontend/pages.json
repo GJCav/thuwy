@@ -5,19 +5,19 @@
 			"name": "main-test", //模式名称
 			"path": "pages/main/test/test", //启动页面，必选
 			"query": "" //启动参数，在页面的onLoad函数里面得到
-		},{
+		}, {
 			"name": "main-bind", //模式名称
 			"path": "pages/main/bind/bind", //启动页面，必选
 			"query": "" //启动参数，在页面的onLoad函数里面得到
-		},{
+		}, {
 			"name": "main-setting", //模式名称
 			"path": "pages/main/setting/setting", //启动页面，必选
 			"query": "" //启动参数，在页面的onLoad函数里面得到
-		},{
+		}, {
 			"name": "dayi-issue", //模式名称
 			"path": "pages/dayi/issue/issue", //启动页面，必选
 			"query": "" //启动参数，在页面的onLoad函数里面得到
-		},{
+		}, {
 			"name": "dayi-index", //模式名称
 			"path": "pages/dayi/index/index", //启动页面，必选
 			"query": "admin=true" //启动参数，在页面的onLoad函数里面得到
@@ -29,63 +29,62 @@
 			"style": {
 				"navigationBarTitleText": "微未央"
 			}
-		},{
+		}, {
 			"path": "pages/main/state/state",
 			"style": {
 				"navigationBarTitleText": "事项状态",
 				"enablePullDownRefresh": true
 			}
-		},{
+		}, {
 			"path": "pages/main/setting/setting",
 			"style": {
 				"navigationStyle": "custom"
 			}
-		},{
-            "path" : "pages/main/bind/bind",
-            "style": {
-                "navigationBarTitleText": "绑定信息"
-            }
-            
-        },{
-            "path" : "pages/congyou/index/index",
-            "style": {
-                "navigationBarTitleText": "从游坊",
-                "enablePullDownRefresh": true
-            }
-        },{
-            "path" : "pages/dayi/index/index",
-            "style": {
-                "navigationBarTitleText": "教务答疑",
-                "enablePullDownRefresh": true
-            }
-        },{
-            "path" : "pages/yuyue/index/index",
-            "style": {
-                "navigationBarTitleText": "预约服务",
-                "enablePullDownRefresh": true
-            }
-        },{
-            "path" : "pages/congyou/info/info",
-            "style": {
-                "navigationBarTitleText": "修改活动信息"
-            }
-        },{
-            "path" : "pages/congyou/detail/detail"
-        },{
-            "path" : "pages/dayi/info/info",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "新建答疑"
-            }
-        },{
-            "path" : "pages/dayi/issue/issue"
-        },{
-            "path" : "pages/main/test/test",
-            "style" : {
-                "navigationBarTitleText": "测试效果"
-            }   
-        }
-    ],
+		}, {
+			"path": "pages/main/bind/bind",
+			"style": {
+				"navigationBarTitleText": "绑定信息"
+			}
+
+		}, {
+			"path": "pages/congyou/index/index",
+			"style": {
+				"navigationBarTitleText": "从游坊",
+				"enablePullDownRefresh": true
+			}
+		}, {
+			"path": "pages/dayi/index/index",
+			"style": {
+				"navigationBarTitleText": "教务答疑",
+				"enablePullDownRefresh": true
+			}
+		}, {
+			"path": "pages/yuyue/index/index",
+			"style": {
+				"navigationBarTitleText": "预约服务",
+				"enablePullDownRefresh": true
+			}
+		}, {
+			"path": "pages/congyou/info/info",
+			"style": {
+				"navigationBarTitleText": "修改活动信息"
+			}
+		}, {
+			"path": "pages/congyou/detail/detail"
+		}, {
+			"path": "pages/dayi/info/info",
+			"style": {
+				"navigationBarTitleText": "新建答疑"
+			}
+		}, {
+			"path": "pages/dayi/issue/issue"
+		}, {
+			"path": "pages/main/test/test",
+			"style": {
+				"navigationBarTitleText": "测试效果"
+			}
+		}
+	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarBackgroundColor": "#F0F0F0",
@@ -98,22 +97,20 @@
 		"borderStyle": "white",
 		"backgroundColor": "#F0F0F0",
 		"list": [{
-				"pagePath": "pages/main/index/index",
-				"iconPath": "static/main/index/index_unfocused.png",
-				"selectedIconPath": "static/main/index/index_focused.png",
-				"text": "主页"
-			},
-			{
-				"pagePath": "pages/main/state/state",
-				"iconPath": "static/main/state/state_unfocused.png",
-				"selectedIconPath": "static/main/state/state_focused.png",
-				"text": "状态"
-			}, {
-				"pagePath": "pages/main/setting/setting",
-				"iconPath": "static/main/setting/setting_unfocused.png",
-				"selectedIconPath": "static/main/setting/setting_focused.png",
-				"text": "设置"
-			}
-		]
+			"pagePath": "pages/main/index/index",
+			"iconPath": "static/main/index/index_unfocused.png",
+			"selectedIconPath": "static/main/index/index_focused.png",
+			"text": "主页"
+		}, {
+			"pagePath": "pages/main/state/state",
+			"iconPath": "static/main/state/state_unfocused.png",
+			"selectedIconPath": "static/main/state/state_focused.png",
+			"text": "状态"
+		}, {
+			"pagePath": "pages/main/setting/setting",
+			"iconPath": "static/main/setting/setting_unfocused.png",
+			"selectedIconPath": "static/main/setting/setting_focused.png",
+			"text": "设置"
+		}]
 	}
 }

@@ -54,7 +54,7 @@
 						},
 						data: {
 							title: this.theme,
-							tags: res[0].title+';'+(this.admin?'#teacher':''),
+							tags: (this.admin?'#teacher;':'')+res[0].title,
 							content: {
 								text: res[0].content,
 								urls: res[0].picurls
@@ -78,7 +78,7 @@
 			}
 		},
 		onLoad(e) {
-			this.data = e.admin
+			this.admin = e.admin
 		}
 	}
 </script>

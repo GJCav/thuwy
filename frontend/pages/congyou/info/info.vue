@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<weiyang-section color="#5800A6" :title="title" subtitle="请完整填写以下信息">
-			<weiyang-forms color="#5800A6" @submit="submit">
+			<weiyang-forms ref="all_form" :group="basic_group" color="#5800A6" @submit="submit">
 				<view class="paragraphs">活动基本信息</view>
 				<uni-forms ref="basic_form" :modelValue="basic_data" :rules="basic_rules">
 					<uni-forms-item label="活动名称" required name="title">
@@ -16,7 +16,7 @@
 					<view style="margin:-10px 0 20px;">
 						<uni-forms-item label="请上传老师照片" label-width='130' required></uni-forms-item>
 						<view style="margin-top:-25px;">
-							<uni-file-picker ref="teacher-pic" file-mediatype="image" mode="grid" :limit="1" />
+							<uni-file-picker ref="teacher_pic" file-mediatype="image" mode="grid" :limit="1" />
 						</view>
 					</view>
 					<uni-forms-item label="人数容量" required name="total">
@@ -31,11 +31,13 @@
 					</uni-forms-item>
 					<uni-forms-item label="报名截止" required name="deadline">
 						<uni-datetime-picker type="datetime" return-type="timestamp" v-model="basic_data.deadline"
-						start="2022-1-1" end="2022-12-31" :clear-icon="false" :hideSecond="true" placeholder="请选择报名截止时间"/>
+							start="2022-1-1" end="2022-12-31" :clear-icon="false" :hideSecond="true"
+							placeholder="请选择报名截止时间" />
 					</uni-forms-item>
 					<uni-forms-item label="活动时间" required name="holding_time">
 						<uni-datetime-picker type="datetime" return-type="timestamp" v-model="basic_data.holding_time"
-						start="2022-1-1" end="2022-12-31" :clear-icon="false" :hideSecond="true" placeholder="请选择活动举办时间"/>
+							start="2022-1-1" end="2022-12-31" :clear-icon="false" :hideSecond="true"
+							placeholder="请选择活动举办时间" />
 					</uni-forms-item>
 				</uni-forms>
 				<view class="paragraphs">活动详细介绍</view>
@@ -45,6 +47,8 @@
 </template>
 
 <script>
+	const app = getApp()
+	import utils from '../../../common/utils.js'
 	export default {
 		data() {
 			return {
@@ -53,13 +57,19 @@
 					title: '',
 					theme: '',
 					subject: '',
-					total: 0,
+					total: null,
 					teacher: '',
-					position:'',
+					position: '',
 					deadline: '',
 					holding_time: '',
+					'brief-intro': '',
 					'detail-intro': {}
 				},
+				basic_group: [{
+					title: '',
+					content: '',
+					picurls: []
+				}],
 				subject_option: [{
 					text: "跨学科",
 					value: "跨学科"
@@ -100,7 +110,7 @@
 					text: "软件工程",
 					value: "软件工程"
 				}],
-				basic_rules:{
+				basic_rules: {
 					title: {
 						rules: [{
 							required: true,
@@ -159,12 +169,45 @@
 		},
 		methods: {
 			submit(e) {
-				this.$refs.basic_form.validate().then(res=>{
-					this.basic_data['detail-intro']=e
-				}).catch(res=>{
-					console.log(res)
+				uni.showLoading({
+					title: '提交中',
+					mask: true
 				})
-				console.log(this.basic_data)
+				this.$refs.basic_form.validate().then(() => {
+					return this.$refs.all_form.submitAll()
+				}).then(res => {
+					this.basic_data['detail-intro'] = res
+					let what = this.$refs.teacher_pic.files[0]
+					if (what) {
+						return utils.uploadPic(what.name, what.url)
+					} else {
+						throw {data:{errmsg:'未选择老师照片'}}
+					}
+				}).then(res => {
+					this.basic_data['brief-intro'] = res
+					return uni.request({
+						url: app.globalData.url.backend + '/lecture/',
+						method: 'POST',
+						header: {
+							'content-type': 'application/json; charset=utf-8',
+							'cookie': wx.getStorageSync('cookie')
+						},
+						data: this.basic_data
+					})
+				}).then(res => {
+					uni.hideLoading()
+					uni.showToast({
+						title: '提交成功',
+						icon: 'success',
+						mask: true
+					})
+					console.log(this.basic_data)
+					setTimeout(uni.navigateBack, 1000)
+				}).catch(err => {
+					uni.hideLoading()
+					utils.errInfo(err, '表单填写有误')
+				})
+
 			}
 		},
 		onLoad(e) {
@@ -183,7 +226,7 @@
 </script>
 
 <style>
-	.paragraphs{
+	.paragraphs {
 		width: 100%;
 		text-align: center;
 		font: bold 36rpx sans-serif;

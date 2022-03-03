@@ -92,8 +92,8 @@
 					} else {
 						ans.push(list[0]);
 					}
-					let isAdmin = app.globalData.profile.privileges.indexOf('admin'); //借用管理员
-					let isCongyou_admin = app.globalData.profile.privileges.indexOf('congyou'); //从游管理员
+					let isAdmin = (app.globalData.profile.privileges.indexOf('admin') > -1); //借用管理员
+					let isCongyou_admin = (app.globalData.profile.privileges.indexOf('congyou') > -1); //从游管理员
 					if (isAdmin && isCongyou_admin) {
 						//小程序管理员
 						ans.push(list[4]);

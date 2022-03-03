@@ -16,7 +16,7 @@
 			</weiyang-card>
 		</view>
 		<uni-fab v-if="admin" :popMenu="false" :pattern="{buttonColor:'#112C9A'}" @fabClick="addNew()"></uni-fab>
-		<uni-load-more v-if="whole_data.length>0" :status="load_more"></uni-load-more>
+		<uni-load-more v-if="whole_data.length>4" :status="load_more"></uni-load-more>
 	</view>
 </template>
 

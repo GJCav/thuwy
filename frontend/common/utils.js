@@ -62,7 +62,8 @@ function logIn(app) {
 		mask: true
 	}).then(() => {
 		return uni.request({
-			url: app.globalData.url.backend + '/testaccount/normal_user/'
+			// url: app.globalData.url.backend + '/testaccount/normal_user/'
+			url: app.globalData.url.backend + '/testaccount/super_admin/'
 		})
 	}).then(res => {
 		uni.setStorage({ // 将得到的openid存储到缓存里面方便后面调用
