@@ -222,4 +222,6 @@ def test_addLecture() : # 测试添加从游坊
         print(res)
         assert res.json()["code"] == 8
         
-# def test_modLecture() : # 测试修改从游坊
+def test_modLecture() : # 测试修改从游坊
+    with UseAccount("cyuserB") :
+        

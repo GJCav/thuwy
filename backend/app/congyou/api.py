@@ -111,6 +111,7 @@ def lectureList():
         ret.update(CODE_SUCCESS)
         return ret
 
+    return CODE_ACCESS_DENIED
 
 @congyouRouter.route("/lecture/<int:lectureId>/", methods=["GET", "POST", "DELETE"])
 @requireScope(["profile", "profile congyou"])
@@ -185,6 +186,8 @@ def lectureDetail(lectureId: int):
         except:
             db.session.rollback()
             return CODE_DATABASE_ERROR
+
+    return CODE_ACCESS_DENIED
 
 def not_a_wish(wish) :
     return wish < 1 or wish > 3
@@ -390,7 +393,7 @@ def lectureEnrollmentModify(enrollmentId: int):
 
 @congyouRouter.route("/modi_enrollment/<int:enrollmentId>/", methods = ["DELETE"])
 @requireScope(["congyou profile"])
-def delEnrollment(enrollmentId : int) :
+def delEnrollment(enrollmentId : int) : # 从游部为用户手动取消报名
     if not CheckArgs.isInt(enrollmentId):
         return CODE_ARG_INVALID
     dataEnrollment = (
