@@ -12,7 +12,7 @@ from datetime import timezone
 from app.reservation.model import Reservation, RsvState
 from app.auth.model import User
 from app.item.model import Item
-from app.reservation.secret import WX_APP_ID, WX_APP_SECRET, SUBSC_TPL_ID
+from config import WX_SUBSC_TPL_ID as SUBSC_TPL_ID
 
 SHA_TZ = timezone(timedelta(hours=8), name='Asia/Shanghai',)
 

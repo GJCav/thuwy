@@ -5,7 +5,7 @@ from email.header import Header
 from email.utils import formataddr
 import datetime
 
-from app.reservation.secret import MANAGER_NAMES, MANAGER_EMAILS, THUWY_EMAIL_LICENSE
+from config import THUWY_EMAIL_LICENSE
 
 def sendEmailByTHUWY(receiverNum, mailReceiverNames:list, mailReceiverAddrs:list) -> dict:
     """

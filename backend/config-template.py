@@ -45,3 +45,6 @@ userSysName = "system"  # 默认添加一个 system 管理员，处理定时任�
 WX_APP_ID = "wxc32f29e7a1c08dba"
 WX_APP_SECRET = "26e3ede2ebace7c238fdd43a6c0394a3"
 MACHINE_ID = 0
+
+THUWY_EMAIL_LICENSE = "xxxxxx"
+WX_SUBSC_TPL_ID = "xxxxx"
