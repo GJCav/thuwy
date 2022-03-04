@@ -18,6 +18,8 @@ import app.snowflake as Snowflake
 
 from config import userSysName
 
+from app.reservation.email import sendEmailByTHUWY, MANAGER_NAMES, MANAGER_EMAILS
+from app.reservation.subscription import sendRsvSubscMsg
 
 @rsvRouter.route("/reservation/")
 @requireScope(["profile admin"])
@@ -234,8 +236,12 @@ def reserve():
             print(e)
             rtn["auto-accept"] = "fail"
 
-    rtn.update(CODE_SUCCESS)
+    rtn.update(          )
     rtn["rsv-id"] = finalRsv.id
+
+    sendRsvSubscMsg(finalRsv)
+    sendEmailByTHUWY(1, MANAGER_NAMES, MANAGER_EMAILS)
+
     return rtn
 
 
@@ -385,6 +391,8 @@ def examRsv(rsv: Reservation, json):
         db.session.rollback()
         return CODE_DATABASE_ERROR
 
+    sendRsvSubscMsg(rsv)
+
     return CODE_SUCCESS
 
 
@@ -402,6 +410,8 @@ def completeRsv(rsv: Reservation):
     except Exception as e:
         print(e)
         return CODE_DATABASE_ERROR
+
+    sendRsvSubscMsg(rsv)
 
     return CODE_SUCCESS
 
@@ -428,4 +438,7 @@ def cancelRsv(rsvId):
     except Exception as e:
         db.session.rollback()
         return CODE_DATABASE_ERROR
+
+    sendRsvSubscMsg(rsv)
+    
     return CODE_SUCCESS

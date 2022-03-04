@@ -24,11 +24,11 @@
    pip install -r requirements.txt
    ```
 
-   > 生产服务器中使用的python虚拟环境，需要先切换到虚拟环境。
+   > 生产服务器中使用的python虚拟环境，需要先切换到虚拟环境.
 
-   
+3. 配置`config`，打开`backend`文件夹，执行`cp config-template.py config.py`，然后跳转到**配置`config.py`**小节，配置完成后再进行下一步。
 
-3. 进行一次基本的运行测试
+4. 进行一次基本的运行测试
 
    ```chell
    python run.py
@@ -39,15 +39,15 @@
    ```
    (4432) wsgi starting up on http://0.0.0.0:5000
    ```
-   
+
    表示服务器已经运行在本地，通过`http://127.0.0.1:5000/`访问服务器。
-   
-4. 解除微信小程序的请求限制：
+
+5. 解除微信小程序的请求限制：
 
    <img src="./nolimit.png" style="zoom:50%;" />
 
    勾选“不检验合法域名xxxx”，记得在发布前取消勾选就行
-   
+
    
 
 ## 配置`config.py`
@@ -71,7 +71,11 @@
     
 2. 设置`WX_APP_ID`、`WX_APP_SECRET`，默认值对应小程序测试号，生成环境值可以联系管理员获取。
 
-3. 如果是分布式的，设置`MACHINE_ID`
+4. `MACHINE_ID`保持为0，不变。
+
+5. `THUWY_EMAIL_LICENSE`设置为管理员提供的微未央邮件令牌。
+
+3. `WX_SUBSC_TPL_ID`设置为管理员提供的微未央小程序消息推送ID。
 
 
 
