@@ -11,8 +11,8 @@ from .model import *
 from . import congyouRouter
 from .errcode import *
 
-def goodTimeSpace(deadline: int, holding_time: int) :
-    return deadline > Timetools.daysAfter(2) and holding_time >= Timetools.daysAfter(2, deadline) 
+def goodTimeSpace(deadline: int, holding_time: int, mod = 0) :
+    return (deadline > Timetools.daysAfter(2) or mod == 1) and holding_time >= Timetools.daysAfter(2, deadline) 
 
 @congyouRouter.route("/lecture/", methods=["GET", "POST"])
 @requireScope(["profile", "congyou profile"])
@@ -164,7 +164,7 @@ def lectureDetail(lectureId: int):
         except:
             return CODE_ARG_TYPE_ERR
         
-        if not goodTimeSpace(lecture.deadline, lecture.holding_time) :
+        if not goodTimeSpace(lecture.deadline, lecture.holding_time, 1) :
             db.session.rollback()
             return CODE_ARG_INVALID
 
