@@ -6,18 +6,21 @@ import json as Json
 import os
 
 app = Flask(__name__)
-app.secret_key = 'abcd222 de------'
+app.secret_key = "abcd222 de------"
 
-@app.route('/')
+
+@app.route("/")
 def index():
-    return 'hello, world'
+    return "hello, world"
 
-@app.route('/sleep/')
+
+@app.route("/sleep/")
 def slp():
     time.sleep(5)
     tid = threading.current_thread()
 
-    return f'week up, at {tid.name}'
+    return f"week up, at {tid.name}"
+
 
 app.run(debug=True)
 app.run

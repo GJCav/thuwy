@@ -1,0 +1,28 @@
+/**index.wxss**/
+
+page {
+  padding-top: 54rpx;
+  background-color: #f6f6f6;
+  padding-bottom: 60rpx;
+}
+
+.title {
+  font-family: PingFang SC;
+  font-weight: 500;
+  color: #000000;
+  font-size: 40rpx;
+  margin-bottom: 40rpx;
+}
+
+.btn-group{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.btn-group button {
+  display: inline-block;
+  border: 1rpx black !important;
+  flex-shrink: 1;
+  width: auto !important;
+}

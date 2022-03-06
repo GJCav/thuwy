@@ -1,0 +1,23 @@
+<!--index.wxml-->
+<view class="container">
+
+  <view class="title">快速了解云开发</view>
+  <view class="btn-group">
+    <button bindtap="onLogin">Login 1</button>
+    <button bindtap="onBind">Bind</button>
+    <button bindtap="onGetProfile">Profile</button>
+  </view>
+  <view>
+    测试OAuth：
+    <input type="text" bindinput="reqScopeStr" placeholder="ReqScopes, sep by space" style="border: 1px black solid" />
+    <div class="btn-group">
+      <button bindtap="onReqOAuth">ReqOAuth</button>
+      <button bindtap="onPollOAuth">轮询OAuth</button>
+    </div>
+    <input type="text" bindinput="authCode" placeholder="OAuth Code" value="{{authCode}}" style="border: 1px black solid" />
+    <div class="btn-group">
+      <button bindtap="onGrantOAuth">授权</button>
+      <button bindtap="onRejectOAuth">拒绝</button>
+    </div>
+  </view>
+</view>
