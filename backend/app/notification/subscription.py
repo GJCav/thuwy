@@ -110,7 +110,7 @@ def sendRsvSubscMsg(rsv:Reservation):
         }   # 预约备注
     }
 
-    accessToken = _ATManager(WX_APP_ID, WX_APP_SECRET).getAccessToken()   # 获取accessToken
+    accessToken = ATManager(WX_APP_ID, WX_APP_SECRET).getAccessToken()   # 获取accessToken
     postData = json.dumps(postData)
     rqHeaders = {'Content-Type': 'application/json'}
     url = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=%s" % accessToken
