@@ -222,6 +222,22 @@ def test_addLecture() : # 测试添加从游坊
         print(res)
         assert res.json()["code"] == 8
         
-# def test_modLecture() : # 测试修改从游坊
-    # with UseAccount("cyuserB") :
-        
+def test_modLecture() : # 测试修改从游坊
+    with UseAccount("cyuserB") :
+        lecture = _TestLecture()
+        asd = lecture.rand_to_dict()
+        # print(asd)
+        res = R.post(test_lecture_url + "69/", json = asd)
+        assert res.json()["code"] == 104
+
+        lecture = _TestLecture()
+        asd = lecture.rand_to_dict()
+        print(asd)
+        res = R.post(test_lecture_url + "70/", json = asd)
+        assert res.json()["code"] == 0
+
+        lecture = _TestLecture()
+        asd = lecture.rand_to_dict()
+        print(asd)
+        res = R.post(test_lecture_url + "3/", json = asd)
+        assert res.json()["code"] == 0
