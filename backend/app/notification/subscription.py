@@ -1,9 +1,6 @@
 from os import access
 import requests
 import json
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import DATETIME, VARCHAR
-from app.models import db
 
 from datetime import datetime
 from datetime import timedelta
@@ -15,9 +12,8 @@ from app.item.model import Item
 from backend.config import WX_APP_SECRET
 
 from config import WX_SUBSC_TPL_ID as SUBSC_TPL_ID
-from config import WX_APP_ID, WX_APP_SECRET
 
-from accesstoken import ATManager
+from accessToken import ATManager
 
 SHA_TZ = timezone(timedelta(hours=8), name='Asia/Shanghai',)
 
@@ -31,7 +27,6 @@ def currentTime():
 
 #     token = db.Column(VARCHAR(512), nullable=False)
 #     expiryTime = db.Column(DATETIME, nullable=False)
-
 
 def sendRsvSubscMsg(rsv:Reservation):
     """
@@ -110,10 +105,13 @@ def sendRsvSubscMsg(rsv:Reservation):
         }   # 预约备注
     }
 
-    accessToken = ATManager(WX_APP_ID, WX_APP_SECRET).getAccessToken()   # 获取accessToken
+    accessToken = ATMnger.getAccessToken()   # 获取accessToken
     postData = json.dumps(postData)
     rqHeaders = {'Content-Type': 'application/json'}
     url = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=%s" % accessToken
     res = requests.post(url, headers=rqHeaders, data=postData)
 
     return res
+
+def sendIssueReplySubscMsg(issue: Issue):
+    pass

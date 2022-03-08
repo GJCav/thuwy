@@ -3,16 +3,18 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
 from email.utils import formataddr
-import datetime
+
 
 from config import THUWY_EMAIL_LICENSE
 
-def sendEmailByTHUWY(receiverNum, mailReceiverNames:list, mailReceiverAddrs:list) -> dict:
+from . import mailBodyContent
+
+def sendEmailByTHUWY(mailReceiverNames:list, mailReceiverAddrs:list, mailBody:str) -> dict:
     """
     Args:
-        receiverNum: A int showing the number of receivers.
         mailReceiversNames: A list of str showing the receivers' names.
         mailReceiversAddrs: A list of str showing the receivers' addresses.
+        mailBody: A str of email body.
 
     Returns:
         A Json Object:{
@@ -21,6 +23,7 @@ def sendEmailByTHUWY(receiverNum, mailReceiverNames:list, mailReceiverAddrs:list
         }
         
     """
+    receiverNum = len(mailReceiverNames)
     smtpHost = "smtp.exmail.qq.com"
     
     mailSenderName = "微未央信息通知" # 发件者名字
@@ -39,15 +42,7 @@ def sendEmailByTHUWY(receiverNum, mailReceiverNames:list, mailReceiverAddrs:list
 
         subjectContent = "微未央信息通知" # 邮箱主题
 
-        bodyContent = """
-            尊敬的%s：
-                您好！
-                您有一份待审核的物品预约，请您及时审核。
-
-                                    微未央信息通知
-                                    %s
-        """ % (mailReceiverNames[i], str(datetime.date.today()) )
-        
+        bodyContent = mailBody # 正文       
         
         MMMObj = MIMEMultipart('related')
         MMMObj["From"] = mailSenderFMAddr # 发件者
