@@ -1,3 +1,4 @@
+import imp
 from os import access
 import requests
 import json
@@ -9,11 +10,15 @@ from datetime import timezone
 from app.reservation.model import Reservation, RsvState
 from app.auth.model import User
 from app.item.model import Item
-from backend.config import WX_APP_SECRET
+from app.issue.model import Issue
 
 from config import WX_SUBSC_TPL_ID as SUBSC_TPL_ID
+from config import WX_APP_ID as APP_ID
+from config import WX_APP_SECRET as APP_SECRET
 
 from accessToken import ATManager
+
+ATMnger = ATManager(APP_ID, APP_SECRET)
 
 SHA_TZ = timezone(timedelta(hours=8), name='Asia/Shanghai',)
 
@@ -21,12 +26,6 @@ def currentTime():
     # 返回北京时间
     utc_now = datetime.utcnow().replace(tzinfo=timezone.utc)
     return utc_now.astimezone(SHA_TZ)
-
-# class AccessToken(db.Model):
-#     __tablename__ = "access_token"
-
-#     token = db.Column(VARCHAR(512), nullable=False)
-#     expiryTime = db.Column(DATETIME, nullable=False)
 
 def sendRsvSubscMsg(rsv:Reservation):
     """

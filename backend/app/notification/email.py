@@ -63,3 +63,6 @@ def sendEmailByTHUWY(mailReceiverNames:list, mailReceiverAddrs:list, mailBody:st
     
     rtn["errcode"] = 0
     return rtn
+
+def sendRsvEmail(Reservation):
+    pass
