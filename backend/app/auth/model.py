@@ -42,6 +42,7 @@ class User(db.Model):
     schoolId = db.Column("school_id", SCHOOL_ID, unique=True)
     name = db.Column(TEXT)
     clazz = db.Column(TEXT)
+    email = db.Column(VARCHAR(64))
 
     privileges: List["Privilege"] = relationship("Privilege", back_populates="user")
 
