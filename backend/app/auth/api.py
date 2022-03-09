@@ -233,6 +233,18 @@ def getMyProfile():
     return rtn
 
 
+@authRouter.route("/profile/email/", methods=["POST"])
+@requireScope(["profile"])
+def setMyProfile():
+    json = request.get_json()
+    if not json: return CODE_ARG_INVALID
+    if 'email' not in json: return CODE_ARG_MISSING
+    if len(json['email']) > 64: return CODE_ARG_INVALID
+    user = User.fromOpenid(g.openid)
+    user.email = json['email']
+
+    return CODE_SUCCESS
+
 @authRouter.route("/profile/<openId>/", methods=["GET"])
 @requireScope(["profile admin"])
 def getProfile(openId):
