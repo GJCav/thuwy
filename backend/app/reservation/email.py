@@ -7,6 +7,9 @@ import datetime
 
 from config import THUWY_EMAIL_LICENSE
 
+MANAGER_NAMES = [] # TODO: delete this module later
+MANAGER_EMAILS = []
+
 def sendEmailByTHUWY(receiverNum, mailReceiverNames:list, mailReceiverAddrs:list) -> dict:
     """
     Args:
