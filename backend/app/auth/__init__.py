@@ -13,9 +13,12 @@ from .api import requireScope, challengeScope # 其他模块可直接从次导�
 
 def init():
     with app.app_context():
-        from .model import db, User
+        from .model import db, User, Scope
         from config import userSysName
-        from .scope_def import ScopeAdmin, UserAdmin
+        
+        BasicUser = Scope.define("User", "Basic user permission", True)
+        ScopeAdmin = Scope.define("ScopeAdmin", "Admin for permission", True)
+        UserAdmin = Scope.define("UserAdmin", "Admin for all users", True)
 
         userSys = User.fromOpenid(userSysName)
         if not userSys:
