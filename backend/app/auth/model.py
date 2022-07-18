@@ -1,4 +1,5 @@
 import enum
+from typing import Set
 
 from flask import current_app
 
@@ -60,7 +61,9 @@ class Entity(db.Model):
         ),
         backref="groups"
     )
+
     # groups, see members
+    
     scopes = relationship(
         lambda: Scope,
         secondary = Permission,
@@ -80,6 +83,14 @@ class Entity(db.Model):
         ),
         backref="entities"
     )
+
+    @property
+    def privilege_set(self, include_group_privilege = True) -> Set[str]:
+        privilege = set([s.name for s in self.scopes])
+        if include_group_privilege:
+            for g in self.groups:
+                privilege |= set([s.name for s in g.scopes])
+        return privilege
 
 
     def __str__(self):
@@ -142,19 +153,9 @@ class User(db.Model):
             "school-id": self.schoolId,
             "name": self.name,
             "clazz": self.clazz,
-            "admin": self.isAdmin(),
             "openid": self.openid,
-            # "all-privileges": self.getAllPrivileges()
+            "all-privileges": self.entity.privilege_set if self.entity else {}
         }
-
-    def isAdmin(self) -> bool:
-        # return bool(
-        #     db.session.query(Privilege)
-        #     .filter(Privilege.openid == self.openid)
-        #     .filter(Privilege.scopeId == Scope.fromScopeStr("admin").id)
-        #     .one_or_none()
-        # )
-        return True
 
 
     def fromOpenid(openid) -> "User":

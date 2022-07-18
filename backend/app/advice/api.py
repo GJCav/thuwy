@@ -13,7 +13,7 @@ from app import snowflake
 
 
 @adviceRouter.route("/advice/")
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def getAdviceList():
     st = request.args.get("st", None)
     ed = request.args.get("ed", None)
@@ -59,7 +59,7 @@ def getAdviceList():
 
 
 @adviceRouter.route("/advice/<int:adviceId>/")
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def getAdviceInfo(adviceId):
 
     if not CheckArgs.isUint64(adviceId):
@@ -77,7 +77,7 @@ def getAdviceInfo(adviceId):
 
 
 @adviceRouter.route("/advice/me/")
-@requireScope(["profile"])
+@requireScope(["User"])
 def getMyAdviceList():
     st = request.args.get("st", None)
     ed = request.args.get("ed", None)
@@ -123,7 +123,7 @@ def getMyAdviceList():
 
 
 @adviceRouter.route("/advice/<int:adviceId>/", methods=["POST"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def responseAdvice(adviceId):
     if not CheckArgs.isUint64(adviceId):
         return CODE_ARG_INVALID
@@ -154,7 +154,7 @@ def responseAdvice(adviceId):
 
 
 @adviceRouter.route("/advice/", methods=["POST"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def adminAdvice():
     json = request.get_json()
 

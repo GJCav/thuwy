@@ -14,12 +14,12 @@ cfg.set(app)
 
 rsvIdPool = Snowflake(MACHINE_ID)
 itemIdPool = Snowflake(MACHINE_ID)
-adminReqIdPool = Snowflake(MACHINE_ID)
 accessKeyPool = Snowflake(MACHINE_ID)
 adviceIdPool = Snowflake(MACHINE_ID)
 carouselIdPool = Snowflake(MACHINE_ID)
 
 from . import models as Models
+Models.init_db(app)
 
 from .auth import authRouter
 from .item import itemRouter
@@ -36,8 +36,6 @@ app.register_blueprint(adviceRouter)
 app.register_blueprint(carouselRouter)
 app.register_blueprint(congyouRouter)
 app.register_blueprint(issueRouter)
-
-Models.init_db(app)
 
 scheduler = APScheduler()
 scheduler.init_app(app)

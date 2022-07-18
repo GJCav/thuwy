@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-from config import userSysName
 
 db = SQLAlchemy(use_native_unicode="utf8mb4")
 
@@ -8,11 +7,6 @@ def init_db(app):
     db.init_app(app)
     with app.app_context():
         db.create_all()
-
-        from app.auth import init
-
-        init()
-    pass
 
 
 # 太TM神奇了，python的dict没有__dict__属性，不能动态添加属性，如：

@@ -50,7 +50,7 @@ def _get_or_insert_tags(tag_list: List[str]):
 
 
 @issueRouter.route("/issue/", methods=["GET"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def issueSearchOverview():
     """Filter issues with given parameters."""
     page_size = request.args.get(key="page_size", default=10, type=int)
@@ -131,7 +131,7 @@ def issueSearchOverview():
 
 
 @issueRouter.route("/issue/<int:id>/", methods=["GET"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def issueQueryDetail(id: int):
     """Search for all issues related with the specific issue."""
     current_issue: Issue = db.session.get(Issue, {"id": id})
@@ -156,7 +156,7 @@ def issueQueryDetail(id: int):
 
 
 @issueRouter.route("/issue/", methods=["POST"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def issueNew():
     """Post a new issue."""
     # extract args
@@ -198,7 +198,7 @@ def issueNew():
 
 
 @issueRouter.route("/issue/<int:id>/", methods=["POST"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def issueEdit(id: int):
     """Edit an existing issue."""
     # find target issue
@@ -232,7 +232,7 @@ def issueEdit(id: int):
 
 
 @issueRouter.route("/issue/<int:id>/", methods=["DELETE"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def issueDelete(id: int):
     """Delete an issue."""
     # find target issue
@@ -247,7 +247,7 @@ def issueDelete(id: int):
 
 
 @issueRouter.route("/issue/tag/", methods=["GET"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def issueTagSearchOverview():
     """Search for all tags which contain specific keywords"""
     tags = request.args.get("tags", "")
@@ -262,7 +262,7 @@ def issueTagSearchOverview():
 
 
 @issueRouter.route("/issue/tag/<name>/", methods=["GET"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def issueTagSearchDetail(name: str):
     """Search for detailed information of the tag"""
     tag_meta: IssueTagMeta = db.session.get(IssueTagMeta, {"name": name})
@@ -275,7 +275,7 @@ def issueTagSearchDetail(name: str):
 
 
 @issueRouter.route("/issue/tag/<name>/", methods=["DELETE"])
-@requireScope(["profile dayi"])
+@requireScope(["User dayi"])
 def issueTagDelete(name: str):
     """Delete tag named `name`."""
     tag_meta: IssueTagMeta = db.session.get(IssueTagMeta, {"name": name})

@@ -1,5 +1,5 @@
 from crypt import methods
-from flask import request
+from flask import request, session
 from flask import g
 
 from app.comerrs import *
@@ -15,9 +15,9 @@ def goodTimeSpace(deadline: int, holding_time: int, mod = 0) :
     return (deadline > Timetools.daysAfter(2) or mod == 1) and holding_time >= Timetools.daysAfter(2, deadline) 
 
 @congyouRouter.route("/lecture/", methods=["GET", "POST"])
-@requireScope(["profile", "congyou profile"])
+@requireScope(["User", "congyou User"])
 def lectureList():
-    if request.method == "GET" and challengeScope(["profile"]):  # 获取从游坊列表
+    if request.method == "GET" and challengeScope(["User"]):  # 获取从游坊列表
         page = request.args.get("p", "1")
         try:
             page = int(page)
@@ -63,7 +63,7 @@ def lectureList():
         ret.update(CODE_SUCCESS)
         return ret
 
-    elif request.method == "POST" and challengeScope(["profile congyou"]): # 添加从游坊
+    elif request.method == "POST" and challengeScope(["User congyou"]): # 添加从游坊
         reqJson = request.json
         if reqJson == None:
             return CODE_ARG_INVALID
@@ -85,7 +85,7 @@ def lectureList():
 
         lecture = Lecture()
         try:
-            lecture.user_id = g.openid
+            lecture.user_id = session["openid"]
             lecture.position = reqJson["position"]
             lecture.title = reqJson["title"]
             lecture.theme = reqJson["theme"]
@@ -114,7 +114,7 @@ def lectureList():
     return CODE_ACCESS_DENIED
 
 @congyouRouter.route("/lecture/<int:lectureId>/", methods=["GET", "POST", "DELETE"])
-@requireScope(["profile", "profile congyou"])
+@requireScope(["User", "User congyou"])
 def lectureDetail(lectureId: int):
     if not CheckArgs.isInt(lectureId):
         return CODE_ARG_INVALID
@@ -126,12 +126,12 @@ def lectureDetail(lectureId: int):
 
     dataLecture = db.session.query(Lecture).filter(Lecture.lecture_id == lectureId)
 
-    if request.method == "GET" and challengeScope(["profile"]): # 获取从游坊详细信息
+    if request.method == "GET" and challengeScope(["User"]): # 获取从游坊详细信息
         ret = {"lecture": lecture.toDict()}
         ret.update(CODE_SUCCESS)
         return ret
 
-    elif request.method == "POST" and challengeScope(["profile congyou"]): # 修改从游坊        
+    elif request.method == "POST" and challengeScope(["User congyou"]): # 修改从游坊        
         if lecture.getstate() != 1 :
             return CODE_LECTURE_DRAWING    
 
@@ -175,7 +175,7 @@ def lectureDetail(lectureId: int):
             db.session.rollback()
             return CODE_DATABASE_ERROR
 
-    elif request.method == "DELETE" and challengeScope(["profile congyou"]): # 删除从游坊
+    elif request.method == "DELETE" and challengeScope(["User congyou"]): # 删除从游坊
         if lecture.getstate() != 1 :
             return CODE_LECTURE_DRAWING    
 
@@ -234,7 +234,7 @@ def Enrollment_a_Lecture(lecture_id, user_id, wish, state, errmsg) :
 
 
 @congyouRouter.route("/lecture_enrollment/", methods=["GET", "POST"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def lectureEnrollmentList():
     if request.method == "POST":  # 普通用户报名从游坊
         reqJson = request.json
@@ -303,7 +303,7 @@ def lectureEnrollmentList():
         return ret
 
 @congyouRouter.route("/modi_enrollment/", methods = ["POST"])
-@requireScope(["congyou profile"])
+@requireScope(["congyou User"])
 def modyEnrollment(): # 从游部手动为用户报名
     reqJson = request.json
     if reqJson == None :
@@ -324,7 +324,7 @@ def modyEnrollment(): # 从游部手动为用户报名
 
 
 @congyouRouter.route("/lecture_enrollment/<int:enrollmentId>/", methods=["POST", "DELETE"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def lectureEnrollmentModify(enrollmentId: int):
     if not CheckArgs.isInt(enrollmentId):
         return CODE_ARG_INVALID
@@ -392,7 +392,7 @@ def lectureEnrollmentModify(enrollmentId: int):
 
 
 @congyouRouter.route("/modi_enrollment/<int:enrollmentId>/", methods = ["DELETE"])
-@requireScope(["congyou profile"])
+@requireScope(["congyou User"])
 def delEnrollment(enrollmentId : int) : # 从游部为用户手动取消报名
     if not CheckArgs.isInt(enrollmentId):
         return CODE_ARG_INVALID
@@ -419,7 +419,7 @@ def delEnrollment(enrollmentId : int) : # 从游部为用户手动取消报名
 
 
 @congyouRouter.route("/congyou_enrollment/<int:lectureId>/", methods = ["GET", "POST"])
-@requireScope(["congyou profile"])
+@requireScope(["congyou User"])
 def GetLectureEnrollments(lectureId: int) :
     if not CheckArgs.isInt(lectureId):
         return CODE_ARG_INVALID
@@ -477,7 +477,7 @@ def GetLectureEnrollments(lectureId: int) :
 
 
 @congyouRouter.route("/wish_remain/", methods=["GET"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def userWish(): # 用户获取自己还剩多少志愿
     ret = {"first": getWishRemain(1, g.openid), 
             "second": getWishRemain(2, g.openid)}

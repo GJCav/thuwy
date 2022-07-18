@@ -12,7 +12,6 @@ from app.auth import util
 
 from . import authRouter
 from config import WX_APP_ID, WX_APP_SECRET, config, DevelopmentConfig
-from app import adminReqIdPool
 from app.comerrs import *
 from .errcode import *
 import app.checkargs as CheckArgs
@@ -94,29 +93,48 @@ def login():
     return rtn
 
 
-def challengeScope(scopes: List[str]):
+def challengeScope(requirerules: List[str]):
+    openid = session.get("openid")
+    if not openid:
+        return False
+    
+    user = User.fromOpenid(openid)
+    if not user:
+        return False
+
+    if not user.entity:
+        return False
+
+    privileges = user.entity.privilege_set
+    for rule in requirerules:
+        requireScopes = set(rule.split(" "))
+        if not requireScopes.issubset(privileges):
+            return False
+
+    g.openid = openid
+    g.privileges = privileges
     return True
 
 
-def requireScope(scopes: List[str]):
+def requireScope(requirerules: List[str]):
+    # validate scopes here
+    from app import app
+    with app.app_context():
+        unknown_scopes = set()  
+        for rule in requirerules:
+            for scopeStr in rule.split(" "):
+                if not Scope.find(scopeStr):
+                    unknown_scopes.add(scopeStr)
+        
+        if unknown_scopes:
+            raise ValueError(f"unknown scopes: {unknown_scopes}")
+
     def _checkScope(handler):
         @functools.wraps(handler)
         def inner(*args, **kwargs):
-            canAccess = challengeScope(scopes)
-            if canAccess:
-                revokeSession = False
-                if g.get("token"):
-                    session["openid"] = g.token.owner.openid  # 兼容老代码，之后会删除
-                    revokeSession = True
-                rtn = handler(*args, **kwargs)
-                if revokeSession:
-                    session.pop("openid")
-                return rtn
-            else:
-                rtn = {"requirement": scopes}
-                rtn.update(CODE_ACCESS_DENIED)
-                return rtn
-
+            canAccess = challengeScope(requirerules)
+            if canAccess: return handler(*args, **kwargs)
+            else: return CODE_ACCESS_DENIED
         return inner
 
     return _checkScope
@@ -177,7 +195,7 @@ def bind():
 
 @authRouter.route("/profile/")
 def getMyProfile():
-    challengeScope(["profile"])
+    challengeScope(["User"])
     if not g.get("openid"):
         return CODE_NOT_LOGGED_IN
     rtn = User.queryProfile(g.openid)
@@ -191,7 +209,7 @@ def getMyProfile():
 
 
 @authRouter.route("/profile/email/", methods=["POST"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def setMyProfile():
     json = request.get_json()
     if not json: return CODE_ARG_INVALID
@@ -203,7 +221,7 @@ def setMyProfile():
     return CODE_SUCCESS
 
 @authRouter.route("/profile/<openId>/", methods=["GET"])
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def getProfile(openId):
     openId = str(openId)
     profile = User.queryProfile(openId)
@@ -214,7 +232,7 @@ def getProfile(openId):
 
 
 @authRouter.route("/user/")
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def getUserList():
     PageLimit = 30
 
@@ -237,7 +255,7 @@ def getUserList():
 
 
 @authRouter.route("/user/<openid>/", methods=["DELETE"])
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def unbindUser(openid):
     if not openid:
         return CODE_ARG_INVALID
@@ -266,45 +284,44 @@ def unbindUser(openid):
 
 
 @authRouter.route("/user/<openid>/scope/", methods=["GET", "POST"])
-@requireScope(["profile scopeAdmin"])
+@requireScope(["ScopeAdmin"])
 def usrScopeInfo(openid):
-    return {}
-    # user = User.fromOpenid(openid)
-    # if not user: return CODE_USER_NOT_FOUND
+    user = User.fromOpenid(openid)
+    if not user: return CODE_USER_NOT_FOUND
 
-    # if request.method == "GET":
-    #     rtn = {"scopes": user.getAllPrivileges()}
-    #     rtn.update(CODE_SUCCESS)
-    #     return rtn
-    # elif request.method == "POST":
-    #     json = request.get_json()
-    #     if not json: return CODE_ARG_MISSING
-    #     if "scope" not in json: return CODE_ARG_MISSING
-    #     if not CheckArgs.isStr(json["scope"]): return CODE_ARG_INVALID
+    if request.method == "GET":
+        rtn = {"scopes": user.getAllPrivileges()}
+        rtn.update(CODE_SUCCESS)
+        return rtn
+    elif request.method == "POST":
+        json = request.get_json()
+        if not json: return CODE_ARG_MISSING
+        if "scope" not in json: return CODE_ARG_MISSING
+        if not CheckArgs.isStr(json["scope"]): return CODE_ARG_INVALID
 
-    #     scopeStr = json["scope"]
-    #     if scopeStr in user.getAllPrivileges():
-    #         return CODE_PRIVILEGE_EXISTED
+        scopeStr = json["scope"]
+        if scopeStr in user.getAllPrivileges():
+            return CODE_PRIVILEGE_EXISTED
         
-    #     scope = Scope.fromScopeStr(scopeStr)
-    #     if not scope: return CODE_SCOPE_NOT_FOUND
+        scope = Scope.fromScopeStr(scopeStr)
+        if not scope: return CODE_SCOPE_NOT_FOUND
 
-    #     pri = Privilege()
-    #     pri.openid = user.openid
-    #     pri.scopeId = scope.id
-    #     db.session.add(pri)
+        pri = Privilege()
+        pri.openid = user.openid
+        pri.scopeId = scope.id
+        db.session.add(pri)
 
-    #     try:
-    #         db.session.commit()
-    #     except:
-    #         return CODE_DATABASE_ERROR
+        try:
+            db.session.commit()
+        except:
+            return CODE_DATABASE_ERROR
         
-    #     rtn = {"scopes": user.getAllPrivileges()}
-    #     rtn.update(CODE_SUCCESS)
-    #     return rtn
+        rtn = {"scopes": user.getAllPrivileges()}
+        rtn.update(CODE_SUCCESS)
+        return rtn
 
 @authRouter.route("/user/<openid>/scope/<scopeStr>/", methods=["DELETE"])
-@requireScope(["profile scopeAdmin"])
+@requireScope(["User scopeAdmin"])
 def delUsrScopeInfo(openid, scopeStr):
     user = User.fromOpenid(openid)
     if not user: return CODE_USER_NOT_FOUND
@@ -332,7 +349,7 @@ def delUsrScopeInfo(openid, scopeStr):
 if config == DevelopmentConfig:
     @authRouter.route("/testaccount/<openid>/")
     def switchToTestAccount(openid):
-        challengeScope(["profile"])
+        challengeScope(["User"])
         oldOpenid = g.get("openid")
 
         user = User.fromOpenid(openid)
