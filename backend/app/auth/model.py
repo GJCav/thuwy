@@ -1,5 +1,5 @@
 import enum
-from typing import Set
+from typing import Dict, Set
 
 from flask import current_app
 
@@ -85,13 +85,31 @@ class Entity(db.Model):
     )
 
     @property
-    def privilege_set(self, include_group_privilege = True) -> Set[str]:
-        privilege = set([s.name for s in self.scopes])
-        if include_group_privilege:
-            for g in self.groups:
-                privilege |= set([s.name for s in g.scopes])
-        return privilege
+    def privileges(self) -> Set[str]:
+        """
+        返回该实体具备的所有权限
+        """
+        return set([s.name for s in self.scopes])
 
+    @property
+    def group_privileges(self) -> Dict[str, set]:
+        """
+        返回该实体所在组的权限，以字典的形式
+        """
+        rtn = {}
+        for g in self.groups:
+            rtn[g.name] = set([s.name for s in g.scopes])
+        return rtn
+
+    @property
+    def all_privileges(self) -> Set[str]:
+        """
+        返回该实体、及该实体所在组的所有权限
+        """
+        rtn = self.privileges
+        for k in self.group_privileges:
+            rtn |= self.group_privileges[k]
+        return rtn
 
     def __str__(self):
         return f"{self.name}"
@@ -107,13 +125,13 @@ class Scope(db.Model):
     # entities, see Entity.scopes
 
     @staticmethod
-    def find(name):
+    def fromName(name):
         return db.session.query(Scope).filter(Scope.name == name).one_or_none()
 
     
     @staticmethod
     def define(name, des="", suppress_warning=False):
-        exist = Scope.find(name)
+        exist = Scope.fromName(name)
         if exist:
             if not suppress_warning:
                 from app.ColorConsole import Yellow
@@ -143,10 +161,12 @@ class User(db.Model):
         super().__init__(*args, **kwargs)
         if self.entity == None:
             self.entity = Entity(name=self.openid+"_entity")
-            self.entity.scopes.append(Scope.find("User"))
+            self.entity.scopes.append(Scope.fromName("User"))
+
 
     def __repr__(self) -> str:
         return f"User({self.name}, {self.schoolId}, {self.clazz}, {self.openid})"
+
 
     def toDict(self):
         return {
@@ -154,21 +174,13 @@ class User(db.Model):
             "name": self.name,
             "clazz": self.clazz,
             "openid": self.openid,
-            "all-privileges": self.entity.privilege_set if self.entity else {}
+            "privilege_info": self.privilege_info
         }
 
 
     def fromOpenid(openid) -> "User":
         return db.session.query(User).filter(User.openid == openid).one_or_none()
 
-    def queryProfile(openId):
-        openId = str(openId)
-        usr = db.session.query(User).filter(User.openid == openId).one_or_none()
-        if usr == None:
-            return None
-        else:
-            usr = usr.toDict()
-            return usr
 
     def queryName(openid):
         """
@@ -177,6 +189,26 @@ class User(db.Model):
 
         rst = db.session.query(User.name).filter(User.openid == openid).one_or_none()
         return rst[0] if rst else None
+
+    @property
+    def privileges(self):
+        return self.entity.privileges if self.entity else set()
+
+    @property
+    def group_privileges(self):
+        return self.entity.group_privileges if self.entity else dict()
+
+    
+    @property
+    def all_privileges(self):
+        return self.entity.all_privileges if self.entity else set()
+
+    @property
+    def privilege_info(self):
+        return {
+            "privileges": self.entity.privileges,
+            "group_privileges": self.entity.group_privileges
+        } if self.entity else {}
 
 
 class UserBinding(db.Model):

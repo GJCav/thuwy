@@ -105,14 +105,13 @@ def challengeScope(requirerules: List[str]):
     if not user.entity:
         return False
 
-    privileges = user.entity.privilege_set
+    privileges = user.entity.all_privileges
     for rule in requirerules:
         requireScopes = set(rule.split(" "))
         if not requireScopes.issubset(privileges):
             return False
 
     g.openid = openid
-    g.privileges = privileges
     return True
 
 
@@ -123,7 +122,7 @@ def requireScope(requirerules: List[str]):
         unknown_scopes = set()  
         for rule in requirerules:
             for scopeStr in rule.split(" "):
-                if not Scope.find(scopeStr):
+                if not Scope.fromName(scopeStr):
                     unknown_scopes.add(scopeStr)
         
         if unknown_scopes:
@@ -198,12 +197,12 @@ def getMyProfile():
     challengeScope(["User"])
     if not g.get("openid"):
         return CODE_NOT_LOGGED_IN
-    rtn = User.queryProfile(g.openid)
-    
-    if rtn == None:
+
+    user = User.fromOpenid(g.openid)
+    if user == None:
         return CODE_ARG_INVALID
-    
-    rtn["privileges"] = list(g.get("privileges"))
+
+    rtn = user.toDict()
     rtn.update(CODE_SUCCESS)
     return rtn
 
@@ -221,18 +220,19 @@ def setMyProfile():
     return CODE_SUCCESS
 
 @authRouter.route("/profile/<openId>/", methods=["GET"])
-@requireScope(["User admin"])
+@requireScope(["UserAdmin"])
 def getProfile(openId):
     openId = str(openId)
-    profile = User.queryProfile(openId)
-    if profile == None:
+    user = User.fromOpenid(openId)
+    if user == None:
         return CODE_ARG_INVALID
+    profile = user.toDict()
     profile.update(CODE_SUCCESS)
     return profile
 
 
 @authRouter.route("/user/")
-@requireScope(["User admin"])
+@requireScope(["UserAdmin"])
 def getUserList():
     PageLimit = 30
 
@@ -255,7 +255,7 @@ def getUserList():
 
 
 @authRouter.route("/user/<openid>/", methods=["DELETE"])
-@requireScope(["User admin"])
+@requireScope(["UserAdmin"])
 def unbindUser(openid):
     if not openid:
         return CODE_ARG_INVALID
@@ -290,7 +290,7 @@ def usrScopeInfo(openid):
     if not user: return CODE_USER_NOT_FOUND
 
     if request.method == "GET":
-        rtn = {"scopes": user.getAllPrivileges()}
+        rtn = {"scopes": user.privileges}
         rtn.update(CODE_SUCCESS)
         return rtn
     elif request.method == "POST":
@@ -300,38 +300,35 @@ def usrScopeInfo(openid):
         if not CheckArgs.isStr(json["scope"]): return CODE_ARG_INVALID
 
         scopeStr = json["scope"]
-        if scopeStr in user.getAllPrivileges():
+        if scopeStr in user.privileges:
             return CODE_PRIVILEGE_EXISTED
         
-        scope = Scope.fromScopeStr(scopeStr)
+        scope = Scope.fromName(scope)
         if not scope: return CODE_SCOPE_NOT_FOUND
 
-        pri = Privilege()
-        pri.openid = user.openid
-        pri.scopeId = scope.id
-        db.session.add(pri)
+        user.entity.scopes.append(scope)
 
         try:
             db.session.commit()
         except:
             return CODE_DATABASE_ERROR
         
-        rtn = {"scopes": user.getAllPrivileges()}
+        rtn = {"scopes": user.privileges}
         rtn.update(CODE_SUCCESS)
         return rtn
 
 @authRouter.route("/user/<openid>/scope/<scopeStr>/", methods=["DELETE"])
-@requireScope(["User ScopeAdmin"])
+@requireScope(["ScopeAdmin"])
 def delUsrScopeInfo(openid, scopeStr):
     user = User.fromOpenid(openid)
     if not user: return CODE_USER_NOT_FOUND
 
-    ownPrivileges = user.privileges
     found = False
-    for pri in ownPrivileges:
-        if pri.scope.scope == scopeStr:
-            db.session.delete(pri)
-            found = True
+    if user.entity:
+        for scope in user.entity.scopes:
+            if scope.name == scopeStr:
+                user.entity.scopes.remove(scope)
+                found = True
     
     try:
         db.session.commit()
@@ -349,8 +346,7 @@ def delUsrScopeInfo(openid, scopeStr):
 if config == DevelopmentConfig:
     @authRouter.route("/testaccount/<openid>/")
     def switchToTestAccount(openid):
-        challengeScope(["User"])
-        oldOpenid = g.get("openid")
+        oldOpenid = session["openid"]
 
         user = User.fromOpenid(openid)
         if not user:
