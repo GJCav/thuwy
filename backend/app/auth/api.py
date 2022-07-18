@@ -321,7 +321,7 @@ def usrScopeInfo(openid):
         return rtn
 
 @authRouter.route("/user/<openid>/scope/<scopeStr>/", methods=["DELETE"])
-@requireScope(["User scopeAdmin"])
+@requireScope(["User ScopeAdmin"])
 def delUsrScopeInfo(openid, scopeStr):
     user = User.fromOpenid(openid)
     if not user: return CODE_USER_NOT_FOUND

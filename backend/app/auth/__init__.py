@@ -7,10 +7,6 @@ from config import DevelopmentConfig
 
 authRouter = Blueprint("auth", __name__)
 
-from . import api
-from .api import requireScope, challengeScope # 其他模块可直接从次导出
-
-
 def init():
     with app.app_context():
         from .model import db, User, Scope
@@ -19,6 +15,10 @@ def init():
         BasicUser = Scope.define("User", "Basic user permission", True)
         ScopeAdmin = Scope.define("ScopeAdmin", "Admin for permission", True)
         UserAdmin = Scope.define("UserAdmin", "Admin for all users", True)
+        _Admin = Scope.define("admin", "will delete after refactory... fuck")
+        _Congyou = Scope.define("congyou", "will delete later")
+        _Dayi = Scope.define("dayi", "will delete later")
+        
 
         userSys = User.fromOpenid(userSysName)
         if not userSys:
@@ -49,4 +49,8 @@ def init():
                 db.session.add(normalUser)
                 db.session.commit()
 
+
 init()
+
+from . import api
+from .api import requireScope, challengeScope # 其他模块可直接从次导出
