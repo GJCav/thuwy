@@ -217,6 +217,11 @@ def setMyProfile():
     user = User.fromOpenid(g.openid)
     user.email = json['email']
 
+    try:
+        db.session.commit()
+    except:
+        return CODE_DATABASE_ERROR
+
     return CODE_SUCCESS
 
 @authRouter.route("/profile/<openId>/", methods=["GET"])
@@ -290,7 +295,7 @@ def usrScopeInfo(openid):
     if not user: return CODE_USER_NOT_FOUND
 
     if request.method == "GET":
-        rtn = {"scopes": user.privileges}
+        rtn = {"scopes": list(user.privileges)}
         rtn.update(CODE_SUCCESS)
         return rtn
     elif request.method == "POST":
@@ -313,7 +318,7 @@ def usrScopeInfo(openid):
         except:
             return CODE_DATABASE_ERROR
         
-        rtn = {"scopes": user.privileges}
+        rtn = {"scopes": list(user.privileges)}
         rtn.update(CODE_SUCCESS)
         return rtn
 
@@ -337,7 +342,7 @@ def delUsrScopeInfo(openid, scopeStr):
 
     if not found: return CODE_PRIVILEGE_NOT_FOUND
 
-    rtn = {"scopes": user.getAllPrivileges()}
+    rtn = {"scopes": list(user.privileges)}
     rtn.update(CODE_SUCCESS)
     return rtn
 
@@ -346,9 +351,10 @@ def delUsrScopeInfo(openid, scopeStr):
 if config == DevelopmentConfig:
     @authRouter.route("/testaccount/<openid>/")
     def switchToTestAccount(openid):
-        oldOpenid = session["openid"]
+        oldOpenid = session.get("openid")
 
         user = User.fromOpenid(openid)
+        session.permanent = True
         if not user:
             if session.get("openid"): session.pop("openid")
             return {"old": oldOpenid, "current": None}
