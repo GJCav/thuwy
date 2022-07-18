@@ -1,4 +1,5 @@
 from flask import Blueprint
+from app.auth.model import Scope
 
 from config import DevelopmentConfig
 
@@ -9,41 +10,27 @@ from .api import requireScope, challengeScope
 
 
 def init():
-    from .model import db, User, Privilege, Scope
+    from .model import db, User
     from config import userSysName
 
-    scopes = [
-        {"scope": "profile", "des": "基本用户信息"},
-        {"scope": "admin", "des": "管理员权限"},
-        {"scope": "congyou", "des": "从游坊管理权限"},
-        {"scope": "dayi", "des": "答疑坊管理权限"},
-        {"scope": "*", "des": "获取用户具有的所有权限"},
-        {"scope": "scopeAdmin", "des": "权限管理员，可以管理Scope、管理他人权限"}
-    ]
-    for e in scopes:
-        scope = Scope.fromScopeStr(e["scope"])
-        if not scope:
-            scope = Scope()
-            scope.scope = e["scope"]
-            scope.description = e["des"]
-            db.session.add(scope)
-    db.session.commit()
+    Scope.define("User", "Basic user permission", True)
+    PermissionAdmin = Scope.define("PermissionAdmin", "Admin for permission", True)
+    UserAdmin = Scope.define("UserAdmin", "Admin for all users", True)
+
 
     userSys = User.fromOpenid(userSysName)
     if not userSys:
-        userSys = User(userSysName)
-        userSys.openid = userSysName
-        userSys.name = userSysName
-        userSys.schoolId = userSysName
-        userSys.clazz = userSysName
+        userSys = User(
+            openid=userSysName,
+            name = userSysName,
+            schoolId = userSysName,
+            clazz = userSysName
+        )
         db.session.add(userSys)
 
-        sysAdminPrivilege = Privilege()
-        sysAdminPrivilege.openid = userSys.openid
-        sysAdminPrivilege.scope = (
-            db.session.query(Scope).filter(Scope.scope == "admin").one_or_none()
-        )
-        db.session.add(sysAdminPrivilege)
+        userSys.entity.scopes.append(PermissionAdmin)
+        userSys.entity.scopes.append(UserAdmin)
+        
         db.session.commit()
 
     from config import config
@@ -51,24 +38,11 @@ def init():
         # 创建测试账号
         normalUser = User.fromOpenid("normal_user")
         if not normalUser:
-            normalUser = User("normal_user")
-            normalUser.name = "normal_user"
-            normalUser.schoolId = "2020018888"
-            normalUser.clazz = "未央-测试01"
+            normalUser = User(
+                name = "normal_user",
+                openid = "normal_user",
+                schoolId = "2020018888",
+                clazz = "未央-测试01",
+            )
             db.session.add(normalUser)
-            db.session.commit()
-
-        superAdmin = User.fromOpenid("super_admin")
-        if not superAdmin:
-            superAdmin = User("super_admin")
-            superAdmin.name = "super_admin"
-            superAdmin.schoolId = "2020019999"
-            superAdmin.clazz = "未央-测试02"
-            db.session.add(superAdmin)
-
-            for e in scopes:
-                pri = Privilege()
-                pri.openid = superAdmin.openid
-                pri.scopeId = Scope.fromScopeStr(e["scope"]).id
-                db.session.add(pri)
             db.session.commit()
