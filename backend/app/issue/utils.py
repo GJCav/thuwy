@@ -14,7 +14,7 @@ def _split(string: str, sep: str = ";") -> List[str]:
 def _am_admin() -> bool:
     from app.auth import challengeScope
 
-    return challengeScope(["profile admin", "profile dayi"])
+    return challengeScope(["User admin", "User dayi"])
 
 
 def _try_modify_visibility(visibility: str) -> Visibility:

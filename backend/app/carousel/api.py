@@ -25,7 +25,7 @@ def getCarouselList():
 
 
 @carouselRouter.route("/carousel/", methods=["POST"])
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def addCarousel():
     json = request.get_json()
 
@@ -63,7 +63,7 @@ def addCarousel():
 
 
 @carouselRouter.route("/carousel/<int:carouselId>/")
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def getCarouselInfo(carouselId):
     msg = CarouselMsg.queryById(carouselId)
 
@@ -78,7 +78,7 @@ def getCarouselInfo(carouselId):
 
 
 @carouselRouter.route("/carousel/<int:carouselId>/", methods=["POST"])
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def modifyCarouselMsg(carouselId):
     msg = CarouselMsg.queryById(carouselId)
     if msg == None:
@@ -136,7 +136,7 @@ def modifyCarouselMsg(carouselId):
 
 
 @carouselRouter.route("/carousel/history/", methods=["POST"])
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def getHistory():
     qry = db.session.query(CarouselMsg)
 

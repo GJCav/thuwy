@@ -7,28 +7,28 @@ import time as Time
 import functools
 import os
 import traceback
+import re as Regex
 
 from app.auth import util
 
 from . import authRouter
 from config import WX_APP_ID, WX_APP_SECRET, config, DevelopmentConfig
-from app import adminReqIdPool
 from app.comerrs import *
 from .errcode import *
 import app.checkargs as CheckArgs
 from app import timetools as timestamp
+import app.models as Model
 
 from .model import (
-    OAUTH_CODE_LEN,
-    OAUTH_TOKEN_LEN,
-    OAuthReqScope,
-    OAuthRequest,
-    OAuthToken,
-    Privilege,
+    Entity,
+    EntityAssociation,
+    EntityType,
+    Permission,
     db,
-    AdminRequest,
     User,
     UserBinding,
+    selectEntityAssociation,
+    selectPermission
 )
 from .model import Scope
 
@@ -84,7 +84,7 @@ def login():
         return CODE_LOGIN_UNKOWN
 
     user = (
-        db.session.query(User.openid, User.schoolId)
+        db.session.query(User.openid, User.school_id)
         .filter(User.openid == openid)
         .limit(1)
         .one_or_none()
@@ -101,65 +101,47 @@ def login():
     return rtn
 
 
-def challengeScope(scopes: List[str]):
-    if not g.get("privileges"):
-        privileges = set()
-        openid = session.get("openid")
-        token = None
-        if openid:
-            g.openid = openid
-            user = User.fromOpenid(openid)
-            if user.schoolId:
-                privileges.add("profile")
-            for p in user.privileges:
-                privileges.add(p.scope.scope)
-        elif request.headers.get("Token"):
-            tokenStr = request.headers.get("Token")
-            token: OAuthToken = (
-                db.session.query(OAuthToken)
-                .filter(OAuthToken.token == tokenStr)
-                .filter(OAuthToken.expireAt >= timestamp.now())
-                .one_or_none()
-            )
-            if token:
-                g.openid = token.ownerId
-                g.token = token
-                if token.owner.schoolId:
-                    privileges.add("profile")
-                for s in token.scopes:
-                    privileges.add(s.scope.scope)
-        g.privileges = privileges
+def challengeScope(requirerules: List[str]):
+    openid = session.get("openid")
+    if not openid:
+        return False
+    
+    user = User.fromOpenid(openid)
+    if not user:
+        return False
 
-    privileges = g.privileges
+    if not user.entity:
+        return False
 
-    canAccess = False
-    for target in scopes:
-        require = set(target.split(" "))
-        if require.issubset(privileges):
-            canAccess = True
-            break
-    return canAccess
+    privileges = user.entity.all_privileges
+    for rule in requirerules:
+        requireScopes = set(rule.split(" "))
+        if not requireScopes.issubset(privileges):
+            return False
+
+    g.openid = openid
+    return True
 
 
-def requireScope(scopes: List[str]):
+def requireScope(requirerules: List[str]):
+    # validate scopes here
+    from app import app
+    with app.app_context():
+        unknown_scopes = set()  
+        for rule in requirerules:
+            for scopeStr in rule.split(" "):
+                if not Scope.fromName(scopeStr):
+                    unknown_scopes.add(scopeStr)
+        
+        if unknown_scopes:
+            raise ValueError(f"unknown scopes: {unknown_scopes}")
+
     def _checkScope(handler):
         @functools.wraps(handler)
         def inner(*args, **kwargs):
-            canAccess = challengeScope(scopes)
-            if canAccess:
-                revokeSession = False
-                if g.get("token"):
-                    session["openid"] = g.token.owner.openid  # 兼容老代码，之后会删除
-                    revokeSession = True
-                rtn = handler(*args, **kwargs)
-                if revokeSession:
-                    session.pop("openid")
-                return rtn
-            else:
-                rtn = {"requirement": scopes}
-                rtn.update(CODE_ACCESS_DENIED)
-                return rtn
-
+            canAccess = challengeScope(requirerules)
+            if canAccess: return handler(*args, **kwargs)
+            else: return CODE_ACCESS_DENIED
         return inner
 
     return _checkScope
@@ -195,7 +177,7 @@ def bind():
     openid = session["openid"]
     user = User.fromOpenid(openid)
 
-    if user.schoolId != None:
+    if user.school_id != None:
         return CODE_ALREADY_BOUND
 
     bdnInfo = UserBinding.check(schoolId, name, clazz)
@@ -206,7 +188,7 @@ def bind():
 
     try:
         user.name = name
-        user.schoolId = schoolId
+        user.school_id = schoolId
         user.clazz = clazz
         bdnInfo.openid = openid
 
@@ -220,21 +202,21 @@ def bind():
 
 @authRouter.route("/profile/")
 def getMyProfile():
-    challengeScope(["profile"])
+    challengeScope(["User"])
     if not g.get("openid"):
         return CODE_NOT_LOGGED_IN
-    rtn = User.queryProfile(g.openid)
-    
-    if rtn == None:
+
+    user = User.fromOpenid(g.openid)
+    if user == None:
         return CODE_ARG_INVALID
-    
-    rtn["privileges"] = list(g.get("privileges"))
+
+    rtn = user.profile
     rtn.update(CODE_SUCCESS)
     return rtn
 
 
 @authRouter.route("/profile/email/", methods=["POST"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def setMyProfile():
     json = request.get_json()
     if not json: return CODE_ARG_INVALID
@@ -243,139 +225,27 @@ def setMyProfile():
     user = User.fromOpenid(g.openid)
     user.email = json['email']
 
+    try:
+        db.session.commit()
+    except:
+        return CODE_DATABASE_ERROR
+
     return CODE_SUCCESS
 
 @authRouter.route("/profile/<openId>/", methods=["GET"])
-@requireScope(["profile admin"])
+@requireScope(["UserAdmin"])
 def getProfile(openId):
     openId = str(openId)
-    profile = User.queryProfile(openId)
-    if profile == None:
+    user = User.fromOpenid(openId)
+    if user == None:
         return CODE_ARG_INVALID
+    profile = user.profile
     profile.update(CODE_SUCCESS)
     return profile
 
 
-@authRouter.route("/admin/request/", methods=["POST"])
-@requireScope(["profile"])
-def requestAdmin():
-
-    privileges = User.fromOpenid(session["openid"]).privileges
-    for p in privileges:
-        if p.scope.scope == "admin":
-            return CODE_ALREADY_REQUESTED
-
-    try:
-        req = AdminRequest()
-        req.id = adminReqIdPool.next()
-        req.requestor = session["openid"]
-        req.state = 0
-        db.session.add(req)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        return CODE_DATABASE_ERROR
-
-    rtn = {"id": req.id}
-    rtn.update(CODE_SUCCESS)
-    return rtn
-
-
-@authRouter.route("/admin/request/", methods=["GET"])
-@requireScope(["profile admin"])
-def adminReqList():
-    qryRst = db.session.query(AdminRequest).filter(AdminRequest.state == 0).all()
-
-    arr = []
-    for r in qryRst:
-        arr.append(r.toDict())
-
-    rtn = {"list": arr}
-    rtn.update(CODE_SUCCESS)
-    return rtn
-
-
-@authRouter.route("/admin/request/<int:reqId>/", methods=["POST"])
-@requireScope(["profile admin"])
-def examAdminReq(reqId):
-    adminReq = AdminRequest.fromId(reqId)
-    if not adminReq:
-        return CODE_ARG_INVALID
-    if adminReq.state != 0:
-        return CODE_ARG_INVALID
-
-    json = request.get_json()
-    if not CheckArgs.hasAttrs(json, ["pass", "reason"]):
-        return CODE_ARG_MISSING
-
-    if json["pass"] == 1:
-        adminReq.state = 1
-        p = Privilege()
-        p.openid = adminReq.requestor
-        p.scopeId = Scope.fromScopeStr("admin").id
-        db.session.add(p)
-    elif json["pass"] == 0:
-        adminReq.state = 2
-    else:
-        return CODE_ARG_INVALID
-
-    adminReq.reason = json["reason"]
-    adminReq.approver = session["openid"]
-
-    try:
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        return CODE_DATABASE_ERROR
-
-    return CODE_SUCCESS
-
-
-@authRouter.route("/admin/<openid>/", methods=["DELETE"])
-@requireScope(["profile admin"])
-def delAdmin(openid):
-    openid = str(openid)
-
-    adminPrivilege = (
-        db.session.query(Privilege)
-        .filter(Privilege.openid == openid)
-        .filter(Privilege.scopeId == Scope.fromScopeStr("admin").id)
-        .one_or_none()
-    )
-    if not adminPrivilege:
-        return CODE_ARG_INVALID
-
-    db.session.delete(adminPrivilege)
-    try:
-        db.session.commit()
-    except:
-        traceback.print_exc()
-        return CODE_DATABASE_ERROR
-    return CODE_SUCCESS
-
-
-@authRouter.route("/admin/")
-@requireScope(["profile admin"])
-def getAdminList():
-
-    profileArr = []
-
-    privileges: List[Privilege] = (
-        db.session.query(Privilege)
-        .filter(Privilege.scopeId == Scope.fromScopeStr("admin").id)
-        .all()
-    )
-    for p in privileges:
-        profileArr.append(p.user.toDict())
-
-    rtn = {}
-    rtn.update(CODE_SUCCESS)
-    rtn["profiles"] = profileArr
-    return rtn
-
-
 @authRouter.route("/user/")
-@requireScope(["profile admin"])
+@requireScope(["UserAdmin"])
 def getUserList():
     PageLimit = 30
 
@@ -398,7 +268,7 @@ def getUserList():
 
 
 @authRouter.route("/user/<openid>/", methods=["DELETE"])
-@requireScope(["profile admin"])
+@requireScope(["UserAdmin"])
 def unbindUser(openid):
     if not openid:
         return CODE_ARG_INVALID
@@ -412,7 +282,7 @@ def unbindUser(openid):
     if not ubdn:
         return CODE_DATABASE_CONSISTANCE_ERROR
 
-    user.schoolId = None
+    user.school_id = None
     user.name == None
     user.clazz = None
     ubdn.openid = None
@@ -425,15 +295,16 @@ def unbindUser(openid):
 
     return CODE_SUCCESS
 
+########### 用户权限管理 #############
 
 @authRouter.route("/user/<openid>/scope/", methods=["GET", "POST"])
-@requireScope(["profile scopeAdmin"])
+@requireScope(["ScopeAdmin"])
 def usrScopeInfo(openid):
     user = User.fromOpenid(openid)
     if not user: return CODE_USER_NOT_FOUND
 
     if request.method == "GET":
-        rtn = {"scopes": user.getAllPrivileges()}
+        rtn = {"scopes": list(user.privileges)}
         rtn.update(CODE_SUCCESS)
         return rtn
     elif request.method == "POST":
@@ -443,38 +314,35 @@ def usrScopeInfo(openid):
         if not CheckArgs.isStr(json["scope"]): return CODE_ARG_INVALID
 
         scopeStr = json["scope"]
-        if scopeStr in user.getAllPrivileges():
+        if scopeStr in user.privileges:
             return CODE_PRIVILEGE_EXISTED
         
-        scope = Scope.fromScopeStr(scopeStr)
+        scope = Scope.fromName(scopeStr)
         if not scope: return CODE_SCOPE_NOT_FOUND
 
-        pri = Privilege()
-        pri.openid = user.openid
-        pri.scopeId = scope.id
-        db.session.add(pri)
+        user.entity.scopes.append(scope)
 
         try:
             db.session.commit()
         except:
             return CODE_DATABASE_ERROR
         
-        rtn = {"scopes": user.getAllPrivileges()}
+        rtn = {"scopes": list(user.privileges)}
         rtn.update(CODE_SUCCESS)
         return rtn
 
 @authRouter.route("/user/<openid>/scope/<scopeStr>/", methods=["DELETE"])
-@requireScope(["profile scopeAdmin"])
+@requireScope(["ScopeAdmin"])
 def delUsrScopeInfo(openid, scopeStr):
     user = User.fromOpenid(openid)
     if not user: return CODE_USER_NOT_FOUND
 
-    ownPrivileges = user.privileges
     found = False
-    for pri in ownPrivileges:
-        if pri.scope.scope == scopeStr:
-            db.session.delete(pri)
-            found = True
+    if user.entity:
+        for scope in user.entity.scopes:
+            if scope.name == scopeStr:
+                user.entity.scopes.remove(scope)
+                found = True
     
     try:
         db.session.commit()
@@ -483,197 +351,270 @@ def delUsrScopeInfo(openid, scopeStr):
 
     if not found: return CODE_PRIVILEGE_NOT_FOUND
 
-    rtn = {"scopes": user.getAllPrivileges()}
+    rtn = {"scopes": list(user.privileges)}
     rtn.update(CODE_SUCCESS)
     return rtn
 
 
-@authRouter.route("/oauth/authorize/", methods=["POST"])
-def requestOAuth():
-    json = request.json
-    if not json:
+########### 组管理 ###############
+
+@authRouter.route("/auth/group/", methods=["POST"])
+@requireScope(["ScopeAdmin"])
+def createGroup():
+    json = request.get_json()
+    if not json: return CODE_ARG_INVALID
+    if "name" not in json: return CODE_ARG_MISSING
+    if not CheckArgs.isStr(json["name"]): return CODE_ARG_TYPE_ERR
+
+    name = json.get("name")
+    expire_at = json.get("expire_at", 0)
+
+    if expire_at != 0 and expire_at < timestamp.now():
         return CODE_ARG_INVALID
-    if "scopes" not in json:
-        return CODE_ARG_MISSING
-    if not json["scopes"]:
-        return CODE_ARG_MISSING
 
-    scopeList = []
-    for e in json["scopes"]:
-        if not CheckArgs.isStr(e):
-            return CODE_ARG_TYPE_ERR
-        scope = Scope.fromScopeStr(e)
-        if not scope:
-            return CODE_ARG_INVALID
-        scopeList.append(scope)
-
-    code = util.randomString(OAUTH_CODE_LEN)
-    exist = (
-        db.session.query(OAuthRequest)
-        .filter(OAuthRequest.code == code)
-        .filter(OAuthRequest.expireAt >= timestamp.now())
-        .filter(OAuthRequest.reject == 0)
-        .one_or_none()
-    )
-
-    if exist:
-        return CODE_OAUTH_RETRY
-
-    oauthReq = OAuthRequest()
-    oauthReq.code = code
-    oauthReq.expireAt = timestamp.clockAfter(timestamp.now(), 0, 5)
-    db.session.add(oauthReq)
-
-    try:
-        db.session.commit()  # 先提交一次，让oauthReq生成ID
-    except:
-        return CODE_DATABASE_ERROR
-
-    for s in scopeList:
-        s: Scope
-        reqScope = OAuthReqScope()
-        reqScope.scopeId = s.id
-        reqScope.reqId = oauthReq.id
-        db.session.add(reqScope)
+    if Entity.fromGroupName(name):
+        return CODE_GROUP_EXISTED
+    
+    group = Entity(name=name, type=EntityType.Group, expire_at=expire_at)
+    db.session.add(group)
 
     try:
         db.session.commit()
-    except:
-        return CODE_DATABASE_ERROR
+    except Exception as e:
+        return wrap_database_error(e)
 
-    rtn = {}
+    return CODE_SUCCESS
+
+
+@authRouter.route("/auth/group/<group_name>/", methods=["DELETE"])
+@requireScope(["ScopeAdmin"])
+def deleteGroup(group_name):
+    group = Entity.fromGroupName(group_name)
+    if not group: return CODE_GROUP_NOT_FOUND
+    db.session.delete(group)
+    try:
+        db.session.commit()
+    except Exception as e:
+        return wrap_database_error(e)
+
+    return CODE_SUCCESS
+
+
+@authRouter.route("/auth/group/")
+@requireScope(["ScopeAdmin"])
+def listGroup():
+    pageLimit = 30
+
+    expr = request.args.get("regex")
+    if expr:
+        try:
+            Regex.compile(expr)
+        except:
+            return CODE_ARG_INVALID
+
+    page = int(request.args.get("p", "1"))
+
+    try:
+        qry = Entity.selectGroup()
+
+        if expr:
+            qry = qry.filter(Entity.name.regexp_match(expr))
+
+        qry = qry.limit(pageLimit).offset((page - 1) * pageLimit)
+        rst = qry.all()
+
+        group_arr = [e.brief_info for e in rst]
+        rtn = {
+            "groups": group_arr
+        }
+        rtn.update(CODE_SUCCESS)
+        return rtn
+
+    except Exception as e:
+        return wrap_database_error(e)
+
+
+@authRouter.route("/auth/group/<group_name>/")
+@requireScope(["ScopeAdmin"])
+def getGroupInfo(group_name):
+    if not group_name: return CODE_ARG_MISSING
+    group = Entity.fromGroupName(group_name)
+    if not group: return CODE_GROUP_NOT_FOUND
+
+    user_list = []
+
+    member_entities = group.members
+    for entity in member_entities:
+        user = entity.associate_user
+        user_list.append(user.toDict())
+    
+    rtn = group.brief_info
+    rtn["members"] = user_list
+    rtn["privileges"] = list(group.privileges)
     rtn.update(CODE_SUCCESS)
-    rtn.update(oauthReq.toDict())
     return rtn
 
 
-def getOAuthInfo(oauthReq):
-    if oauthReq.reject:
-        return CODE_OAUTH_REJECT
+############# 组权限管理 ############
+@authRouter.route("/auth/group/<group_name>/scope/", methods=["POST"])
+@requireScope(["ScopeAdmin"])
+def addGroupScope(group_name):
+    group = Entity.fromGroupName(group_name)
+    if not group: return CODE_GROUP_NOT_FOUND
 
-    if not oauthReq.token:
-        return CODE_OAUTH_HOLDON
+    json = request.get_json()
+    if not json: return CODE_ARG_INVALID
+    if "scope" not in json: return CODE_ARG_MISSING
+    if not CheckArgs.isStr(json["scope"]):
+        return CODE_ARG_TYPE_ERR
+    scope = Scope.fromName(json["scope"])
+    if not scope: return CODE_SCOPE_NOT_FOUND
+
+    exist = selectPermission(group, scope).one_or_none()
+    if exist:
+        return CODE_PRIVILEGE_EXISTED
+
+    expire_at = json.get("expire_at", 0)
+    if expire_at != 0 and expire_at < timestamp.now():
+        return CODE_ARG_INVALID
+    
+    sql = Permission.insert().values(
+        entity_id=group.id,
+        scope_name=scope.name,
+        expire_at=expire_at
+    )
+
+    try:
+        db.session.execute(sql)
+        db.session.commit()
+    except Exception as e:
+        return wrap_database_error(e)
+    
+    return CODE_SUCCESS
+
+
+@authRouter.route("/auth/group/<group_name>/scope/<scope_name>/", methods=["DELETE"])
+@requireScope(["ScopeAdmin"])
+def delGroupScope(group_name, scope_name):
+    group = Entity.fromGroupName(group_name)
+    if not group: return CODE_GROUP_NOT_FOUND
+
+    scope = Scope.fromName(scope_name)
+    if not scope: return CODE_SCOPE_NOT_FOUND
+
+    exist = selectPermission(group, scope).one_or_none()
+    if not exist:
+        return CODE_PRIVILEGE_NOT_FOUND
+    
+    group.scopes.remove(scope)
+    try:
+        db.session.commit()
+    except Exception as e:
+        return wrap_database_error(e)
+
+    return CODE_SUCCESS
+
+
+############ 组员管理 ############
+@authRouter.route("/auth/group/<group_name>/member/", methods=["POST"])
+@requireScope(["ScopeAdmin"])
+def addGroupMember(group_name):
+    group = Entity.fromGroupName(group_name)
+    if not group: return CODE_GROUP_NOT_FOUND
+
+    json = request.get_json()
+    if not json: return CODE_ARG_INVALID
+    if "openid" not in json: return CODE_ARG_MISSING
+
+    user = User.fromOpenid(json["openid"])
+    if not user: return CODE_USER_NOT_FOUND
+
+    if not user.entity:
+        return CODE_DATABASE_CONSISTANCE_ERROR
+
+    exist = selectEntityAssociation(group, user.entity).one_or_none()
+    if exist: return CODE_GROUP_MEMBER_EXISTED
+
+    expire_at = json.get("expire_at", 0)
+    if expire_at != 0 and expire_at < timestamp.now():
+        return CODE_ARG_INVALID
+
+    try:
+        sql = EntityAssociation.insert().values(
+            group_id = group.id,
+            member_id = user.entity.id,
+            expire_at = expire_at
+        )
+        db.session.execute(sql)
+        db.session.commit()
+    except Exception as e:
+        return wrap_database_error(e)
+
+    return CODE_SUCCESS
+
+
+@authRouter.route("/auth/group/<group_name>/member/<openid>/", methods=["DELETE"])
+@requireScope(["ScopeAdmin"])
+def delGroupMember(group_name, openid):
+    group = Entity.fromGroupName(group_name)
+    if not group: return CODE_GROUP_NOT_FOUND
+
+    user = User.fromOpenid(openid)
+    if not user: return CODE_USER_NOT_FOUND
+
+    if not user.entity:
+        return CODE_DATABASE_CONSISTANCE_ERROR
+
+    exist = selectEntityAssociation(group, user.entity).one_or_none()
+    if not exist: return CODE_GROUP_MEMBER_NOT_FOUND
+
+    group.members.remove(user.entity)
+    try:
+        db.session.commit()
+    except Exception as e:
+        return wrap_database_error(e)
+
+    return CODE_SUCCESS
+
+
+####### Scope 管理 ##########
+@authRouter.route("/auth/scope/")
+def listScopes():
+    expr = request.args.get("regex", None)
+    if expr:
+        try:
+            Regex.compile(expr)
+        except:
+            return CODE_ARG_INVALID
+
+    qry = db.session.query(Scope)
+
+    if expr:
+        qry = qry.filter(Scope.name.regexp_match(expr))
+    
+    pageLimit = 30
+    page = int(request.args.get("p", "1"))
+
+    qry = qry.limit(pageLimit).offset((page-1) * pageLimit)
+    rst = qry.all()
 
     rtn = {
-        "token": oauthReq.token.token,
-        "expire_at": oauthReq.token.expireAt,
-        "scopes": [e.scope.toDict() for e in oauthReq.scopes],
+        "scopes": [Model.to_dict(e) for e in rst]
     }
     rtn.update(CODE_SUCCESS)
+
     return rtn
 
 
-def grantOAuth(oauthReq: OAuthRequest):
-    openid = session.get("openid")
-    if not openid:
-        return CODE_NOT_LOGGED_IN
-
-    if oauthReq.reject:  # 拒绝后重复
-        return CODE_OAUTH_REJECT
-
-    if oauthReq.token != None:  # 授权后重复
-        rtn = {"token": oauthReq.token.token, "expire_at": oauthReq.token.expireAt}
-        rtn.update(CODE_SUCCESS)
-        return rtn
-
-    json = request.json
-    if not json:
-        return CODE_ARG_INVALID
-    if "authorize" not in json:
-        return CODE_ARG_MISSING
-
-    if json["authorize"] == "grant":
-        user = User.fromOpenid(openid)
-        ownPrivileges = set([e.scope.scope for e in user.privileges])
-        reqPrivileges = set([e.scope.scope for e in oauthReq.scopes])
-
-        if User.fromOpenid(openid).schoolId:
-            ownPrivileges.add("profile")
-
-        if '*' in reqPrivileges:
-            reqPrivileges = ownPrivileges
-            oauthReq.scopes.clear()
-            for e in ownPrivileges:
-                reqScope = OAuthReqScope()
-                reqScope.reqId = oauthReq.id
-                reqScope.scopeId = Scope.fromScopeStr(e).id
-                db.session.add(reqScope)
-            db.session.commit()
-
-        if not reqPrivileges.issubset(ownPrivileges):
-            return CODE_ACCESS_DENIED
-
-        tokenStr = util.randomString(OAUTH_TOKEN_LEN)
-        token = (
-            db.session.query(OAuthToken)
-            .filter(OAuthToken.expireAt >= timestamp.now())
-            .filter(OAuthToken.token == tokenStr)
-            .one_or_none()
-        )
-        if token:
-            return CODE_OAUTH_RETRY  # 生成的token str重复了
-
-        token = OAuthToken()
-        token.token = tokenStr
-        token.expireAt = timestamp.daysAfter(7)
-        token.ownerId = openid
-        token.reqId = oauthReq.id
-        try:
-            db.session.add(token)
-            db.session.commit()
-        except:
-            return CODE_DATABASE_ERROR
-
-        for reqScope in oauthReq.scopes:
-            reqScope.tokenId = token.id
-
-        try:
-            db.session.commit()
-        except:
-            return CODE_DATABASE_ERROR
-
-        rtn = {"token": token.token, "expire_at": token.expireAt}
-        rtn.update(CODE_SUCCESS)
-        return rtn
-
-    elif json["authorize"] == "reject":
-        try:
-            oauthReq.reject = 1
-            db.session.commit()
-        except:
-            return CODE_DATABASE_ERROR
-        return CODE_SUCCESS
-
-    else:
-        return CODE_ARG_INVALID
-
-
-@authRouter.route("/oauth/authorize/<authCode>/", methods=["GET", "POST"])
-def modifyOAuth(authCode):
-    if not authCode:
-        return CODE_ARG_MISSING
-    oauthReq: OAuthRequest = (
-        db.session.query(OAuthRequest)
-        .filter(OAuthRequest.expireAt >= timestamp.now())
-        .filter(OAuthRequest.code == authCode)
-        .one_or_none()
-    )
-    if not oauthReq:
-        return CODE_ARG_INVALID
-
-    if request.method == "GET":
-        return getOAuthInfo(oauthReq)
-    elif request.method == "POST":
-        return grantOAuth(oauthReq)
-
+########### Debug 功能 ##############
 
 if config == DevelopmentConfig:
     @authRouter.route("/testaccount/<openid>/")
     def switchToTestAccount(openid):
-        challengeScope(["profile"])
-        oldOpenid = g.get("openid")
+        oldOpenid = session.get("openid")
 
         user = User.fromOpenid(openid)
+        session.permanent = True
         if not user:
             if session.get("openid"): session.pop("openid")
             return {"old": oldOpenid, "current": None}

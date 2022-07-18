@@ -22,7 +22,7 @@ from app.reservation.email import sendEmailByTHUWY, MANAGER_NAMES, MANAGER_EMAIL
 from app.reservation.subscription import sendRsvSubscMsg
 
 @rsvRouter.route("/reservation/")
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def getRsvList():
 
     qry = db.session.query(Reservation).order_by(desc(Reservation.id))
@@ -81,7 +81,7 @@ def getRsvList():
 
 
 @rsvRouter.route("/reservation/", methods=["POST"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def reserve():
     reqJson: dict = request.get_json()
     if not reqJson or not CheckArgs.hasAttrs(
@@ -246,7 +246,7 @@ def reserve():
 
 
 @rsvRouter.route("/reservation/me/")
-@requireScope(["profile"])
+@requireScope(["User"])
 def querymyrsv():
     openid = session["openid"]
 
@@ -334,7 +334,7 @@ def getRsvInfo(rsvId):
 
 
 @rsvRouter.route("/reservation/<int:rsvId>/", methods=["POST"])
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def modifyRsv(rsvId):
     rsv: Reservation = Reservation.query.filter(Reservation.id == rsvId).one_or_none()
 
@@ -417,7 +417,7 @@ def completeRsv(rsv: Reservation):
 
 
 @rsvRouter.route("/reservation/<int:rsvId>/", methods=["DELETE"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def cancelRsv(rsvId):
 
     rsv: Reservation = Reservation.query.filter(Reservation.id == rsvId).one_or_none()
