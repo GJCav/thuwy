@@ -219,7 +219,6 @@ class User(db.Model):
 
 
     def toDict(self):
-        gp = self.privilege_info
         return {
             "school-id": self.school_id,
             "name": self.name,
@@ -266,7 +265,7 @@ class User(db.Model):
         gp = self.group_privileges
         return {
             "privileges": list(self.entity.privileges),
-            "group_privileges": {k: gp[k] for k in gp}
+            "group_privileges": {k: list(gp[k]) for k in gp}
         } if self.entity else {}
 
 
