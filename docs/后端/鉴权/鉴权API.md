@@ -1,5 +1,11 @@
 # 鉴权
 
+> Author: JCav
+>
+> LastUpdate: 20220719
+
+
+
 ## 基本用户信息
 
 ### 登陆
@@ -8,7 +14,7 @@
 
 **API:** `POST /login/`
 
-**请求参数：** Json Object
+**请求参数：** Json **Object**
 
 | 属性 | 类型   | 必填 | 说明                                                         |
 | ---- | ------ | ---- | ------------------------------------------------------------ |
@@ -134,16 +140,16 @@ wx.request({
 
 ### UserProfile 对象
 
-用户档案对象，包含属性如下：
+用户档案对象，包含属性如下：****
 
-| 属性           | 类型      | 说明                    |
-| -------------- | --------- | ----------------------- |
-| name           | string    | 姓名                    |
-| clazz          | string    | 班级                    |
-| school-id      | string    | 学号                    |
-| admin          | bool      | 是否为管理员            |
-| openid         | string    | 用户的openid            |
-| all-privileges | List[str] | 用户具有的所有Scope列表 |
+| 属性           | 类型        | 说明                             |
+| -------------- | ----------- | -------------------------------- |
+| name           | string      | 姓名                             |
+| clazz          | string      | 班级                             |
+| school-id      | string      | 学号                             |
+| admin          | bool        | 是否为管理员                     |
+| openid         | string      | 用户的openid                     |
+| privilege_info | json object | 用户的权限信息（包含组权限信息） |
 
 
 
@@ -153,13 +159,11 @@ wx.request({
 
 **Des：** 获取当前用户信息
 
-**Scope: ** profile
+**Scope: ** `User`
 
 **请求参数：** 无
 
-**返回值：** `UserProfile`对象，附加错误信息，同时附加`privileges`属性。
-
-* `privileges`，类型`List[str]`，描述了当前`Session`或`Token`所具有的权限，可能与`all-privileges`不同。
+**返回值：** `UserProfile`对象
 
 
 
@@ -173,7 +177,7 @@ wx.request({
 
 **Des：** 获取其他用户信息
 
-**Scope:** ["profile admin"]
+**Scope:** `["UserAdmin"]`
 
 **请求参数：** open-id，目标用户的openid
 
@@ -185,7 +189,7 @@ wx.request({
 
 **API：** `GET /user/?clazz=<class>&p=<page>`
 
-**Scope:** ["profile admin"]
+**Scope:** `UserAdmin`
 
 **Args：** 
 
@@ -212,7 +216,7 @@ wx.request({
 
 **Des：** 删除该用户的绑定关系。
 
-**Scope:** ["profile admin"]
+**Scope:** `UserAdmin`
 
 **Args：** 
 
@@ -237,11 +241,11 @@ wx.request({
 
 ### 用户权限(Scope)管理
 
-#### 查询指定用户具有的所有Scope
+#### 列出用户权限
 
 **API：** `GET /user/<openid>/scope/`
 
-**Scope:** ["profile scopeAdmin"]
+**Scope:** `ScopeAdmin`
 
 **返回值：** Json Object，有`scopes`属性，类型为`List[str]`，表示用户的所有权限；同时附加错误信息。
 
@@ -253,11 +257,11 @@ wx.request({
 
 
 
-#### 赋予用户指定Scope权限
+#### 添加用户权限
 
 **API：** `POST /user/<openid>/scope/`
 
-**Scope:** ["profile scopeAdmin"]
+**Scope:** `ScopeAdmin`
 
 **POST Payload：** Json Object, 包含`scope`字段，属性为`str`，表示要添加的`Scope`名称。
 
@@ -277,7 +281,7 @@ wx.request({
 
 **API：** `DELETE /user/<openid>/scope/<scope>/`
 
-**Scope:** ["profile scopeAdmin"]
+**Scope:** `ScopeAdmin`
 
 **返回值：** Json Object，包含`scopes`字段。
 
@@ -290,123 +294,172 @@ wx.request({
 
 
 
+## 组权限管理
+
+该小节API除非特殊说明，权限统一要求`ScopeAdmin`
+
+### 组管理
+
+**新建组**： `POST /auth/group/`
+
+**删除组**： `DELETE /auth/group/<group_name>/`
+
+**组列表**：`GET /auth/group/?regex=<re_expr>`
+
+**组信息**：`GET /auth/group/<group_name>/`
 
 
 
-### 原管理员权限管理
+#### 新建组
 
-> 这一部分API较为老旧了，为兼容性进行保留，以后请使用`用户Scope管理`部分API
+API：`POST /auth/group/`
 
-#### 成为管理员
+Post Payload: Json  Object
 
-**Des:** 申请当前用户成为管理员
+| name      | type            | description |
+| --------- | --------------- | ----------- |
+| name      | string          | 组名        |
+| expire_at | timestamp, 可选 | 超时时间    |
 
-**API:** `POST /admin/request/`
+返回错误码：
 
-**Scope:** profile
-
-**请求参数：** 无
-
-**返回值：** Json Object，属性如下：
-
-| 属性   | 类型   | 说明     |
-| ------ | ------ | -------- |
-| code   | int    | 错误码   |
-| errmsg | string | 错误信息 |
-| id     | int    | 申请id   |
-
-申请后，该请求会加入等待审核清单，等待其他管理员通过后该用户成为管理员。
+| code | msg          | description |
+| ---- | ------------ | ----------- |
+| 401  | 已存在同名组 |             |
 
 
 
-#### 管理员请求列表
+#### 删除组
 
-**API:** `GET /admin/request/`
+API： `DELETE /auth/group/<group_name>/`
 
-**Scope:** ["profile admin"]
+错误码：
 
-**请求参数:** 无
-
-**返回值：** Json Object，属性如下：
-
-| 属性   | 类型       | 说明             |
-| ------ | ---------- | ---------------- |
-| code   | int        | 错误码           |
-| errmsg | string     | 错误信息         |
-| list   | json array | 包含AdminReq对象 |
-
-AdminReq属性：
-
-* id, 请求id
-* requestor，申请者的profile
-* approver, 审核者，可能为空
-* reason, 审核批语，可能为空
-
-**返回值：** Json Object，属性如下：
-
-| 属性   | 类型   | 说明     |
-| ------ | ------ | -------- |
-| code   | int    | 错误码   |
-| errmsg | string | 错误信息 |
+| code | msg          | description |
+| ---- | ------------ | ----------- |
+| 402  | 找不到这个组 |             |
 
 
 
+#### 组列表
 
+API：`GET /auth/group/?regex=<re_expr>`
 
-#### 审核管理员
+Param: 
 
-**Des:** 决定某用户是否通过管理员审核。
+* re_expr，正则表达式，注意url encode
+* p，分页，默认为 1
 
-**API:** `POST /admin/request/<requst-id>/` 
+Response Body: 形如：
 
-**Scope:** ["profile admin"]
-
-**请求参数:** Json Object，
-
-| 属性   | 类型   |                              |
-| ------ | ------ | ---------------------------- |
-| pass   | int    | 是否通过，1 为通过，0 为拒绝 |
-| reason | string | 理由                         |
-
-**返回值：** Json Object，属性如下：
-
-| 属性   | 类型   | 说明     |
-| ------ | ------ | -------- |
-| code   | int    | 错误码   |
-| errmsg | string | 错误信息 |
-
-
-
-#### 获取管理员列表
-
-**API：** `GET /admin/`
-
-**Scope:** ["profile"]
-
-**返回值：**
-
-| 属性     | 类型       | 说明           |
-| -------- | ---------- | -------------- |
-| code     | int        | 错误码         |
-| errmsg   | string     | 错误信息       |
-| profiles | Json Array | 用户档案列表。 |
+```json
+{
+    "code": 0,
+    "errmsg": "成功",
+    "groups": [
+        {
+            "expire_at": 0,
+            "id": 3,
+            "name": "group_1",
+            "type": "Group"
+        },
+        ...
+    ]
+}
+```
 
 
 
-#### 删除管理员
+#### 组信息
 
-**API:** `DELETE /admin/<open-id>/`
+API：`GET /auth/group/<group_name>/`
 
-**Scope:** ["profile admin"]
+```json
+{
+    "code": 0,
+    "errmsg": "成功", 
+    "expire_at": 0, // 超时时间
+    "id": 3,
+    "members": [ // 成员信息
+        {
+            "clazz": "未央-测试01",
+            "email": null,
+            "name": "normal_user",
+            "openid": "normal_user",
+            "school-id": "2020018888"
+        },
+        ...
+    ],
+    "name": "group_1", // 组名
+    "privileges": [ // 组权限
+        "ScopeAdmin", ...
+    ],
+    "type": "Group"
+}
+```
 
-**请求参数：** open-id，要删除的管理员id
-
-**返回值：** Json Object，属性如下：
-
-| 属性   | 类型   | 说明     |
-| ------ | ------ | -------- |
-| code   | int    | 错误码   |
-| errmsg | string | 错误信息 |
 
 
 
+
+
+
+### 组权限管理
+
+**列举权限**： 通过组信息API获取
+
+**添加权限**： `POST /auth/group/<group_name>/scope/`
+
+**删除权限**： `DELETE /auth/group/<group_name>/scope/<scope_name>/`
+
+
+
+#### 添加权限
+
+API：`POST /auth/group/<group_name>/scope/`
+
+POST Payload：
+
+| name      | type                    | description |
+| --------- | ----------------------- | ----------- |
+| scope     | string                  | scope 名    |
+| expire_at | timestamp, 可选，默认 0 | 超时时间    |
+
+
+
+#### 删除权限
+
+API:  `DELETE /auth/group/<group_name>/scope/<scope_name>/`
+
+
+
+
+
+### 组员管理
+
+**列举组员**： 通过组信息API获取
+
+**添加组员**： `POST /auth/group/<group_name>/member/`
+
+**删除组员**： `DELETE /auth/group/<group_name>/member/<openid>/`
+
+
+
+#### 添加组员
+
+API:  `POST /auth/group/<group_name>/member/`
+
+POST payload:
+
+| name      | type            | description  |
+| --------- | --------------- | ------------ |
+| openid    | string          | 用户的openid |
+| expire_at | timestamp, 可选 | 超时时间     |
+
+
+
+## 域管理
+
+### 列出所有域
+
+API：`GET /auth/scope/?regex=<re_expr>`

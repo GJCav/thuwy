@@ -217,7 +217,9 @@ class User(db.Model):
         return f"User({self.name}, {self.school_id}, {self.clazz}, {self.openid})"
 
 
+
     def toDict(self):
+        gp = self.privilege_info
         return {
             "school-id": self.school_id,
             "name": self.name,
