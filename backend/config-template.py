@@ -4,12 +4,14 @@ import datetime
 UNIX_USERNAME = "jcav"
 DB_UNIX_SOCK = r"/run/mysqld/mysqld.sock"
 
+SESSION_HEADER = "Session"
+
+CORS_ORIGINS = ["https://our_static_file_server_domain"]
+CORS_EXPOSE_HEADERS = [SESSION_HEADER]
 
 class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=3)
-    SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_SAMESITE = "None"
     SCHEDULER_TIMEZONE = "Asia/Shanghai"
 
     def set(app):

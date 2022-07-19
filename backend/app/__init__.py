@@ -6,8 +6,15 @@ import config
 from config import MACHINE_ID
 from .snowflake import Snowflake
 from flask_migrate import Migrate
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+CORS(app,
+    origins=config.CORS_ORIGINS,
+    expose_headers=config.CORS_EXPOSE_HEADERS,
+    supports_credentials=True
+)
 
 cfg = config.config
 app.config.from_object(cfg)

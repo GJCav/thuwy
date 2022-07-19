@@ -5,6 +5,7 @@ from flask.sessions import SecureCookieSession
 from flask.sessions import SessionInterface, SessionMixin
 import hashlib
 from itsdangerous import BadSignature, URLSafeTimedSerializer
+from config import SESSION_HEADER
 
 session_json_serializer = TaggedJSONSerializer()
 
@@ -16,7 +17,7 @@ class HeaderSession(SessionInterface):
     salt = "cookie-session"
     digest_method = staticmethod(hashlib.sha1)
     key_derivation = "hmac"
-    header_name = "Session"
+    header_name = SESSION_HEADER
 
     def get_signing_serializer(self, app: "Flask"):
         if not app.secret_key:
