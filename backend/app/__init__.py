@@ -36,6 +36,7 @@ from .advice import adviceRouter
 from .carousel import carouselRouter
 from .congyou import congyouRouter
 from .issue import issueRouter
+from . import minio
 
 app.register_blueprint(authRouter)
 app.register_blueprint(itemRouter)
@@ -44,6 +45,7 @@ app.register_blueprint(adviceRouter)
 app.register_blueprint(carouselRouter)
 app.register_blueprint(congyouRouter)
 app.register_blueprint(issueRouter)
+app.register_blueprint(minio.router)
 
 with app.app_context():
     Models.db.create_all()
