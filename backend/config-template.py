@@ -6,13 +6,21 @@ DB_UNIX_SOCK = r"/run/mysqld/mysqld.sock"
 
 SESSION_HEADER = "Session"
 
-CORS_ORIGINS = ["https://our_static_file_server_domain"]
+CORS_ORIGINS = ["https://host_to_our_site"]
 CORS_EXPOSE_HEADERS = [SESSION_HEADER]
+
+class MinioConfig:
+    END_POINT = "static.thuwy.top"
+    FRONTEND_ORIGIN = "*"
+    TARGET_BUCKET = "image"
+    ACCESS_KEY = "access_key"
+    SECRET_KEY = "secret_key"
 
 class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(days=3)
     SCHEDULER_TIMEZONE = "Asia/Shanghai"
+    UPLOAD_FOLDER = "/tmp/minio_upload"
 
     def set(app):
         pass
