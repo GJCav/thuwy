@@ -654,7 +654,19 @@ def requestQRCode(code):
     if code not in qrauth_socketio._codes:
         return CODE_ARG_INVALID
 
-    res: R.Response = wxapi.wx_getUnlimited("/auth/" + code)  # TODO: 在这里设置 Page，等待小程序端开发
+    scene = "/auth/" + code
+    page  = "pages/to_be_set"       # TODO: 在这里设置 Page，等待小程序端开发
+    version = "develop" if config == DevelopmentConfig else "release"
+    check_path = config != DevelopmentConfig
+    
+    res: R.Response = wxapi.wx_getUnlimited(
+        scene=scene,
+        page=page,
+        check_path=check_path,
+        env_version=version,
+        width=280
+    )
+    
     if not res:
         abort(500)
 
