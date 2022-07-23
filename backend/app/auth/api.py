@@ -1,5 +1,6 @@
 from typing import List
-from flask import request, session, g
+from flask import abort, request, send_file, session, g
+import flask
 import requests as R
 import requests.exceptions as RE
 import json as Json
@@ -8,8 +9,11 @@ import functools
 import os
 import traceback
 import re as Regex
+from flask_socketio import Namespace, emit
+from app import socketio_app
 
 from app.auth import util
+import app.wxapi as wxapi
 
 from . import authRouter
 from config import WX_APP_ID, WX_APP_SECRET, config, DevelopmentConfig
@@ -606,6 +610,73 @@ def listScopes():
     return rtn
 
 
+
+####### SocketIO QR Code Auth ###########
+class QRAuthNamespace(Namespace):
+    def __init__(self, namespace=None):
+        super().__init__(namespace)
+        self._clients = {}
+        self._codes = {}
+
+
+    def on_connect(self, ):
+        clients = self._clients
+        codes = self._codes
+
+        from .util import randomString
+
+        code = randomString(16)
+        if code in codes:
+            return False # reject connection
+        
+        sid = str(request.sid)
+        clients[sid] = code
+        codes[code] = sid
+
+        emit("code", code)
+
+
+    def on_disconnect(self):
+        clients = self._clients
+        codes = self._codes
+
+        code = clients[request.sid]
+        del clients[request.sid]
+        del codes[code]
+
+
+qrauth_socketio = QRAuthNamespace("/auth")
+socketio_app.on_namespace(qrauth_socketio)
+
+@authRouter.route("/auth/qrcode/<code>/")
+def requestQRCode(code):
+    if not code: return CODE_ARG_MISSING
+    if code not in qrauth_socketio._codes:
+        return CODE_ARG_INVALID
+
+    res: R.Response = wxapi.wx_getUnlimited("/auth/" + code)  # TODO: 在这里设置 Page，等待小程序端开发
+    if not res:
+        abort(500)
+
+    return flask.Response(res.content, res.headers.get("Content-Type"))
+
+
+@authRouter.route("/auth/qrcode/authencate/<code>/")
+@requireScope(["User"])
+def authencateQRAuth(code):
+    if not code: return CODE_ARG_MISSING
+
+    clients = qrauth_socketio._clients
+    codes = qrauth_socketio._codes
+
+    if code not in codes:
+        return CODE_ARG_INVALID
+    
+    sid = codes[code]
+    qrauth_socketio.emit("session", request.headers.get("Session"), room=sid)
+    qrauth_socketio.disconnect(sid)
+    return CODE_SUCCESS
+
 ########### Debug 功能 ##############
 
 if config == DevelopmentConfig:
@@ -621,3 +692,8 @@ if config == DevelopmentConfig:
         else:
             session["openid"] = user.openid
             return {"old": oldOpenid, "current": user.openid}
+
+
+    @authRouter.route("/testqrauth/")
+    def testQRAuth():
+        return send_file("auth/testqrauth.html")

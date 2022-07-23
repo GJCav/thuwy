@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<html>
+<head>
+  <title>test QR Auth</title>
+</head>
+<body>
+  <div>
+    <h3>连接到服务器</h3>
+    <button id="open_socketio">打开SocketIO</button>
+  </div>
+  <br/>
+
+  <div>
+    <h3>Status</h3>
+    <span id="status"></span>
+    <br/>
+
+    <img src="" id="qr" />
+  </div>
+
+  <script src="https://unpkg.com/socket.io-client@4.5.0/dist/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+  <script>
+    let socket = null;
+    let code = null;
+    let session = null;
+
+    let status = document.getElementById("status")
+
+    document.getElementById("open_socketio").addEventListener("click", () => {
+      socket = io("/auth");
+      socket.on("code", (_code) => {
+        code = _code;
+        status.innerText = `CODE: ${code}`
+
+        document.getElementById("qr").src = `/auth/qrcode/${code}/`
+      })
+
+      socket.on("session", (_session) => {
+        session = _session
+        status.innerText = "session: " + session
+      })
+    })
+
+  </script>
+</body>
+</html>

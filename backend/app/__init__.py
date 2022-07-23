@@ -7,8 +7,11 @@ from config import MACHINE_ID
 from .snowflake import Snowflake
 from flask_migrate import Migrate
 from flask_cors import CORS
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
+
+socketio_app = SocketIO(app)
 
 CORS(app,
     origins=config.CORS_ORIGINS,
