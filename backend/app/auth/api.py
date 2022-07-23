@@ -673,7 +673,7 @@ def requestQRCode(code):
     return flask.Response(res.content, res.headers.get("Content-Type"))
 
 
-@authRouter.route("/auth/qrcode/authencate/<code>/")
+@authRouter.route("/auth/authencate/<code>/")
 @requireScope(["User"])
 def authencateQRAuth(code):
     if not code: return CODE_ARG_MISSING
@@ -709,3 +709,8 @@ if config == DevelopmentConfig:
     @authRouter.route("/testqrauth/")
     def testQRAuth():
         return send_file("auth/testqrauth.html")
+
+    
+    @authRouter.route("/test_authorize_qr/")
+    def testAuthorizeQR():
+        return send_file("auth/testqrauth_authorize.html")
