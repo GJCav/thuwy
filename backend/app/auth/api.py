@@ -670,7 +670,11 @@ def requestQRCode(code):
     if not res:
         abort(500)
 
-    return flask.Response(res.content, res.headers.get("Content-Type"))
+    return flask.Response(
+        res.content, 
+        status=200, 
+        mimetype=res.headers.get("Content-Type")
+    )
 
 
 @authRouter.route("/auth/authencate/<code>/")
