@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>网页端模拟授权扫码登陆</title>
+</head>
+
+<body>
+  <div>
+    <h3>登录</h3>
+    用户名：<input id="user_name" type="text" placeholder="用户名"/>
+    <button id="login">登陆</button>
+    <br/>
+    当前账号：<span id="current_user"></span> <br/>
+    Session: <span id="session_value"></span>
+  </div>
+
+  <div>
+    <h3>授权</h3>
+    Code: <input id="code_input" type="text" placeholder="code value" />
+    <button id="authorize">授权</button>
+  </div>
+
+  <script>
+    let session = ""
+
+    document.getElementById("login").addEventListener("click", () => {
+      let name = document.getElementById("user_name").value
+      fetch("/testaccount/" + name + "/").then((res) => {
+        if(res.status != 200){
+          throw `switch account error: http code: ${res.status}`
+        }
+        session = res.headers.get("Session")
+        document.getElementById("session_value").innerText = session
+        return res.json()
+      }).then((j) => {
+        document.getElementById("current_user").innerText = j.current
+      }).catch(e => alert(e))
+    })
+
+    document.getElementById("authorize").addEventListener("click", () => {
+      let code = document.getElementById("code_input").value
+      fetch(`/auth/authencate/${code}/`, {headers: {Session: session}}).then((res) => {
+        if(res.status != 200) throw `authorize error, http code: ${res.status}`
+        return res.json()
+      }).then(j => {
+        if(j.code != 0){
+          throw `authorize error, errmsg: ${j.errmsg}`
+        }
+      }).catch(s => alert(s))
+    })
+  </script>
+</body>

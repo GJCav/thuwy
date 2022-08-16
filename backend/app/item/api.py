@@ -66,7 +66,7 @@ def itemInfo(itemId):
 
 
 @itemRouter.route("/item/", methods=["POST"])
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def addItem():
     reqJson = request.json
 
@@ -125,7 +125,7 @@ def addItem():
 
 
 @itemRouter.route("/item/<int:itemId>/", methods=["POST"])
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def modifyItem(itemId):
     item = db.session.query(Item).filter(Item.id == itemId).one_or_none()
     if not item:
@@ -163,7 +163,7 @@ def modifyItem(itemId):
 
 
 @itemRouter.route("/item/<int:itemId>/", methods=["DELETE"])
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def delItem(itemId):
     if not CheckArgs.isUint64(itemId):
         return CODE_ARG_INVALID

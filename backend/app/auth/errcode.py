@@ -17,6 +17,12 @@ CODE_ALREADY_REQUESTED = {"code": 102, "errmsg": "请勿重复请求"}
 
 CODE_USER_NOT_FOUND = {"code": 301, "errmsg": "用户不存在"}
 
-CODE_OAUTH_RETRY = {"code": 401, "errmsg": "服务器忙，请重试"}
-CODE_OAUTH_HOLDON = {"code": 402, "errmsg": "等待用户确认"}
-CODE_OAUTH_REJECT = {"code": 403, "errmsg": "用户拒绝授权"}
+CODE_GROUP_EXISTED = {"code": 401, "errmsg": "已存在同名组"}
+CODE_GROUP_NOT_FOUND = {"code": 402, "errmsg": "找不到这个组"}
+CODE_GROUP_MEMBER_EXISTED = {"code": 403, "errmsg": "用户已在该组中"}
+CODE_GROUP_MEMBER_NOT_FOUND = {"code": 404, "errmsg": "组中找不到该用户"}
+
+CODE_SCOPE_NOT_FOUND = {"code": 411, "errmsg": "不存在这个Scope"}
+
+CODE_PRIVILEGE_EXISTED = {"code": 421, "errmsg": "用户已经具有这个权限"}
+CODE_PRIVILEGE_NOT_FOUND = {"code": 422, "errmsg": "用户不具备指定权限"}

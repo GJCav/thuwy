@@ -12,3 +12,8 @@ CODE_DATABASE_ERROR = {"code": 20, "errmsg": "数据库错误"}
 CODE_DATABASE_CONSISTANCE_ERROR = {"code": 21, "errmsg": "database consistance error"}
 
 CODE_SERVER_BUGS = {"code": -100, "errmsg": "服务器错误"}
+
+def wrap_database_error(e: Exception):
+    rtn = {"exception": str(e)}
+    rtn.update(CODE_DATABASE_ERROR)
+    return rtn

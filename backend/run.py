@@ -1,9 +1,12 @@
-import eventlet
-from eventlet import wsgi
-eventlet.monkey_patch()
+from os import environ
 
-from app import app
+if not environ.get("DEBUG"):
+    import eventlet
+    eventlet.monkey_patch()
+
+
+from app import socketio_app, app
 
 
 if __name__ == "__main__":
-    wsgi.server(eventlet.listen(('', 5000)), app)
+    socketio_app.run(app)

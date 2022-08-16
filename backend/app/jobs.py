@@ -6,6 +6,7 @@ from .models import db
 from .item.model import Item
 from .reservation.model import Reservation, LongTimeRsv
 from .reservation import rsv_state as RsvState
+from .congyou.model import Lecture
 
 from . import timetools as timestamp
 
@@ -66,3 +67,11 @@ def autoComplete():
             db.session.commit()
         except:
             traceback.print_exc()
+
+@scheduler.task('cron', hour = '0')
+def updateCongyou() :
+    with app.app_context():
+        lectures = db.session.query(Lecture).all()
+        for e in lectures :
+            e.updatedraw()
+            # print("update success")

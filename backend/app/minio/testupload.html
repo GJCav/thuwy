@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Upload测试站</title>
+</head>
+
+<body>
+    <div>
+        <h3>登陆测试账号</h3>
+        <input id="account_name" type="text" placeholder="account name"/>
+        <button id="switch_account_btn">切换账号</button>
+        <div>当前账号：<span id="account_info">----</span></div>
+    </div>
+    <div>
+        <h3>PUT上传</h3>
+        <input id="file" type="file" />
+        <button id="upload">上传</button>
+        <div>上传结果：<a target="_blank" id="log" href="#">请先上传</a></div>
+    </div>
+    <hr />
+    <div>
+        <form enctype="multipart/form-data" id="post_upload_form">
+            <h3>POST上传</h3>
+            <input type="file" name="file" />
+            <button type="button" id="post_upload">上传</button>
+        </form>
+    </div>
+    <script>
+        let Session = "";
+        document.getElementById("switch_account_btn").addEventListener("click", () => {
+            let account = document.getElementById("account_name").value
+            fetch(`/testaccount/${account}/`, {headers: {Session}}).then((res) => {
+                if(res.status != 200){
+                    throw `http error: ${res.status} ${res.statusText}`
+                }
+                Session = res.headers.get("Session")
+                return res.json()
+            }).then(j => {
+                console.log(j)
+                document.getElementById("account_info").innerText = j.current;
+            }).catch(e => alert(e))
+        })
+
+        function Logger(text) {
+            document.getElementById('log').innerText = text;
+        }
+        document.getElementById('upload').addEventListener('click', async () => {
+            let file = document.getElementById('file').files[0];
+            if (file === undefined) {
+                Logger('文件不能为空');
+                return;
+            }
+            try {
+                let res = await fetch(`uploadurl/${file.name}`, {
+                    method: 'GET',
+                    headers: {Session}
+                });
+                json = await res.json()
+                if(json.code != 0){
+                    console.log(json)
+                }
+                var url = json.data
+            } catch (e) {
+                Logger('错误');
+                throw (e);
+            }
+            if (url === undefined) {
+                Logger('获取上传链接失败');
+                return;
+            }
+            try {
+                let res = await fetch(url, {
+                    method: 'PUT',
+                    body: file
+                });
+                if (res.status !== 200) {
+                    throw (await res.text());
+                }
+            } catch (e) {
+                Logger('错误');
+                throw (e);
+            }
+            url = url.split('?')[0];
+            Logger(url);
+            document.getElementById('log').href = url;
+            document.getElementById('file').value = '';
+        });
+        
+        document.getElementById("post_upload").addEventListener("click", () => {
+            fetch("/upload", {
+                headers: {Session},
+                method: "POST",
+                body: new FormData(document.getElementById("post_upload_form"))
+            }).then(res => {
+                if(res.status != 200){
+                    throw `http error: ${res.status} ${res.statusText}`
+                }
+                return res.json()
+            }).then(j => console.log(j))
+        })
+    </script>
+</body>
+
+</html>

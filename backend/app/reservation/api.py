@@ -18,9 +18,11 @@ import app.snowflake as Snowflake
 
 from config import userSysName
 
+from app.reservation.email import sendEmailByTHUWY, MANAGER_NAMES, MANAGER_EMAILS
+from app.reservation.subscription import sendRsvSubscMsg
 
 @rsvRouter.route("/reservation/")
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def getRsvList():
 
     qry = db.session.query(Reservation).order_by(desc(Reservation.id))
@@ -79,7 +81,7 @@ def getRsvList():
 
 
 @rsvRouter.route("/reservation/", methods=["POST"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def reserve():
     reqJson: dict = request.get_json()
     if not reqJson or not CheckArgs.hasAttrs(
@@ -234,13 +236,17 @@ def reserve():
             print(e)
             rtn["auto-accept"] = "fail"
 
-    rtn.update(CODE_SUCCESS)
+    rtn.update(          )
     rtn["rsv-id"] = finalRsv.id
+
+    sendRsvSubscMsg(finalRsv)
+    sendEmailByTHUWY(1, MANAGER_NAMES, MANAGER_EMAILS)
+
     return rtn
 
 
 @rsvRouter.route("/reservation/me/")
-@requireScope(["profile"])
+@requireScope(["User"])
 def querymyrsv():
     openid = session["openid"]
 
@@ -328,7 +334,7 @@ def getRsvInfo(rsvId):
 
 
 @rsvRouter.route("/reservation/<int:rsvId>/", methods=["POST"])
-@requireScope(["profile admin"])
+@requireScope(["User admin"])
 def modifyRsv(rsvId):
     rsv: Reservation = Reservation.query.filter(Reservation.id == rsvId).one_or_none()
 
@@ -385,6 +391,8 @@ def examRsv(rsv: Reservation, json):
         db.session.rollback()
         return CODE_DATABASE_ERROR
 
+    sendRsvSubscMsg(rsv)
+
     return CODE_SUCCESS
 
 
@@ -403,11 +411,13 @@ def completeRsv(rsv: Reservation):
         print(e)
         return CODE_DATABASE_ERROR
 
+    sendRsvSubscMsg(rsv)
+
     return CODE_SUCCESS
 
 
 @rsvRouter.route("/reservation/<int:rsvId>/", methods=["DELETE"])
-@requireScope(["profile"])
+@requireScope(["User"])
 def cancelRsv(rsvId):
 
     rsv: Reservation = Reservation.query.filter(Reservation.id == rsvId).one_or_none()
@@ -428,4 +438,7 @@ def cancelRsv(rsvId):
     except Exception as e:
         db.session.rollback()
         return CODE_DATABASE_ERROR
+
+    sendRsvSubscMsg(rsv)
+    
     return CODE_SUCCESS

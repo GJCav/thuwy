@@ -1,5 +1,5 @@
+import enum
 from flask_sqlalchemy import SQLAlchemy
-from config import userSysName
 
 db = SQLAlchemy(use_native_unicode="utf8mb4")
 
@@ -8,11 +8,6 @@ def init_db(app):
     db.init_app(app)
     with app.app_context():
         db.create_all()
-
-        from app.auth import init
-
-        init()
-    pass
 
 
 # 太TM神奇了，python的dict没有__dict__属性，不能动态添加属性，如：
@@ -35,6 +30,22 @@ class _Dict(dict):
 
     def __setattr__(self, name: str, value) -> None:
         self[name] = value
+
+
+# 一些小工具
+def to_dict(modelObj: db.Model) -> dict:
+    value = {}
+    for col in modelObj.__table__.columns:
+        attr_val = getattr(modelObj, col.name)
+        if isinstance(attr_val, enum.Enum):
+            value[col.name] = attr_val.name
+        else:
+            value[col.name] = attr_val
+    return value
+
+def from_dict(modelObj, value):
+    for key in value:
+        setattr(modelObj, key, value[key])
 
 
 # 一些常用类型
