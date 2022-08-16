@@ -44,7 +44,7 @@ Page({
             method: 'GET',
             header: {
                 'content-type': 'application/json; charset=utf-8',
-                'cookie': wx.getStorageSync('cookie')
+                'Session': wx.getStorageSync('Session')
             },
             success: (res) => {
                 let that = this
@@ -72,7 +72,7 @@ Page({
             method: 'GET',
             header: {
                 'content-type': 'application/json; charset=utf-8',
-                'cookie': wx.getStorageSync('cookie')
+                'Session': wx.getStorageSync('Session')
             },
             success: (res) => {
                 let that = this
@@ -100,7 +100,7 @@ Page({
             method: 'GET',
             header: {
                 'content-type': 'application/json; charset=utf-8',
-                'cookie': wx.getStorageSync('cookie')
+                'Session': wx.getStorageSync('Session')
             },
             success: (res) => {
                 let that = this

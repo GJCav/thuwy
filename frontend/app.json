@@ -1,5 +1,5 @@
 {
-  "pages":[
+  "pages": [
     "pages/appointment/appointment",
     "pages/appointment/admit/admit",
     "pages/bind/bind",
@@ -14,14 +14,15 @@
     "pages/administrator/administrator",
     "pages/document/document",
     "pages/carousel/carousel",
-    "pages/hide/hide"
+    "pages/hide/hide",
+    "pages/setting/auth_qr/auth_qrcode"
   ],
-  "window":{
-    "onReachBottomDistance":20,
-    "backgroundTextStyle":"light",
+  "window": {
+    "onReachBottomDistance": 20,
+    "backgroundTextStyle": "light",
     "backgroundColor": "#0087a9",
     "navigationBarBackgroundColor": "#0087a9",
-    "navigationBarTextStyle":"white"
+    "navigationBarTextStyle": "white"
   },
   "tabBar": {
     "selectedColor": "#353535",

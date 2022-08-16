@@ -28,7 +28,7 @@ Page({
                 method: 'GET',
                 header: {
                     'content-type': 'application/json; charset=utf-8',
-                    'cookie': wx.getStorageSync('cookie')
+                    'Session': wx.getStorageSync('Session')
                 },
                 success: (res) => {
                     if (res.data.code == 0) {
@@ -83,7 +83,7 @@ Page({
                     method: "POST",
                     header: {
                         'content-type': 'application/json; charset=utf-8',
-                        'cookie': wx.getStorageSync('cookie')
+                        'Session': wx.getStorageSync('Session')
                     },
                     data: {
                         title: this.data.title,
@@ -130,7 +130,7 @@ Page({
                     method: "POST",
                     header: {
                         'content-type': 'application/json; charset=utf-8',
-                        'cookie': wx.getStorageSync('cookie')
+                        'Session': wx.getStorageSync('Session')
                     },
                     data: {
                         response: this.data.answer

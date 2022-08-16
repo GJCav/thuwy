@@ -95,7 +95,7 @@ def login():
     )
 
     if user == None:
-        db.session.add(User(openid))
+        db.session.add(User(openid=openid))
         db.session.commit()
         user = (None, None)
 
@@ -655,7 +655,7 @@ def requestQRCode(code):
         return CODE_ARG_INVALID
 
     scene = "/auth/" + code
-    page  = "pages/to_be_set"       # TODO: 在这里设置 Page，等待小程序端开发
+    page  = "pages/setting/auth_qr/auth_qrcode"
     version = "develop" if config == DevelopmentConfig else "release"
     check_path = config != DevelopmentConfig
     

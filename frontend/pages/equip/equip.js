@@ -273,7 +273,7 @@ Page({
           wx.request({
             header: {
               'content-type': 'application/json; charset=utf-8',
-              'cookie': wx.getStorageSync('cookie')
+              'Session': wx.getStorageSync('Session')
             },
             url: app.globalData.url + '/item/',
             method: "POST",
@@ -354,7 +354,7 @@ Page({
           wx.request({
             header: {
               'content-type': 'application/json; charset=utf-8',
-              'cookie': wx.getStorageSync('cookie')
+              'Session': wx.getStorageSync('Session')
             },
             url: app.globalData.url + '/item/' + that.data.item_id + '/',
             method: "POST",

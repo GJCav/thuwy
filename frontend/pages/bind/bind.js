@@ -56,7 +56,7 @@ Page({
     wx.request({
       header: {
         'content-type': 'application/json; charset=utf-8',
-        'cookie': wx.getStorageSync('cookie')
+        'Session': wx.getStorageSync('Session')
       },
       url: app.globalData.url + '/bind/',
       method: "POST",

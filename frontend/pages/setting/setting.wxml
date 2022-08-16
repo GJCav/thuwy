@@ -1,6 +1,5 @@
 <!--index.wxml-->
 <view class="userinfo">
-  <image class="code" src="/icon/code.png" bindtap="scanQR"></image>
   <block wx:if="{{canIUseOpenData}}">
     <view class="userinfo-avatar">
       <open-data type="userAvatarUrl"></open-data>
