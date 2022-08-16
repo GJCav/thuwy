@@ -55,7 +55,7 @@ Page({
         url: app.globalData.url + '/reservation/?state=1&p=' + page,
         header: {
           'content-type': 'application/json; charset=utf-8',
-          'cookie': wx.getStorageSync('cookie')
+          'Session': wx.getStorageSync('Session')
         },
         method: 'GET',
         success: (res) => {
@@ -90,7 +90,7 @@ Page({
         url: app.globalData.url + '/reservation/?state=2&p=' + page,
         header: {
           'content-type': 'application/json; charset=utf-8',
-          'cookie': wx.getStorageSync('cookie')
+          'Session': wx.getStorageSync('Session')
         },
         method: 'GET',
         success: (res) => {
@@ -307,7 +307,7 @@ Page({
             url: app.globalData.url + '/item/' + value + '/',
             header: {
               'content-type': 'application/json; charset=utf-8',
-              'cookie': wx.getStorageSync('cookie')
+              'Session': wx.getStorageSync('Session')
             },
             method: 'DELETE',
             success: (res) => {

@@ -61,7 +61,7 @@ Page({
             method: 'GET',
             header: {
                 'content-type': 'application/json; charset=utf-8',
-                'cookie': wx.getStorageSync('cookie')
+                'Session': wx.getStorageSync('Session')
             },
             success: (res) => {
                 if (res.data.code == 0) {
@@ -91,7 +91,7 @@ Page({
             method: 'GET',
             header: {
                 'content-type': 'application/json; charset=utf-8',
-                'cookie': wx.getStorageSync('cookie')
+                'Session': wx.getStorageSync('Session')
             },
             success: (res) => {
                 if (res.data.code == 0) {
@@ -121,7 +121,7 @@ Page({
             method: 'GET',
             header: {
                 'content-type': 'application/json; charset=utf-8',
-                'cookie': wx.getStorageSync('cookie')
+                'Session': wx.getStorageSync('Session')
             },
             success: (res) => {
                 if (res.data.code == 0) {
@@ -151,7 +151,7 @@ Page({
             method: 'POST',
             header: {
                 'content-type': 'application/json; charset=utf-8',
-                'cookie': wx.getStorageSync('cookie')
+                'Session': wx.getStorageSync('Session')
             },
             data: {
                 pass: p,
@@ -239,7 +239,7 @@ Page({
                             method: 'DELETE',
                             header: {
                                 'content-type': 'application/json; charset=utf-8',
-                                'cookie': wx.getStorageSync('cookie')
+                                'Session': wx.getStorageSync('Session')
                             },
                             success: (res) => {
                                 if (res.data.code == 0) {
@@ -316,7 +316,7 @@ Page({
                             method: 'DELETE',
                             header: {
                                 'content-type': 'application/json; charset=utf-8',
-                                'cookie': wx.getStorageSync('cookie')
+                                'Session': wx.getStorageSync('Session')
                             },
                             success: (res) => {
                                 if (res.data.code == 0) {

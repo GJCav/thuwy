@@ -18,8 +18,8 @@ Page({
             success: res => {
                 wx.clearStorageSync()
                 wx.setStorage({ //将得到的openid存储到缓存里面方便后面调用
-                    key: "cookie",
-                    data: res.cookies[0]
+                    key: "Session",
+                    data: res.header["Session"]
                 })
                 app.globalData.login = true
                 app.globalData.isadmin = true
@@ -60,8 +60,8 @@ Page({
             success: res => {
                 wx.clearStorageSync()
                 wx.setStorage({ //将得到的openid存储到缓存里面方便后面调用
-                    key: "cookie",
-                    data: res.cookies[0]
+                    key: "Session",
+                    data: res.header["Session"]
                 })
                 app.globalData.login = true
                 app.globalData.isadmin = false

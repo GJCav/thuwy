@@ -18,8 +18,8 @@ App({
                 that.globalData.login = true;
                 that.globalData.userInfo = res.data.bound;
                 wx.setStorage({ //将得到的openid存储到缓存里面方便后面调用
-                  key: "cookie",
-                  data: res.cookies[0]
+                  key: "Session",
+                  data: res.header["Session"]
                 })
                 if (that.globalData.userInfo) {
                   wx.request({
@@ -27,7 +27,7 @@ App({
                     method: 'GET',
                     header: {
                       'content-type': 'application/json; charset=utf-8',
-                      'cookie': res.cookies[0]
+                      'Session': wx.getStorageSync("Session")
                     },
                     success: (res) => {
                       if (res.data.code == 0) {
@@ -70,8 +70,8 @@ App({
       text: '在预约提交成功的情况下，系统会自动完成审批。适用于29号楼会议室等不需要管理员特别审批的物品。'
     }],
     item_group:['全部物品','未央设备','29号楼','其他物品'],
-    url: 'https://api.thuwy.top', //本地测试地址：'http://127.0.0.1:5000'https://api.thuwy.top
+    url: 'https://dev-api.thuwy.top', //本地测试地址：'http://127.0.0.1:5000'https://api.thuwy.top
     picurl: 'https://web.thuwy.top/api',
-    webBackendUrl: 'https://web.thuwy.top/api'
+    webBackendUrl: 'http://39.105.175.237:8500'
   }
 })
