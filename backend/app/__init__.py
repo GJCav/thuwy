@@ -11,7 +11,7 @@ from flask_socketio import SocketIO
 
 app = Flask(__name__)
 
-socketio_app = SocketIO(app)
+socketio_app = SocketIO(app, cors_allowed_origins = config.CORS_ORIGINS)
 
 CORS(app,
     origins=config.CORS_ORIGINS,
