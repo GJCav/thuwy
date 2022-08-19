@@ -1,3 +1,4 @@
+from math import ceil
 from typing import List
 from flask import abort, request, send_file, session, g
 import flask
@@ -255,10 +256,17 @@ def getUserList():
 
     clazz = request.args.get("clazz", None)
     page = request.args.get("p", 1, int)
+    name = request.args.get("name", None)
 
     qry = db.session.query(User)
     if clazz:
         qry = qry.filter(User.clazz == clazz)
+    if name:
+        for c in "\[_%": # 替换特殊字符， `\` 需要最先替换
+            name = name.replace(c, f"\\{c}")
+        qry = qry.filter(User.name.like(f"%{name}%"))
+
+    pageCount = ceil(qry.count() / PageLimit)
 
     qry = qry.limit(PageLimit).offset((page - 1) * PageLimit)
 
@@ -268,6 +276,7 @@ def getUserList():
     rtn = {}
     rtn.update(CODE_SUCCESS)
     rtn["profiles"] = proArr
+    rtn["page_count"] = pageCount
     return rtn
 
 
