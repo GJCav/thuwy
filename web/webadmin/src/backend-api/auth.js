@@ -14,9 +14,9 @@ export const fetchMyProfile = async ({ session }) => {
   return json;
 }
 
-export const fetchUserList = async ({ session, clazz, p }) => {
-  const url = urlcat(base.api("/user/"), { clazz, p })
-  const res = await fetch(url, { headers: { session} })
+export const fetchUserList = async ({ session, clazz, p, name }) => {
+  const url = urlcat(base.api("/user/"), { clazz, p, name })
+  const res = await fetch(url, { headers: { session } })
   if (res.status !== 200) {
     throw new Error(`fetchUserList: HTTP error: ${res.status}`)
   }

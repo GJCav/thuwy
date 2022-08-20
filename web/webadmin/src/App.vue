@@ -14,7 +14,6 @@
       <v-list 
         nav dense 
         active-class="deep-purple--text text--accent-4"
-        :disabled="isLogin"
       >
         <v-list-group
           no-action
@@ -25,14 +24,14 @@
             <v-list-item-title>Home</v-list-item-title>
           </template>
 
-          <v-list-item link to="/">
+          <v-list-item link to="/" :disabled="!isLogin">
             <v-list-item-title>My Profile</v-list-item-title>
             <v-list-item-icon>
               <v-icon>mdi-logout</v-icon>
             </v-list-item-icon>
           </v-list-item>
 
-          <v-list-item link @click="logout" class="red--text text--lighten-2">
+          <v-list-item link @click="logout" class="red--text text--lighten-2" :disabled="!isLogin">
             <v-list-item-title>Logout</v-list-item-title>
             <v-list-item-icon>
               <v-icon color="red">mdi-account</v-icon>
@@ -56,21 +55,21 @@
             <v-list-item-title>User</v-list-item-title>
           </template>
 
-          <v-list-item link to="/userlist">
+          <v-list-item link to="/userlist" :disabled="!hasPrivilege('UserAdmin')">
             <v-list-item-title>User List</v-list-item-title>
             <v-list-item-icon>
               <v-icon>mdi-card-account-mail-outline</v-icon>
             </v-list-item-icon>
           </v-list-item>
 
-          <v-list-item link>
+          <v-list-item link :disabled="!hasPrivilege('UserAdmin')">
             <v-list-item-title>Binding Info</v-list-item-title>
             <v-list-item-icon>
               <v-icon>mdi-link-variant</v-icon>
             </v-list-item-icon>
           </v-list-item>
 
-          <v-list-item link>
+          <v-list-item link :disabled="!hasPrivilege('ScopeAdmin')">
             <v-list-item-title>User Privilege</v-list-item-title>
             <v-list-item-icon>
               <v-icon>mdi-key</v-icon>
@@ -94,14 +93,14 @@
             <v-list-item-title>Group</v-list-item-title>
           </template>
 
-          <v-list-item link>
+          <v-list-item link :disabled="!hasPrivilege('ScopeAdmin')">
             <v-list-item-title>Group List</v-list-item-title>
             <v-list-item-icon>
               <v-icon>mdi-file-tree</v-icon>
             </v-list-item-icon>
           </v-list-item>
 
-          <v-list-item link>
+          <v-list-item link :disabled="!hasPrivilege('ScopeAdmin')">
             <v-list-item-title>Group Privilege</v-list-item-title>
             <v-list-item-icon>
               <v-icon>mdi-key</v-icon>
@@ -133,7 +132,11 @@ export default {
       set(vis) { this.$store.commit('setNavDrawerVisibility', vis); }
     },
     
-    ...mapGetters(["isLogin"])
+    ...mapGetters(["isLogin", "allPrivileges"]),
+
+    hasPrivilege() { return (scopeName) => {
+      return this.$store.getters.allPrivileges.indexOf(scopeName) != -1;
+    }},
   },
 
   methods: {
@@ -141,7 +144,7 @@ export default {
       localStorage.removeItem("session");
       this.$store.commit("setSession", "");
       this.$router.push("/login")
-    }
+    },
   },
 };
 </script>

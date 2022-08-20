@@ -18,7 +18,7 @@ export default new Vuex.Store({
       },
       userPrivileges: [],
       groupPrivilegeInfo: {}
-    }
+    },
   },
   
   getters: {
@@ -37,7 +37,7 @@ export default new Vuex.Store({
     allPrivileges(state) { return auth.getAllPrivileges({
       privileges: state.sessionState.userPrivileges,
       group_privileges: state.sessionState.groupPrivilegeInfo
-    }) } // TODO: 加上 group privileges 所有字段，返回一个 set
+    })},
   },
 
 
@@ -47,6 +47,8 @@ export default new Vuex.Store({
     setNavDrawerVisibility(state, vis) { state.navDrawerVisibility = vis; },
     
     setSession(state, key) { state.sessionState.session = key; },
+
+    setLogin(state, v) { state.sessionState.login = v; },
     
     setProfile(state, key) {
       state.sessionState.profile.clazz  = key.clazz;
@@ -57,7 +59,7 @@ export default new Vuex.Store({
     
     setUserPrivileges(state, privileges) { state.sessionState.userPrivileges = privileges; },
 
-    setGroupPrivilegeInfo(state, priInfo) { state.sessionState.groupPrivilegeInfo = priInfo; }
+    setGroupPrivilegeInfo(state, priInfo) { state.sessionState.groupPrivilegeInfo = priInfo; },
   },
 
 
@@ -74,6 +76,8 @@ export default new Vuex.Store({
         return false;
       }
 
+      commit("setLogin", true)
+
       commit("setSession", session)
       localStorage.setItem("session", session)
       
@@ -82,8 +86,9 @@ export default new Vuex.Store({
       commit("setGroupPrivilegeInfo", json.privilege_info.group_privileges)
       
       return true;
-    }
+    },
   },
+
   modules: {
   },
 });
