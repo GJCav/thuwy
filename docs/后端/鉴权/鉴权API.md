@@ -247,7 +247,19 @@ wx.request({
 
 **Scope:** `ScopeAdmin`
 
-**返回值：** Json Object，有`scopes`属性，类型为`List[str]`，表示用户的所有权限；同时附加错误信息。
+**返回值：** Json Object，有`scopes`属性，类型为`List[PrivilegeInfo]`，表示用户的所有权限；同时附加错误信息。
+
+其中，`PrivilegeInfo` 格式为：
+```json
+{
+  "expire_at": 0, // 权限超时时间，0 表示长期有效
+  "scope": {
+      "create_time": 1660661029423,
+      "description": "Basic user permission",
+      "name": "User"
+  }
+}
+```
 
 **错误码：**
 
@@ -391,8 +403,16 @@ API：`GET /auth/group/<group_name>/`
         ...
     ],
     "name": "group_1", // 组名
-    "privileges": [ // 组权限
-        "ScopeAdmin", ...
+    "privileges": [ // 组权限信息
+        {
+            "expire_at": 0,
+            "scope": {
+                "create_time": 1660661029423,
+                "description": "Basic user permission",
+                "name": "User"
+            }
+        },
+        //...
     ],
     "type": "Group"
 }

@@ -317,7 +317,7 @@ def usrScopeInfo(openid):
     if not user: return CODE_USER_NOT_FOUND
 
     if request.method == "GET":
-        rtn = {"scopes": list(user.privileges)}
+        rtn = { "scopes": user.entity.detailed_privilege_info }
         rtn.update(CODE_SUCCESS)
         return rtn
     elif request.method == "POST":
@@ -447,6 +447,7 @@ def listGroup():
         return wrap_database_error(e)
 
 
+############# 组权限管理 ############
 @authRouter.route("/auth/group/<group_name>/")
 @requireScope(["ScopeAdmin"])
 def getGroupInfo(group_name):
@@ -463,12 +464,11 @@ def getGroupInfo(group_name):
     
     rtn = group.brief_info
     rtn["members"] = user_list
-    rtn["privileges"] = list(group.privileges)
+    rtn["privileges"] = list(group.detailed_privilege_info)
     rtn.update(CODE_SUCCESS)
     return rtn
 
 
-############# 组权限管理 ############
 @authRouter.route("/auth/group/<group_name>/scope/", methods=["POST"])
 @requireScope(["ScopeAdmin"])
 def addGroupScope(group_name):

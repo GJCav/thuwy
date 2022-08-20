@@ -1,4 +1,5 @@
 import enum
+from sqlite3 import Timestamp
 from typing import Dict, List, Set
 
 from flask import current_app
@@ -141,6 +142,22 @@ class Entity(db.Model):
         for k in self.group_privileges:
             rtn |= self.group_privileges[k]
         return rtn
+
+    
+    @property
+    def detailed_privilege_info(self):
+        info_list = []
+        for row in (
+            db.session.query(Permission, Scope)
+                .join(Permission)
+                .filter(or_(Permission.c.expire_at > Timestamp.now(), Permission.c.expire_at == 0))
+                .filter(Permission.c.entity_id == self.id)
+        ):
+            info_list.append({
+                "scope": to_dict(row.Scope),
+                "expire_at": row.expire_at
+            })
+        return info_list
 
     
     @property
