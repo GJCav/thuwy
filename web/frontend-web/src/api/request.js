@@ -1,7 +1,5 @@
 import axios from 'axios';
-import store from '@/store';
-
-const config = store.state.config;
+import config from '@/config';
 
 const request = axios.create({
   baseURL: config.BackAPIAddr,

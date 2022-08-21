@@ -1,58 +1,89 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import DefaultLayout from '@/views/layout/DefaultLayout.vue';
+import HomeView from '@/views/Home.vue';
+import LoginView from '@/views/Login.vue';
+import ProfileView from '@/views/Profile.vue';
+import RsvLayout from '@/views/_layout/RsvLayout.vue';
+import IssueLayout from '@/views/_layout/IssueLayout.vue';
 
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: '/',
-    component: DefaultLayout,
+    name: 'Home',
+    component: HomeView
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: LoginView
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('@/views/About.vue')
+  },
+  {
+    path: '/profile/',
+    name: 'Profile',
+    component: ProfileView
+  },
+  {
+    path: '*',
+    name: 'NotFound',
+    component: () => import('@/views/404.vue')
+  },
+  {
+    path: '/issue/',
+    component: IssueLayout,
     children: [
       {
-        path: '/',
-        name: 'Home',
-        component: () => import('@/views/Home.vue')
+        path: ':id(\\d+)',
+        name: 'IssueDetail',
+        component: () => import('@/views/Issue/IssueDetail.vue')
       },
       {
-        path: '/item',
-        name: 'ItemManage',
-        component: () => import('@/views/ItemManage.vue')
-      },
-      {
-        path: '/item/:id(\\d+)',
-        name: 'ItemInfo',
-        component: () => import('@/views/ItemInfo.vue')
-      },
-      {
-        path: '/item/:id/edit',
-        name: 'ItemEdit',
-        component: () => import('@/views/ItemEdit.vue')
-      },
-      {
-        path: '/item/new',
-        name: 'ItemCreate'
-      },
-      {
-        path: '/user',
-        name: 'UserManage',
-        component: () => import('@/views/UserManage.vue')
-      },
-      {
-        path: '/reservation',
-        name: 'RsvManage',
-        component: () => import('@/views/RsvManage.vue')
-      },
-      {
-        path: '/about',
-        name: 'About',
-        component: () => import('@/views/About.vue')
+        path: 'list',
+        name: 'IssueList',
+        component: () => import('@/views/Issue/IssueList.vue')
       },
       {
         path: '*',
-        name: 'NotFound',
-        component: () => import('@/views/404.vue')
+        name: 'IssueHome',
+        component: () => import('@/views/Issue/IssueHome.vue')
       }
+    ]
+  },
+  {
+    path: '/rsv/',
+    component: RsvLayout,
+    children: [
+      {
+        path: 'item',
+        name: 'ItemManage',
+        component: () => import('@/views/Rsv/ItemManage.vue')
+      },
+      {
+        path: 'item/:id(\\d+)',
+        name: 'ItemInfo',
+        component: () => import('@/views/Rsv/ItemInfo.vue')
+      },
+      {
+        path: 'item/:id/edit',
+        name: 'ItemEdit',
+        component: () => import('@/views/Rsv/ItemEdit.vue')
+      },
+      {
+        path: 'reservation',
+        name: 'RsvManage',
+        component: () => import('@/views/Rsv/RsvManage.vue')
+      },
+      {
+        path: '*',
+        name: 'RsvHome',
+        component: () => import('@/views/Rsv/RsvHome.vue')
+      },
     ]
   }
 ];
