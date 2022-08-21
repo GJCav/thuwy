@@ -1,11 +1,16 @@
 import request from './request';
+import store from '@/store';
 
-export async function getRsvList() {
+export async function getRsvList(session = store.state.session) {
   var rsvList = [];
   let page = 1;
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    let { data } = await request.get(`/reservation/?p=${page}`);
+    let { data } = await request.get(`/reservation/?p=${page}`, {
+      headers: {
+        session
+      }
+    });
     if (data.code !== 0) {
       throw data.errmsg;
     }

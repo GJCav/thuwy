@@ -1,5 +1,6 @@
 <template>
   <v-app :style="{ backgroundImage: `url(${bg})` }">
+    <tool-bar></tool-bar>
     <router-view />
     <v-snackbar
       dark
@@ -22,10 +23,18 @@
         >
       </template></v-snackbar
     >
+    <div style="height: 128px"></div>
+    <v-footer absolute style="background-color: #053239; height: 96px" dark>
+      <v-row class="justify-center">
+        @ {{ new Date().getFullYear() }}清华大学未央书院 微未央网站
+      </v-row>
+    </v-footer>
   </v-app>
 </template>
 
 <script>
+import ToolBar from '@/components/ToolBar.vue';
+
 export default {
   name: 'App',
 
@@ -33,13 +42,20 @@ export default {
     bg: require('@/assets/bg.jpg'),
   }),
   created() {
+    var session = localStorage.getItem('session');
+    if (session) {
+      this.$store.commit('setSession', session);
+    }
     this.$store.dispatch('refreshProfile');
+  },
+  components: {
+    ToolBar,
   },
 };
 </script>
 
 <style scoped>
-div[data-app='true'] {
+div[data-app="true"] {
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;

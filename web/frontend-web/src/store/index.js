@@ -9,7 +9,12 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     config,
+
     user: null,
+    session: '',
+    userPrivileges: [],
+    groupPrivilegeInfo: {},
+
     snackbar: false,
     snackbarMsg: '',
     snackbarTimeout: -1
@@ -17,6 +22,12 @@ export default new Vuex.Store({
   mutations: {
     setUser(state, payload) {
       state.user = payload;
+      state.userPrivileges = payload?.privilege_info?.privileges;
+      state.groupPrivilegeInfo = payload?.privilege_info?.group_privileges;
+    },
+    setSession(state, payload) {
+      state.session = payload;
+      localStorage.setItem('session', payload);
     },
     updateSnackbarStatus(state, payload) {
       state.snackbar = payload;
@@ -29,9 +40,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    async refreshProfile(context) {
-      let user = await getUserProfile();
-      context.commit('setUser', user);
+    async refreshProfile({ state, commit }) {
+      let user = await getUserProfile(state.session);
+      commit('setUser', user);
       return user;
     },
     showMessage(context, { message, timeout = -1 }) {
