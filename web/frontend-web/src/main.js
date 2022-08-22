@@ -1,15 +1,15 @@
 import Vue from 'vue';
-import App from './App.vue';
 import router from './router';
 import store from './store';
 import vuetify from './plugins/vuetify';
+import App from './App.vue';
 
 Vue.config.productionTip = false;
 
 const prevHandler = Vue.config.errorHandler;
 Vue.config.errorHandler = (err, vm, info) => {
   store.dispatch('showMessage', { message: err });
-  prevHandler(err, vm, info);
+  prevHandler && prevHandler(err, vm, info);
 };
 
 new Vue({

@@ -80,7 +80,7 @@
 import { getRsvList, submitAudit, finishRsv } from '@/api/rsv';
 import { getItem } from '@/api/item';
 import ConfirmBox from '@/components/ConfirmBox.vue';
-import RsvItem from '@/components/RsvItem.vue';
+import RsvItem from '@/components/Rsv/RsvItem.vue';
 
 export default {
   data() {

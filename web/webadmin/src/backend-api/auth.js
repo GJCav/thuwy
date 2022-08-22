@@ -14,12 +14,14 @@ export const fetchMyProfile = async ({ session }) => {
   return json;
 }
 
+
 export const fetchUserProfile = async ({ session, openid }) => {
   const url = base.api("/profile/" + openid + "/")
   const res = await fetch(url, { headers: { session }})
   if (res.status != 200) throw new Error(`fetchUserProfile: HTTP error: ${res.status}`);
   return await res.json();
 }
+
 
 export const fetchUserList = async ({ session, clazz, p, name }) => {
   const url = urlcat(base.api("/user/"), { clazz, p, name })
