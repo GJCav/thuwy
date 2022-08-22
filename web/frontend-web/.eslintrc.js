@@ -37,7 +37,8 @@ module.exports = {
             'always'
         ],
         // "no-unused-vars": "off",
-        "vue/script-setup-uses-vars": "off"
+        "vue/script-setup-uses-vars": "off",
+		"linebreak-style": "off"
     },
     "parserOptions": {
         "parse": "vue-eslint-parser"
