@@ -69,7 +69,7 @@
             </v-list-item-icon>
           </v-list-item>
 
-          <v-list-item link :disabled="!hasPrivilege('ScopeAdmin')">
+          <v-list-item link to="/user_privilege" :disabled="!hasPrivilege('ScopeAdmin')">
             <v-list-item-title>User Privilege</v-list-item-title>
             <v-list-item-icon>
               <v-icon>mdi-key</v-icon>

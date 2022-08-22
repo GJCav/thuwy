@@ -3,7 +3,6 @@
   <ErrorDialog :title="dialog.title" :msg="dialog.msg" v-model="dialog.enable"></ErrorDialog>
 
   <!-- 用户列表 -->
-  <!-- filter row -->
   <h1 class="mt-10">用户列表</h1>
   <v-divider class="mt-2 mb-4"></v-divider>
 
@@ -68,6 +67,7 @@
           <v-card-text class="text--primary">
             <p>OpenID: {{item.openid}}</p>
             <p>Class: {{item.clazz}}</p>
+            <v-btn outlined color="primary" @click="jumpToScopeManagement(item)">管理权限</v-btn>
           </v-card-text>
         </v-card>
       </td>
@@ -160,6 +160,13 @@ export default {
       }
 
       this.loadingData = false;
+    },
+
+    jumpToScopeManagement(item) {
+      this.$router.push({
+        name: "user_privilege",
+        params: { initial_openid: item.openid }
+      })
     }
   },
 

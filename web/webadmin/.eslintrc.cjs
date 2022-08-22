@@ -21,6 +21,7 @@ module.exports = {
     rules: {
         'vue/multi-word-component-names': ['warn', {}],
         'no-unused-vars': ['warn', {}],
+        'vue/no-unused-vars': ['warn'],
         'no-trailing-spaces': ["off", {}],
         "quotes": ['off', {}],
         "quote-props": ["off", {}],
