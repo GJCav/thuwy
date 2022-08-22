@@ -71,6 +71,8 @@ export default new Vuex.Store({
      * @param { session, next } `session` will be verified and `next` is provided by router guard
      */
     async verifySession({ commit }, { session }) {
+      console.log("balablala")
+
       const json = await fetchMyProfile({ session });
       if (json.code !== 0) {
         return false;
