@@ -321,10 +321,16 @@ def usrScopeInfo(openid):
         rtn.update(CODE_SUCCESS)
         return rtn
     elif request.method == "POST":
-        json = request.get_json()
+        json: dict = request.get_json()
         if not json: return CODE_ARG_MISSING
         if "scope" not in json: return CODE_ARG_MISSING
         if not CheckArgs.isStr(json["scope"]): return CODE_ARG_INVALID
+        if "expire_at" in json and not CheckArgs.isInt(json["expire_at"]):
+            return CODE_ARG_INVALID
+        expire_at = json.get("expire_at", 0)
+
+        if expire_at != 0 and expire_at < timestamp.now():
+            return CODE_ARG_INVALID
 
         scopeStr = json["scope"]
         if scopeStr in user.privileges:
@@ -333,7 +339,11 @@ def usrScopeInfo(openid):
         scope = Scope.fromName(scopeStr)
         if not scope: return CODE_SCOPE_NOT_FOUND
 
-        user.entity.scopes.append(scope)
+        db.session.execute(Permission.insert().values(
+            entity_id = user.entity_id,
+            scope_name = scope.name,
+            expire_at = expire_at
+        ))
 
         try:
             db.session.commit()
