@@ -243,7 +243,7 @@ def getProfile(openId):
     openId = str(openId)
     user = User.fromOpenid(openId)
     if user == None:
-        return CODE_ARG_INVALID
+        return CODE_USER_NOT_FOUND
     profile = user.profile
     profile.update(CODE_SUCCESS)
     return profile
