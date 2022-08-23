@@ -14,7 +14,12 @@
             <div class="text-h2">{{ slide }} Slide</div>
           </v-row>
           <v-row justify="center">
-            <v-btn to="0" large outlined dark style="position: absolute; bottom: 64px"
+            <v-btn
+              to="0"
+              large
+              outlined
+              dark
+              style="position: absolute; bottom: 64px"
               >我要提问</v-btn
             >
           </v-row>
@@ -58,37 +63,31 @@
 </template>
 
 <script>
-import { getIssueList } from '@/api/issue.js';
+import { getIssueList } from "@/api/issue.js";
 
 export default {
-  name: 'IssueHome',
+  name: "IssueHome",
   data() {
     return {
       issueList: [],
       colors: [
-        'green',
-        'secondary',
-        'yellow darken-4',
-        'red lighten-2',
-        'orange darken-1',
+        "green",
+        "secondary",
+        "yellow darken-4",
+        "red lighten-2",
+        "orange darken-1",
       ],
       cycle: false,
-      slides: [
-        'First',
-        'Second',
-        'Third',
-        'Fourth',
-        'Fifth',
-      ],
+      slides: ["First", "Second", "Third", "Fourth", "Fifth"],
     };
   },
   methods: {
     async doGetIssueList() {
       this.issueList = (await getIssueList())?.issues;
-    }
+    },
   },
   mounted() {
     this.doGetIssueList();
-  }
+  },
 };
 </script>

@@ -13,6 +13,7 @@
   },
   "main": "main.js",
   "dependencies": {
+    "aos": "^2.3.4",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "marked": "^3.0.2",
@@ -22,6 +23,7 @@
     "vuex": "^3.4.0"
   },
   "devDependencies": {
+    "@types/aos": "^3.0.4",
     "@vue/cli": "^4.5.13",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
