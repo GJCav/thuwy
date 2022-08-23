@@ -1,5 +1,5 @@
 <template>
-  <textarea id="tinymce"></textarea>
+  <textarea class="tinymce"></textarea>
 </template>
 
 <script>
@@ -14,7 +14,7 @@ export default {
   mounted() {
     // eslint-disable-next-line no-undef
     tinymce.init({
-      selector: '#tinymce',
+      selector: 'textarea.tinymce',
       plugins: [
         'advlist autolink link image lists charmap print preview hr anchor pagebreak',
         'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking',
