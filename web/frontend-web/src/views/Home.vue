@@ -87,7 +87,7 @@
           <v-timeline>
             <v-timeline-item
               data-aos="zoom-in"
-              data-aos-anchor-placement="top-center"
+              data-aos-anchor-placement="top-bottom"
               color="cyan"
             >
               <v-hover>
@@ -100,20 +100,20 @@
                     to="/rsv/"
                     class="transition-swing"
                   >
-                    <v-img
+                    <!-- <v-img
                       :src="require('@/assets/wy_white.png')"
                       class="white--text align-end"
                       gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                    >
-                      <v-card-title class="text-h5"> 物品预约 </v-card-title>
-                    </v-img>
+                    > -->
+                    <v-card-title class="text-h5"> 物品预约 </v-card-title>
+                    <!-- </v-img> -->
                   </v-card>
                 </template>
               </v-hover>
             </v-timeline-item>
             <v-timeline-item
               data-aos="zoom-in"
-              data-aos-anchor-placement="top-center"
+              data-aos-anchor-placement="top-bottom"
               color="cyan"
             >
               <v-hover>
@@ -126,20 +126,20 @@
                     to="/issue/"
                     class="transition-swing"
                   >
-                    <v-img
+                    <!-- <v-img
                       :src="require('@/assets/wy_blue.png')"
                       class="white--text align-end"
                       gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                    >
-                      <v-card-title class="text-h5"> 答疑坊 </v-card-title>
-                    </v-img>
+                    > -->
+                    <v-card-title class="text-h5"> 答疑坊 </v-card-title>
+                    <!-- </v-img> -->
                   </v-card>
                 </template>
               </v-hover>
             </v-timeline-item>
             <v-timeline-item
               data-aos="zoom-in"
-              data-aos-anchor-placement="top-center"
+              data-aos-anchor-placement="top-bottom"
               color="cyan"
             >
               <v-hover>
@@ -152,15 +152,13 @@
                     to="/user/"
                     class="transition-swing"
                   >
-                    <v-img
+                    <!-- <v-img
                       :src="require('@/assets/wy_white.png')"
                       class="white--text align-end"
                       gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                    >
-                      <v-card-title class="text-h5">
-                        用户管理后台
-                      </v-card-title>
-                    </v-img>
+                    > -->
+                    <v-card-title class="text-h5"> 用户管理后台 </v-card-title>
+                    <!-- </v-img> -->
                   </v-card>
                 </template>
               </v-hover>
@@ -180,13 +178,13 @@
                     to="/profile/"
                     class="transition-swing"
                   >
-                    <v-img
+                    <!-- <v-img
                       :src="require('@/assets/wy_blue.png')"
                       class="white--text align-end"
                       gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                    >
-                      <v-card-title class="text-h5"> 我的profile </v-card-title>
-                    </v-img>
+                    > -->
+                    <v-card-title class="text-h5"> 我的profile </v-card-title>
+                    <!-- </v-img> -->
                   </v-card>
                 </template>
               </v-hover>
