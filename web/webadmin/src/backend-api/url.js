@@ -1,4 +1,4 @@
-export const API_URL = "https://thuwy-dev.gjm20.top";
+export const API_URL = "https://dev-api.thuwy.top";
 
 
 export function api(path) { return this.API_URL + path; }
