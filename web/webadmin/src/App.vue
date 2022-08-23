@@ -31,6 +31,13 @@
             </v-list-item-icon>
           </v-list-item> -->
 
+          <v-list-item link to="/login" class="red--text text--lighten-2" :disabled="isLogin">
+            <v-list-item-title>Login</v-list-item-title>
+            <v-list-item-icon>
+              <v-icon color="">mdi-login</v-icon>
+            </v-list-item-icon>
+          </v-list-item>
+
           <v-list-item link @click="logout" class="red--text text--lighten-2" :disabled="!isLogin">
             <v-list-item-title>Logout</v-list-item-title>
             <v-list-item-icon>
@@ -145,6 +152,12 @@ export default {
       this.$store.commit("setSession", "");
       this.$router.push("/login")
     },
+  },
+
+  mounted() {
+    if(!this.$store.getters.isLogin){
+      this.$router.push("/login")
+    }
   },
 };
 </script>
