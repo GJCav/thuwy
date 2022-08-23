@@ -22,23 +22,38 @@ module.exports = {
     'rules': {
         'indent': [
             'off',
-            2
+            {}
         ],
         'linebreak-style': [
-            'error',
-            'unix'
+            'off',
+            {}
         ],
         'quotes': [
-            'error',
-            'single'
+            'off',
+            {}
         ],
         'semi': [
-            'error',
-            'always'
+            'off',
+            {}
         ],
+        // 'indent': [
+        //     'off',
+        //     2
+        // ],
+        // 'linebreak-style': [
+        //     'error',
+        //     'unix'
+        // ],
+        // 'quotes': [
+        //     'error',
+        //     'single'
+        // ],
+        // 'semi': [
+        //     'error',
+        //     'always'
+        // ],
         // "no-unused-vars": "off",
-        "vue/script-setup-uses-vars": "off",
-		"linebreak-style": "off"
+        "vue/script-setup-uses-vars": "off"
     },
     "parserOptions": {
         "parse": "vue-eslint-parser"

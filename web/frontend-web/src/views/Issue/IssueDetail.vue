@@ -28,45 +28,81 @@
             </v-card>
           </v-timeline-item>
         </v-timeline>
+        <!-- Comment List-->
+        <v-card class="mt-10">
+          <v-card-title class="font-weight-black text-h6">
+            评论区
+          </v-card-title>
+          <v-card-text>
+            <!-- TODO... Display comments -->
+            <issue-comment></issue-comment>
+            <issue-comment></issue-comment>
+            <issue-comment></issue-comment>
+          </v-card-text>
+        </v-card>
+        <!-- Comment Area-->
+        <v-card elevation="4" class="mt-10">
+          <v-card-title class="font-weight-black text-h6"
+            >留下精彩评论</v-card-title
+          >
+          <v-card-text>
+            <send-comment></send-comment>
+          </v-card-text>
+        </v-card>
       </v-col>
       <v-col cols="2">
         <h3>Labels</h3>
+        <v-chip-group column active-class="warning">
+          <v-chip
+            label
+            color="success"
+            v-for="label in labels"
+            :key="label.id"
+            :value="label.id"
+          >
+            {{ label.name }}
+          </v-chip>
+        </v-chip-group>
       </v-col>
     </v-row>
   </v-col>
 </template>
 
 <script>
-import { getIssue } from '@/api/issue';
+import { getIssue } from "@/api/issue";
+import SendComment from "../../components/Issue/SendComment.vue";
+import IssueComment from "../../components/Issue/IssueComment.vue";
 
 export default {
+  components: { SendComment, IssueComment },
   data() {
     return {
       issue: null,
       items: [
         {
-          color: 'red lighten-2',
-          icon: 'mdi-star',
+          color: "red lighten-2",
+          icon: "mdi-star",
         },
         {
-          color: 'purple darken-1',
-          icon: 'mdi-book-variant',
+          color: "purple darken-1",
+          icon: "mdi-book-variant",
         },
         {
-          color: 'green lighten-1',
-          icon: 'mdi-airballoon',
+          color: "green lighten-1",
+          icon: "mdi-airballoon",
         },
         {
-          color: 'indigo',
-          icon: 'mdi-buffer',
+          color: "indigo",
+          icon: "mdi-buffer",
         },
       ],
+      labels: [],
     };
   },
   methods: {
     async doGetIssue() {
       this.issue = await getIssue(this.id, this.$store.state.session);
-    }
+    },
   },
   mounted() {
     this.doGetIssue();
@@ -74,7 +110,7 @@ export default {
   computed: {
     id() {
       return this.$route.params.id;
-    }
-  }
+    },
+  },
 };
 </script>
