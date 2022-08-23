@@ -443,12 +443,15 @@ def listGroup():
         if expr:
             qry = qry.filter(Entity.name.regexp_match(expr))
 
+        count = qry.count()
+
         qry = qry.limit(pageLimit).offset((page - 1) * pageLimit)
         rst = qry.all()
 
         group_arr = [e.brief_info for e in rst]
         rtn = {
-            "groups": group_arr
+            "groups": group_arr,
+            "page_count": ceil(count / pageLimit)
         }
         rtn.update(CODE_SUCCESS)
         return rtn
