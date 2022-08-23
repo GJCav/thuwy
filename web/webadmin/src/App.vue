@@ -24,12 +24,12 @@
             <v-list-item-title>Home</v-list-item-title>
           </template>
 
-          <v-list-item link to="/" :disabled="!isLogin">
+          <!-- <v-list-item link to="/" :disabled="!isLogin">
             <v-list-item-title>My Profile</v-list-item-title>
             <v-list-item-icon>
               <v-icon>mdi-logout</v-icon>
             </v-list-item-icon>
-          </v-list-item>
+          </v-list-item> -->
 
           <v-list-item link @click="logout" class="red--text text--lighten-2" :disabled="!isLogin">
             <v-list-item-title>Logout</v-list-item-title>
@@ -62,12 +62,12 @@
             </v-list-item-icon>
           </v-list-item>
 
-          <v-list-item link :disabled="!hasPrivilege('UserAdmin')">
+          <!-- <v-list-item link :disabled="!hasPrivilege('UserAdmin')">
             <v-list-item-title>Binding Info</v-list-item-title>
             <v-list-item-icon>
               <v-icon>mdi-link-variant</v-icon>
             </v-list-item-icon>
-          </v-list-item>
+          </v-list-item> -->
 
           <v-list-item link to="/user_privilege" :disabled="!hasPrivilege('ScopeAdmin')">
             <v-list-item-title>User Privilege</v-list-item-title>
@@ -93,19 +93,19 @@
             <v-list-item-title>Group</v-list-item-title>
           </template>
 
-          <v-list-item link :disabled="!hasPrivilege('ScopeAdmin')">
-            <v-list-item-title>Group List</v-list-item-title>
+          <v-list-item link to="/grouplist" :disabled="!hasPrivilege('ScopeAdmin')">
+            <v-list-item-title>Management</v-list-item-title>
             <v-list-item-icon>
               <v-icon>mdi-file-tree</v-icon>
             </v-list-item-icon>
           </v-list-item>
 
-          <v-list-item link :disabled="!hasPrivilege('ScopeAdmin')">
+          <!-- <v-list-item link :disabled="!hasPrivilege('ScopeAdmin')">
             <v-list-item-title>Group Privilege</v-list-item-title>
             <v-list-item-icon>
               <v-icon>mdi-key</v-icon>
             </v-list-item-icon>
-          </v-list-item>
+          </v-list-item> -->
 
         </v-list-group>
       </v-list>

@@ -46,7 +46,7 @@
     :items="userProfileList"
     item-key="openid"
     loading="true"
-    show-expand
+    show-expand :items-per-page="30"
     hide-default-footer
     loading-text="click SEARCH to load data"
   >
@@ -76,7 +76,11 @@
   <v-divider></v-divider>
   <v-row class="mx-4 mt-2">
     <v-col class="d-flex justify-end py-0 pr-10" cols="6" offset="6">
-      <v-pagination :length="table.pageCount" v-model="filters.p"></v-pagination>
+      <v-pagination 
+        :length="table.pageCount" 
+        v-model="filters.p"
+        @input="loadData()"
+      ></v-pagination>
     </v-col>
   </v-row>
 </v-container>
@@ -146,7 +150,7 @@ export default {
           session: this.$store.getters.session,
           clazz: filters.enableClazz ? filters.clazz : null,
           name: filters.enableName ? filters.name : null,
-          p: filters.clazz
+          p: filters.p
         })
 
         if (data.code !== 0){
@@ -154,7 +158,7 @@ export default {
         }
 
         this.userProfileList = data.profiles;
-        this.pageCount = data.page_count;
+        this.table.pageCount = data.page_count;
       } catch (e) {
         this.openDialog({ msg: e.message })
       }
