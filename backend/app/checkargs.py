@@ -77,3 +77,7 @@ def isPowOf2(a):
     while a & 1 == 0:
         a >>= 1
     return a == 1
+
+
+def isDict(a):
+    return isinstance(a, dict)
