@@ -5,6 +5,7 @@ import LoginView from '@/views/Login.vue';
 import ProfileView from '@/views/Profile.vue';
 import RsvLayout from '@/views/_layout/RsvLayout.vue';
 import IssueLayout from '@/views/_layout/IssueLayout.vue';
+import BlogView from '@/views/_layout/BlogLayout.vue';
 
 Vue.use(VueRouter);
 
@@ -25,21 +26,26 @@ const routes = [{
         import('@/views/About.vue')
 },
 {
-    path: '/blog',
-    name: 'Blog',
-    component: () =>
-        import('@/views/Blog/Blog.vue')
-},
-{
     path: '/profile/',
     name: 'Profile',
     component: ProfileView
 },
 {
-    path: '*',
-    name: 'NotFound',
-    component: () =>
-        import('@/views/404.vue')
+    path: '/blog/',
+    component: BlogView,
+    children: [{
+        path: ':id(\\d+)',
+        name: 'BlogDetail',
+        component: () => import('@/views/Blog/BlogDetail.vue')
+    }, {
+        path: ':id(\\d+)/edit/',
+        name: 'BlogEdit',
+        component: () => import('@/views/Blog/BlogEdit.vue')
+    }, {
+        path: '*',
+        name: 'BlogHome',
+        component: () => import('@/views/Blog/BlogHome.vue')
+    }]
 },
 {
     path: '/issue/',
@@ -96,9 +102,14 @@ const routes = [{
         name: 'RsvHome',
         component: () =>
             import('@/views/Rsv/RsvHome.vue')
-    },
-    ]
-}
+    }]
+},
+{
+    path: '*',
+    name: 'NotFound',
+    component: () =>
+        import('@/views/404.vue')
+},
 ];
 
 const router = new VueRouter({
