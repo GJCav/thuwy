@@ -60,5 +60,6 @@ div[data-app="true"] {
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  background-color: #eeeeee;
 }
 </style>

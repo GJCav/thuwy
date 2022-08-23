@@ -52,17 +52,17 @@ export default {
         {
           icon: 'mdi-home',
           title: '预约主页',
-          to: 'home'
+          to: '/rsv/home'
         },
         {
           icon: 'mdi-file',
           title: '物品',
-          to: 'item',
+          to: '/rsv/item',
         },
         {
           icon: 'mdi-certificate',
           title: '审批',
-          to: 'reservation',
+          to: '/rsv/reservation',
         },
         // {
         //   icon: 'mdi-account',

@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- <v-app-bar app color="cyan darken-4" dark> -->
-    <v-app-bar app color="cyan darken-1">
+    <v-app-bar app color="cyan darken-1" dark>
       <router-link
         to="/"
         class="v-toolbar__content"

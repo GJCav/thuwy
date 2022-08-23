@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col lg="1" offset-lg="2" cols="12" offset="0">
-      <v-btn @click="$router.push('/item/')" icon>
+      <v-btn @click="$router.push('/rsv/item/')" icon>
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
     </v-col>
@@ -9,8 +9,8 @@
       <h1 class="text-h3 text-center">物品信息</h1>
       <br />
       <v-row class="justify-center">
-        <v-btn-toggle v-if="user !== null && user.admin">
-          <v-btn :to="`/item/${this.id}/edit`" color="success" outlined
+        <v-btn-toggle v-if="user !== null && isAdmin">
+          <v-btn :to="`/rsv/item/${this.id}/edit`" color="success" outlined
             ><v-icon dense color="success">mdi-pencil</v-icon>编辑</v-btn
           >
           <v-btn
@@ -32,13 +32,15 @@
         </v-row>
         <div class="text-h5">名称</div>
         <div class="subtitle-1">
-          {{ item.name }}<v-chip outlined small class="ma-2" color="cyan" ripple>{{ item.group }}</v-chip
-          >
+          {{ item.name
+          }}<v-chip outlined small class="ma-2" color="cyan" ripple>{{
+            item.group
+          }}</v-chip>
         </div>
         <br />
 
         <div class="text-h5">简介</div>
-        <div class="subtitle-1">{{ item['brief-intro'] }}</div>
+        <div class="subtitle-1">{{ item["brief-intro"] }}</div>
         <br />
 
         <div class="text-h5">详细信息</div>
@@ -47,7 +49,7 @@
 
         <div class="text-h5">当前状态</div>
         <div class="subtitle-1">
-          {{ item['available'] ? '可预约' : '不可预约' }}
+          {{ item["available"] ? "可预约" : "不可预约" }}
         </div>
         <br />
 
@@ -118,10 +120,10 @@ export default {
             message: '删除成功',
             timeout: 2000,
           });
-          this.$router.push('/item');
+          this.$router.push('/rsv/item');
         }, 1000);
       }
-    },
+    }
   },
   computed: {
     renderedHtml() {
@@ -133,6 +135,9 @@ export default {
     user() {
       return this.$store.state.user;
     },
+    isAdmin() {
+      return this.$store.state.userPrivileges?.indexOf('admin') > -1;
+    }
   },
   components: {
     ConfirmBox,

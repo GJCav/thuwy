@@ -203,7 +203,7 @@ export default {
           message: '提交成功',
           timeout: 2000,
         });
-        this.$router.push(`/item/${itemId}`);
+        this.$router.push(`/rsv/item/${itemId}`);
       }, 1000);
     },
     async doUpload(e) {
@@ -234,7 +234,7 @@ export default {
             message: '删除',
             timeout: 2000,
           });
-          this.$router.push('/item');
+          this.$router.push('/rsv/item');
         }, 1000);
       }
     },
