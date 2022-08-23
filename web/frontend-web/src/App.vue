@@ -1,5 +1,6 @@
 <template>
-  <v-app :style="{ backgroundImage: `url(${bg})` }">
+  <!-- <v-app :style="{ backgroundImage: `url(${bg})` }"> -->
+  <v-app>
     <tool-bar></tool-bar>
     <router-view />
     <v-snackbar
@@ -33,20 +34,20 @@
 </template>
 
 <script>
-import ToolBar from '@/components/ToolBar.vue';
+import ToolBar from "@/components/ToolBar.vue";
 
 export default {
-  name: 'App',
+  name: "App",
 
   data: () => ({
-    bg: require('@/assets/bg.jpg'),
+    bg: require("@/assets/bg.jpg"),
   }),
   created() {
-    var session = localStorage.getItem('session');
+    var session = localStorage.getItem("session");
     if (session) {
-      this.$store.commit('setSession', session);
+      this.$store.commit("setSession", session);
     }
-    this.$store.dispatch('refreshProfile');
+    this.$store.dispatch("refreshProfile");
   },
   components: {
     ToolBar,
