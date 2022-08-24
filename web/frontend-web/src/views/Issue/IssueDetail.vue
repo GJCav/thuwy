@@ -13,31 +13,18 @@
             fill-dot
           >
             <v-card :color="item.color" dark>
-              <v-card-title class="text-h6"> Lorem Ipsum Dolor </v-card-title>
+              <v-card-title class="text-h6"> {{ item.title }} </v-card-title>
               <v-card-text class="white text--primary">
                 <p>
                   {{ item.content }}
                 </p>
                 <v-btn :color="item.color" class="mx-0" outlined>
-                  Button
+                  Reply
                 </v-btn>
               </v-card-text>
             </v-card>
           </v-timeline-item>
         </v-timeline>
-        <!-- Comment List-->
-        <v-card class="mt-10">
-          <v-card-title class="font-weight-black text-h6">
-            评论区
-          </v-card-title>
-          <v-card-text>
-            <!-- TODO... Display comments -->
-            <issue-comment></issue-comment>
-            <issue-comment></issue-comment>
-            <issue-comment></issue-comment>
-          </v-card-text>
-        </v-card>
-        <!-- Comment Area-->
         <v-card elevation="4" class="mt-10">
           <v-card-title class="font-weight-black text-h6"
             >留下精彩评论</v-card-title
@@ -51,14 +38,16 @@
         <h3>Labels</h3>
         <v-chip-group column active-class="warning">
           <v-chip
-            label
-            color="success"
+            outlined
+            small
+            class="ma-2"
+            color="cyan"
+            ripple
             v-for="label in labels"
             :key="label.id"
             :value="label.id"
+            >{{ label.name }}</v-chip
           >
-            {{ label.name }}
-          </v-chip>
         </v-chip-group>
       </v-col>
     </v-row>
@@ -68,10 +57,10 @@
 <script>
 import { getIssue } from "@/api/issue";
 import SendComment from "../../components/Issue/SendComment.vue";
-import IssueComment from "../../components/Issue/IssueComment.vue";
+// import IssueComment from "../../components/Issue/IssueComment.vue";
 
 export default {
-  components: { SendComment, IssueComment },
+  components: { SendComment },
   data() {
     return {
       issue: null,
@@ -79,47 +68,46 @@ export default {
         {
           color: "red lighten-2",
           icon: "mdi-star",
-          content: `
-                  Lorem ipsum dolor sit amet, no nam oblique veritus. Commune
-                  scaevola imperdiet nec ut, sed euismod convenire principes at.
-                  Est et nobis iisque percipit, an vim zril disputando
-                  voluptatibus, vix an salutandi sententiae.`
+          title: "卷",
+          content: `未央大卷院，是兄弟就来卷我`
         },
         {
           color: "purple darken-1",
           icon: "mdi-book-variant",
-          content: `
-                  Lorem ipsum dolor sit amet, no nam oblique veritus. Commune
-                  scaevola imperdiet nec ut, sed euismod convenire principes at.
-                  Est et nobis iisque percipit, an vim zril disputando
-                  voluptatibus, vix an salutandi sententiae.`
+          title: `乐`,
+          content: "别在这理发店"
         },
         {
           color: "green lighten-1",
           icon: "mdi-airballoon",
-          content: `
-                  Lorem ipsum dolor sit amet, no nam oblique veritus. Commune
-                  scaevola imperdiet nec ut, sed euismod convenire principes at.
-                  Est et nobis iisque percipit, an vim zril disputando
-                  voluptatibus, vix an salutandi sententiae.`
+          title: `躺平`,
+          content: "卷不动了，开摆开摆"
+        }
+      ],
+      labels: [
+        {
+          id: 1,
+          name: "内卷"
         },
         {
-          color: "indigo",
-          icon: "mdi-buffer",
-          content: `
-                  Lorem ipsum dolor sit amet, no nam oblique veritus. Commune
-                  scaevola imperdiet nec ut, sed euismod convenire principes at.
-                  Est et nobis iisque percipit, an vim zril disputando
-                  voluptatibus, vix an salutandi sententiae.`
+          id: 2,
+          name: "躺平"
+          },
+        {
+          id: 3,
+          name: "未央"
+          },
+        {
+          id: 4,
+          name: "长乐"
         },
-      ],
-      labels: [],
+      ]
     };
   },
   methods: {
     async doGetIssue() {
       this.issue = await getIssue(this.id, this.$store.state.session);
-    },
+    }
   },
   mounted() {
     this.doGetIssue();
@@ -127,7 +115,7 @@ export default {
   computed: {
     id() {
       return this.$route.params.id;
-    },
-  },
+    }
+  }
 };
 </script>
