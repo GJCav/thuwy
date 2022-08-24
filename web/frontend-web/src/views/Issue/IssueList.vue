@@ -11,15 +11,17 @@
           label="搜索"
         ></v-text-field>
       </v-col>
-      <v-col md="3" cols="6">
-        <v-btn
-          :loading="loading"
-          block
-          @click="labelListExpand = !labelListExpand"
-          >Labels</v-btn
-        >
+      <v-col md="2" cols="4">
+        <v-btn :loading="loading" color="primary" block>search</v-btn>
       </v-col>
-      <v-col md="3" cols="6">
+      <v-col md="2" cols="4">
+        <AddLabel
+          :labelList="labelList"
+          @pushLabel="deleteLabel"
+          @addLabel="addLabel"
+        />
+      </v-col>
+      <v-col md="2" cols="4">
         <v-btn :loading="loading" to="/issue/0/" color="success" block
           >new issue</v-btn
         >
@@ -35,58 +37,87 @@
         </v-expand-transition>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col cols="12" md="4"
-        ><v-select :loading="loading" outlined label="Author"></v-select
-      ></v-col>
-      <v-col cols="12" md="4"
-        ><v-select :loading="loading" outlined label="Label"></v-select
-      ></v-col>
-      <v-col cols="12" md="4"
-        ><v-select :loading="loading" outlined label="Sort"></v-select
-      ></v-col>
-    </v-row>
     <v-row justify="center">
-      <v-col cols="12" md="6" md-offset="3">
-        <v-card
-          :color="randColor()"
-          class="mt-5"
-          :to="`/issue/${issue.id}/`"
-          v-for="issue in issueList"
-          :key="issue.id"
-        >
-          <v-card-title>{{ issue.title }}</v-card-title>
-          <v-card-text v-if="issue.content">
-            {{ issue.content }}
-          </v-card-text>
-          <v-card-actions>
-            <v-chip
-              v-for="(tag, key) in issue.tags"
-              :key="key"
-              outlined
-              small
-              class="ma-2"
-              color="cyan"
-              ripple
-              >{{ tag }}</v-chip
-            >
-          </v-card-actions>
-          <v-card-actions> 作者：{{ issue.author }} </v-card-actions>
-        </v-card>
+      <v-col cols="12" md="4">
+        <v-select
+          label="Author"
+          :loading="loading"
+          outlined
+          :items="authors"
+          v-model="selectedAuthor"
+          clearable
+        ></v-select>
+      </v-col>
+      <v-col cols="12" md="4">
+        <v-select
+          label="Label"
+          :loading="loading"
+          outlined
+          :items="labelList"
+          v-model="selectedLabel"
+          multiple
+          clearable
+        ></v-select>
+      </v-col>
+      <v-col cols="12" md="4">
+        <v-select
+          label="Sort"
+          :loading="loading"
+          outlined
+          :items="sorts"
+          v-model="selectedSort"
+          clearable
+        ></v-select>
       </v-col>
     </v-row>
+    <v-card
+      :color="randColor()"
+      :to="`/issue/${issue.id}/`"
+      v-for="issue in issueList"
+      :key="issue.id"
+      class="my-5"
+    >
+      <v-row align="center">
+        <v-col cols="2">
+          <v-icon class="mx-5 green--text"
+            >mdi-map-marker-question-outline</v-icon
+          >
+        </v-col>
+        <v-col cols="9">
+          <div>
+            <h2>{{ issue.title }}</h2>
+          </div>
+
+          <span class="subtitle-2">{{ issue.author }}</span>
+        </v-col>
+        <v-col cols="1">
+          <v-chip small class="green lighten-1">
+            <span class="white--text">1</span>
+          </v-chip>
+        </v-col>
+      </v-row>
+    </v-card>
   </v-col>
 </template>
 
 <script>
 import { getIssueList } from '@/api/issue.js';
+import AddLabel from '@/components/Issue/AddLabel';
 
 export default {
+  components: { AddLabel },
   name: 'IssueList',
   data() {
     return {
-      issueList: [],
-      labelList: [],
+      issueList: [
+        // { title: 'This is a question', id: 1, content: 'Who are you?', author: '张三' }, { title: 'Why is the Earth round?', id: 1, content: 'As far as we know, ...', author: '李四' }, { title: 'Why is the Earth round?', id: 1, content: 'As far as we know, ...', author: '李四' }, { title: 'Why is the Earth round?', id: 1, content: 'As far as we know, ...', author: '李四' }
+      ],
+      labelList: ['C++', 'python', 'JavaScript', 'HTML'],
+      authors: ['all', '张三', '李四'],
+      sorts: ['升序', '降序'],
+      selectedAuthor: '',
+      selectedLabel: '',
+      selectedSort: '',
       labelListExpand: false,
       loading: false
     };
@@ -101,6 +132,14 @@ export default {
         throw (e);
       }
       this.loading = false;
+    },
+    deleteLabel(par) {
+      console.log(par);
+      let getLocation = this.labelList.indexOf(par);
+      this.labelList.splice(getLocation, 1);
+    },
+    addLabel(par) {
+      this.labelList.push(par);
     },
     randColor() {
       var r = Math.floor(Math.random() * 32) + 224;
