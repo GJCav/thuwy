@@ -34,7 +34,7 @@ const routes = [{
     path: '/blog/',
     component: BlogView,
     children: [{
-        path: ':id(\\d+)',
+        path: ':id(\\d+)/',
         name: 'BlogDetail',
         component: () => import('@/views/Blog/BlogDetail.vue')
     }, {
@@ -51,6 +51,10 @@ const routes = [{
     path: '/issue/',
     component: IssueLayout,
     children: [{
+        path: '0',
+        name: 'IssueCreate',
+        component: () => import('@/views/Issue/IssueCreate.vue')
+    }, {
         path: ':id(\\d+)',
         name: 'IssueDetail',
         component: () =>
