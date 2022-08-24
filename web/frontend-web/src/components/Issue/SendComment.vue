@@ -7,7 +7,7 @@
     <!-- Text -->
     <v-list-item-content>
       <v-list-item-title>
-        <v-textarea
+        <!-- <v-textarea
           id="commentInput"
           outlined
           rows="2"
@@ -15,7 +15,8 @@
           hide-details
           v-model="commentText"
         >
-        </v-textarea>
+        </v-textarea> -->
+        <editor v-model="commentText"></editor>
       </v-list-item-title>
       <!-- Emoji -->
       <v-list-item-subtitle class="py-2">
@@ -44,6 +45,8 @@
 </template>
 
 <script>
+import Editor from '@/components/Issue/Editor.vue';
+
 export default {
   name: "SendComment",
   data: () => ({
@@ -51,5 +54,6 @@ export default {
     tabValue: 1,
     commentText: "",
   }),
+  components: { Editor }
 };
 </script>

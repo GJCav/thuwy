@@ -52,28 +52,34 @@
       </v-parallax>
       <!-- Some New Notices -->
       <h1 class="my-10" style="text-align: center">最新通知</h1>
-      <div class="d-flex justify-center">
-        <v-card
-          v-for="notice in noticelist"
-          :key="notice.id"
-          class="mx-5"
-          max-width="400"
-          data-aos="zoom-in"
-          data-aos-anchor-placement="top-center"
-          :data-aos-delay="notice.delay"
-        >
-          <v-img class="white--text align-end" height="200px" :src="notice.src">
-            <v-card-title>{{ notice.title }}</v-card-title>
-          </v-img>
-          <v-card-subtitle class="pb-0">{{ notice.subtitle }}</v-card-subtitle>
-          <v-card-text class="text--primary">
-            {{ notice.content }}
-          </v-card-text>
-          <v-card-actions>
-            <v-btn color="info" text> Learn more </v-btn>
-          </v-card-actions>
-        </v-card>
-      </div>
+      <v-row>
+        <v-col class="d-flex justify-center" v-for="notice in noticelist" :key="notice.id" lg="3" sm="6" cols="12">
+          <v-card
+            class="mx-5"
+            max-width="400"
+            data-aos="zoom-in"
+            data-aos-anchor-placement="top-center"
+            :data-aos-delay="notice.delay"
+          >
+            <v-img
+              class="white--text align-end"
+              height="200px"
+              :src="notice.src"
+            >
+              <v-card-title>{{ notice.title }}</v-card-title>
+            </v-img>
+            <v-card-subtitle class="pb-0">{{
+              notice.subtitle
+            }}</v-card-subtitle>
+            <v-card-text class="text--primary">
+              {{ notice.content }}
+            </v-card-text>
+            <v-card-actions>
+              <v-btn color="info" text> Learn more </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
       <v-col
         class="text-center mt-9"
         cols="12"
@@ -94,7 +100,7 @@
                 <template v-slot:default="{ hover }">
                   <v-card
                     :elevation="hover ? 24 : 6"
-                    color="cyan lighten-4"
+                    color="cyan lighten-2"
                     dark
                     ripple
                     to="/rsv/"
@@ -120,7 +126,7 @@
                 <template v-slot:default="{ hover }">
                   <v-card
                     :elevation="hover ? 24 : 6"
-                    color="cyan lighten-3"
+                    color="cyan lighten-2"
                     dark
                     ripple
                     to="/issue/"
@@ -172,7 +178,7 @@
                 <template v-slot:default="{ hover }">
                   <v-card
                     :elevation="hover ? 24 : 6"
-                    color="cyan lighten-1"
+                    color="cyan lighten-2"
                     dark
                     ripple
                     to="/profile/"
@@ -239,6 +245,7 @@ export default {
   },
   async mounted() {
     AOS.init();
+    await this.$store.dispatch('refreshProfile');
     if (!this.user) {
       this.$store.dispatch("showMessage", { message: "未登录", timeout: 2000 });
     }

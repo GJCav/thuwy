@@ -59,3 +59,13 @@ export async function postIssue(id, issue, session = store.state.session) {
     }
     return true;
 }
+
+export async function deleteIssue(id, session = store.state.session) {
+    var { data } = await request.delete(`/issue/${id}`, {
+        headers: { session }
+    });
+    if (data.code !== 0) {
+        throw data.errmsg;
+    }
+    return data['issue_id'];
+}

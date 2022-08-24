@@ -13,7 +13,7 @@
       </div>
 
       <!-- 提问按钮 -->
-      <router-link class="btn" to="/publishIssue">我要提问</router-link>
+      <router-link class="btn" to="/issue/0/">我要提问</router-link>
     </div>
 
     <!-- <div class="d-flex flex-column"> -->
@@ -43,7 +43,12 @@
           </v-list-item-content>
           <!-- Video Start Button-->
           <v-list-item-action>
-            <v-btn color="info" class="rounded-pill">了解更多</v-btn>
+            <v-btn
+              :to="`/blog/${article.id}/`"
+              color="info"
+              class="rounded-pill"
+              >了解更多</v-btn
+            >
           </v-list-item-action>
         </v-list-item>
       </v-list>
