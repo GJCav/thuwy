@@ -65,6 +65,7 @@
       <v-row justify="center">
         <v-col cols="12" md="6" md-offset="3">
           <v-card
+            :color="randColor()"
             class="mt-5"
             :to="`${issue.id}/`"
             v-for="issue in issueList"
@@ -120,6 +121,12 @@ export default {
     async doGetIssueList() {
       this.issueList = (await getIssueList())?.issues;
     },
+    randColor() {
+      var r = Math.floor(Math.random() * 32) + 224;
+      var g = Math.floor(Math.random() * 32) + 224;
+      var b = Math.floor(Math.random() * 32) + 224;
+      return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`
+    }
   },
   mounted() {
     this.doGetIssueList();
