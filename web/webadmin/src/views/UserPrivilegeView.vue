@@ -75,7 +75,11 @@
                 </div>
               </v-toolbar-title>
               <v-spacer></v-spacer>
-              <v-dialog max-width="768px">
+              <v-dialog 
+                max-width="768px" 
+                @click:outside="clearAddScopeResult"
+              >
+              <!-- 关闭对话框时删除错误信息 -->
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn 
                     small color="primary" 
@@ -88,79 +92,23 @@
                   </v-btn>
                 </template>
                 <!-- 添加 Scope 对话框  -->
-                <v-card>
-                  <v-card-title><span class="headline">新增权限</span></v-card-title>
-                  <v-divider class="mb-4"></v-divider>
-                  <v-card-text class="text--primary py-0">
-                    <v-autocomplete
-                      v-model="add_scope.selected"
-                      :items="scopes"
-                      item-value="name"
-                      item-text="name"
-                      chips deletable-chips prepend-icon="mdi-key"
-                      label="Privilege"
-                      multiple
-                    >
-                      <template v-slot:item="data">
-                        <v-list-item-content>
-                          <v-list-item-title>{{ data.item.name }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ data.item.description }}</v-list-item-subtitle>
-                        </v-list-item-content>
-                      </template>
-                    </v-autocomplete>
-                    <v-menu
-                      v-model="add_scope.date_picker.show"
-                      :disabled="!add_scope.date_picker.enable"
-                      :close-on-content-click="false"
-                      transition="scale-transition"
-                      offset-y min-width="290px"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-row class="ma-0">
-                          <v-text-field
-                            v-model="add_scope.date_picker.date"
-                            label="Expire Date"
-                            prepend-icon="event"
-                            readonly 
-                            v-bind="attrs"
-                            v-on="on"
-                            :disabled="!add_scope.date_picker.enable"
-                          ></v-text-field>
-                          <v-checkbox
-                            v-model="add_scope.date_picker.enable"
-                          ></v-checkbox>
-                        </v-row>
-                      </template>
-                      <v-date-picker
-                        locale="zh-cn"
-                        v-model="add_scope.date_picker.date"
-                        @input="add_scope.date_picker.show = false"
-                      ></v-date-picker>
-                    </v-menu>
-
-                  </v-card-text>
-                  <v-card-actions class="">
-                    <v-spacer></v-spacer>
-                    <v-btn 
-                      color="warning" 
-                      @click="addScopes"
-                      :loading="add_scope.loading"
-                      :disabled="add_scope.loading"
-                    >
-                      Confirm
-                    </v-btn>
-                  </v-card-actions>
-                  <v-card-text class="mt-4" v-if="add_scope.results.length != 0">
-                    <v-alert 
-                      v-for="result in add_scope.results"
-                      :key="result.name"
-                      :type="result.type"
-                    >
-                      Add <span class="font-weight-bold font-italic">
-                        {{ result.name }}</span> {{ result.type }}. {{ result.msg }}
-                    </v-alert>
-                  </v-card-text>
-                </v-card>
+                <ScopePicker 
+                  title="新增权限"
+                  @confirm="addScopes"
+                >
+                  <template v-slot:bottom>
+                    <v-card-text class="mt-4" v-if="add_scope.results.length != 0">
+                      <v-alert 
+                        v-for="result in add_scope.results"
+                        :key="result.name"
+                        :type="result.type"
+                      >
+                        Add <span class="font-weight-bold font-italic">
+                          {{ result.name }}</span> {{ result.type }}. {{ result.msg }}
+                      </v-alert>
+                    </v-card-text>
+                  </template>
+                </ScopePicker>
               </v-dialog>
             </v-toolbar>
           </template>
@@ -207,217 +155,169 @@
 
 <script>
 import * as auth from "../backend-api/auth"
+import ScopePicker from "../components/ScopePicker.vue";
 
 export default {
-  props: {
-    initial_openid: { type: String, default: null }
-  },
-
-  data: () => ({
-    tab: null,
-
-    errDialog: { msg: "", enable: false },
-
-    switch_openid: "",
-    switch_loading: false,
-    switch_menu: false,
-
-    addScopeDialog: {
-      
+    props: {
+        initial_openid: { type: String, default: null }
     },
-
-    table: {
-      headers: [
-        { text: "权限", value: "name" },
-        { text: "到期时间", value: "expire_at" },
-        { text: "权限描述", value: "description" },
-        { text: "操作", value: 'actions', sortable: false }
-      ],
-    },
-
-    currentUser: {
-      name: "<null>",
-      openid: null,
-    },
-
-    privilege_list_raw: [],
-
-    scopes: [], // 所有权限信息
-
-    add_scope: {
-      loading: true,
-      selected: [],
-      date_picker: {
-        show: false,
-        date: null,
-        enable: false
-      },
-
-      results: []
-    }
-  }),
-
-  computed: {
-    privilege_list() {
-      const list = [];
-      for (const info of this.privilege_list_raw) {
-        list.push({
-          expire_at: info.expire_at,
-          ...info.scope
-        })
-      }
-      return list;
-    },
-
-    disableAddScopeBtn() {
-      return (!this.currentUser.openid) || this.add_scope.loading;
-    }
-  },
-
-  methods: {
-    showError(msg) {
-      this.errDialog.msg = msg;
-      this.errDialog.enable = true;
-    },
-
-    pressToSwitch(keyEvent) {
-      if (keyEvent.key === "Enter") this.switchUser();
-    },
-
-    async switchUser(targetOpenid) {
-      targetOpenid = targetOpenid || this.switch_openid;
-
-      this.switch_loading = true;
-      try{
-        const profile = await auth.fetchUserProfile({
-          session: this.$store.getters.session,
-          openid: targetOpenid
-        })
-        if (profile.code !== 0) {
-          throw new Error("fetch profile: " + profile.errmsg)
+    data: () => ({
+        tab: null,
+        errDialog: { msg: "", enable: false },
+        switch_openid: "",
+        switch_loading: false,
+        switch_menu: false,
+        addScopeDialog: {},
+        table: {
+            headers: [
+                { text: "权限", value: "name" },
+                { text: "到期时间", value: "expire_at" },
+                { text: "权限描述", value: "description" },
+                { text: "操作", value: "actions", sortable: false }
+            ],
+        },
+        currentUser: {
+            name: "<null>",
+            openid: null,
+        },
+        privilege_list_raw: [],
+        scopes: [],
+        add_scope: {
+            loading: false,
+            results: []
         }
-        this.currentUser.name = profile.name;
-
-        const json = await auth.fetchUserDetailedPrivilegeInfo({
-          session: this.$store.getters.session,
-          openid: targetOpenid
-        })
-        
-        if(json.code !== 0){
-          throw new Error("fetch privilege info: " + json.errmsg);
+    }),
+    computed: {
+        privilege_list() {
+            const list = [];
+            for (const info of this.privilege_list_raw) {
+                list.push({
+                    expire_at: info.expire_at,
+                    ...info.scope
+                });
+            }
+            return list;
+        },
+        disableAddScopeBtn() {
+            return (!this.currentUser.openid) || this.add_scope.loading;
         }
-        this.currentUser.openid = targetOpenid;
-        this.privilege_list_raw = json.scopes;
-      } catch(e) {
-        this.showError(e.message)
-      }
-      
-      this.switch_loading = false;
-      this.switch_menu = false;
     },
+    methods: {
+        showError(msg) {
+            this.errDialog.msg = msg;
+            this.errDialog.enable = true;
+        },
+        pressToSwitch(keyEvent) {
+            if (keyEvent.key === "Enter")
+                this.switchUser();
+        },
+        async switchUser(targetOpenid) {
+            targetOpenid = targetOpenid || this.switch_openid;
+            this.switch_loading = true;
+            try {
+                const profile = await auth.fetchUserProfile({
+                    session: this.$store.getters.session,
+                    openid: targetOpenid
+                });
+                if (profile.code !== 0) {
+                    throw new Error("fetch profile: " + profile.errmsg);
+                }
+                this.currentUser.name = profile.name;
+                const json = await auth.fetchUserDetailedPrivilegeInfo({
+                    session: this.$store.getters.session,
+                    openid: targetOpenid
+                });
+                if (json.code !== 0) {
+                    throw new Error("fetch privilege info: " + json.errmsg);
+                }
+                this.currentUser.openid = targetOpenid;
+                this.privilege_list_raw = json.scopes;
+            }
+            catch (e) {
+                this.showError(e.message);
+            }
+            this.switch_loading = false;
+            this.switch_menu = false;
+            this.add_scope.loading = false;
+        },
+        async delScope(item) {
+            const { name } = item;
+            const { openid } = this.currentUser;
+            try {
+                const json = await auth.delUserScope({
+                    session: this.$store.getters.session,
+                    name,
+                    openid
+                });
+                if (json.code !== 0) {
+                    throw new Error(json.errmsg);
+                }
+                // 更新 UI
+                let index = 0;
+                for (; index < this.privilege_list_raw.length; index++) {
+                    if (this.privilege_list_raw[index].scope.name == item.name) {
+                        break;
+                    }
+                }
+                if (index >= this.privilege_list_raw.length)
+                    return;
+                this.privilege_list_raw.splice(index, 1);
+            }
+            catch (e) {
+                this.showError(e.message);
+            }
+        },
 
-    async loadAllScope() {
-      // 加载所有 Scope 信息，实现自动补全
-      this.add_scope.loading = true;
+        async addScopes({ expire_at, scopes }) {
+            this.add_scope.loading = true;
+            const { openid } = this.currentUser;
+            const results = [];
+            for (const name of scopes) {
+                try {
+                    const json = await auth.addUserScope({
+                        session: this.$store.getters.session,
+                        name,
+                        openid,
+                        expire_at
+                    });
+                    if (json.code !== 0) {
+                        results.push({
+                            name,
+                            type: "error",
+                            msg: json.errmsg
+                        });
+                    }
+                    else {
+                        results.push({
+                            name,
+                            type: "success",
+                            msg: ""
+                        });
+                    }
+                }
+                catch (e) {
+                    results.push({
+                        name,
+                        type: "error",
+                        msg: e.message
+                    });
+                }
+            }
+            this.add_scope.results = results;
+            this.add_scope.loading = false;
+            this.switchUser(this.currentUser.openid); // 刷新权限列表
+        },
 
-      try{
-        const json = await auth.fetchAllScope({
-          session: this.$store.getters.session
-        })
-        if (json.code !== 0) {
-          throw new Error(json.errmsg)
+        clearAddScopeResult(){
+          this.add_scope.results = [];
         }
-
-        this.scopes = json.scopes;
-        this.add_scope.loading = false;
-      } catch(e) {
-        this.showError(e.message + "\r\n请稍后刷新重试")
-      }
     },
-
-    async delScope(item) {
-      const { name } = item;
-      const { openid } = this.currentUser;
-
-      try {
-        const json = await auth.delUserScope({
-          session: this.$store.getters.session,
-          name,
-          openid
-        })
-
-        if (json.code !== 0){
-          throw new Error(json.errmsg)
-        }
-
-        // 更新 UI
-        let index = 0;
-        for (; index < this.privilege_list_raw.length;index++){
-          if (this.privilege_list_raw[index].scope.name == item.name){
-            break;
-          }
-        }
-        if (index >= this.privilege_list_raw.length) return;
-        this.privilege_list_raw.splice(index, 1)
-      } catch (e) {
-        this.showError(e.message)
-      }
+    mounted() {
+        // 实现从 User List 选择用户
+        this.switch_openid = this.initial_openid;
+        if (this.switch_openid)
+            this.switchUser();
     },
-
-    async addScopes() {
-      const expire_at = (
-        this.add_scope.date_picker.enable ?
-          Date.parse(this.add_scope.date_picker.date) :
-          0
-      );
-
-      this.add_scope.loading = true;
-
-      const { selected } = this.add_scope;
-      const { openid } = this.currentUser;
-
-      const results = [];
-      for (const name of selected) {
-        try {
-          const json = await auth.addUserScope({
-            session: this.$store.getters.session,
-            name,
-            openid,
-            expire_at
-          })
-          if (json.code !== 0) {
-            results.push({
-              name,
-              type: "error",
-              msg: json.errmsg
-            })
-          } else {
-            results.push({
-              name,
-              type: "success",
-              msg: ""
-            })
-          }
-        } catch (e) {
-          results.push({
-            name, type: "error", msg: e.message
-          })
-        }
-      }
-
-      this.add_scope.results = results;
-      this.add_scope.loading = false;
-      this.add_scope.selected = [];
-      this.switchUser(this.currentUser.openid) // 刷新权限列表
-    }
-  },
-
-  mounted() {
-    // 实现从 User List 选择用户
-    this.switch_openid = this.initial_openid;
-    if (this.switch_openid) this.switchUser();
-
-    this.loadAllScope();
-  },
+    components: { ScopePicker }
 }
 </script>

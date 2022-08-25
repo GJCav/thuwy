@@ -56,12 +56,7 @@
         </v-menu>
 
         <!-- 添加用户 chip -->
-        <v-menu
-          transition="slide-x-transition"
-          right :offset-x="true"
-          :close-on-content-click="false"
-          :close-on-click="true"
-        >
+        <v-dialog v-model="add_member_dialog" max-width="600px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn 
               icon 
@@ -74,21 +69,11 @@
               <v-icon>mdi-plus</v-icon>
             </v-btn>
           </template>
-          <v-card>
-            <v-card-title>添加组员：</v-card-title>
-            <v-divider></v-divider>
-            <v-card-text class="my-0">
-              <v-text-field
-                class="my-0"
-                label="ID: "
-                prepend-icon="mdi-account-circle-outline"
-                append-icon="mdi-check"
-                v-model="add_openid"
-                @click:append="addMember"
-              ></v-text-field>
-            </v-card-text>
-          </v-card>
-        </v-menu>
+          <UserPicker 
+            multi_select 
+            @confirmSelect="addMembers"
+          ></UserPicker>
+        </v-dialog>
       </div>
 
       <div class="d-flex align-center mt-2">
@@ -182,6 +167,7 @@
 <script>
 import ErrorDialog from './ErrorDialog.vue';
 import * as auth from "../backend-api/auth"
+import UserPicker from './UserPicker.vue';
 
 export default {
   name: "GroupManager",
@@ -204,7 +190,7 @@ export default {
 
     privileges: [],
 
-    add_openid: "",
+    add_member_dialog: false,
     add_member_loading: false,
     add_scope: "",
     add_scope_loading: false,
@@ -237,22 +223,30 @@ export default {
       }
     },
 
-    async addMember(){
+    async addMember(user, reload = true) {
       this.add_member_loading = true;
       try {
         const json = await auth.addGroupMember({
           session: this.$store.getters.session,
-          openid: this.add_openid,
+          openid: user.openid,
           group_name: this.group_name
         })
         if(json.code !== 0){
           throw new Error(json.errmsg)
         }
-        await this.loadData();
+        if (reload) await this.loadData();
       } catch(e) {
         this.showError(e.message)
       }
       this.add_member_loading = false;
+    },
+
+    async addMembers(users) {
+      this.add_member_dialog = false;
+      for(const user of users){
+        await this.addMember(user, false);
+      }
+      this.loadData();
     },
 
     async delMember(user) {
@@ -312,6 +306,6 @@ export default {
     this.loadData();
   },
 
-  components: { ErrorDialog }
+  components: { ErrorDialog, UserPicker }
 }
 </script>
