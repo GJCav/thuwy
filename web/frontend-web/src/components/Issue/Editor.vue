@@ -1,5 +1,6 @@
 <template>
-  <textarea class="tinymce"></textarea>
+  <textarea class="tinymce">
+  </textarea>
 </template>
 
 <script>
