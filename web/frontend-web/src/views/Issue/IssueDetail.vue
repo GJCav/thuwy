@@ -12,11 +12,17 @@
             :icon="item.icon"
             fill-dot
           >
-            <v-card :color="item.color" dark>
-              <v-card-title class="text-h6"> {{ item.title }} </v-card-title>
-              <v-card-text class="white text--primary">
+            <v-card
+              :color="issue.color"
+              dark
+              :to="`${issue.id}/`"
+              v-for="issue in issueList"
+              :key="issue.id"
+            >
+              <v-card-title class="text-h6"> {{ issue.title }} </v-card-title>
+              <v-card-text class="white text--primary" v-if="issue.content">
                 <p>
-                  {{ item.content }}
+                  {{ issue.content }}
                 </p>
                 <v-btn :color="item.color" class="mx-0" outlined>
                   Reply
@@ -36,26 +42,26 @@
       </v-col>
       <v-col cols="2">
         <h3>Labels</h3>
-        <v-chip-group column active-class="warning">
+        <!-- <v-chip-group column active-class="warning">
           <v-chip
+            v-for="(tag, key) in issue.tags"
+            :key="key"
             outlined
             small
             class="ma-2"
             color="cyan"
             ripple
-            v-for="label in labels"
-            :key="label.id"
-            :value="label.id"
-            >{{ label.name }}</v-chip
+            >{{ tag }}</v-chip
           >
-        </v-chip-group>
+        </v-chip-group> -->
       </v-col>
     </v-row>
   </v-col>
 </template>
 
 <script>
-import { getIssue } from "@/api/issue";
+import { getIssueList } from "@/api/issue.js";
+import { getIssue } from "@/api/issue.js";
 import SendComment from "../../components/Issue/SendComment.vue";
 // import IssueComment from "../../components/Issue/IssueComment.vue";
 
@@ -63,54 +69,35 @@ export default {
   components: { SendComment },
   data() {
     return {
-      issue: null,
+        issue: null,
+      issueList: [],
       items: [
         {
           color: "red lighten-2",
-          icon: "mdi-star",
-          title: "卷",
-          content: `未央大卷院，是兄弟就来卷我`
+          icon: "mdi-star"
         },
         {
           color: "purple darken-1",
-          icon: "mdi-book-variant",
-          title: `乐`,
-          content: "别在这理发店"
+          icon: "mdi-book-variant"
         },
         {
           color: "green lighten-1",
-          icon: "mdi-airballoon",
-          title: `躺平`,
-          content: "卷不动了，开摆开摆"
+          icon: "mdi-airballoon"
         }
-      ],
-      labels: [
-        {
-          id: 1,
-          name: "内卷"
-        },
-        {
-          id: 2,
-          name: "躺平"
-          },
-        {
-          id: 3,
-          name: "未央"
-          },
-        {
-          id: 4,
-          name: "长乐"
-        },
       ]
     };
   },
   methods: {
     async doGetIssue() {
       this.issue = await getIssue(this.id, this.$store.state.session);
-    }
+      },
+     async doGetIssueList() {
+      this.issueList = (await getIssueList())?.issues;
+    },
   },
   mounted() {
     this.doGetIssue();
+    this.doGetIssueList();
   },
   computed: {
     id() {
