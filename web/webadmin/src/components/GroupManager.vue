@@ -117,17 +117,14 @@
             <v-card-text class="text--primary">
               <span>{{ pri.scope.description }}</span><br/>
               <span v-if="pri.expire_at == 0">长期有效</span>
-              <span v-else>在 {{ (new Date(item.expire_at)).toLocaleDateString() }} 到期</span>
+              <span v-else>在 {{ (new Date(pri.expire_at)).toLocaleDateString() }} 到期</span>
             </v-card-text>
           </v-card>
         </v-menu>
 
         <!-- 添加权限 -->
-        <v-menu
-          transition="slide-x-transition"
-          right :offset-x="true"
-          :close-on-content-click="false"
-          :close-on-click="true"
+        <v-dialog 
+          max-width="768px" 
         >
           <template v-slot:activator="{ on, attrs }">
             <v-btn 
@@ -141,21 +138,8 @@
               <v-icon>mdi-plus</v-icon>
             </v-btn>
           </template>
-          <v-card>
-            <v-card-title>添加权限：</v-card-title>
-            <v-divider></v-divider>
-            <v-card-text class="my-0">
-              <v-text-field
-                class="my-0"
-                label="ID: "
-                prepend-icon="mdi-key"
-                append-icon="mdi-check"
-                v-model="add_scope"
-                @click:append="addScope"
-              ></v-text-field>
-            </v-card-text>
-          </v-card>
-        </v-menu>
+          <ScopePicker title="新增权限" @confirm="addScopes"></ScopePicker>
+        </v-dialog>
       </div>
       
     </v-card-text>
@@ -192,7 +176,6 @@ export default {
 
     add_member_dialog: false,
     add_member_loading: false,
-    add_scope: "",
     add_scope_loading: false,
   }),
 
@@ -266,22 +249,36 @@ export default {
       }
     },
 
-    async addScope(){
-      this.add_scope_loading = true;
-      try{
-        const json = await auth.addGroupScope({
-          session: this.$store.getters.session,
-          scope: this.add_scope,
-          group_name: this.group_name
-        })
-        if(json.code !== 0){
-          throw new Error(json.errmsg)
-        }
-        await this.loadData();
-      }catch(e){
-        this.showError(e.message)
+    async addScope({ scope, expire_at }){
+      const json = await auth.addGroupScope({
+        session: this.$store.getters.session,
+        scope: scope,
+        group_name: this.group_name,
+        expire_at
+      })
+      if(json.code !== 0){
+        throw new Error(json.errmsg)
       }
+    },
+
+    async addScopes({ scopes, expire_at }) {
+      this.add_scope_loading = true;
+
+      const err = []
+
+      for(const scope of scopes) {
+        try {
+          await this.addScope({ scope, expire_at })
+        } catch (e) {
+          err.push("添加 " + scope + ": " + e.message)
+        }
+      }
+
       this.add_scope_loading = false;
+
+      if (err.length > 0){
+        this.showError(err.join("\n"))
+      }
     },
 
     async delScope(pri) {
