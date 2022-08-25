@@ -73,7 +73,7 @@ export default {
       this.$emit("confirm", {
         expire_at: (
           this.date_picker.enable ? 
-            this.date_picker.date : null
+            (new Date(this.date_picker.date)).getTime() : null
         ),
         scopes: this.selected
       });
