@@ -11,7 +11,7 @@ export default new Vuex.Store({
     navDrawerVisibility: false,
 
     sessionState: {
-      session: "",
+      session: null,
       login: false,
       profile: {
         clazz: null, email: null, name: null, openid: null
