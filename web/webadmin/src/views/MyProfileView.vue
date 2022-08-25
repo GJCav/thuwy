@@ -1,6 +1,5 @@
 <template>
 <div>
-  hello profile view
 </div>
 </template>
 
