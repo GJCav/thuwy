@@ -8,20 +8,18 @@
           <v-timeline-item
             v-for="(issue, key) in issues"
             :key="issue.id"
-            :color="colors[key]"
+            :color="colors[key % 10]"
           >
-            <v-card :color="colors[key]" dark>
+            <v-card :color="colors[key % 10]" dark>
               <v-card-title class="text-h6"> {{ issue.title }} </v-card-title>
               <v-card-subtitle class="text-h9">{{
                 issue.author
               }}</v-card-subtitle>
               <v-card-text class="white text--primary" v-if="issue.content">
-                <p>
-                  {{ issue.content }}
-                </p>
+                <p v-html="issue.content.text"></p>
                 <v-btn
                   href="#comment"
-                  :color="colors[key]"
+                  :color="colors[key % 10]"
                   class="mx-0"
                   outlined
                 >
@@ -68,7 +66,18 @@ export default {
   data() {
     return {
       issues: null,
-      colors: []
+      colors: [
+        "red darken-1",
+        "indigo darken-1",
+        "orange darken-1",
+        "deep-purple darken-1",
+        "teal darken-1",
+        "blue-grey darken-1",
+        "pink darken-1",
+        "blue darken-1",
+        "cyan darken-1",
+        "purple darken-1"
+      ]
     };
   },
   methods: {
@@ -100,9 +109,6 @@ export default {
     async doGetIssue() {
       const data = await getIssue(this.id, this.$store.state.session);
       this.issues = data.issues;
-      for (let i = 0; i < this.issues.length; i++) {
-        this.colors.push(this.randColor());
-      }
     }
   },
   mounted() {

@@ -156,15 +156,29 @@ export default {
     },
     async doCreateIssue() {
       if (this.issueTitle !== "" && this.issueText !== "") {
-        var id = await createIssue({
-          title: this.issueTitle,
-          content: {
-            text: this.issueText
-          },
-          reply_to: this.reply_id,
-          tags: this.tags
-        });
-        this.$router.push(id);
+        var id;
+        if (this.reply_id === 0) {
+          id = await createIssue({
+            title: this.issueTitle,
+            content: {
+              text: this.issueText
+            },
+            tags: this.tags.join(";"),
+            visibility: "public"
+          });
+          this.$router.push(`/issue/${id}`);
+        } else {
+          id = await createIssue({
+            title: this.issueTitle,
+            content: {
+              text: this.issueText
+            },
+            reply_to: this.reply_id,
+            tags: this.tags.join(";"),
+            visibility: "public"
+          });
+          this.$router.go(0);
+        }
       }
     }
   },
