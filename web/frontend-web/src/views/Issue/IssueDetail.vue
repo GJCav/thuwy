@@ -1,67 +1,57 @@
 <template>
   <v-col lg="8" offset-lg="2" cols="12" offset="0">
-    <h1>{{ id == 0 ? "新建Issue" : `查看Issue#${id}细节` }}</h1>
+    <h1>查看Issue#{{ id }}细节</h1>
     <!-- 当 ID=0的时候，表示新增一个Issue -->
     <v-row>
       <v-col cols="10">
         <v-timeline align-top dense>
           <v-timeline-item
-            v-for="(item, i) in items"
-            :key="i"
-            :color="item.color"
-            :icon="item.icon"
-            fill-dot
+            v-for="(issue, key) in issues"
+            :key="issue.id"
+            :color="colors[key % 10]"
+            :icon="icon"
           >
-            <v-card :color="item.color" dark>
-              <v-card-title class="text-h6"> Lorem Ipsum Dolor </v-card-title>
-              <v-card-text class="white text--primary">
-                <p>
-                  Lorem ipsum dolor sit amet, no nam oblique veritus. Commune
-                  scaevola imperdiet nec ut, sed euismod convenire principes at.
-                  Est et nobis iisque percipit, an vim zril disputando
-                  voluptatibus, vix an salutandi sententiae.
-                </p>
-                <v-btn :color="item.color" class="mx-0" outlined>
-                  Button
+            <v-card :color="colors[key % 10]" dark>
+              <v-card-title class="text-h6"> {{ issue.title }} </v-card-title>
+              <v-card-subtitle class="text-h9">{{
+                issue.author
+              }}</v-card-subtitle>
+              <v-card-text class="white text--primary" v-if="issue.content">
+                <p v-html="issue.content.text"></p>
+                <v-btn
+                  href="#comment"
+                  :color="colors[key % 10]"
+                  class="mx-0"
+                  outlined
+                >
+                  Reply
                 </v-btn>
               </v-card-text>
             </v-card>
           </v-timeline-item>
         </v-timeline>
-        <!-- Comment List-->
-        <v-card class="mt-10">
-          <v-card-title class="font-weight-black text-h6">
-            评论区
-          </v-card-title>
-          <v-card-text>
-            <!-- TODO... Display comments -->
-            <issue-comment></issue-comment>
-            <issue-comment></issue-comment>
-            <issue-comment></issue-comment>
-          </v-card-text>
-        </v-card>
-        <!-- Comment Area-->
-        <v-card elevation="4" class="mt-10">
+        <v-card id="comment" elevation="4" class="mt-10">
           <v-card-title class="font-weight-black text-h6"
-            >留下精彩评论</v-card-title
+            >回复评论</v-card-title
           >
-          <v-card-text>
-            <send-comment></send-comment>
+          <v-card-text v-if="issues !== null">
+            <send-issue :reply_id="issues[0].id"></send-issue>
           </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="2">
         <h3>Labels</h3>
-        <v-chip-group column active-class="warning">
+        <v-chip-group v-if="issues !== null" column active-class="warning">
           <v-chip
-            label
-            color="success"
-            v-for="label in labels"
-            :key="label.id"
-            :value="label.id"
+            v-for="(tag, key) in issues[0].tags"
+            :key="key"
+            outlined
+            small
+            class="ma-2"
+            color="cyan"
+            ripple
+            >{{ tag }}</v-chip
           >
-            {{ label.name }}
-          </v-chip>
         </v-chip-group>
       </v-col>
     </v-row>
@@ -69,40 +59,59 @@
 </template>
 
 <script>
-import { getIssue } from "@/api/issue";
-import SendComment from "../../components/Issue/SendComment.vue";
-import IssueComment from "../../components/Issue/IssueComment.vue";
+import { getIssue } from "@/api/issue.js";
+import SendIssue from "../../components/Issue/SendIssue.vue";
 
 export default {
-  components: { SendComment, IssueComment },
+  components: { SendIssue },
   data() {
     return {
-      issue: null,
-      items: [
-        {
-          color: "red lighten-2",
-          icon: "mdi-star",
-        },
-        {
-          color: "purple darken-1",
-          icon: "mdi-book-variant",
-        },
-        {
-          color: "green lighten-1",
-          icon: "mdi-airballoon",
-        },
-        {
-          color: "indigo",
-          icon: "mdi-buffer",
-        },
-      ],
-      labels: [],
+      issues: null,
+      colors: [
+        "red darken-1",
+        "indigo darken-1",
+        "orange darken-1",
+        "deep-purple darken-1",
+        "teal darken-1",
+        "blue-grey darken-1",
+        "pink darken-1",
+        "blue darken-1",
+        "cyan darken-1",
+        "purple darken-1"
+        ],
+      icon:"mdi-account-outline"
     };
   },
   methods: {
-    async doGetIssue() {
-      this.issue = await getIssue(this.id, this.$store.state.session);
+    randColor() {
+      var tmp = Math.ceil(Math.random() * 10);
+      switch (tmp) {
+        case 1:
+          return "red darken-1";
+        case 2:
+          return "pink darken-1";
+        case 3:
+          return "purple darken-1";
+        case 4:
+          return "deep-purple darken-1";
+        case 5:
+          return "indigo darken-1";
+        case 6:
+          return "blue darken-1";
+        case 7:
+          return "cyan darken-1";
+        case 8:
+          return "teal darken-1";
+        case 9:
+          return "orange darken-1";
+        case 10:
+          return "blue-grey darken-1";
+      }
     },
+    async doGetIssue() {
+      const data = await getIssue(this.id, this.$store.state.session);
+      this.issues = data.issues;
+    }
   },
   mounted() {
     this.doGetIssue();
@@ -110,7 +119,914 @@ export default {
   computed: {
     id() {
       return this.$route.params.id;
-    },
-  },
+    }
+  }
 };
 </script>
+<!-- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+ -->

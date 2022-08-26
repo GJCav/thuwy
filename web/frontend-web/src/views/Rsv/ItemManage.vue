@@ -2,8 +2,8 @@
   <v-col lg="6" offset-lg="3" cols="12" offset="0">
     <h1>物品管理</h1>
     <v-btn
-      v-if="user !== null && user.admin"
-      to="/item/0/edit"
+      v-if="user !== null && isAdmin"
+      to="/rsv/item/0/edit"
       color="success"
       dark
       ><v-icon>mdi-plus</v-icon>新增物品</v-btn
@@ -23,7 +23,7 @@
           style="margin-bottom: 30px"
           :class="{ 'on-hover': hover }"
         >
-          <router-link :to="`/item/${item.id}`">
+          <router-link :to="`/rsv/item/${item.id}`">
             <v-img
               :src="item.thumbnail"
               max-height="384px"
@@ -50,12 +50,12 @@
 
           <v-expand-transition>
             <v-card-actions
-              v-if="user !== null && user.admin"
+              v-if="user !== null && isAdmin"
               v-show="hover"
               style="padding: 0"
             >
               <v-btn
-                :to="`/item/${item.id}/edit`"
+                :to="`/rsv/item/${item.id}/edit`"
                 class="ml-3 mt-2 mb-2"
                 outlined
                 rounded
@@ -158,6 +158,9 @@ export default {
     user() {
       return this.$store.state.user;
     },
+    isAdmin() {
+      return this.$store.state.userPrivileges?.indexOf('admin') > -1;
+    }
   },
   components: {
     ConfirmBox,

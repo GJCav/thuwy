@@ -31,7 +31,7 @@
             </v-list-item-icon>
           </v-list-item> -->
 
-          <v-list-item link to="/login" class="red--text text--lighten-2" :disabled="isLogin">
+          <v-list-item link to="/login" class="text--lighten-2" :disabled="isLogin">
             <v-list-item-title>Login</v-list-item-title>
             <v-list-item-icon>
               <v-icon color="">mdi-login</v-icon>
@@ -155,9 +155,12 @@ export default {
   },
 
   mounted() {
-    if(!this.$store.getters.isLogin){
-      this.$router.push("/login")
-    }
+    const session = this.$store.getters.session || localStorage.getItem("session");
+    this.$store.dispatch("verifySession", { session }).then((r) => {
+      if (!r) {
+        this.$router.push("/login");
+      }
+    })
   },
 };
 </script>

@@ -1,3 +1,4 @@
+from app import checkargs
 from . import issueRouter
 from .errcode import *
 from .model import db, IssueTagMeta, Issue
@@ -161,6 +162,14 @@ def issueNew():
     """Post a new issue."""
     # extract args
     payload: dict[str, Any] = request.get_json()
+
+    if not checkargs.areStr(payload, ["title", "visibility", "tags"]):
+        return CODE_ARG_TYPE_ERR
+    if "reply_to" in payload and not checkargs.isInt(payload["reply_to"]):
+        return CODE_ARG_TYPE_ERR
+    if not checkargs.isDict(payload.get("content", {})):
+        return CODE_ARG_TYPE_ERR
+
     title: str = payload.get("title", "")
     visibility: str = payload.get("visibility", Visibility.PUBLIC)
     tags: str = payload.get("tags", "")

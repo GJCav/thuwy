@@ -13,24 +13,60 @@
       </div>
 
       <!-- 提问按钮 -->
-      <router-link class="btn" to="/publishIssue">我要提问</router-link>
+      <router-link class="btn" to="/issue/0/">我要提问</router-link>
     </div>
 
     <!-- <div class="d-flex flex-column"> -->
     <!-- 最新提问与回答 -->
     <a class="quie-and-reply"> 最新提问与回答 </a>
-    <v-card width="800" class="mx-auto" flat>
+    <v-row justify="center">
+      <!-- <h1> -->
+      <!-- 最新提问  -->
+      <v-btn to="/issue/list/" color="primary">查看所有</v-btn>
+      <v-btn class="ml-3" to="/issue/0/" color="success">我要提问</v-btn>
+      <!-- </h1> -->
+    </v-row>
+    <v-row justify="center">
+      <v-col cols="12" md="6" md-offset="3">
+        <v-card
+          :color="randColor()"
+          class="mt-5"
+          :to="`${issue.id}/`"
+          v-for="issue in issueList"
+          :key="issue.id"
+        >
+          <v-card-title>{{ issue.title }}</v-card-title>
+          <v-card-text v-if="issue.content">
+            {{ issue.content }}
+          </v-card-text>
+          <v-card-actions>
+            <v-chip
+              v-for="(tag, key) in issue.tags"
+              :key="key"
+              outlined
+              small
+              class="ma-2"
+              color="cyan"
+              ripple
+              >{{ tag }}</v-chip
+            >
+          </v-card-actions>
+          <v-card-actions> 作者：{{ issue.author }} </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+    <!-- <v-card width="800" class="mx-auto" flat>
       <v-list>
         <v-list-item
           v-for="article in articlelist"
           :key="article.id"
           class="my-10 elevation-3"
         >
-          <!-- Video Image -->
+          Video Image
           <v-list-item-avatar tile width="120" height="120">
             <v-img class="rounded-lg" src="@/assets/wy_blue.png"></v-img>
           </v-list-item-avatar>
-          <!-- Video Description-->
+          Video Description
           <v-list-item-content class="align-self-start">
             <v-list-item-title class="text-left text-h5">
               {{ article.title }}
@@ -41,13 +77,18 @@
             </v-list-item-subtitle>
             <div class="text-caption grey--text">{{ article.content }}</div>
           </v-list-item-content>
-          <!-- Video Start Button-->
+          Video Start Button
           <v-list-item-action>
-            <v-btn color="info" class="rounded-pill">了解更多</v-btn>
+            <v-btn
+              :to="`/blog/${article.id}/`"
+              color="info"
+              class="rounded-pill"
+              >了解更多</v-btn
+            >
           </v-list-item-action>
         </v-list-item>
       </v-list>
-    </v-card>
+    </v-card> -->
     <!-- 列表 -->
     <!-- <div class="list">
         <div class="list-item fx" v-for="item in 3" :key="item">
@@ -75,17 +116,49 @@
 </template>
 
 <script>
+import { getIssueList } from "@/api/issue.js";
+
 export default {
+  // data() {
+  //   return {
+  //     color: ["#18A5CA", "#9C6CDA", "#ECC331"],
+  //     articlelist: [
+  //       { id: 1, title: "文章的标题", content: "文章的简要内容" },
+  //       { id: 2, title: "文章的标题", content: "文章的简要内容" },
+  //       { id: 3, title: "文章的标题", content: "文章的简要内容" },
+  //       { id: 4, title: "文章的标题", content: "文章的简要内容" },
+  //     ],
+  //   };
+  // },
   data() {
     return {
-      color: ["#18A5CA", "#9C6CDA", "#ECC331"],
-      articlelist: [
-        { id: 1, title: "文章的标题", content: "文章的简要内容" },
-        { id: 2, title: "文章的标题", content: "文章的简要内容" },
-        { id: 3, title: "文章的标题", content: "文章的简要内容" },
-        { id: 4, title: "文章的标题", content: "文章的简要内容" },
+      issueList: [],
+      colors: [
+        "green",
+        "secondary",
+        "yellow darken-4",
+        "red lighten-2",
+        "orange darken-1",
       ],
+      cycle: false,
+      slides: ["First", "Second", "Third", "Fourth", "Fifth"],
+      notices: ["notice1", "notice2", "notice3"],
+      learns: ["learn1", "learn2"]
     };
+  },
+  methods: {
+    async doGetIssueList() {
+      this.issueList = (await getIssueList())?.issues;
+    },
+    randColor() {
+      var r = Math.floor(Math.random() * 32) + 224;
+      var g = Math.floor(Math.random() * 32) + 224;
+      var b = Math.floor(Math.random() * 32) + 224;
+      return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`
+    }
+  },
+  mounted() {
+    this.doGetIssueList();
   },
 };
 </script>

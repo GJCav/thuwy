@@ -194,7 +194,7 @@ export const delGroupMember = async ({ session, openid, group_name}) => {
 }
 
 
-export const addGroupScope = async ({ session, scope, group_name }) => {
+export const addGroupScope = async ({ session, scope, group_name, expire_at }) => {
   const url = urlcat(
     base.api("/auth/group/:group_name/scope/"),
     { group_name }
@@ -205,7 +205,7 @@ export const addGroupScope = async ({ session, scope, group_name }) => {
       session,
       "content-type": 'application/json'
     },
-    body: JSON.stringify({ scope })
+    body: JSON.stringify({ scope, expire_at })
   })
   if (res.status !== 200) {
     throw new Error(`addGroupScope: HTTP error: ${res.status}`);

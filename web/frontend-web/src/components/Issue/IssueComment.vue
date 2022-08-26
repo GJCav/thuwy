@@ -36,10 +36,10 @@
 </template>
 
 <script>
-import SendComment from "@/components/Issue/SendComment.vue";
+import SendIssue from "@/components/Issue/SendIssue.vue";
 export default {
   name: "IssueComment",
-  components: { SendComment },
+  components: { SendIssue },
   data: () => ({
     reply: false,
     nickname: "WEI XIAO YANG",
