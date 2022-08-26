@@ -18,7 +18,7 @@
       <v-btn to="/" plain>主页</v-btn>
       <v-btn to="/issue/" plain>答疑坊</v-btn>
       <v-btn to="/rsv/" plain>物品预约</v-btn>
-      <v-btn to="/blog/" plain>博客</v-btn>
+      <!-- <v-btn to="/blog/" plain>博客</v-btn> -->
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn to="/login/" icon v-bind="attrs" v-on="on">
