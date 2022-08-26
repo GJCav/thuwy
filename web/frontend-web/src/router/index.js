@@ -70,7 +70,7 @@ const routes = [{
         path: '*',
         name: 'IssueHome',
         component: () =>
-            import('@/views/Issue/IssueHome.vue')
+            import('@/views/Blog/BlogHome.vue')
     }
     ]
 },
