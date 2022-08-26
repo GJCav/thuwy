@@ -165,7 +165,7 @@ def issueNew():
 
     if not checkargs.areStr(payload, ["title", "visibility", "tags"]):
         return CODE_ARG_TYPE_ERR
-    if not checkargs.isInt(payload["reply_to"]):
+    if "reply_to" in payload and not checkargs.isInt(payload["reply_to"]):
         return CODE_ARG_TYPE_ERR
     if not checkargs.isDict(payload.get("content", {})):
         return CODE_ARG_TYPE_ERR
