@@ -9,6 +9,7 @@
             v-for="(issue, key) in issues"
             :key="issue.id"
             :color="colors[key % 10]"
+            :icon="icon"
           >
             <v-card :color="colors[key % 10]" dark>
               <v-card-title class="text-h6"> {{ issue.title }} </v-card-title>
@@ -77,7 +78,8 @@ export default {
         "blue darken-1",
         "cyan darken-1",
         "purple darken-1"
-      ]
+        ],
+      icon:"mdi-account-outline"
     };
   },
   methods: {
