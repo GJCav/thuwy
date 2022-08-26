@@ -9,7 +9,7 @@
             >发布新答疑</v-card-title
           >
           <v-card-text>
-            <send-issue :reply_id="null"></send-issue>
+            <send-issue :reply_id="0"></send-issue>
           </v-card-text>
         </v-card>
       </v-col>

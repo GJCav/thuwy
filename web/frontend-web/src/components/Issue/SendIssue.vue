@@ -17,19 +17,19 @@
       <v-list-item-title>
         <editor v-model="issueText"></editor>
       </v-list-item-title>
-      <!-- Emoji -->
+      <!-- tags -->
       <v-list-item-subtitle class="py-2">
-        <!-- <template>
+        <template>
           <v-card class="my-2">
             <v-skeleton-loader :loading="loading" type="card">
               <v-card-text>
                 <div class="d-flex align-center mt-2">
                   <h3 class="d-inline-block">标签：</h3>
 
-                  
+                  <!-- 一系列标签 chips -->
                   <v-menu
-                    v-for="(tag,key) in tags"
-                    :key="key"
+                    v-for="tag in tags"
+                    :key="tag.key"
                     transition="slide-y-transition"
                     bottom
                     :offset-y="true"
@@ -53,29 +53,15 @@
                             </v-btn>
                           </template>
 
-                          <v-btn color="error" @click="delScope(pri)">
+                          <v-btn color="error" @click="delTag(tag)">
                             Sure to delete?
                           </v-btn>
                         </v-menu>
                       </v-chip>
                     </template>
-
-                    
-                    <v-card>
-                      <v-card-text class="text--primary">
-                        <span>{{ pri.scope.description }}</span
-                        ><br />
-                        <span v-if="pri.expire_at == 0">长期有效</span>
-                        <span v-else
-                          >在
-                          {{ new Date(item.expire_at).toLocaleDateString() }}
-                          到期</span
-                        >
-                      </v-card-text>
-                    </v-card>
                   </v-menu>
 
-                  
+                  <!-- 添加标签 -->
                   <v-menu
                     transition="slide-x-transition"
                     right
@@ -91,23 +77,23 @@
                         small
                         v-bind="attrs"
                         v-on="on"
-                        :loading="add_scope_loading"
-                        :disabled="add_scope_loading"
+                        :loading="add_tag_loading"
+                        :disabled="add_tag_loading"
                       >
                         <v-icon>mdi-plus</v-icon>
                       </v-btn>
                     </template>
                     <v-card>
-                      <v-card-title>添加权限：</v-card-title>
+                      <v-card-title>添加标签：</v-card-title>
                       <v-divider></v-divider>
                       <v-card-text class="my-0">
                         <v-text-field
                           class="my-0"
-                          label="ID: "
+                          label="Tag: "
                           prepend-icon="mdi-key"
                           append-icon="mdi-check"
-                          v-model="add_scope"
-                          @click:append="addScope"
+                          v-model="add_tag"
+                          @click:append="addTag"
                         ></v-text-field>
                       </v-card-text>
                     </v-card>
@@ -116,7 +102,7 @@
               </v-card-text>
             </v-skeleton-loader>
           </v-card>
-        </template> -->
+        </template>
       </v-list-item-subtitle>
     </v-list-item-content>
     <!-- Send Button -->
@@ -133,23 +119,51 @@ import { createIssue } from "@/api/issue.js";
 export default {
   name: "SendIssue",
   data: () => ({
+    loading: false,
     tabValue: 1,
     issueText: "",
     issueTitle: "",
-    tags: []
+    visibility: "public",
+    tags: [],
+    add_tag: "",
+    add_tag_loading: false
   }),
   props: ["reply_id"],
   methods: {
-    async doCreateIssue() {
-      var id = await createIssue({
-        title: this.issueTitle,
-        content: {
-          text: this.issueText
-        },
-        reply_to: this.reply_id,
-        tag: ""
+    async addTag() {
+      this.add_tag_loading = true;
+      if (this.add_tag !== "") {
+        this.tags.push(this.add_tag);
+        this.loading = false;
+        for (let i = 0; i < this.tags.length; i++) {
+          for (let j = i + 1; j < this.tags.length; j++) {
+            if (this.tags[i] === this.tags[j]) {
+              this.tags.splice(j, 1);
+              j--;
+            }
+          }
+        }
+      }
+      this.add_tag_loading = false;
+      this.add_tag = "";
+    },
+    async delTag(tag) {
+      this.tags.forEach(function(item, index, arr) {
+        if (item === tag) {
+          arr.splice(index, 1);
+        }
       });
-      if (this.title !== "" && this.content !== "") {
+    },
+    async doCreateIssue() {
+      if (this.issueTitle !== "" && this.issueText !== "") {
+        var id = await createIssue({
+          title: this.issueTitle,
+          content: {
+            text: this.issueText
+          },
+          reply_to: this.reply_id,
+          tags: this.tags
+        });
         this.$router.push(id);
       }
     }
