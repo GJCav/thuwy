@@ -500,7 +500,7 @@ def addGroupScope(group_name):
     if exist:
         return CODE_PRIVILEGE_EXISTED
 
-    expire_at = json.get("expire_at", 0)
+    expire_at = json.get("expire_at") or 0
     if expire_at != 0 and expire_at < timestamp.now():
         return CODE_ARG_INVALID
     
