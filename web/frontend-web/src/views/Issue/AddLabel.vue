@@ -16,24 +16,44 @@
       </template>
 
       <v-card>
-        <v-card-title class="text-h5 green darken-2 white--text">
+        <v-card-title 
+        class="text-h5 green darken-2 white--text"
+        >
           Edit Labels Here 
         </v-card-title>
             <v-container>
                 <v-row>
-                    <v-col cols="8">
-                        <v-text-field v-model="newLabel" class="mx-2"></v-text-field>
+                    <v-col 
+                    cols="8"
+                    >
+                        <v-text-field 
+                        v-model="newLabel" 
+                        class="mx-2"
+                        ></v-text-field>
                     </v-col>
                 
-                    <v-col cols="3">
-                        <v-btn  block @click="$emit('addLabel', newLabel);newLabel=''" class="blue white--text">
+                    <v-col 
+                    cols="3"
+                    >
+                        <v-btn  
+                        block 
+                        @click="$emit('addLabel', newLabel);newLabel=''" 
+                        class="blue white--text"
+                        >
                             <span>add label</span>
                         </v-btn>
                     </v-col>
                     <v-col>
-                        <v-chip v-for="label in labelList" :key="label" class="mx-1 yellow lighten-3 my-1">
+                        <v-chip 
+                        v-for="label in labelList" 
+                        :key="label" 
+                        class="mx-1 yellow lighten-3 my-1">
                             <span>{{label}}</span>
-                            <v-icon right class="mb-3  red--text" @click="$emit('pushLabel', label)">mdi-close-circle</v-icon>
+                            <v-icon 
+                            right 
+                            class="mb-3  red--text" 
+                            @click="$emit('pushLabel', label)"
+                            >mdi-close-circle</v-icon>
                         </v-chip>
                     </v-col>
                         
