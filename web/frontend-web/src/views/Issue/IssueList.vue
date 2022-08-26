@@ -202,8 +202,8 @@ export default {
       }
       ).then(
         response => {
-          console.log('成功了', response.issues);
-          this.issueList = response.issues;
+          console.log('成功了', response.data);
+          this.issueList = (JSON.parse(response.data)).issues;
         },
         error => {
           console.log('失败了', error)
