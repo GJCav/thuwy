@@ -11,15 +11,18 @@
                 v-model="user.name"
                 outlined
                 label="用户名"
+                disabled
               ></v-text-field>
               <v-text-field
                 v-model="user.clazz"
                 outlined
+                disabled
                 label="班级"
               ></v-text-field>
               <v-text-field
                 v-model="user.email"
                 outlined
+                disabled
                 label="邮箱"
               ></v-text-field>
               <v-text-field
@@ -40,10 +43,9 @@
               </v-chip-group>
             </v-form>
             <!-- 一些修改操作 -->
-            <v-btn color="success">保存修改</v-btn>
-            <v-btn color="error">用户解绑</v-btn></v-col
-          ></v-row
-        >
+            <h3 v-if="user">你已经完成绑定，如需换绑请联系管理员</h3>
+          </v-col>
+        </v-row>
       </v-col>
     </v-container>
   </v-main>
